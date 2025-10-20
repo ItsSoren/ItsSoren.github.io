@@ -52,7 +52,7 @@
     border-radius: 50%;
     border: 2px solid #fff;
     cursor: pointer;
-    bottom-padding:5px;
+    padding-bottom:5px;
   }
 
   .tool-btn {
@@ -72,21 +72,21 @@
 
   /* Menu déroulant taille pinceau */
   .brush-menu {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-  }
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
 
-  .brush-dropdown {
-    display: none;
-    position: absolute;
-    left: 60px;
-    top: 0;
-    background-color: #1f1f1f;
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 100;
-  }
+.brush-dropdown {
+  display: none;
+  position: absolute;
+  left: 60px;
+  top: 0;
+  background-color: #1f1f1f;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 100;
+}
 
   .brush-menu:hover .brush-dropdown {
     display: block;
@@ -109,12 +109,12 @@
   <div id="colors"></div>
 
   <!-- Menu déroulant brush size -->
-  <div class="brush-menu" title="Taille du pinceau">
-    🎨
-    <div class="brush-dropdown">
-      <input type="range" id="brushSize" min="1" max="50" value="5">
-    </div>
+<div class="brush-menu" title="Taille du pinceau">
+  🎨
+  <div class="brush-dropdown">
+    <input type="range" id="brushSize" min="1" max="50" value="5">
   </div>
+</div>
 
   <!-- Gomme avec vrai emoji -->
   <div id="eraser" class="tool-btn" title="Gomme">🧽</div>
@@ -216,6 +216,37 @@ function draw(e) {
   ctx.beginPath();
   ctx.moveTo(e.clientX - offsetX, e.clientY - offsetY);
 }
+// JS pour menu taille
+const brushMenu = document.querySelector('.brush-menu');
+const brushDropdown = document.querySelector('.brush-dropdown');
+
+brushMenu.addEventListener('mouseenter', () => {
+  brushDropdown.style.display = 'block';
+});
+brushMenu.addEventListener('mouseleave', (e) => {
+  // Si la souris quitte complètement le menu ET le dropdown
+  const rect = brushDropdown.getBoundingClientRect();
+  if (
+    e.clientX < rect.left ||
+    e.clientX > rect.right ||
+    e.clientY < rect.top ||
+    e.clientY > rect.bottom
+  ) {
+    brushDropdown.style.display = 'none';
+  }
+});
+
+// Aussi fermer quand on sort du dropdown
+brushDropdown.addEventListener('mouseleave', () => {
+  brushDropdown.style.display = 'none';
+});
+brushDropdown.addEventListener('mouseenter', () => {
+  brushDropdown.style.display = 'block';
+});
+
+
+
+  
 </script>
 
 </body>
