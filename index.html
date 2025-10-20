@@ -52,7 +52,7 @@
     border-radius: 50%;
     border: 2px solid #fff;
     cursor: pointer;
-    padding-bottom:5px;
+    margin-bottom:5px;
   }
 
   .tool-btn {
@@ -111,7 +111,7 @@
   <!-- Menu déroulant brush size -->
 <div class="brush-menu" title="Taille du pinceau">
   🎨
-  <div class="brush-dropdown">
+  <div class="brush-menu">
     <input type="range" id="brushSize" min="1" max="50" value="5">
   </div>
 </div>
@@ -217,36 +217,7 @@ function draw(e) {
   ctx.moveTo(e.clientX - offsetX, e.clientY - offsetY);
 }
 // JS pour menu taille
-const brushMenu = document.querySelector('.brush-menu');
-const brushDropdown = document.querySelector('.brush-dropdown');
 
-brushMenu.addEventListener('mouseenter', () => {
-  brushDropdown.style.display = 'block';
-});
-brushMenu.addEventListener('mouseleave', (e) => {
-  // Si la souris quitte complètement le menu ET le dropdown
-  const rect = brushDropdown.getBoundingClientRect();
-  if (
-    e.clientX < rect.left ||
-    e.clientX > rect.right ||
-    e.clientY < rect.top ||
-    e.clientY > rect.bottom
-  ) {
-    brushDropdown.style.display = 'none';
-  }
-});
-
-// Aussi fermer quand on sort du dropdown
-brushDropdown.addEventListener('mouseleave', () => {
-  brushDropdown.style.display = 'none';
-});
-brushDropdown.addEventListener('mouseenter', () => {
-  brushDropdown.style.display = 'block';
-});
-
-
-
-  
 </script>
 
 </body>
