@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Page de Dessin</title>
+<title>Dessin Poterie</title>
 <style>
   body, html {
     margin: 0;
@@ -13,6 +13,7 @@
     font-family: sans-serif;
     display: flex;
     flex-direction: row;
+    overflow: hidden;
   }
 
   /* Navbar verticale */
@@ -28,35 +29,17 @@
     box-shadow: 2px 0 5px rgba(0,0,0,0.5);
   }
 
-  /* Navbar mobile horizontale */
-  @media (max-width: 768px) {
-    body {
-      flex-direction: column;
-    }
-    #navbar {
-      flex-direction: row;
-      width: 100%;
-      height: 60px;
-      border-radius: 0 0 10px 10px;
-      justify-content: center;
-      gap: 10px;
-    }
-    canvas {
-      height: calc(100% - 60px);
-    }
-  }
-
-  /* Boutons couleurs */
+  /* Couleurs rondes */
   .color-btn {
     width: 30px;
     height: 30px;
     border-radius: 50%;
     border: 2px solid #fff;
     cursor: pointer;
-    margin-bottom: 5px; /* espace de 5px entre couleurs */
+    margin-bottom: 5px; /* 5px d'espace entre couleurs */
   }
 
-  /* icônes gomme et reset */
+  /* Outils */
   .tool-btn {
     width: 30px;
     height: 30px;
@@ -68,54 +51,30 @@
     color: white;
   }
 
-  #resetBtn {
+  #reset {
     color: red;
   }
 
-  /* Menu taille */
-  .brush-menu {
-    position: relative;
-    display: inline-block;
-  }
-
-  .brush-dropdown {
-    display: none;
-    position: absolute;
-    left: 60px;
-    top: 0;
-    background-color: #1f1f1f;
-    padding: 10px;
-    border-radius: 5px;
-    z-index: 100;
-  }
-
-  input[type="range"] {
-    width: 100px;
+  /* Slider taille */
+  #brushSize {
+    writing-mode: bt-lr; /* vertical slider */
+    width: 30px;
+    height: 100px;
   }
 
   canvas {
     flex: 1;
     display: block;
   }
+
 </style>
 </head>
 <body>
 
 <div id="navbar">
   <div id="colors"></div>
-
-  <!-- Menu taille -->
-  <div class="brush-menu" title="Taille du pinceau">
-    🎨
-    <div class="brush-dropdown">
-      <input type="range" id="brushSize" min="1" max="50" value="5">
-    </div>
-  </div>
-
-  <!-- Gomme -->
+  <input type="range" id="brushSize" min="5" max="100" step="5" value="20" title="Taille du pinceau">
   <div id="eraser" class="tool-btn" title="Gomme">🧽</div>
-
-  <!-- Reset -->
   <div id="reset" class="tool-btn" title="Reset">🗑️</div>
 </div>
 
@@ -124,17 +83,23 @@
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const colorsDiv = document.getElementById('colors');
 const brushSizeInput = document.getElementById('brushSize');
 const eraserBtn = document.getElementById('eraser');
 const resetBtn = document.getElementById('reset');
-const colorsDiv = document.getElementById('colors');
-const brushMenu = document.querySelector('.brush-menu');
-const brushDropdown = document.querySelector('.brush-dropdown');
 
-let drawing = false;
 let brushColor = '#ffffff';
 let brushSize = brushSizeInput.value;
 let erasing = false;
+let drawing = false;
+
+// Axe central
+let centerX = window.innerWidth / 2;
+let centerY = window.innerHeight / 2;
+let draggingCenter = false;
+
+// Rotation
+let angle = 0;
 
 // 16 couleurs basiques
 const colors = [
@@ -155,7 +120,7 @@ colors.forEach(color => {
   colorsDiv.appendChild(btn);
 });
 
-// Brush size
+// Slider taille
 brushSizeInput.addEventListener('input', () => {
   brushSize = brushSizeInput.value;
 });
@@ -170,71 +135,75 @@ resetBtn.addEventListener('click', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-// Menu déroulant brush size
-brushMenu.addEventListener('mouseenter', () => {
-  brushDropdown.style.display = 'block';
-});
-brushMenu.addEventListener('mouseleave', (e) => {
-  const rect = brushDropdown.getBoundingClientRect();
-  if (e.clientX < rect.left || e.clientX > rect.right ||
-      e.clientY < rect.top || e.clientY > rect.bottom) {
-    brushDropdown.style.display = 'none';
-  }
-});
-brushDropdown.addEventListener('mouseenter', () => {
-  brushDropdown.style.display = 'block';
-});
-brushDropdown.addEventListener('mouseleave', () => {
-  brushDropdown.style.display = 'none';
-});
-
-// Ajuster canvas
+// Resize canvas
 function resizeCanvas() {
-  const navbar = document.getElementById('navbar');
-  if(window.innerWidth <= 768){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - navbar.offsetHeight;
-  } else {
-    canvas.width = window.innerWidth - navbar.offsetWidth;
-    canvas.height = window.innerHeight;
-  }
+  canvas.width = window.innerWidth - document.getElementById('navbar').offsetWidth;
+  canvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// Dessin
-function getOffsets() {
-  const navbar = document.getElementById('navbar');
-  if(window.innerWidth <= 768){
-    return { x:0, y: navbar.offsetHeight };
+// Drag axe central
+canvas.addEventListener('mousedown', e => {
+  const dx = e.clientX - centerX;
+  const dy = e.clientY - centerY;
+  if(Math.sqrt(dx*dx + dy*dy) < 20){ // si proche du centre
+    draggingCenter = true;
   } else {
-    return { x: navbar.offsetWidth, y:0 };
+    drawing = true;
   }
+});
+canvas.addEventListener('mouseup', () => { drawing = false; draggingCenter = false; });
+canvas.addEventListener('mousemove', e => {
+  if(draggingCenter){
+    centerX = e.clientX;
+    centerY = e.clientY;
+  }
+});
+
+// Touch support pour mobile
+canvas.addEventListener('touchstart', e => {
+  const touch = e.touches[0];
+  const dx = touch.clientX - centerX;
+  const dy = touch.clientY - centerY;
+  if(Math.sqrt(dx*dx + dy*dy) < 20){
+    draggingCenter = true;
+  } else {
+    drawing = true;
+  }
+});
+canvas.addEventListener('touchend', () => { drawing = false; draggingCenter = false; });
+canvas.addEventListener('touchmove', e => {
+  const touch = e.touches[0];
+  if(draggingCenter){
+    centerX = touch.clientX;
+    centerY = touch.clientY;
+  }
+  e.preventDefault();
+});
+
+// Animation rotation + dessin
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Pas de clear pour garder les traces
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+
+  if(drawing){
+    ctx.fillStyle = erasing ? '#2b2b2b' : brushColor;
+    ctx.beginPath();
+    ctx.arc(100, 0, brushSize/2, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+
+  angle += 0.01; // vitesse rotation
 }
 
-canvas.addEventListener('mousedown', e => { drawing = true; draw(e); });
-canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
-canvas.addEventListener('mouseout', () => { drawing = false; ctx.beginPath(); });
-canvas.addEventListener('mousemove', draw);
-
-// Touch support
-canvas.addEventListener('touchstart', e => { drawing = true; draw(e.touches[0]); });
-canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
-canvas.addEventListener('touchmove', e => { draw(e.touches[0]); e.preventDefault(); });
-
-function draw(e) {
-  if (!drawing) return;
-  const offset = getOffsets();
-
-  ctx.lineWidth = brushSize;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = erasing ? '#2b2b2b' : brushColor;
-
-  ctx.lineTo(e.clientX - offset.x, e.clientY - offset.y);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(e.clientX - offset.x, e.clientY - offset.y);
-}
+animate();
 </script>
 
 </body>
