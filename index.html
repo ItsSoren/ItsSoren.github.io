@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page de Dessin</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #2b2b2b; /* gris foncé */
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    color: #fff;
+  }
+
+  #controls {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    background-color: #1f1f1f;
+    align-items: center;
+    gap: 10px;
+  }
+
+  button, input[type="range"] {
+    cursor: pointer;
+  }
+
+  canvas {
+    flex: 1;
+    display: block;
+    background-color: #2b2b2b;
+  }
+
+  .color-btn {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #fff;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="controls">
+  <!-- Couleurs -->
+  <div id="colors"></div>
+
+  <!-- Taille du pinceau -->
+  <label for="brushSize">Taille: </label>
+  <input type="range" id="brushSize" min="1" max="50" value="5">
+
+  <!-- Gomme -->
+  <button id="eraser">Gomme</button>
+
+  <!-- Reset -->
+  <button id="reset">Reset</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const brushSizeInput = document.getElementById('brushSize');
+const eraserBtn = document.getElementById('eraser');
+const resetBtn = document.getElementById('reset');
+const colorsDiv = document.getElementById('colors');
+
+let drawing = false;
+let brushColor = '#ffffff';
+let brushSize = brushSizeInput.value;
+let erasing = false;
+
+// 16 couleurs basiques
+const colors = [
+  '#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff',
+  '#ffff00', '#00ffff', '#ff00ff', '#808080', '#800000',
+  '#008000', '#000080', '#808000', '#800080', '#008080', '#c0c0c0'
+];
+
+// Créer les boutons de couleurs
+colors.forEach(color => {
+  const btn = document.createElement('div');
+  btn.className = 'color-btn';
+  btn.style.backgroundColor = color;
+  btn.addEventListener('click', () => {
+    brushColor = color;
+    erasing = false;
+  });
+  colorsDiv.appendChild(btn);
+});
+
+// Ajuster la taille du pinceau
+brushSizeInput.addEventListener('input', () => {
+  brushSize = brushSizeInput.value;
+});
+
+// Gomme
+eraserBtn.addEventListener('click', () => {
+  erasing = true;
+});
+
+// Reset
+resetBtn.addEventListener('click', () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Ajuster le canvas à la taille de la fenêtre
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - document.getElementById('controls').offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Dessin
+canvas.addEventListener('mousedown', e => { drawing = true; draw(e); });
+canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+canvas.addEventListener('mouseout', () => { drawing = false; ctx.beginPath(); });
+canvas.addEventListener('mousemove', draw);
+
+function draw(e) {
+  if (!drawing) return;
+
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = erasing ? '#2b2b2b' : brushColor;
+
+  ctx.lineTo(e.clientX, e.clientY - document.getElementById('controls').offsetHeight);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.clientX, e.clientY - document.getElementById('controls').offsetHeight);
+}
+</script>
+
+</body>
+</html>
