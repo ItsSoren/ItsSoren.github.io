@@ -46,15 +46,17 @@
     }
   }
 
+  /* Boutons couleurs */
   .color-btn {
     width: 30px;
     height: 30px;
     border-radius: 50%;
     border: 2px solid #fff;
     cursor: pointer;
-    margin-bottom:5px;
+    margin-bottom: 5px; /* espace de 5px entre couleurs */
   }
 
+  /* icônes gomme et reset */
   .tool-btn {
     width: 30px;
     height: 30px;
@@ -70,26 +72,21 @@
     color: red;
   }
 
-  /* Menu déroulant taille pinceau */
+  /* Menu taille */
   .brush-menu {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-}
+    position: relative;
+    display: inline-block;
+  }
 
-.brush-dropdown {
-  display: none;
-  position: absolute;
-  left: 60px;
-  top: 0;
-  background-color: #1f1f1f;
-  padding: 10px;
-  border-radius: 5px;
-  z-index: 100;
-}
-
-  .brush-menu:hover .brush-dropdown {
-    display: block;
+  .brush-dropdown {
+    display: none;
+    position: absolute;
+    left: 60px;
+    top: 0;
+    background-color: #1f1f1f;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 100;
   }
 
   input[type="range"] {
@@ -100,7 +97,6 @@
     flex: 1;
     display: block;
   }
-
 </style>
 </head>
 <body>
@@ -108,15 +104,15 @@
 <div id="navbar">
   <div id="colors"></div>
 
-  <!-- Menu déroulant brush size -->
-<div class="brush-menu" title="Taille du pinceau">
-  🎨
-  <div class="brush-menu">
-    <input type="range" id="brushSize" min="1" max="50" value="5">
+  <!-- Menu taille -->
+  <div class="brush-menu" title="Taille du pinceau">
+    🎨
+    <div class="brush-dropdown">
+      <input type="range" id="brushSize" min="1" max="50" value="5">
+    </div>
   </div>
-</div>
 
-  <!-- Gomme avec vrai emoji -->
+  <!-- Gomme -->
   <div id="eraser" class="tool-btn" title="Gomme">🧽</div>
 
   <!-- Reset -->
@@ -132,6 +128,8 @@ const brushSizeInput = document.getElementById('brushSize');
 const eraserBtn = document.getElementById('eraser');
 const resetBtn = document.getElementById('reset');
 const colorsDiv = document.getElementById('colors');
+const brushMenu = document.querySelector('.brush-menu');
+const brushDropdown = document.querySelector('.brush-dropdown');
 
 let drawing = false;
 let brushColor = '#ffffff';
@@ -145,7 +143,7 @@ const colors = [
   '#008000', '#000080', '#808000', '#800080', '#008080', '#c0c0c0'
 ];
 
-// Créer boutons couleurs
+// Créer les boutons couleurs
 colors.forEach(color => {
   const btn = document.createElement('div');
   btn.className = 'color-btn';
@@ -157,7 +155,7 @@ colors.forEach(color => {
   colorsDiv.appendChild(btn);
 });
 
-// Taille pinceau
+// Brush size
 brushSizeInput.addEventListener('input', () => {
   brushSize = brushSizeInput.value;
 });
@@ -170,6 +168,24 @@ eraserBtn.addEventListener('click', () => {
 // Reset
 resetBtn.addEventListener('click', () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Menu déroulant brush size
+brushMenu.addEventListener('mouseenter', () => {
+  brushDropdown.style.display = 'block';
+});
+brushMenu.addEventListener('mouseleave', (e) => {
+  const rect = brushDropdown.getBoundingClientRect();
+  if (e.clientX < rect.left || e.clientX > rect.right ||
+      e.clientY < rect.top || e.clientY > rect.bottom) {
+    brushDropdown.style.display = 'none';
+  }
+});
+brushDropdown.addEventListener('mouseenter', () => {
+  brushDropdown.style.display = 'block';
+});
+brushDropdown.addEventListener('mouseleave', () => {
+  brushDropdown.style.display = 'none';
 });
 
 // Ajuster canvas
@@ -187,37 +203,38 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 // Dessin
+function getOffsets() {
+  const navbar = document.getElementById('navbar');
+  if(window.innerWidth <= 768){
+    return { x:0, y: navbar.offsetHeight };
+  } else {
+    return { x: navbar.offsetWidth, y:0 };
+  }
+}
+
 canvas.addEventListener('mousedown', e => { drawing = true; draw(e); });
 canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
 canvas.addEventListener('mouseout', () => { drawing = false; ctx.beginPath(); });
 canvas.addEventListener('mousemove', draw);
 
+// Touch support
 canvas.addEventListener('touchstart', e => { drawing = true; draw(e.touches[0]); });
 canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
 canvas.addEventListener('touchmove', e => { draw(e.touches[0]); e.preventDefault(); });
 
 function draw(e) {
   if (!drawing) return;
-  const navbar = document.getElementById('navbar');
-  let offsetX = navbar.offsetWidth;
-  let offsetY = 0;
-
-  if(window.innerWidth <= 768){
-    offsetX = 0;
-    offsetY = navbar.offsetHeight;
-  }
+  const offset = getOffsets();
 
   ctx.lineWidth = brushSize;
   ctx.lineCap = 'round';
   ctx.strokeStyle = erasing ? '#2b2b2b' : brushColor;
 
-  ctx.lineTo(e.clientX - offsetX, e.clientY - offsetY);
+  ctx.lineTo(e.clientX - offset.x, e.clientY - offset.y);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(e.clientX - offsetX, e.clientY - offsetY);
+  ctx.moveTo(e.clientX - offset.x, e.clientY - offset.y);
 }
-// JS pour menu taille
-
 </script>
 
 </body>
