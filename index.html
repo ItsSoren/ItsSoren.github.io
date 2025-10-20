@@ -3,106 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dessin style poterie</title>
+<title>Canvas avec effets</title>
 <style>
   body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     background-color: #2b2b2b;
+    font-family: sans-serif;
+    display: flex;
     overflow: hidden;
-    cursor: crosshair;
   }
+
+  #navbar {
+    width: 70px;
+    background-color: #1f1f1f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    border-radius: 0 10px 10px 0;
+    gap: 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+  }
+
+  .color-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    cursor: pointer;
+    margin-bottom: 5px;
+  }
+
+  .tool-btn {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+  }
+
+  #brushSize {
+    width: 30px;
+    height: 100px;
+    writing-mode: bt-lr;
+  }
+
+  #effectSelect {
+    writing-mode: horizontal-tb;
+    width: 60px;
+    text-align: center;
+    background-color: #2b2b2b;
+    color: white;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    padding: 2px;
+  }
+
   canvas {
+    flex: 1;
     display: block;
   }
 </style>
 </head>
 <body>
+
+<div id="navbar">
+  <div id="colors"></div>
+  <input type="range" id="brushSize" min="5" max="100" step="5" value="20" title="Taille du pinceau">
+  <select id="effectSelect" title="Effet du pinceau">
+    <option value="classic">Classique</option>
+    <option value="pixel">Pixel / Manga</option>
+    <option value="realistic">3D / Réaliste</option>
+  </select>
+  <div id="eraser" class="tool-btn" title="Gomme">🧽</div>
+  <div id="reset" class="tool-btn" title="Reset">🗑️</div>
+</div>
+
 <canvas id="canvas"></canvas>
 
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const colorsDiv = document.getElementById('colors');
+const brushSizeInput = document.getElementById('brushSize');
+const effectSelect = document.getElementById('effectSelect');
+const eraserBtn = document.getElementById('eraser');
+const resetBtn = document.getElementById('reset');
 
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
-
-let brushSize = 20;
-let brushColor = '#ffffff';
+let brushColor = '#000000';
+let brushSize = brushSizeInput.value;
 let drawing = false;
-let angle = 0;
+let effect = 'classic';
 
-// Fonction pour calculer la distance entre le centre et le pointeur
-function getDistance(x, y){
-  return Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+// 13 couleurs classiques + 3 néon
+const colors = [
+  '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF',
+  '#FFFF00', '#00FFFF', '#FF00FF', '#808080', '#800000',
+  '#008000', '#000080', '#808000', // classiques
+  '#FF00FF', '#39FF14', '#1E90FF'  // néon : rose, vert, bleu
+];
+
+// Créer boutons couleurs
+colors.forEach(color => {
+  const btn = document.createElement('div');
+  btn.className = 'color-btn';
+  btn.style.backgroundColor = color;
+  btn.addEventListener('click', () => {
+    brushColor = color;
+  });
+  colorsDiv.appendChild(btn);
+});
+
+// Brush size
+brushSizeInput.addEventListener('input', () => brushSize = brushSizeInput.value);
+
+// Effet pinceau
+effectSelect.addEventListener('change', () => {
+  effect = effectSelect.value;
+});
+
+// Gomme
+eraserBtn.addEventListener('click', () => brushColor = '#2b2b2b');
+
+// Reset
+resetBtn.addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+
+// Ajuster canvas
+function resizeCanvas() {
+  canvas.width = window.innerWidth - document.getElementById('navbar').offsetWidth;
+  canvas.height = window.innerHeight;
 }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-// Variables du rayon dynamique
-let radius = 100;
-let mouseX = centerX;
-let mouseY = centerY;
-
-// Gestion souris
-canvas.addEventListener('mousedown', e => {
-  drawing = true;
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  radius = getDistance(mouseX, mouseY);
-});
-
+// Dessin
+canvas.addEventListener('mousedown', () => drawing = true);
 canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mousemove', e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  radius = getDistance(mouseX, mouseY);
-});
+canvas.addEventListener('mouseout', () => drawing = false);
+canvas.addEventListener('mousemove', draw);
 
 // Touch support
-canvas.addEventListener('touchstart', e => {
-  drawing = true;
-  const touch = e.touches[0];
-  mouseX = touch.clientX;
-  mouseY = touch.clientY;
-  radius = getDistance(mouseX, mouseY);
-});
-canvas.addEventListener('touchmove', e => {
-  const touch = e.touches[0];
-  mouseX = touch.clientX;
-  mouseY = touch.clientY;
-  radius = getDistance(mouseX, mouseY);
-  e.preventDefault();
-});
+canvas.addEventListener('touchstart', e => { drawing = true; });
 canvas.addEventListener('touchend', () => drawing = false);
+canvas.addEventListener('touchmove', e => { draw(e.touches[0]); e.preventDefault(); });
 
-// Animation
-function animate(){
-  requestAnimationFrame(animate);
+function draw(e){
+  if(!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX || e.pageX) - rect.left;
+  const y = (e.clientY || e.pageY) - rect.top;
 
-  if(drawing){
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate(angle);
+  if(effect === 'classic'){
     ctx.fillStyle = brushColor;
     ctx.beginPath();
-    ctx.arc(radius, 0, brushSize/2, 0, Math.PI*2);
+    ctx.arc(x, y, brushSize/2, 0, Math.PI*2);
     ctx.fill();
-    ctx.restore();
+  } else if(effect === 'pixel'){
+    ctx.fillStyle = brushColor;
+    ctx.fillRect(x - brushSize/2, y - brushSize/2, brushSize, brushSize);
+  } else if(effect === 'realistic'){
+    for(let i=0; i<brushSize/2; i+=2){
+      const alpha = 0.5 - i/(brushSize);
+      ctx.fillStyle = brushColor;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      ctx.arc(x, y, brushSize/2 - i, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
   }
-
-  angle += 0.02; // vitesse rotation
 }
-
-animate();
-
-// Ajustement du canvas sur resize
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
 </script>
+
 </body>
 </html>
