@@ -12,11 +12,12 @@
     background-color: #2b2b2b;
     font-family: sans-serif;
     display: flex;
+    flex-direction: row;
   }
 
-  /* Navbar verticale à gauche */
+  /* Navbar verticale */
   #navbar {
-    width: 60px; /* environ 2% écran standard 1920px ~38px, ici 60px pour plus de confort */
+    width: 60px;
     background-color: #1f1f1f;
     display: flex;
     flex-direction: column;
@@ -27,28 +28,34 @@
     box-shadow: 2px 0 5px rgba(0,0,0,0.5);
   }
 
-  /* Boutons ronds pour les couleurs */
+  /* Navbar mobile horizontale */
+  @media (max-width: 768px) {
+    body {
+      flex-direction: column;
+    }
+    #navbar {
+      flex-direction: row;
+      width: 100%;
+      height: 60px;
+      border-radius: 0 0 10px 10px;
+      justify-content: center;
+      gap: 10px;
+    }
+    canvas {
+      height: calc(100% - 60px);
+    }
+  }
+
   .color-btn {
     width: 30px;
     height: 30px;
     border-radius: 50%;
     border: 2px solid #fff;
     cursor: pointer;
+    bottom-padding:5px;
   }
 
-  /* Sélection de la taille */
-  select {
-    width: 40px;
-    background-color: #2b2b2b;
-    color: #fff;
-    border: 1px solid #fff;
-    border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  /* Icônes gomme et poubelle */
-  .icon-btn {
+  .tool-btn {
     width: 30px;
     height: 30px;
     cursor: pointer;
@@ -63,10 +70,37 @@
     color: red;
   }
 
+  /* Menu déroulant taille pinceau */
+  .brush-menu {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .brush-dropdown {
+    display: none;
+    position: absolute;
+    left: 60px;
+    top: 0;
+    background-color: #1f1f1f;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 100;
+  }
+
+  .brush-menu:hover .brush-dropdown {
+    display: block;
+  }
+
+  input[type="range"] {
+    width: 100px;
+  }
+
   canvas {
     flex: 1;
     display: block;
   }
+
 </style>
 </head>
 <body>
@@ -74,19 +108,19 @@
 <div id="navbar">
   <div id="colors"></div>
 
-  <select id="brushSize">
-    <option value="2">2</option>
-    <option value="5" selected>5</option>
-    <option value="10">10</option>
-    <option value="15">15</option>
-    <option value="20">20</option>
-    <option value="30">30</option>
-    <option value="40">40</option>
-    <option value="50">50</option>
-  </select>
+  <!-- Menu déroulant brush size -->
+  <div class="brush-menu" title="Taille du pinceau">
+    🎨
+    <div class="brush-dropdown">
+      <input type="range" id="brushSize" min="1" max="50" value="5">
+    </div>
+  </div>
 
-  <div id="eraser" class="icon-btn" title="Gomme">🧹</div>
-  <div id="reset" class="icon-btn" title="Reset">🗑️</div>
+  <!-- Gomme avec vrai emoji -->
+  <div id="eraser" class="tool-btn" title="Gomme">🧽</div>
+
+  <!-- Reset -->
+  <div id="reset" class="tool-btn" title="Reset">🗑️</div>
 </div>
 
 <canvas id="canvas"></canvas>
@@ -94,14 +128,14 @@
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const brushSizeSelect = document.getElementById('brushSize');
+const brushSizeInput = document.getElementById('brushSize');
 const eraserBtn = document.getElementById('eraser');
 const resetBtn = document.getElementById('reset');
 const colorsDiv = document.getElementById('colors');
 
 let drawing = false;
 let brushColor = '#ffffff';
-let brushSize = brushSizeSelect.value;
+let brushSize = brushSizeInput.value;
 let erasing = false;
 
 // 16 couleurs basiques
@@ -124,8 +158,8 @@ colors.forEach(color => {
 });
 
 // Taille pinceau
-brushSizeSelect.addEventListener('change', () => {
-  brushSize = brushSizeSelect.value;
+brushSizeInput.addEventListener('input', () => {
+  brushSize = brushSizeInput.value;
 });
 
 // Gomme
@@ -140,8 +174,14 @@ resetBtn.addEventListener('click', () => {
 
 // Ajuster canvas
 function resizeCanvas() {
-  canvas.width = window.innerWidth - document.getElementById('navbar').offsetWidth;
-  canvas.height = window.innerHeight;
+  const navbar = document.getElementById('navbar');
+  if(window.innerWidth <= 768){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - navbar.offsetHeight;
+  } else {
+    canvas.width = window.innerWidth - navbar.offsetWidth;
+    canvas.height = window.innerHeight;
+  }
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -152,19 +192,31 @@ canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
 canvas.addEventListener('mouseout', () => { drawing = false; ctx.beginPath(); });
 canvas.addEventListener('mousemove', draw);
 
+canvas.addEventListener('touchstart', e => { drawing = true; draw(e.touches[0]); });
+canvas.addEventListener('touchend', () => { drawing = false; ctx.beginPath(); });
+canvas.addEventListener('touchmove', e => { draw(e.touches[0]); e.preventDefault(); });
+
 function draw(e) {
   if (!drawing) return;
-  const offsetX = document.getElementById('navbar').offsetWidth;
+  const navbar = document.getElementById('navbar');
+  let offsetX = navbar.offsetWidth;
+  let offsetY = 0;
+
+  if(window.innerWidth <= 768){
+    offsetX = 0;
+    offsetY = navbar.offsetHeight;
+  }
 
   ctx.lineWidth = brushSize;
   ctx.lineCap = 'round';
   ctx.strokeStyle = erasing ? '#2b2b2b' : brushColor;
 
-  ctx.lineTo(e.clientX - offsetX, e.clientY);
+  ctx.lineTo(e.clientX - offsetX, e.clientY - offsetY);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(e.clientX - offsetX, e.clientY);
+  ctx.moveTo(e.clientX - offsetX, e.clientY - offsetY);
 }
 </script>
+
 </body>
 </html>
