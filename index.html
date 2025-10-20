@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dessin rotatif</title>
+<title>Dessin style poterie</title>
 <style>
   body, html {
     margin: 0;
@@ -11,6 +11,7 @@
     height: 100%;
     background-color: #2b2b2b;
     overflow: hidden;
+    cursor: crosshair;
   }
   canvas {
     display: block;
@@ -27,27 +28,58 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let centerX = canvas.width / 2;
-let centerY = canvas.height / 2;
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
 
 let brushSize = 20;
 let brushColor = '#ffffff';
 let drawing = false;
-let angle = 0; // rotation angle
-let radius = 150; // distance du centre
+let angle = 0;
 
-// Dessiner autour du centre
-canvas.addEventListener('mousedown', () => drawing = true);
+// Fonction pour calculer la distance entre le centre et le pointeur
+function getDistance(x, y){
+  return Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+}
+
+// Variables du rayon dynamique
+let radius = 100;
+let mouseX = centerX;
+let mouseY = centerY;
+
+// Gestion souris
+canvas.addEventListener('mousedown', e => {
+  drawing = true;
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  radius = getDistance(mouseX, mouseY);
+});
+
 canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mouseout', () => drawing = false);
+canvas.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  radius = getDistance(mouseX, mouseY);
+});
 
-// Pour mobile
-canvas.addEventListener('touchstart', e => { drawing = true; });
-canvas.addEventListener('touchend', e => { drawing = false; });
-canvas.addEventListener('touchcancel', e => { drawing = false; });
+// Touch support
+canvas.addEventListener('touchstart', e => {
+  drawing = true;
+  const touch = e.touches[0];
+  mouseX = touch.clientX;
+  mouseY = touch.clientY;
+  radius = getDistance(mouseX, mouseY);
+});
+canvas.addEventListener('touchmove', e => {
+  const touch = e.touches[0];
+  mouseX = touch.clientX;
+  mouseY = touch.clientY;
+  radius = getDistance(mouseX, mouseY);
+  e.preventDefault();
+});
+canvas.addEventListener('touchend', () => drawing = false);
 
 // Animation
-function animate() {
+function animate(){
   requestAnimationFrame(animate);
 
   if(drawing){
@@ -66,12 +98,10 @@ function animate() {
 
 animate();
 
-// Ajuster canvas si resize
+// Ajustement du canvas sur resize
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  centerX = canvas.width / 2;
-  centerY = canvas.height / 2;
 });
 </script>
 </body>
