@@ -3,208 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dessin Poterie</title>
+<title>Dessin rotatif</title>
 <style>
   body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     background-color: #2b2b2b;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: row;
     overflow: hidden;
   }
-
-  /* Navbar verticale */
-  #navbar {
-    width: 60px;
-    background-color: #1f1f1f;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 0;
-    border-radius: 0 10px 10px 0;
-    gap: 15px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
-  }
-
-  /* Couleurs rondes */
-  .color-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    cursor: pointer;
-    margin-bottom: 5px; /* 5px d'espace entre couleurs */
-  }
-
-  /* Outils */
-  .tool-btn {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: white;
-  }
-
-  #reset {
-    color: red;
-  }
-
-  /* Slider taille */
-  #brushSize {
-    writing-mode: bt-lr; /* vertical slider */
-    width: 30px;
-    height: 100px;
-  }
-
   canvas {
-    flex: 1;
     display: block;
   }
-
 </style>
 </head>
 <body>
-
-<div id="navbar">
-  <div id="colors"></div>
-  <input type="range" id="brushSize" min="5" max="100" step="5" value="20" title="Taille du pinceau">
-  <div id="eraser" class="tool-btn" title="Gomme">🧽</div>
-  <div id="reset" class="tool-btn" title="Reset">🗑️</div>
-</div>
-
 <canvas id="canvas"></canvas>
 
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const colorsDiv = document.getElementById('colors');
-const brushSizeInput = document.getElementById('brushSize');
-const eraserBtn = document.getElementById('eraser');
-const resetBtn = document.getElementById('reset');
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let centerX = canvas.width / 2;
+let centerY = canvas.height / 2;
+
+let brushSize = 20;
 let brushColor = '#ffffff';
-let brushSize = brushSizeInput.value;
-let erasing = false;
 let drawing = false;
+let angle = 0; // rotation angle
+let radius = 150; // distance du centre
 
-// Axe central
-let centerX = window.innerWidth / 2;
-let centerY = window.innerHeight / 2;
-let draggingCenter = false;
+// Dessiner autour du centre
+canvas.addEventListener('mousedown', () => drawing = true);
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseout', () => drawing = false);
 
-// Rotation
-let angle = 0;
+// Pour mobile
+canvas.addEventListener('touchstart', e => { drawing = true; });
+canvas.addEventListener('touchend', e => { drawing = false; });
+canvas.addEventListener('touchcancel', e => { drawing = false; });
 
-// 16 couleurs basiques
-const colors = [
-  '#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff',
-  '#ffff00', '#00ffff', '#ff00ff', '#808080', '#800000',
-  '#008000', '#000080', '#808000', '#800080', '#008080', '#c0c0c0'
-];
-
-// Créer les boutons couleurs
-colors.forEach(color => {
-  const btn = document.createElement('div');
-  btn.className = 'color-btn';
-  btn.style.backgroundColor = color;
-  btn.addEventListener('click', () => {
-    brushColor = color;
-    erasing = false;
-  });
-  colorsDiv.appendChild(btn);
-});
-
-// Slider taille
-brushSizeInput.addEventListener('input', () => {
-  brushSize = brushSizeInput.value;
-});
-
-// Gomme
-eraserBtn.addEventListener('click', () => {
-  erasing = true;
-});
-
-// Reset
-resetBtn.addEventListener('click', () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
-
-// Resize canvas
-function resizeCanvas() {
-  canvas.width = window.innerWidth - document.getElementById('navbar').offsetWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-// Drag axe central
-canvas.addEventListener('mousedown', e => {
-  const dx = e.clientX - centerX;
-  const dy = e.clientY - centerY;
-  if(Math.sqrt(dx*dx + dy*dy) < 20){ // si proche du centre
-    draggingCenter = true;
-  } else {
-    drawing = true;
-  }
-});
-canvas.addEventListener('mouseup', () => { drawing = false; draggingCenter = false; });
-canvas.addEventListener('mousemove', e => {
-  if(draggingCenter){
-    centerX = e.clientX;
-    centerY = e.clientY;
-  }
-});
-
-// Touch support pour mobile
-canvas.addEventListener('touchstart', e => {
-  const touch = e.touches[0];
-  const dx = touch.clientX - centerX;
-  const dy = touch.clientY - centerY;
-  if(Math.sqrt(dx*dx + dy*dy) < 20){
-    draggingCenter = true;
-  } else {
-    drawing = true;
-  }
-});
-canvas.addEventListener('touchend', () => { drawing = false; draggingCenter = false; });
-canvas.addEventListener('touchmove', e => {
-  const touch = e.touches[0];
-  if(draggingCenter){
-    centerX = touch.clientX;
-    centerY = touch.clientY;
-  }
-  e.preventDefault();
-});
-
-// Animation rotation + dessin
+// Animation
 function animate() {
   requestAnimationFrame(animate);
 
-  // Pas de clear pour garder les traces
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(angle);
-
   if(drawing){
-    ctx.fillStyle = erasing ? '#2b2b2b' : brushColor;
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(angle);
+    ctx.fillStyle = brushColor;
     ctx.beginPath();
-    ctx.arc(100, 0, brushSize/2, 0, Math.PI*2);
+    ctx.arc(radius, 0, brushSize/2, 0, Math.PI*2);
     ctx.fill();
+    ctx.restore();
   }
 
-  ctx.restore();
-
-  angle += 0.01; // vitesse rotation
+  angle += 0.02; // vitesse rotation
 }
 
 animate();
-</script>
 
+// Ajuster canvas si resize
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  centerX = canvas.width / 2;
+  centerY = canvas.height / 2;
+});
+</script>
 </body>
 </html>
