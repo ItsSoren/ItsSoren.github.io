@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sören's Scratch Games</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #111;
+            color: #eee;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #1a1a1a;
+            padding: 25px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        main {
+            padding: 50px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .game-card {
+            background-color: #1f1f1f;
+            border-radius: 15px;
+            overflow: hidden;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .game-card h2 {
+            margin: 15px 0 10px;
+        }
+
+        .game-card p {
+            padding: 0 15px 15px;
+            font-size: 0.95em;
+        }
+
+        .game-card a {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background-color: #ff5722;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .game-card a:hover {
+            background-color: #e64a19;
+        }
+
+        footer {
+            background-color: #1a1a1a;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9em;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 650px) {
+            main {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sören's Scratch Games</h1>
+        <p>Mes projets Scratch en ligne</p>
+    </header>
+    <main>
+        <!-- Snake Game Card -->
+        <div class="game-card">
+            <h2>Snake</h2>
+            <p>Un classique revisité sur Scratch. Mange les pommes et deviens le serpent le plus long !</p>
+            <a href="games/snake.html">Jouer →</a>
+        </div>
+
+        <!-- Coming Soon Card -->
+        <div class="game-card">
+            <h2>Project Coming Soon</h2>
+            <p>Un nouveau jeu est en préparation. Clique pour en savoir plus et rester à l'affût !</p>
+            <a href="games/Project coming soon.html">Voir →</a>
+        </div>
+    </main>
+    <footer>
+        &copy; 2025 Sören. Tous droits réservés.
+    </footer>
+</body>
+</html>
