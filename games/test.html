@@ -2,87 +2,109 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>TurboWarp Cloud Example</title>
+<title>TurboWarp Cloud Sync</title>
 <style>
     body { 
         font-family: Arial; 
         text-align: center; 
         margin-top: 40px; 
-        background: #f0f0f0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: white;
+    }
+    .container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 40px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: 50px;
     }
     #score { 
-        font-size: 48px; 
-        margin-bottom: 20px; 
-        color: #333;
+        font-size: 72px; 
+        margin-bottom: 30px; 
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     button { 
-        font-size: 24px; 
-        padding: 10px 20px; 
+        font-size: 28px; 
+        padding: 15px 40px; 
         cursor: pointer;
         background: #4CAF50;
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s;
     }
-    button:hover { background: #45a049; }
+    button:hover { 
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    button:active {
+        transform: translateY(0);
+    }
     #status {
-        margin-top: 20px;
-        font-size: 14px;
-        color: #666;
+        margin-top: 30px;
+        font-size: 16px;
+        opacity: 0.8;
+    }
+    .pulse {
+        animation: pulse 0.3s ease-in-out;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
     }
 </style>
 </head>
 <body>
-<h1 id="score">Score : ...</h1>
-<button id="btn">+1</button>
-<div id="status">Connexion en cours...</div>
+<div class="container">
+    <h1 id="score">Score : ...</h1>
+    <button id="btn">+1</button>
+    <div id="status">Connexion en cours...</div>
+</div>
 
 <script>
 // ---------------------------------------------------------------
-// CONFIGURATION DU PROJET
+// CONFIGURATION
 // ---------------------------------------------------------------
 const CLOUD_SERVER = "wss://clouddata.turbowarp.org";
-
-// ⚠️ REMPLACEZ PAR VOTRE VRAI ID DE PROJET (numérique uniquement)
-// Exemple: "1234567890" - Trouvez-le dans l'URL de votre projet
 const PROJECT_ID = "1234567890";  // ← CHANGEZ CECI !
-
-// ⚠️ Le nom doit inclure le symbole ☁
-// Si votre variable s'appelle "score" dans Scratch, utilisez "☁ score"
-const CLOUD_VAR = "☁ score";  // ← Vérifiez le nom exact !
-
+const CLOUD_VAR = "☁ score";      // ← Vérifiez le nom !
 const USERNAME = "WebClient_" + Math.floor(Math.random() * 10000);
 
 // ---------------------------------------------------------------
-// VARIABLES LOCALES
+// VARIABLES
 // ---------------------------------------------------------------
 let ws;
 let currentScore = 0;
 let isConnected = false;
+let hasReceivedInitialValue = false;
 
 // ---------------------------------------------------------------
-// 1. OUVERTURE DE LA CONNEXION WEBSOCKET
+// CONNEXION WEBSOCKET
 // ---------------------------------------------------------------
 function connect() {
     ws = new WebSocket(CLOUD_SERVER);
     
     ws.onopen = () => {
         console.log("✅ Connecté au serveur Cloud");
-        document.getElementById("status").innerText = "Connecté au Cloud";
+        document.getElementById("status").innerText = "🟢 Connecté";
         
-        // Handshake requis
-        const handshake = JSON.stringify({
+        // Handshake
+        ws.send(JSON.stringify({
             method: "handshake",
             project_id: PROJECT_ID,
             user: USERNAME
-        });
-        ws.send(handshake);
+        }));
         
         isConnected = true;
     };
     
     // ---------------------------------------------------------------
-    // 2. RECEPTION DES MESSAGES
+    // RECEPTION DES MESSAGES
     // ---------------------------------------------------------------
     ws.onmessage = (event) => {
         const lines = event.data.split("\n");
@@ -94,43 +116,61 @@ function connect() {
             try { 
                 data = JSON.parse(line); 
             } catch (e) { 
-                console.error("Erreur parsing JSON:", e);
                 continue; 
             }
             
-            console.log("Message reçu:", data);
+            console.log("📨 Message reçu:", data);
             
             // Mise à jour de la variable cloud
             if (data.method === "set" && data.name === CLOUD_VAR) {
-                currentScore = parseInt(data.value) || 0;
-                document.getElementById("score").innerText = "Score : " + currentScore;
-                console.log("✅ Score mis à jour:", currentScore);
+                const newScore = parseInt(data.value) || 0;
+                
+                // Mise à jour seulement si la valeur a changé
+                if (newScore !== currentScore) {
+                    currentScore = newScore;
+                    updateScoreDisplay();
+                    console.log("✅ Score synchronisé:", currentScore);
+                }
+                
+                hasReceivedInitialValue = true;
             }
         }
     };
     
     ws.onerror = (error) => {
         console.error("❌ Erreur WebSocket:", error);
-        document.getElementById("status").innerText = "Erreur de connexion";
+        document.getElementById("status").innerText = "🔴 Erreur";
     };
     
     ws.onclose = () => {
         console.log("⚠️ Connexion fermée");
-        document.getElementById("status").innerText = "Déconnecté - Reconnexion...";
+        document.getElementById("status").innerText = "🟡 Reconnexion...";
         isConnected = false;
+        hasReceivedInitialValue = false;
         
-        // Tentative de reconnexion après 3 secondes
         setTimeout(connect, 3000);
     };
 }
 
 // ---------------------------------------------------------------
-// 3. ENVOYER UNE MISE À JOUR
+// MISE À JOUR AFFICHAGE
+// ---------------------------------------------------------------
+function updateScoreDisplay() {
+    const scoreEl = document.getElementById("score");
+    scoreEl.innerText = "Score : " + currentScore;
+    
+    // Animation pulse
+    scoreEl.classList.remove("pulse");
+    void scoreEl.offsetWidth; // Force reflow
+    scoreEl.classList.add("pulse");
+}
+
+// ---------------------------------------------------------------
+// ENVOYER AU CLOUD
 // ---------------------------------------------------------------
 function setCloudValue(value) {
     if (!isConnected || ws.readyState !== WebSocket.OPEN) {
         console.warn("⚠️ WebSocket pas connecté");
-        document.getElementById("status").innerText = "Non connecté - En attente...";
         return;
     }
     
@@ -142,28 +182,47 @@ function setCloudValue(value) {
         user: USERNAME
     });
     
-    console.log("📤 Envoi:", msg);
+    console.log("📤 Envoi:", value);
     ws.send(msg);
 }
 
 // ---------------------------------------------------------------
-// 4. BOUTON +1
+// BOUTON +1 (VERSION SYNCHRONISÉE)
 // ---------------------------------------------------------------
 document.getElementById("btn").onclick = () => {
+    if (!isConnected) {
+        alert("⚠️ Pas encore connecté au Cloud !");
+        return;
+    }
+    
+    if (!hasReceivedInitialValue) {
+        alert("⚠️ En attente de la valeur initiale du Cloud...");
+        return;
+    }
+    
+    // Incrémenter la valeur ACTUELLE du cloud (synchronisée)
     const newScore = currentScore + 1;
     
-    // Mise à jour locale immédiate (pour réactivité)
+    // Mise à jour locale optimiste (pour la réactivité)
     currentScore = newScore;
-    document.getElementById("score").innerText = "Score : " + currentScore;
+    updateScoreDisplay();
     
-    // Envoi au cloud
+    // Envoi au cloud pour synchroniser avec les autres
     setCloudValue(newScore);
 };
 
 // ---------------------------------------------------------------
-// 5. DÉMARRAGE
+// DÉMARRAGE
 // ---------------------------------------------------------------
 connect();
+
+// Info pour l'utilisateur
+setTimeout(() => {
+    if (!hasReceivedInitialValue) {
+        document.getElementById("status").innerText = 
+            "⏳ En attente de la valeur Cloud... Ouvrez le projet TurboWarp en parallèle !";
+    }
+}, 2000);
 </script>
 </body>
 </html>
