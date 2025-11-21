@@ -1,80 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Cloud Test</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-    #score { font-size: 40px; margin-bottom: 20px; }
-    button { font-size: 25px; padding: 10px 30px; }
-  </style>
+<meta charset="UTF-8">
+<title>TurboWarp Cloud Example</title>
+<style>
+    body { font-family: Arial; text-align: center; margin-top: 40px; }
+    #score { font-size: 48px; margin-bottom: 20px; }
+    button { font-size: 24px; padding: 10px 20px; cursor: pointer; }
+</style>
 </head>
 <body>
 
-  <div id="score">Score : ...</div>
-  <button onclick="addOne()">+1</button>
+<h1 id="score">Score : ...</h1>
+<button id="btn">+1</button>
 
 <script>
-/* ------------------------- CONFIG ------------------------- */
-const cloudHost = "wss://clouddata.turbowarp.org";
-const projectId = "p4-@Projet.sb3";   // ⚠️ ton projet SB3 emballé dans ton HTML
-const username  = "WebUser123";       // n'importe quel pseudo unique
-const variableName = "score";         // nom exact de ta variable cloud
-/* ---------------------------------------------------------- */
+// ---------------------------------------------------------------
+// CONFIGURATION DU PROJET
+// ---------------------------------------------------------------
 
-let ws;
+// Adresse du serveur Cloud TurboWarp
+const CLOUD_SERVER = "wss://clouddata.turbowarp.org";
 
-// Connexion
-function connect() {
-    ws = new WebSocket(cloudHost);
+// L'ID du projet : doit exister dans TurboWarp / Scratch
+const PROJECT_ID = "p4-@Projet.sb3";
 
-    ws.onopen = () => {
-        console.log("Connected.");
-        ws.send(JSON.stringify({ method: "handshake" }));
-    };
+// Nom EXACT de la variable cloud
+const CLOUD_VAR = "score";
 
-    ws.onmessage = (msg) => {
-        const lines = msg.data.split("\n");
-        for (const line of lines) {
-            if (!line) continue;
-            const data = JSON.parse(line);
+// Pseudo obligatoire, peut être n'importe quoi
+const USERNAME = "WebClient_1";
 
-            // Le serveur dit "set" lorsqu'une variable est mise à jour
-            if (data.method === "set" && data.name === variableName) {
-                document.getElementById("score").innerText =
-                    "Score : " + data.value;
-            }
+
+// ---------------------------------------------------------------
+// 1. OUVERTURE DE LA CONNEXION WEBSOCKET
+// ---------------------------------------------------------------
+let ws = new WebSocket(CLOUD_SERVER);
+
+ws.onopen = () => {
+    console.log("Connected to Cloud Server.");
+
+    // Le serveur demande toujours une "handshake"
+    ws.send(JSON.stringify({ method: "handshake" }));
+};
+
+
+// ---------------------------------------------------------------
+// 2. RECEPTION DES MESSAGES DU SERVEUR CLOUD
+// ---------------------------------------------------------------
+ws.onmessage = (event) => {
+
+    // Le serveur peut envoyer plusieurs JSON dans un seul message
+    const lines = event.data.split("\n");
+
+    for (const line of lines) {
+        if (!line) continue;
+
+        let data;
+        try { data = JSON.parse(line); }
+        catch (e) { continue; }
+
+        // Nous nous intéressons uniquement aux mises à jour
+        if (data.method === "set" && data.name === CLOUD_VAR) {
+            console.log("Cloud updated:", data);
+
+            document.getElementById("score").innerText =
+                "Score : " + data.value;
         }
-    };
+    }
+};
 
-    ws.onclose = () => {
-        console.log("Disconnected... retrying");
-        setTimeout(connect, 1500); // auto-retry
-    };
-}
 
-connect();
-
-// Envoie au cloud
-function setCloudVariable(name, value) {
-    ws.send(JSON.stringify({
+// ---------------------------------------------------------------
+// 3. ENVOYER UNE MISE À JOUR AU SERVEUR
+// ---------------------------------------------------------------
+function setCloudValue(name, value) {
+    const msg = {
         method: "set",
-        name,
-        value,
-        project_id: projectId,
-        user: username
-    }));
+        name: name,
+        value: String(value),  // Doit être une chaîne
+        project_id: PROJECT_ID,
+        user: USERNAME
+    };
+
+    ws.send(JSON.stringify(msg));
 }
 
-// Ajouter +1
-function addOne() {
-    // On lit la valeur affichée
-    let current = parseInt(document.getElementById("score").innerText.split(": ")[1] || "0");
-    let newValue = current + 1;
-    setCloudVariable(variableName, newValue);
-}
+
+// ---------------------------------------------------------------
+// 4. AJOUTER +1 AU SCORE
+// ---------------------------------------------------------------
+document.getElementById("btn").onclick = () => {
+
+    const txt = document.getElementById("score").innerText;
+    let current = parseInt(txt.replace("Score : ", "")) || 0;
+
+    const newValue = current + 1;
+
+    // Envoyer au cloud
+    setCloudValue(CLOUD_VAR, newValue);
+};
 </script>
 
 </body>
 </html>
-
