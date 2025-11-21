@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloud Test</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+    #score { font-size: 40px; margin-bottom: 20px; }
+    button { font-size: 25px; padding: 10px 30px; }
+  </style>
+</head>
+<body>
+
+  <div id="score">Score : ...</div>
+  <button onclick="addOne()">+1</button>
+
+<script>
+/* ------------------------- CONFIG ------------------------- */
+const cloudHost = "wss://clouddata.turbowarp.org";
+const projectId = "p4-@Projet.sb3";   // ⚠️ ton projet SB3 emballé dans ton HTML
+const username  = "WebUser123";       // n'importe quel pseudo unique
+const variableName = "score";         // nom exact de ta variable cloud
+/* ---------------------------------------------------------- */
+
+let ws;
+
+// Connexion
+function connect() {
+    ws = new WebSocket(cloudHost);
+
+    ws.onopen = () => {
+        console.log("Connected.");
+        ws.send(JSON.stringify({ method: "handshake" }));
+    };
+
+    ws.onmessage = (msg) => {
+        const lines = msg.data.split("\n");
+        for (const line of lines) {
+            if (!line) continue;
+            const data = JSON.parse(line);
+
+            // Le serveur dit "set" lorsqu'une variable est mise à jour
+            if (data.method === "set" && data.name === variableName) {
+                document.getElementById("score").innerText =
+                    "Score : " + data.value;
+            }
+        }
+    };
+
+    ws.onclose = () => {
+        console.log("Disconnected... retrying");
+        setTimeout(connect, 1500); // auto-retry
+    };
+}
+
+connect();
+
+// Envoie au cloud
+function setCloudVariable(name, value) {
+    ws.send(JSON.stringify({
+        method: "set",
+        name,
+        value,
+        project_id: projectId,
+        user: username
+    }));
+}
+
+// Ajouter +1
+function addOne() {
+    // On lit la valeur affichée
+    let current = parseInt(document.getElementById("score").innerText.split(": ")[1] || "0");
+    let newValue = current + 1;
+    setCloudVariable(variableName, newValue);
+}
+</script>
+
+</body>
+</html>
+
