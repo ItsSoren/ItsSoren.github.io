@@ -4,103 +4,166 @@
 <meta charset="UTF-8">
 <title>TurboWarp Cloud Example</title>
 <style>
-    body { font-family: Arial; text-align: center; margin-top: 40px; }
-    #score { font-size: 48px; margin-bottom: 20px; }
-    button { font-size: 24px; padding: 10px 20px; cursor: pointer; }
+    body { 
+        font-family: Arial; 
+        text-align: center; 
+        margin-top: 40px; 
+        background: #f0f0f0;
+    }
+    #score { 
+        font-size: 48px; 
+        margin-bottom: 20px; 
+        color: #333;
+    }
+    button { 
+        font-size: 24px; 
+        padding: 10px 20px; 
+        cursor: pointer;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+    button:hover { background: #45a049; }
+    #status {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666;
+    }
 </style>
 </head>
 <body>
-
 <h1 id="score">Score : ...</h1>
 <button id="btn">+1</button>
+<div id="status">Connexion en cours...</div>
 
 <script>
 // ---------------------------------------------------------------
 // CONFIGURATION DU PROJET
 // ---------------------------------------------------------------
-
-// Adresse du serveur Cloud TurboWarp
 const CLOUD_SERVER = "wss://clouddata.turbowarp.org";
 
-// L'ID du projet : doit exister dans TurboWarp / Scratch
-const PROJECT_ID = "p4-@Projet.sb3";
+// ⚠️ REMPLACEZ PAR VOTRE VRAI ID DE PROJET (numérique uniquement)
+// Exemple: "1234567890" - Trouvez-le dans l'URL de votre projet
+const PROJECT_ID = "1234567890";  // ← CHANGEZ CECI !
 
-// Nom EXACT de la variable cloud
-const CLOUD_VAR = "score";
+// ⚠️ Le nom doit inclure le symbole ☁
+// Si votre variable s'appelle "score" dans Scratch, utilisez "☁ score"
+const CLOUD_VAR = "☁ score";  // ← Vérifiez le nom exact !
 
-// Pseudo obligatoire, peut être n'importe quoi
-const USERNAME = "WebClient_1";
+const USERNAME = "WebClient_" + Math.floor(Math.random() * 10000);
 
+// ---------------------------------------------------------------
+// VARIABLES LOCALES
+// ---------------------------------------------------------------
+let ws;
+let currentScore = 0;
+let isConnected = false;
 
 // ---------------------------------------------------------------
 // 1. OUVERTURE DE LA CONNEXION WEBSOCKET
 // ---------------------------------------------------------------
-let ws = new WebSocket(CLOUD_SERVER);
-
-ws.onopen = () => {
-    console.log("Connected to Cloud Server.");
-
-    // Le serveur demande toujours une "handshake"
-    ws.send(JSON.stringify({ method: "handshake" }));
-};
-
-
-// ---------------------------------------------------------------
-// 2. RECEPTION DES MESSAGES DU SERVEUR CLOUD
-// ---------------------------------------------------------------
-ws.onmessage = (event) => {
-
-    // Le serveur peut envoyer plusieurs JSON dans un seul message
-    const lines = event.data.split("\n");
-
-    for (const line of lines) {
-        if (!line) continue;
-
-        let data;
-        try { data = JSON.parse(line); }
-        catch (e) { continue; }
-
-        // Nous nous intéressons uniquement aux mises à jour
-        if (data.method === "set" && data.name === CLOUD_VAR) {
-            console.log("Cloud updated:", data);
-
-            document.getElementById("score").innerText =
-                "Score : " + data.value;
-        }
-    }
-};
-
-
-// ---------------------------------------------------------------
-// 3. ENVOYER UNE MISE À JOUR AU SERVEUR
-// ---------------------------------------------------------------
-function setCloudValue(name, value) {
-    const msg = {
-        method: "set",
-        name: name,
-        value: String(value),  // Doit être une chaîne
-        project_id: PROJECT_ID,
-        user: USERNAME
+function connect() {
+    ws = new WebSocket(CLOUD_SERVER);
+    
+    ws.onopen = () => {
+        console.log("✅ Connecté au serveur Cloud");
+        document.getElementById("status").innerText = "Connecté au Cloud";
+        
+        // Handshake requis
+        const handshake = JSON.stringify({
+            method: "handshake",
+            project_id: PROJECT_ID,
+            user: USERNAME
+        });
+        ws.send(handshake);
+        
+        isConnected = true;
     };
-
-    ws.send(JSON.stringify(msg));
+    
+    // ---------------------------------------------------------------
+    // 2. RECEPTION DES MESSAGES
+    // ---------------------------------------------------------------
+    ws.onmessage = (event) => {
+        const lines = event.data.split("\n");
+        
+        for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            let data;
+            try { 
+                data = JSON.parse(line); 
+            } catch (e) { 
+                console.error("Erreur parsing JSON:", e);
+                continue; 
+            }
+            
+            console.log("Message reçu:", data);
+            
+            // Mise à jour de la variable cloud
+            if (data.method === "set" && data.name === CLOUD_VAR) {
+                currentScore = parseInt(data.value) || 0;
+                document.getElementById("score").innerText = "Score : " + currentScore;
+                console.log("✅ Score mis à jour:", currentScore);
+            }
+        }
+    };
+    
+    ws.onerror = (error) => {
+        console.error("❌ Erreur WebSocket:", error);
+        document.getElementById("status").innerText = "Erreur de connexion";
+    };
+    
+    ws.onclose = () => {
+        console.log("⚠️ Connexion fermée");
+        document.getElementById("status").innerText = "Déconnecté - Reconnexion...";
+        isConnected = false;
+        
+        // Tentative de reconnexion après 3 secondes
+        setTimeout(connect, 3000);
+    };
 }
 
+// ---------------------------------------------------------------
+// 3. ENVOYER UNE MISE À JOUR
+// ---------------------------------------------------------------
+function setCloudValue(value) {
+    if (!isConnected || ws.readyState !== WebSocket.OPEN) {
+        console.warn("⚠️ WebSocket pas connecté");
+        document.getElementById("status").innerText = "Non connecté - En attente...";
+        return;
+    }
+    
+    const msg = JSON.stringify({
+        method: "set",
+        name: CLOUD_VAR,
+        value: String(value),
+        project_id: PROJECT_ID,
+        user: USERNAME
+    });
+    
+    console.log("📤 Envoi:", msg);
+    ws.send(msg);
+}
 
 // ---------------------------------------------------------------
-// 4. AJOUTER +1 AU SCORE
+// 4. BOUTON +1
 // ---------------------------------------------------------------
 document.getElementById("btn").onclick = () => {
-
-    const txt = document.getElementById("score").innerText;
-    let current = parseInt(txt.replace("Score : ", "")) || 0;
-
-    const newValue = current + 1;
-
-    // Envoyer au cloud
-    setCloudValue(CLOUD_VAR, newValue);
+    const newScore = currentScore + 1;
+    
+    // Mise à jour locale immédiate (pour réactivité)
+    currentScore = newScore;
+    document.getElementById("score").innerText = "Score : " + currentScore;
+    
+    // Envoi au cloud
+    setCloudValue(newScore);
 };
-</script>
 
+// ---------------------------------------------------------------
+// 5. DÉMARRAGE
+// ---------------------------------------------------------------
+connect();
+</script>
 </body>
 </html>
