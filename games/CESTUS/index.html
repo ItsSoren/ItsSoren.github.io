@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cestus Control — Jeu de défense et gestion néo-futuriste. Construisez, améliorez et défendez votre noyau.">
+  <title>CESTUS CONTROL</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+</div>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <h1>CESTUS</h1>
+  <p>Défendez votre noyau contre les entités glitch émergentes. Construisez des modules, améliorez vos défenses, survivez aux vagues.</p>
+  
+  <div id="startButtons">
+    <!-- Buttons injected via JS -->
+    <button class="btn-start" onclick="startGame()">▶ INITIALISER SYSTÈME</button>
+  </div>
+
+  <div id="highScoreDisplay" style="margin-top: 25px; font-family:'Orbitron', sans-serif; font-size: 13px; color: var(--text-dim); letter-spacing: 2px;">
+    MEILLEUR SCORE : <span id="maxKillsValue" style="color:var(--neon-yellow)">0</span> KILLS
+  </div>
+  
+  <div style="font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;margin-top:20px;">CTRL+ALT+S — Mode debug</div>
+</div>
+
+<!-- TOP HUD -->
+<div id="topHud">
+  <div id="titleBadge">CESTUS</div>
+  <div class="hud-stat">
+    <span class="hud-icon">⚡</span>
+    <div>
+      <div class="hud-label">Énergie</div>
+      <div class="hud-value" id="hudEnergy" style="color:var(--neon-yellow)">100%</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">💛</span>
+    <div>
+      <div class="hud-label">Crédits</div>
+      <div class="hud-value" id="hudCredits" style="color:var(--neon-yellow)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">🔬</span>
+    <div>
+      <div class="hud-label">Échantillons</div>
+      <div class="hud-value" id="hudSamples" style="color:var(--neon-purple)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">✦</span>
+    <div>
+      <div class="hud-label">XP</div>
+      <div class="hud-value" id="hudXP" style="color:var(--neon-cyan)">0/100</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">★</span>
+    <div>
+      <div class="hud-label">Super Pts</div>
+      <div class="hud-value" id="hudSP" style="color:var(--neon-purple)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">🌊</span>
+    <div>
+      <div class="hud-label">Vague</div>
+      <div class="hud-value" id="hudWave" style="color:var(--neon-orange)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">💀</span>
+    <div>
+      <div class="hud-label">Kills</div>
+      <div class="hud-value" id="hudKills" style="color:var(--neon-red)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <div class="wave-alert" id="waveAlert" style="display:none">⚠ VAGUE EN COURS</div>
+  </div>
+</div>
+
+<!-- WAVE CONTROLS -->
+<div id="waveControls">
+  <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:1.5px;">VITESSE:</span>
+  <button class="speed-btn" id="spd05" onclick="setSpeed(0.5)">×0.5</button>
+  <button class="speed-btn active" id="spd1" onclick="setSpeed(1)">×1</button>
+  <button class="speed-btn" id="spd2" onclick="setSpeed(2)">×2</button>
+  <button class="speed-btn locked" id="spd4" onclick="setSpeed(4)">×4</button>
+  <button id="startWaveBtn" onclick="triggerNextWave()">⚡ LANCER VAGUE</button>
+</div>
+
+<!-- WAVE PREVIEW -->
+<div id="wavePreview">
+  <div class="wp-title">PROCHAINE VAGUE</div>
+  <div class="wp-wave" id="wpWave">Vague 1</div>
+  <div style="font-size:12px;color:var(--text-dim);margin-top:3px;" id="wpInfo">11 ennemis</div>
+</div>
+
+<!-- ENERGY WARNINGS -->
+<div id="energyWarn">⚡ ÉNERGIE INSUFFISANTE — PERFORMANCES RÉDUITES</div>
+<div id="overclockInfo">🔥 OVERCLOCK PASSIF — <span id="overclockVal">+0%</span> CADENCE</div>
+
+<!-- ACTIVE OVERCLOCK -->
+<div id="overclockPanel">
+  <div id="overclockTooltip" class="custom-tooltip"></div>
+  <button id="overclockBtn" onclick="toggleOverclock()">⚡ SURCHARGE</button>
+  <div id="overclockHeatContainer">
+    <div id="overclockHeatBar"></div>
+  </div>
+</div>
+
+<!-- MODULE INFO PANEL -->
+<div id="moduleInfo">
+  <button id="closeInfo">✕</button>
+  <div class="info-title" id="infoTitle">MODULE</div>
+  <div class="info-stat"><span class="info-stat-label">Type</span><span class="info-stat-value" id="infoType">—</span></div>
+  <div class="info-stat"><span class="info-stat-label">Niveau</span><span class="info-stat-value" id="infoLevel">1/33</span></div>
+  <div class="info-stat"><span class="info-stat-label">MK</span><span class="info-stat-value" id="infoMK">MK1</span></div>
+  <div style="font-size:12px;color:var(--text-dim);margin:6px 0 2px;">VIE</div>
+  <div class="info-bar"><div class="info-bar-fill hp" id="infoHpBar" style="width:100%"></div></div>
+  <div class="info-stat"><span class="info-stat-label">PV</span><span class="info-stat-value" id="infoHp">—</span></div>
+  <div id="infoExtraStats"></div>
+  <div style="margin-top:12px;" id="infoActions"></div>
+</div>
+
+<!-- BOTTOM PANEL -->
+<div id="bottomPanel">
+  <div id="tabBar">
+    <div class="tab active" data-tab="shop">🏪 MODULES</div>
+    <div class="tab" data-tab="upgrades">⬆ AMÉLIORATIONS</div>
+    <div class="tab" data-tab="superpoints">★ SUPER POINTS</div>
+  </div>
+  <div id="tabContent"></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notifContainer"></div>
+
+<!-- OVERLAY (Game Over) -->
+<div id="overlay">
+  <div class="overlay-title" id="overlayTitle" style="color:var(--neon-red)">SYSTÈME DÉTRUIT</div>
+  <div class="overlay-sub" id="overlaySub">Votre noyau principal a été anéanti.</div>
+  <div style="font-family:'Share Tech Mono';font-size:15px;color:var(--text-dim);" id="overlayStats"></div>
+  <button class="btn-restart" onclick="initGame()">↺ REDÉMARRER</button>
+</div>
+
+<!-- PAUSE MENU -->
+<div id="pauseOverlay">
+  <div class="pause-title">❚❚ PAUSE</div>
+  <div class="pause-shortcuts">
+    <div class="pause-section-title">RACCOURCIS CLAVIER</div>
+    <div class="shortcut-row"><span class="shortcut-key">P / ECHAP</span><span>Pause</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">ESPACE</span><span>Surcharge</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">N</span><span>Lancer vague</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">R</span><span>Vendre module sélectionné</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">1-4</span><span>Vitesse (×1 à ×5)</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">CLIC DROIT</span><span>Annuler placement</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">MOLETTE</span><span>Zoom</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">CTRL+ALT+S</span><span>Mode debug</span></div>
+  </div>
+  <div class="pause-buttons">
+    <button class="btn-resume" onclick="togglePause()">▶ REPRENDRE</button>
+    <button class="btn-bestiary" onclick="toggleBestiary()">📖 BESTIAIRE</button>
+  </div>
+</div>
+
+<!-- BESTIARY OVERLAY -->
+<div id="bestiaryOverlay">
+  <div class="bestiary-header">CATALOGUE DES ENTITÉS</div>
+  <div class="bestiary-grid" id="bestiaryGrid"></div>
+  <button class="btn-resume" style="margin-top: 30px;" onclick="toggleBestiary()">FERMER</button>
+</div>
+
+<!-- SCRIPTS (ordered by dependency) -->
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/grid.js"></script>
+<script src="js/energy.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/modules.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/waves.js"></script>
+<script src="js/patrol.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/input.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

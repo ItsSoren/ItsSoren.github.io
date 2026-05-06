@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CESTUS CONTROL</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon-cyan: #00f5ff;
+  --neon-blue: #0080ff;
+  --neon-purple: #bb44ff;
+  --neon-green: #00ff88;
+  --neon-orange: #ff6600;
+  --neon-red: #ff2244;
+  --neon-yellow: #ffdd00;
+  --bg-dark: #050a14;
+  --bg-mid: #0a1628;
+  --bg-panel: #0d1f35;
+  --text-dim: #6a9abf;
+  --grid-color: rgba(0,200,255,0.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg-dark);color:#cce8ff;font-family:'Share Tech Mono',monospace;overflow:hidden;height:100vh;width:100vw;user-select:none;}
+#gameContainer{position:relative;width:100vw;height:100vh;overflow:hidden;}
+#gameCanvas{display:block;cursor:crosshair;}
+
+/* TOP HUD */
+#topHud{position:fixed;top:0;left:0;right:0;height:56px;background:linear-gradient(180deg,rgba(5,10,20,0.98) 0%,rgba(5,10,20,0.75) 100%);border-bottom:1px solid rgba(0,200,255,0.25);display:flex;align-items:center;z-index:100;padding:0 8px;gap:0;}
+.hud-stat{display:flex;align-items:center;gap:7px;padding:0 14px;border-right:1px solid rgba(0,200,255,0.12);height:100%;}
+.hud-stat:last-child{border-right:none;}
+.hud-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+.hud-value{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;}
+.hud-icon{font-size:16px;}
+#titleBadge{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:var(--neon-cyan);text-shadow:0 0 20px var(--neon-cyan);letter-spacing:3px;padding:0 20px;border-right:1px solid rgba(0,200,255,0.2);}
+.wave-alert{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--neon-orange);text-shadow:0 0 10px var(--neon-orange);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* SPEED + WAVE CONTROLS */
+#waveControls{position:fixed;top:64px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:101;align-items:center;}
+.speed-btn{font-family:'Orbitron',sans-serif;font-size:11px;padding:5px 12px;background:rgba(5,10,20,0.9);border:1px solid rgba(0,200,255,0.25);color:var(--text-dim);cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.speed-btn:hover{border-color:var(--neon-cyan);color:var(--neon-cyan);}
+.speed-btn.active{border-color:var(--neon-cyan);color:var(--neon-cyan);background:rgba(0,200,255,0.08);box-shadow:0 0 8px rgba(0,200,255,0.2);}
+.speed-btn.locked{opacity:0.3;cursor:not-allowed;}
+#startWaveBtn{font-family:'Orbitron',sans-serif;font-size:12px;padding:6px 18px;background:rgba(5,10,20,0.9);border:1px solid var(--neon-green);color:var(--neon-green);cursor:pointer;transition:all 0.2s;letter-spacing:1px;text-shadow:0 0 6px var(--neon-green);}
+#startWaveBtn:hover{background:rgba(0,255,136,0.08);box-shadow:0 0 12px rgba(0,255,136,0.3);}
+#startWaveBtn:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* BOTTOM PANELS */
+#bottomPanel{position:fixed;bottom:0;left:0;right:0;height:210px;background:linear-gradient(0deg,rgba(5,10,20,0.99) 0%,rgba(5,10,20,0.88) 100%);border-top:1px solid rgba(0,200,255,0.25);z-index:100;display:flex;flex-direction:column;}
+#tabBar{display:flex;gap:2px;padding:6px 8px 0;border-bottom:1px solid rgba(0,200,255,0.12);}
+.tab{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:1px;padding:6px 16px;cursor:pointer;border:1px solid rgba(0,200,255,0.15);background:transparent;color:var(--text-dim);transition:all 0.2s;text-transform:uppercase;}
+.tab:hover{color:var(--neon-cyan);border-color:rgba(0,200,255,0.4);}
+.tab.active{color:var(--neon-cyan);border-color:var(--neon-cyan);background:rgba(0,200,255,0.05);text-shadow:0 0 8px var(--neon-cyan);}
+#tabContent{flex:1;overflow:hidden;padding:8px;}
+
+/* SHOP CARDS */
+.card-grid{display:flex;gap:8px;height:100%;overflow-x:auto;padding-bottom:4px;}
+.card-grid::-webkit-scrollbar{height:3px;}
+.card-grid::-webkit-scrollbar-thumb{background:rgba(0,200,255,0.3);}
+.shop-card{min-width:155px;max-width:155px;background:rgba(0,150,200,0.04);border:1px solid rgba(0,200,255,0.15);padding:9px;cursor:pointer;transition:all 0.2s;position:relative;flex-shrink:0;}
+.shop-card:hover:not(.locked){border-color:rgba(0,200,255,0.5);background:rgba(0,200,255,0.06);transform:translateY(-2px);}
+.shop-card.locked{opacity:0.4;cursor:not-allowed;}
+.shop-card.affordable{border-color:rgba(0,255,136,0.4);}
+.card-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--neon-cyan);margin-bottom:4px;letter-spacing:1px;}
+.card-icon{font-size:24px;margin:4px 0;text-align:center;display:block;}
+.card-desc{font-size:11px;color:var(--text-dim);line-height:1.4;margin-bottom:6px;}
+.card-cost{font-size:11px;display:flex;gap:6px;flex-wrap:wrap;}
+.cost-credits{color:var(--neon-yellow);}
+.cost-samples{color:var(--neon-purple);}
+.card-badge{position:absolute;top:4px;right:4px;font-size:9px;padding:2px 5px;border:1px solid;font-family:'Orbitron',sans-serif;}
+.badge-max{color:var(--neon-orange);border-color:var(--neon-orange);}
+.badge-mk2{color:var(--neon-purple);border-color:var(--neon-purple);}
+
+/* UPGRADES */
+.upgrade-list{display:flex;gap:8px;height:100%;overflow-x:auto;}
+.upgrade-card{min-width:160px;background:rgba(0,150,200,0.04);border:1px solid rgba(0,200,255,0.15);padding:9px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.upgrade-card:hover:not(.locked){border-color:var(--neon-green);background:rgba(0,255,136,0.04);}
+.upgrade-card.locked{opacity:0.4;cursor:not-allowed;}
+.upg-name{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--neon-green);margin-bottom:3px;}
+.upg-desc{font-size:11px;color:var(--text-dim);margin-bottom:5px;line-height:1.3;}
+.upg-progress{height:3px;background:rgba(0,255,136,0.1);margin-bottom:4px;}
+.upg-bar{height:100%;background:var(--neon-green);transition:width 0.3s;}
+.upg-level{font-size:11px;color:var(--neon-green);}
+
+/* SUPERPOINTS */
+.sp-grid{display:flex;gap:8px;height:100%;overflow-x:auto;align-items:flex-start;padding-top:4px;}
+.sp-card{min-width:145px;background:rgba(139,0,255,0.04);border:1px solid rgba(187,68,255,0.25);padding:9px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.sp-card:hover{border-color:var(--neon-purple);background:rgba(139,0,255,0.08);}
+.sp-name{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--neon-purple);margin-bottom:3px;}
+.sp-desc{font-size:11px;color:var(--text-dim);margin-bottom:4px;}
+.sp-count{font-size:12px;color:var(--neon-purple);font-family:'Orbitron',sans-serif;}
+
+/* MODULE INFO PANEL */
+#moduleInfo{position:fixed;right:0;top:56px;width:240px;background:rgba(5,10,20,0.97);border-left:1px solid rgba(0,200,255,0.25);border-bottom:1px solid rgba(0,200,255,0.2);padding:14px;z-index:99;transform:translateX(100%);transition:transform 0.3s;}
+#moduleInfo.visible{transform:translateX(0);}
+.info-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--neon-cyan);margin-bottom:10px;text-shadow:0 0 8px var(--neon-cyan);}
+.info-stat{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;}
+.info-stat-label{color:var(--text-dim);}
+.info-stat-value{color:#cce8ff;}
+.info-bar{height:4px;background:rgba(0,200,255,0.1);margin:3px 0 8px;}
+.info-bar-fill{height:100%;background:var(--neon-cyan);transition:width 0.5s;}
+.info-bar-fill.hp{background:var(--neon-green);}
+#closeInfo{float:right;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;}
+#closeInfo:hover{color:var(--neon-red);}
+
+/* NOTIFICATIONS */
+#notifContainer{position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:4px;pointer-events:none;}
+.notif{font-family:'Orbitron',sans-serif;font-size:12px;padding:7px 18px;border:1px solid;animation:notifIn 0.3s ease, notifOut 0.4s ease 2.6s forwards;background:rgba(5,10,20,0.95);}
+.notif-credits{color:var(--neon-yellow);border-color:var(--neon-yellow);}
+.notif-xp{color:var(--neon-cyan);border-color:var(--neon-cyan);}
+.notif-samples{color:var(--neon-purple);border-color:var(--neon-purple);}
+.notif-warn{color:var(--neon-orange);border-color:var(--neon-orange);}
+.notif-levelup{color:var(--neon-green);border-color:var(--neon-green);font-size:14px;}
+.notif-boss{color:var(--neon-red);border-color:var(--neon-red);font-size:14px;}
+@keyframes notifIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes notifOut{from{opacity:1;}to{opacity:0;}}
+
+/* OVERLAY */
+#overlay{position:fixed;inset:0;background:rgba(5,10,20,0.93);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+#overlay.active{display:flex;}
+.overlay-title{font-family:'Orbitron',sans-serif;font-size:52px;font-weight:900;letter-spacing:6px;text-shadow:0 0 30px currentColor;}
+.overlay-sub{font-family:'Rajdhani',sans-serif;font-size:20px;color:var(--text-dim);}
+.btn-restart{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px;padding:14px 36px;background:none;border:1px solid var(--neon-cyan);color:var(--neon-cyan);cursor:pointer;transition:all 0.2s;margin-top:10px;}
+.btn-restart:hover{background:rgba(0,200,255,0.1);text-shadow:0 0 10px var(--neon-cyan);box-shadow:0 0 20px rgba(0,200,255,0.2);}
+
+/* START SCREEN */
+#startScreen{position:fixed;inset:0;background:rgba(5,10,20,0.97);z-index:600;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;}
+#startScreen h1{font-family:'Orbitron',sans-serif;font-size:64px;font-weight:900;color:var(--neon-cyan);text-shadow:0 0 40px var(--neon-cyan),0 0 80px rgba(0,245,255,0.3);letter-spacing:8px;}
+#startScreen p{font-family:'Rajdhani',sans-serif;font-size:18px;color:var(--text-dim);max-width:500px;text-align:center;line-height:1.6;}
+.btn-start{font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:3px;padding:16px 48px;background:none;border:2px solid var(--neon-green);color:var(--neon-green);cursor:pointer;transition:all 0.3s;text-shadow:0 0 10px var(--neon-green);}
+.btn-start:hover{background:rgba(0,255,136,0.1);box-shadow:0 0 30px rgba(0,255,136,0.3);}
+
+/* WAVE PREVIEW */
+#wavePreview{position:fixed;top:64px;left:8px;background:rgba(5,10,20,0.9);border:1px solid rgba(0,200,255,0.2);padding:10px 14px;z-index:99;font-size:11px;}
+#wavePreview .wp-title{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:4px;}
+#wavePreview .wp-wave{color:var(--neon-cyan);font-family:'Orbitron',sans-serif;font-size:13px;}
+
+/* ENERGY WARNING */
+#energyWarn{position:fixed;top:64px;right:248px;background:rgba(255,100,0,0.12);border:1px solid rgba(255,100,0,0.5);padding:7px 14px;z-index:99;font-size:11px;color:var(--neon-orange);display:none;font-family:'Orbitron',sans-serif;letter-spacing:1px;}
+#overclockInfo{position:fixed;top:102px;right:248px;background:rgba(0,255,220,0.07);border:1px solid rgba(0,255,220,0.35);padding:7px 14px;z-index:99;font-size:11px;color:#00ffdd;display:none;font-family:'Orbitron',sans-serif;letter-spacing:1px;}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:rgba(0,200,255,0.2);}
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+</div>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <h1>CESTUS</h1>
+  <p>Défendez votre noyau contre les entités glitch. Construisez, améliorez, survivez.</p>
+  <button class="btn-start" onclick="startGame()">▶ INITIALISER SYSTÈME</button>
+  <div style="font-size:11px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;margin-top:8px;">CTRL+ALT+S — Mode debug</div>
+</div>
+
+<!-- TOP HUD -->
+<div id="topHud">
+  <div id="titleBadge">CESTUS</div>
+  <div class="hud-stat"><span class="hud-icon">⚡</span><div><div class="hud-label">Énergie</div><div class="hud-value" id="hudEnergy" style="color:var(--neon-yellow)">100%</div></div></div>
+  <div class="hud-stat"><span class="hud-icon">💛</span><div><div class="hud-label">Crédits</div><div class="hud-value" id="hudCredits" style="color:var(--neon-yellow)">0</div></div></div>
+  <div class="hud-stat"><span class="hud-icon">🔬</span><div><div class="hud-label">Échantillons</div><div class="hud-value" id="hudSamples" style="color:var(--neon-purple)">0</div></div></div>
+  <div class="hud-stat"><span class="hud-icon">✦</span><div><div class="hud-label">XP</div><div class="hud-value" id="hudXP" style="color:var(--neon-cyan)">0/100</div></div></div>
+  <div class="hud-stat"><span class="hud-icon">★</span><div><div class="hud-label">Super Pts</div><div class="hud-value" id="hudSP" style="color:var(--neon-purple)">0</div></div></div>
+  <div class="hud-stat"><span class="hud-icon">🌊</span><div><div class="hud-label">Vague</div><div class="hud-value" id="hudWave" style="color:var(--neon-orange)">0</div></div></div>
+  <div class="hud-stat"><span class="hud-icon">💀</span><div><div class="hud-label">Kills</div><div class="hud-value" id="hudKills" style="color:var(--neon-red)">0</div></div></div>
+  <div class="hud-stat"><div class="wave-alert" id="waveAlert" style="display:none">⚠ VAGUE EN COURS</div></div>
+</div>
+
+<!-- WAVE CONTROLS -->
+<div id="waveControls">
+  <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:1px;">VITESSE:</span>
+  <button class="speed-btn" id="spd05" onclick="setSpeed(0.5)">×0.5</button>
+  <button class="speed-btn active" id="spd1" onclick="setSpeed(1)">×1</button>
+  <button class="speed-btn" id="spd2" onclick="setSpeed(2)">×2</button>
+  <button class="speed-btn locked" id="spd4" onclick="setSpeed(4)">×4</button>
+  <button id="startWaveBtn" onclick="triggerNextWave()">⚡ LANCER VAGUE</button>
+</div>
+
+<!-- WAVE PREVIEW -->
+<div id="wavePreview">
+  <div class="wp-title">PROCHAINE VAGUE</div>
+  <div class="wp-wave" id="wpWave">Vague 1</div>
+  <div style="font-size:11px;color:var(--text-dim);margin-top:2px;" id="wpInfo">10 ennemis</div>
+</div>
+
+<!-- ENERGY WARNINGS -->
+<div id="energyWarn">⚡ ÉNERGIE INSUFFISANTE — PERFORMANCES RÉDUITES</div>
+<div id="overclockInfo">🔥 OVERCLOCK ACTIF — <span id="overclockVal">+0%</span> CADENCE</div>
+
+<!-- MODULE INFO PANEL -->
+<div id="moduleInfo">
+  <button id="closeInfo">✕</button>
+  <div class="info-title" id="infoTitle">MODULE</div>
+  <div class="info-stat"><span class="info-stat-label">Type</span><span class="info-stat-value" id="infoType">—</span></div>
+  <div class="info-stat"><span class="info-stat-label">Niveau</span><span class="info-stat-value" id="infoLevel">1/33</span></div>
+  <div class="info-stat"><span class="info-stat-label">MK</span><span class="info-stat-value" id="infoMK">MK1</span></div>
+  <div style="font-size:11px;color:var(--text-dim);margin:5px 0 2px;">VIE</div>
+  <div class="info-bar"><div class="info-bar-fill hp" id="infoHpBar" style="width:100%"></div></div>
+  <div class="info-stat"><span class="info-stat-label">PV</span><span class="info-stat-value" id="infoHp">—</span></div>
+  <div id="infoExtraStats"></div>
+  <div style="margin-top:10px;" id="infoActions"></div>
+</div>
+
+<!-- BOTTOM PANEL -->
+<div id="bottomPanel">
+  <div id="tabBar">
+    <div class="tab active" data-tab="shop">🏪 MODULES</div>
+    <div class="tab" data-tab="upgrades">⬆ AMÉLIORATIONS</div>
+    <div class="tab" data-tab="superpoints">★ SUPER POINTS</div>
+  </div>
+  <div id="tabContent"></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notifContainer"></div>
+
+<!-- OVERLAY -->
+<div id="overlay">
+  <div class="overlay-title" id="overlayTitle" style="color:var(--neon-red)">SYSTÈME DÉTRUIT</div>
+  <div class="overlay-sub" id="overlaySub">Votre noyau principal a été anéanti.</div>
+  <div style="font-family:'Share Tech Mono';font-size:14px;color:var(--text-dim);" id="overlayStats"></div>
+  <button class="btn-restart" onclick="initGame()">↺ REDÉMARRER</button>
+</div>
+
+<script>
+// ============================================================
+// CANVAS & STATE
+// ============================================================
+const C = document.getElementById('gameCanvas');
+const ctx = C.getContext('2d');
+let W, H;
+let G = {};
+let gameSpeed = 1;
+let gameStarted = false;
+
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  gameStarted = true;
+  initGame();
+}
+
+function setSpeed(s) {
+  // x4 requires level 10+
+  if(s === 4 && G.level < 10) { showNotif('×4 débloqué au niveau 10 !', 'notif-warn'); return; }
+  gameSpeed = s;
+  ['spd05','spd1','spd2','spd4'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = {0.5:'spd05',1:'spd1',2:'spd2',4:'spd4'};
+  document.getElementById(map[s]).classList.add('active');
+}
+
+function triggerNextWave() {
+  if(!G || G.over || G.waveActive) return;
+  G.waveTimer = G.now; // force trigger now
+}
+
+// ============================================================
+// MODULE TYPES
+// ============================================================
+const MODULE_TYPES = {
+  core: {
+    name:'NOYAU CESTUS', icon:'◈', color:'#00f5ff', energy:0,
+    hp:200, dmg:15, range:3, fireRate:1200, isCore:true,
+    desc:'Module principal. Sa destruction = Game Over.',
+    unlocked:true, cost:{credits:0,samples:0}
+  },
+  turret: {
+    name:'TOURELLE', icon:'⊕', color:'#00ff88', energy:5,
+    hp:80, dmg:12, range:3.5, fireRate:900, isShooter:true,
+    desc:'Tourelle standard. Bon rapport dégâts/énergie. (-5%⚡)',
+    unlocked:true, cost:{credits:120,samples:0}
+  },
+  laser: {
+    name:'LASER PULSE', icon:'▷', color:'#ff6600', energy:20,
+    hp:60, dmg:25, range:5, fireRate:2000, isShooter:true,
+    desc:'Dégâts élevés, grande portée. (-20%⚡)',
+    unlocked:false, cost:{credits:0,samples:3}
+  },
+  shield: {
+    name:'BOUCLIER', icon:'⬡', color:'#bb44ff', energy:3,
+    hp:300, dmg:0, range:0, fireRate:0, isPassive:true, isShield:true,
+    aura:{hp:0.15},
+    desc:'Grosse armure passive. +15% HP adjacents. (-3%⚡)',
+    unlocked:false, cost:{credits:0,samples:2}
+  },
+  reactor: {
+    name:'RÉACTEUR', icon:'⚡', color:'#ffdd00', energy:-15,
+    hp:70, dmg:0, range:0, fireRate:0, isPassive:true, isReactor:true,
+    desc:'Fournit +15% énergie. Améliorable.',
+    unlocked:false, cost:{credits:200,samples:0}
+  },
+  amplifier: {
+    name:'AMPLIFICATEUR', icon:'◇', color:'#ff88ff', energy:10,
+    hp:50, dmg:0, range:0, fireRate:0, isPassive:true, isAmplifier:true,
+    aura:{dmg:0.20,fireRate:0.15},
+    desc:'+20% dégâts et +15% cadence adjacents. (-10%⚡)',
+    unlocked:false, cost:{credits:0,samples:4}
+  },
+  missile: {
+    name:'LANCE-MISSILES', icon:'⊗', color:'#ff2244', energy:20,
+    hp:75, dmg:40, range:6, fireRate:3000, isShooter:true, splash:1.5,
+    desc:'Dégâts de zone. (-20%⚡)',
+    unlocked:false, cost:{credits:350,samples:0}
+  },
+  collector: {
+    name:'COLLECTEUR', icon:'◉', color:'#00aaff', energy:5,
+    hp:60, dmg:0, range:0, fireRate:0, isPassive:true, isCollector:true,
+    aura:{credits:0.25,samples:0.25},
+    desc:'+25% récompenses kills adjacents. (-5%⚡)',
+    unlocked:false, cost:{credits:180,samples:1}
+  },
+};
+
+const UPGRADE_DEFS = [
+  {id:'u_dmg',   name:'SURCHARGE CINÉTIQUE', desc:'+20% dégâts globaux',     maxLevel:10, baseCost:{credits:80},  costScale:1.5, effect:'dmg',        value:0.20},
+  {id:'u_hp',    name:'NANO-BLINDAGE',        desc:'+25% HP globaux',          maxLevel:10, baseCost:{credits:100}, costScale:1.6, effect:'hp',         value:0.25},
+  {id:'u_range', name:'SENSEURS ÉTENDUS',     desc:'+0.5 portée globale',      maxLevel:8,  baseCost:{credits:90},  costScale:1.5, effect:'range',      value:0.5},
+  {id:'u_fire',  name:'OVERCLOCK SYSTÈME',    desc:'+15% cadence globale',     maxLevel:8,  baseCost:{credits:120}, costScale:1.7, effect:'fireRate',   value:0.15},
+  {id:'u_xp',    name:'ANALYSEUR XP',         desc:'+30% XP par kill',         maxLevel:5,  baseCost:{credits:0,samples:2}, costScale:1.0, effect:'xpGain', value:0.30},
+  {id:'u_cred',  name:'EXTRACTEUR CRÉDITS',   desc:'+20% crédits par kill',    maxLevel:8,  baseCost:{credits:60},  costScale:1.4, effect:'creditGain', value:0.20},
+];
+
+const SP_BONUSES = [
+  {id:'sp_dmg',     name:'PÉNÉTRATION +1%', desc:'+1% dégâts permanents',       cost:1, effect:'dmg'},
+  {id:'sp_credits', name:'RECYCLAGE +1%',   desc:'+1% crédits permanents',      cost:1, effect:'credits'},
+  {id:'sp_samples', name:'BIOSCAN +1%',     desc:'+1% échantillons permanents', cost:1, effect:'samples'},
+  {id:'sp_xp',      name:'SYNAPSES +1%',    desc:'+1% XP permanents',           cost:1, effect:'xp'},
+  {id:'sp_hp',      name:'CARAPACE +1%',    desc:'+1% PV permanents',           cost:1, effect:'hp'},
+  {id:'sp_speed',   name:'TURBO +1%',       desc:'+1% cadence/prod permanente', cost:1, effect:'speed'},
+];
+
+let upgradeLevels = {};
+
+// ============================================================
+// INIT
+// ============================================================
+function createGameState() {
+  return {
+    credits:150, samples:0, xp:0, xpNeeded:100, level:1,
+    superPoints:0, totalSP:0, kills:0,
+    bonus:{dmg:0,credits:0,samples:0,xp:0,hp:0,speed:0},
+    cam:{x:0,y:0,zoom:1},
+    isDragging:false, lastMouse:{x:0,y:0},
+    _mouseDown:false, _mouseDownPos:{x:0,y:0},
+    wave:0, waveActive:false, waveTimer:5000,
+    waveInterval:20000, waveEnemies:[], enemySpawnIndex:0, bossWave:false,
+    modules:[], enemies:[], projectiles:[], particles:[], floatingTexts:[],
+    CELL:60, GRID_R:26, // circular grid radius in cells
+    selectedModule:null,
+    now:0, lastTime:0, over:false,
+    glitchZones:[],
+    totalEnergy:100, usedEnergy:0,
+    placingModule:null,
+    moduleLevels:{}, moduleMK:{},
+  };
+}
+
+function initGame() {
+  G = createGameState();
+  upgradeLevels = {};
+  UPGRADE_DEFS.forEach(u => { upgradeLevels[u.id] = 0; });
+  Object.keys(MODULE_TYPES).forEach(k => {
+    if(k !== 'core') MODULE_TYPES[k].unlocked = false;
+  });
+  MODULE_TYPES.turret.unlocked = true;
+
+  resizeCanvas();
+  generateGlitchZones();
+
+  // Place core at center
+  const cx = 0, cy = 0; // world center (grid coords offset for circular)
+  G.centerGX = 0; G.centerGY = 0;
+  placeModule('core', 0, 0);
+
+  // Center camera on world center
+  G.cam.x = 0; G.cam.y = 0;
+  G.cam.zoom = 1;
+
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('waveAlert').style.display = 'none';
+  document.getElementById('startWaveBtn').disabled = false;
+
+  gameSpeed = 1;
+  setSpeed(1);
+  renderTabs();
+  updateHUD();
+  requestAnimationFrame(gameLoop);
+}
+
+function resizeCanvas() {
+  W = C.width = window.innerWidth;
+  H = C.height = window.innerHeight;
+}
+
+// ============================================================
+// CIRCULAR GRID HELPERS
+// ============================================================
+function worldPos(gx, gy) {
+  // Grid cell center in world coords
+  return { x: gx * G.CELL, y: gy * G.CELL };
+}
+
+function isInsideCircle(gx, gy) {
+  return Math.hypot(gx, gy) <= G.GRID_R;
+}
+
+function generateGlitchZones() {
+  G.glitchZones = [];
+  // Glitch zones arranged in a circle slightly outside the playable radius
+  const outerR = G.GRID_R + 2;
+  const count = 48;
+  for(let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
+    const r = outerR + Math.random() * 4;
+    G.glitchZones.push({
+      x: Math.cos(angle) * r * G.CELL,
+      y: Math.sin(angle) * r * G.CELL,
+      worldR: (Math.random() * 2 + 1.5) * G.CELL,
+      t: Math.random() * 1000,
+      angle,
+    });
+  }
+}
+
+// ============================================================
+// MODULES
+// ============================================================
+function placeModule(typeId, gx, gy) {
+  const def = MODULE_TYPES[typeId];
+  if(!def) return null;
+  const wp = worldPos(gx, gy);
+  const mod = {
+    id: Date.now() + Math.random(),
+    typeId, gx, gy,
+    x: wp.x, y: wp.y,
+    hp: def.hp, maxHp: def.hp,
+    lastFire: 0, target: null,
+    angle: 0, alive: true, flash: 0,
+    level: 1, mk: 1, burstAnim: 0,
+  };
+  G.modules.push(mod);
+  recalcEnergy();
+  return mod;
+}
+
+function recalcEnergy() {
+  let base = 100;
+  let used = 0;
+  G.modules.forEach(m => {
+    const def = MODULE_TYPES[m.typeId];
+    const lvBonus = def.isReactor ? (m.level - 1) * 0.05 * 15 : 0; // +5% per level for reactor
+    if(def.energy < 0) base += Math.abs(def.energy) + lvBonus;
+    else used += def.energy;
+  });
+  G.totalEnergy = base;
+  G.usedEnergy = used;
+
+  const ratio = G.usedEnergy > 0 ? G.totalEnergy / G.usedEnergy : 2;
+  const energyPct = Math.round(ratio * 100);
+
+  // Show/hide warnings
+  const energyWarn = document.getElementById('energyWarn');
+  const overclockInfo = document.getElementById('overclockInfo');
+  energyWarn.style.display = (ratio < 1.0 && G.usedEnergy > 0) ? 'block' : 'none';
+
+  if(ratio > 1.0 && G.usedEnergy > 0) {
+    const overPct = (ratio - 1) * 100;
+    const overclockBonus = Math.floor(overPct / 5);
+    if(overclockBonus > 0) {
+      overclockInfo.style.display = 'block';
+      document.getElementById('overclockVal').textContent = '+' + overclockBonus + '%';
+    } else {
+      overclockInfo.style.display = 'none';
+    }
+  } else {
+    overclockInfo.style.display = 'none';
+  }
+}
+
+function getEnergyRatio() {
+  if(G.usedEnergy === 0) return 1;
+  const ratio = G.totalEnergy / G.usedEnergy;
+  return Math.min(ratio, 2); // cap at 200% (overclock)
+}
+
+function getOverclockBonus() {
+  const ratio = getEnergyRatio();
+  if(ratio <= 1.0) return 0;
+  const overPct = (ratio - 1.0) * 100;
+  return Math.floor(overPct / 5) * 0.01; // +1% cadence per 5% over 100%
+}
+
+function isAdjacent(a, b) {
+  return Math.abs(a.gx-b.gx) <= 1 && Math.abs(a.gy-b.gy) <= 1 &&
+    !(Math.abs(a.gx-b.gx) + Math.abs(a.gy-b.gy) > 1);
+}
+
+function canPlaceModule(gx, gy) {
+  if(!isInsideCircle(gx, gy)) return false;
+  if(G.modules.some(m => m.gx === gx && m.gy === gy)) return false;
+  return G.modules.some(m => isAdjacent({gx,gy}, m));
+}
+
+function getModuleLevelUpCost(mod) {
+  if(mod.mk === 2) return Math.floor(80 * Math.pow(1.4, mod.level - 1));
+  return Math.floor(50 * Math.pow(1.3, mod.level - 1));
+}
+
+function getUpgradeMultipliers() {
+  let dmg=0,hp=0,range=0,fireRate=0,xpGain=0,creditGain=0;
+  UPGRADE_DEFS.forEach(u => {
+    const lv = upgradeLevels[u.id] || 0;
+    if(!lv) return;
+    const val = u.value * lv;
+    if(u.effect==='dmg') dmg+=val;
+    else if(u.effect==='hp') hp+=val;
+    else if(u.effect==='range') range+=val;
+    else if(u.effect==='fireRate') fireRate+=val;
+    else if(u.effect==='xpGain') xpGain+=val;
+    else if(u.effect==='creditGain') creditGain+=val;
+  });
+  return {dmg,hp,range,fireRate,xpGain,creditGain};
+}
+
+function getModuleStats(mod) {
+  const def = MODULE_TYPES[mod.typeId];
+  const upg = getUpgradeMultipliers();
+  const sp = G.bonus;
+  const energyRatio = Math.min(getEnergyRatio(), 1.0); // base stats capped at 100%, overclock handled separately
+  const overclock = getOverclockBonus();
+
+  let aura_dmg=0, aura_fire=0, aura_hp=0, aura_credits=0, aura_samples=0;
+  G.modules.filter(m => m.alive && m !== mod).forEach(m2 => {
+    const def2 = MODULE_TYPES[m2.typeId];
+    const adjLvMult = 1 + (m2.level - 1) * 0.05;
+    if(def2.isAmplifier && isAdjacent(mod, m2)) {
+      aura_dmg  += (def2.aura?.dmg     || 0) * adjLvMult;
+      aura_fire += (def2.aura?.fireRate || 0) * adjLvMult;
+    }
+    if(def2.isCollector && isAdjacent(mod, m2)) {
+      aura_credits += (def2.aura?.credits || 0) * adjLvMult;
+      aura_samples += (def2.aura?.samples || 0) * adjLvMult;
+    }
+    if(def2.isShield && isAdjacent(mod, m2)) {
+      aura_hp += (def2.aura?.hp || 0) * adjLvMult;
+    }
+  });
+
+  const lvlMult  = 1 + (mod.level - 1) * 0.08;
+  const mkMult   = mod.mk === 2 ? 1.5 : 1;
+  const energyFactor = 0.5 + 0.5 * energyRatio; // 50-100% based on energy
+  const dmgMult  = lvlMult * mkMult * (1 + upg.dmg + aura_dmg) * (1 + sp.dmg * 0.01) * energyFactor;
+  const fireMult = (1 + upg.fireRate + aura_fire + overclock) * (1 + sp.speed * 0.01) * energyFactor;
+  const hpMult   = lvlMult * mkMult * (1 + upg.hp + aura_hp)  * (1 + sp.hp  * 0.01);
+  const rangeMult = 1 + upg.range * 0.1;
+
+  return {
+    dmg:       def.dmg * dmgMult,
+    fireRate:  def.fireRate / fireMult,
+    range:     def.range * rangeMult * G.CELL,
+    maxHp:     Math.floor(def.hp * hpMult),
+    aura_credits, aura_samples,
+  };
+}
+
+// ============================================================
+// WAVES & ENEMIES
+// ============================================================
+function startWave() {
+  G.wave++;
+  G.waveActive = true;
+  G.bossWave = (G.wave % 5 === 0);
+  document.getElementById('hudWave').textContent = G.wave;
+  document.getElementById('waveAlert').style.display = 'inline';
+  document.getElementById('startWaveBtn').disabled = true;
+
+  const count = 8 + G.wave * 3;
+  G.waveEnemies = [];
+  G.enemySpawnIndex = 0;
+  for(let i = 0; i < count; i++) {
+    const isBoss = G.bossWave && i === 0;
+    G.waveEnemies.push({ delay: i * (isBoss ? 0 : 600), isBoss });
+  }
+
+  if(G.bossWave) showNotif('⚠ BOSS EN APPROCHE — VAGUE ' + G.wave, 'notif-boss');
+  else showNotif('VAGUE ' + G.wave + ' — ' + count + ' ennemis', 'notif-warn');
+  updateWavePreview();
+}
+
+function spawnEnemy(isBoss) {
+  const strength = 1 + (G.wave - 1) * 0.25;
+  // Pick random glitch zone as spawn point
+  const gz = G.glitchZones[Math.floor(Math.random() * G.glitchZones.length)];
+  const ex = gz.x + (Math.random() - 0.5) * G.CELL * 2;
+  const ey = gz.y + (Math.random() - 0.5) * G.CELL * 2;
+
+  const types = ['basic','fast','tank','ranged'];
+  const weights = [0.4, 0.25, 0.2, 0.15];
+  let r = Math.random(), etype = 'basic', acc = 0;
+  for(let i = 0; i < types.length; i++) { acc += weights[i]; if(r < acc) { etype = types[i]; break; } }
+
+  const cfgs = {
+    basic:  {hp:40,  speed:0.8, dmg:8,  reward:{credits:10,xp:15,samples:0.05}, color:'#ff4466', size:10, xpVal:15},
+    fast:   {hp:20,  speed:1.8, dmg:5,  reward:{credits:8, xp:10,samples:0.03}, color:'#ffaa00', size:8,  xpVal:12},
+    tank:   {hp:150, speed:0.4, dmg:20, reward:{credits:30,xp:40,samples:0.12}, color:'#aa44ff', size:16, xpVal:40},
+    ranged: {hp:30,  speed:0.6, dmg:6,  reward:{credits:12,xp:18,samples:0.08}, color:'#00ccff', size:9,  xpVal:18},
+  };
+  const cfg = cfgs[etype];
+  const bs = isBoss ? 4 : 1;
+
+  return {
+    id: Date.now() + Math.random(),
+    type: etype, isBoss,
+    x: ex, y: ey,
+    hp: cfg.hp * strength * bs, maxHp: cfg.hp * strength * bs,
+    speed: cfg.speed * (isBoss ? 0.6 : 1),
+    dmg: cfg.dmg * strength * (isBoss ? 5 : 1),
+    reward: cfg.reward, color: isBoss ? '#ff0066' : cfg.color,
+    size: cfg.size * (isBoss ? 2.5 : 1), xpVal: cfg.xpVal * (isBoss ? 8 : 1),
+    alive: true, target: null, attackTimer: 0,
+    flash: 0, angle: 0, lastPathUpdate: 0,
+  };
+}
+
+function updateWavePreview() {
+  const next = G.wave + (G.waveActive ? 1 : 0);
+  document.getElementById('wpWave').textContent = 'Vague ' + (G.waveActive ? G.wave : next);
+  const count = 8 + (G.waveActive ? G.wave : next) * 3;
+  const isBoss = (G.waveActive ? G.wave : next) % 5 === 0;
+  document.getElementById('wpInfo').textContent = count + ' ennemis' + (isBoss ? ' + BOSS' : '');
+}
+
+// ============================================================
+// COMBAT
+// ============================================================
+function moduleShoot(mod, now) {
+  const def = MODULE_TYPES[mod.typeId];
+  if(!def.isShooter && !def.isCore) return;
+  const stats = getModuleStats(mod);
+  if(now - mod.lastFire < stats.fireRate) return;
+
+  let target = null, minD = Infinity;
+  G.enemies.forEach(e => {
+    if(!e.alive) return;
+    const d = Math.hypot(e.x - mod.x, e.y - mod.y);
+    if(d < stats.range && d < minD) { minD = d; target = e; }
+  });
+  if(!target) return;
+
+  mod.lastFire = now;
+  mod.angle = Math.atan2(target.y - mod.y, target.x - mod.x);
+  mod.burstAnim = 5;
+
+  G.projectiles.push({
+    x: mod.x, y: mod.y,
+    tx: target.x, ty: target.y,
+    targetId: target.id,
+    speed: mod.typeId === 'laser' ? 12 : 7,
+    dmg: stats.dmg,
+    color: def.color,
+    splash: def.splash || 0,
+    size: mod.typeId === 'missile' ? 5 : 3,
+    alive: true, sourceId: mod.id,
+    aura_credits: stats.aura_credits,
+    aura_samples: stats.aura_samples,
+  });
+}
+
+function updateProjectiles(dt) {
+  G.projectiles.forEach(p => {
+    if(!p.alive) return;
+    const target = G.enemies.find(e => e.id === p.targetId && e.alive);
+    if(target) { p.tx = target.x; p.ty = target.y; }
+    const dx = p.tx - p.x, dy = p.ty - p.y, d = Math.hypot(dx, dy);
+    if(d < p.speed + 2) {
+      p.alive = false;
+      if(p.splash > 0) {
+        G.enemies.forEach(e => {
+          if(!e.alive) return;
+          const sd = Math.hypot(e.x - p.tx, e.y - p.ty);
+          if(sd < p.splash * G.CELL * 0.5) damageEnemy(e, p.dmg * (1 - sd / (p.splash * G.CELL * 0.5 + 1)), p);
+        });
+        spawnExplosion(p.tx, p.ty, p.color);
+      } else if(target) {
+        damageEnemy(target, p.dmg, p);
+      }
+    } else {
+      p.x += dx / d * p.speed;
+      p.y += dy / d * p.speed;
+    }
+  });
+  G.projectiles = G.projectiles.filter(p => p.alive);
+}
+
+function damageEnemy(e, dmg, proj) {
+  e.hp -= dmg; e.flash = 5;
+  spawnParticle(e.x, e.y, e.color, 3);
+  if(e.hp <= 0) {
+    e.alive = false;
+    G.kills++;
+    document.getElementById('hudKills').textContent = G.kills;
+    awardKill(e, proj);
+    spawnExplosion(e.x, e.y, e.color);
+  }
+}
+
+function awardKill(e, proj) {
+  const upg = getUpgradeMultipliers();
+  const sp = G.bonus;
+  const creditMult  = (1 + upg.creditGain) * (1 + sp.credits * 0.01) * (1 + (proj?.aura_credits || 0));
+  const sampleMult  = (1 + sp.samples * 0.01) * (1 + (proj?.aura_samples || 0));
+  const xpMult      = (1 + upg.xpGain)     * (1 + sp.xp * 0.01);
+  const credits     = Math.floor(e.reward.credits * creditMult);
+  const xpGain      = Math.floor(e.xpVal * xpMult);
+  const sampleRoll  = e.reward.samples * sampleMult;
+
+  G.credits += credits;
+  addXP(xpGain);
+  if(credits > 0) showFloatingText(e.x, e.y,     '+' + credits + '¢', '#ffdd00');
+  if(xpGain  > 0) showFloatingText(e.x, e.y - 22, '+' + xpGain + 'xp', '#00f5ff');
+  if(Math.random() < sampleRoll) {
+    G.samples++;
+    showFloatingText(e.x, e.y - 44, '+1 ÉCH', '#bb44ff');
+    showNotif('+1 Échantillon', 'notif-samples');
+    renderTabs();
+  }
+  updateHUD();
+}
+
+function addXP(amount) {
+  G.xp += amount;
+  while(G.xp >= G.xpNeeded) {
+    G.xp -= G.xpNeeded;
+    G.level++;
+    G.superPoints++;
+    G.totalSP++;
+    G.xpNeeded = Math.floor(100 * Math.pow(1.3, G.level - 1));
+    showNotif('✦ NIVEAU ' + G.level + ' — +1 Super Point !', 'notif-levelup');
+    // Unlock x4 speed at level 10
+    if(G.level >= 10) document.getElementById('spd4').classList.remove('locked');
+    renderTabs();
+  }
+}
+
+// ============================================================
+// ENEMY AI
+// ============================================================
+function updateEnemies(dt, now) {
+  G.enemies.forEach(e => {
+    if(!e.alive) return;
+    e.flash = Math.max(0, e.flash - 1);
+
+    if(now - e.lastPathUpdate > 800 || !e.target || !e.target.alive) {
+      // Find nearest module
+      let closest = null, minDist = Infinity;
+      G.modules.forEach(m => {
+        if(!m.alive) return;
+        const d = Math.hypot(e.x - m.x, e.y - m.y);
+        if(d < minDist) { minDist = d; closest = m; }
+      });
+      e.target = closest;
+      e.lastPathUpdate = now;
+    }
+
+    if(!e.target) return;
+    const dx = e.target.x - e.x, dy = e.target.y - e.y;
+    const d = Math.hypot(dx, dy);
+    e.angle = Math.atan2(dy, dx);
+    const attackRange = G.CELL * 0.65;
+    if(d > attackRange) {
+      e.x += dx / d * e.speed * (dt / 16);
+      e.y += dy / d * e.speed * (dt / 16);
+    } else {
+      if(now - e.attackTimer > 1200) {
+        e.attackTimer = now;
+        damageModule(e.target, e.dmg);
+      }
+    }
+  });
+  G.enemies = G.enemies.filter(e => e.alive || e.flash > 0);
+}
+
+function damageModule(mod, dmg) {
+  mod.hp -= dmg; mod.flash = 8;
+  spawnParticle(mod.x, mod.y, '#ff2244', 5);
+  if(mod.hp <= 0) {
+    if(mod.typeId === 'core') { gameOver(); }
+    else {
+      mod.alive = false; mod.hp = 0;
+      showNotif('⚠ MODULE DÉTRUIT !', 'notif-warn');
+      recalcEnergy();
+      G.modules = G.modules.filter(m => m.alive);
+    }
+  }
+}
+
+function gameOver() {
+  G.over = true;
+  const ov = document.getElementById('overlay');
+  ov.classList.add('active');
+  document.getElementById('overlayTitle').textContent = 'SYSTÈME DÉTRUIT';
+  document.getElementById('overlayTitle').style.color = 'var(--neon-red)';
+  document.getElementById('overlaySub').textContent = 'Votre noyau principal a été anéanti.';
+  document.getElementById('overlayStats').textContent =
+    `Vague ${G.wave} | ${G.kills} kills | ${G.credits}¢ | Niveau ${G.level}`;
+}
+
+// ============================================================
+// LEVEL UP / UPGRADES
+// ============================================================
+function levelUpModule(id) {
+  const mod = G.modules.find(m => m.id == id);
+  if(!mod || !mod.alive) return;
+  if(mod.level >= 33) { showNotif('Niveau maximum ! Passez en MK2.', 'notif-warn'); return; }
+  const cost = getModuleLevelUpCost(mod);
+  if(G.credits < cost) { showNotif('Crédits insuffisants !', 'notif-warn'); return; }
+  G.credits -= cost;
+  mod.level++;
+  const stats = getModuleStats(mod);
+  mod.hp = Math.min(stats.maxHp, mod.hp + stats.maxHp * 0.1);
+  mod.maxHp = stats.maxHp;
+  recalcEnergy();
+  showNotif(`${MODULE_TYPES[mod.typeId].name} → Nv.${mod.level}`, 'notif-xp');
+  updateModuleInfo(mod);
+  updateHUD();
+  renderTabs();
+}
+
+function upgradeMK2(id) {
+  const mod = G.modules.find(m => m.id == id);
+  if(!mod || !mod.alive || mod.level < 33 || mod.mk > 1) return;
+  if(G.samples < 5) { showNotif('5 échantillons nécessaires pour MK2 !', 'notif-warn'); return; }
+  G.samples -= 5;
+  mod.mk = 2; mod.level = 0;
+  const stats = getModuleStats(mod);
+  mod.hp = stats.maxHp; mod.maxHp = stats.maxHp;
+  showNotif(`★ ${MODULE_TYPES[mod.typeId].name} → MK2 !`, 'notif-levelup');
+  updateModuleInfo(mod);
+  updateHUD();
+}
+
+function buyUpgrade(id) {
+  const u = UPGRADE_DEFS.find(u => u.id === id);
+  if(!u) return;
+  const lv = upgradeLevels[id] || 0;
+  if(lv >= u.maxLevel) { showNotif('Déjà au niveau maximum !', 'notif-warn'); return; }
+  const cost = Math.floor(u.baseCost.credits * Math.pow(u.costScale, lv));
+  const sc   = u.baseCost.samples || 0;
+  if(G.credits < cost || G.samples < sc) { showNotif('Ressources insuffisantes !', 'notif-warn'); return; }
+  G.credits -= cost; G.samples -= sc;
+  upgradeLevels[id] = lv + 1;
+  showNotif(`${u.name} → Nv.${lv+1}`, 'notif-xp');
+  renderTabs(); updateHUD();
+}
+
+function buySP(effect) {
+  if(G.superPoints <= 0) { showNotif('Aucun Super Point disponible !', 'notif-warn'); return; }
+  G.superPoints--;
+  G.bonus[effect] = (G.bonus[effect] || 0) + 1;
+  showNotif(`★ BONUS +1% ${effect.toUpperCase()}`, 'notif-levelup');
+  renderTabs(); updateHUD();
+}
+
+function checkUnlocks() {
+  const u = (k, n, t) => { if(!MODULE_TYPES[k].unlocked) { MODULE_TYPES[k].unlocked=true; showNotif('🔓 '+n+' DÉBLOQUÉ !', 'notif-'+t); renderTabs(); } };
+  if(G.samples >= 1) u('collector', 'COLLECTEUR', 'samples');
+  if(G.samples >= 2) u('shield',    'BOUCLIER',    'samples');
+  if(G.samples >= 3) u('laser',     'LASER PULSE', 'samples');
+  if(G.samples >= 4) u('amplifier', 'AMPLIFICATEUR','samples');
+  if(G.credits >= 200) u('reactor', 'RÉACTEUR',    'credits');
+  if(G.credits >= 350) u('missile', 'LANCE-MISSILES','credits');
+}
+
+// ============================================================
+// PARTICLES
+// ============================================================
+function spawnParticle(x, y, color, count=5) {
+  for(let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2, s = Math.random() * 2 + 1;
+    G.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:20+Math.random()*15,maxLife:35,color,size:Math.random()*2+1});
+  }
+}
+
+function spawnExplosion(x, y, color) {
+  for(let i = 0; i < 14; i++) {
+    const a = (i/14)*Math.PI*2, s = Math.random()*3+2;
+    G.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:28,maxLife:28,color,size:Math.random()*3+1});
+  }
+}
+
+function showFloatingText(x, y, text, color) {
+  G.floatingTexts.push({x,y,text,color,life:60,maxLife:60,vy:-0.6});
+}
+
+function updateParticles(dt) {
+  G.particles.forEach(p => { p.x+=p.vx*(dt/16);p.y+=p.vy*(dt/16);p.vy+=0.05;p.life--; });
+  G.particles = G.particles.filter(p => p.life > 0);
+  G.floatingTexts.forEach(f => { f.y+=f.vy*(dt/16);f.life--; });
+  G.floatingTexts = G.floatingTexts.filter(f => f.life > 0);
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function render(now) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(W/2 - G.cam.x * G.cam.zoom, H/2 - G.cam.y * G.cam.zoom);
+  ctx.scale(G.cam.zoom, G.cam.zoom);
+
+  drawGrid(now);
+  drawGlitchZones(now);
+  drawModules(now);
+  drawEnemies();
+  drawProjectiles();
+  drawParticles();
+  drawFloatingTexts();
+
+  ctx.restore();
+}
+
+function drawGrid(now) {
+  const CELL = G.CELL;
+  const R = G.GRID_R;
+  const camLeft   = G.cam.x - W / (2 * G.cam.zoom);
+  const camTop    = G.cam.y - H / (2 * G.cam.zoom);
+  const camRight  = camLeft + W / G.cam.zoom;
+  const camBottom = camTop  + H / G.cam.zoom;
+  const startX = Math.max(-R - 1, Math.floor(camLeft  / CELL));
+  const startY = Math.max(-R - 1, Math.floor(camTop   / CELL));
+  const endX   = Math.min( R + 1, Math.ceil (camRight  / CELL));
+  const endY   = Math.min( R + 1, Math.ceil (camBottom / CELL));
+
+  // Draw circular play area background
+  ctx.save();
+  const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, R * CELL);
+  grad.addColorStop(0,    'rgba(15,30,60,0.85)');
+  grad.addColorStop(0.7,  'rgba(8,18,40,0.9)');
+  grad.addColorStop(1,    'rgba(5,10,20,0.95)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(0, 0, R * CELL, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // Grid cells inside circle
+  for(let gx = startX; gx < endX; gx++) {
+    for(let gy = startY; gy < endY; gy++) {
+      if(!isInsideCircle(gx, gy)) continue;
+      const wx = gx * CELL, wy = gy * CELL;
+      const noise = (Math.sin(gx * 3.7 + gy * 2.1 + now * 0.0002) * 0.5 + 0.5) * 0.06;
+      ctx.fillStyle = `rgba(10,${20+noise*20|0},${40+noise*30|0},${0.5+noise})`;
+      ctx.fillRect(wx, wy, CELL, CELL);
+    }
+  }
+
+  // Grid lines (clipped to circle)
+  ctx.save();
+  ctx.beginPath(); ctx.arc(0, 0, R * CELL, 0, Math.PI * 2); ctx.clip();
+  ctx.strokeStyle = 'rgba(0,180,255,0.07)';
+  ctx.lineWidth = 0.5;
+  for(let gx = startX; gx <= endX; gx++) {
+    ctx.beginPath(); ctx.moveTo(gx*CELL, startY*CELL); ctx.lineTo(gx*CELL, endY*CELL); ctx.stroke();
+  }
+  for(let gy = startY; gy <= endY; gy++) {
+    ctx.beginPath(); ctx.moveTo(startX*CELL, gy*CELL); ctx.lineTo(endX*CELL, gy*CELL); ctx.stroke();
+  }
+  ctx.restore();
+
+  // Circle border
+  ctx.strokeStyle = 'rgba(0,180,255,0.18)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(0, 0, R * CELL, 0, Math.PI * 2); ctx.stroke();
+
+  // Placement highlights
+  if(G.placingModule) {
+    for(let gx = startX; gx < endX; gx++) {
+      for(let gy = startY; gy < endY; gy++) {
+        if(canPlaceModule(gx, gy)) {
+          const wx = gx * CELL, wy = gy * CELL;
+          ctx.fillStyle   = 'rgba(0,255,136,0.07)';
+          ctx.strokeStyle = 'rgba(0,255,136,0.30)';
+          ctx.lineWidth   = 1;
+          ctx.fillRect(wx+1, wy+1, CELL-2, CELL-2);
+          ctx.strokeRect(wx+1, wy+1, CELL-2, CELL-2);
+        }
+      }
+    }
+  }
+}
+
+function drawGlitchZones(now) {
+  G.glitchZones.forEach(gz => {
+    gz.t += 0.04;
+    const alpha = 0.45 + Math.sin(gz.t) * 0.15; // more opaque
+
+    // Outer halo
+    const outerR = gz.worldR * 1.8;
+    const gradOut = ctx.createRadialGradient(gz.x, gz.y, 0, gz.x, gz.y, outerR);
+    gradOut.addColorStop(0,   `rgba(220,0,255,${alpha * 0.6})`);
+    gradOut.addColorStop(0.4, `rgba(140,0,255,${alpha * 0.4})`);
+    gradOut.addColorStop(1,   'transparent');
+    ctx.fillStyle = gradOut;
+    ctx.beginPath(); ctx.arc(gz.x, gz.y, outerR, 0, Math.PI * 2); ctx.fill();
+
+    // Core glow
+    const gradIn = ctx.createRadialGradient(gz.x, gz.y, 0, gz.x, gz.y, gz.worldR);
+    gradIn.addColorStop(0,   `rgba(255,50,255,${alpha})`);
+    gradIn.addColorStop(0.5, `rgba(180,0,255,${alpha * 0.7})`);
+    gradIn.addColorStop(1,   `rgba(80,0,200,${alpha * 0.2})`);
+    ctx.fillStyle = gradIn;
+    ctx.beginPath(); ctx.arc(gz.x, gz.y, gz.worldR, 0, Math.PI * 2); ctx.fill();
+
+    // Glitch lines — more frequent, more intense
+    if(Math.random() < 0.25) {
+      const a = Math.random() * Math.PI * 2;
+      const len = gz.worldR * (0.5 + Math.random());
+      ctx.strokeStyle = `rgba(255,${Math.random()*100|0},255,${alpha * 1.5})`;
+      ctx.lineWidth = Math.random() * 2.5 + 0.5;
+      ctx.beginPath();
+      ctx.moveTo(gz.x + Math.cos(a) * len * 0.2, gz.y + Math.sin(a) * len * 0.2);
+      ctx.lineTo(gz.x + Math.cos(a) * len,       gz.y + Math.sin(a) * len);
+      ctx.stroke();
+    }
+    if(Math.random() < 0.12) {
+      // Horizontal scanline glitch
+      ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.8})`;
+      ctx.lineWidth = 1;
+      const gy2 = gz.y + (Math.random() - 0.5) * gz.worldR * 1.5;
+      ctx.beginPath();
+      ctx.moveTo(gz.x - gz.worldR * 0.8, gy2);
+      ctx.lineTo(gz.x + gz.worldR * 0.8, gy2);
+      ctx.stroke();
+    }
+  });
+}
+
+function drawModules(now) {
+  const CELL = G.CELL;
+  G.modules.forEach(mod => {
+    if(!mod.alive) return;
+    const def = MODULE_TYPES[mod.typeId];
+    const stats = getModuleStats(mod);
+    const x = mod.x, y = mod.y;
+    const isSelected = G.selectedModule === mod;
+    mod.flash = Math.max(0, mod.flash - 1);
+
+    if(isSelected && def.isShooter) {
+      ctx.beginPath(); ctx.arc(x, y, stats.range, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,200,255,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle   = 'rgba(0,200,255,0.03)'; ctx.fill();
+    }
+
+    ctx.shadowColor = def.color;
+    ctx.shadowBlur  = isSelected ? 22 : 9 + Math.sin(now * 0.003) * 3;
+
+    const size = CELL * 0.38;
+    ctx.fillStyle   = mod.flash > 0 ? '#ffffff' : def.color + '33';
+    ctx.strokeStyle = mod.flash > 0 ? '#ffffff' : def.color;
+    ctx.lineWidth   = isSelected ? 2.5 : 1.5;
+    ctx.beginPath();
+    if(def.isCore) { drawHexagon(ctx, x, y, size * 1.1); }
+    else if(def.isShield || def.isReactor || def.isAmplifier || def.isCollector) {
+      ctx.rect(x - size * 0.85, y - size * 0.85, size * 1.7, size * 1.7);
+    } else { ctx.arc(x, y, size, 0, Math.PI * 2); }
+    ctx.fill(); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    if((def.isShooter || def.isCore) && mod.burstAnim > 0) {
+      mod.burstAnim--;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(mod.angle);
+      ctx.fillStyle = def.color;
+      ctx.beginPath();
+      ctx.moveTo(size, 0); ctx.lineTo(size*1.8, size*0.3); ctx.lineTo(size*1.8, -size*0.3);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.font = `${CELL * 0.28}px monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = mod.flash > 0 ? '#000' : def.color;
+    ctx.fillText(def.icon, x, y);
+
+    // HP bar
+    const hpRatio = mod.hp / stats.maxHp;
+    const bw = CELL * 0.7, bx = x - bw/2, by = y + size + 5;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, by, bw, 4);
+    ctx.fillStyle = hpRatio > 0.5 ? '#00ff88' : hpRatio > 0.25 ? '#ffdd00' : '#ff2244';
+    ctx.fillRect(bx, by, bw * hpRatio, 4);
+
+    // Level badge
+    ctx.font = '9px Orbitron,monospace';
+    ctx.fillStyle = def.color; ctx.textAlign = 'right';
+    ctx.fillText(`L${mod.level}${mod.mk > 1 ? '/MK2' : ''}`, x + CELL * 0.45, y - CELL * 0.4);
+    ctx.textAlign = 'center';
+
+    if((def.isAmplifier || def.isShield || def.isCollector) && isSelected) {
+      ctx.beginPath(); ctx.arc(x, y, CELL * 1.5, 0, Math.PI * 2);
+      ctx.strokeStyle = def.color + '44'; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  });
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawHexagon(c, x, y, r) {
+  c.beginPath();
+  for(let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3 - Math.PI / 6;
+    i === 0 ? c.moveTo(x + r*Math.cos(a), y + r*Math.sin(a)) : c.lineTo(x + r*Math.cos(a), y + r*Math.sin(a));
+  }
+  c.closePath();
+}
+
+function drawEnemies() {
+  G.enemies.forEach(e => {
+    if(!e.alive && e.flash === 0) return;
+    e.flash = Math.max(0, e.flash - 1);
+    const x = e.x, y = e.y;
+    ctx.shadowColor = e.color; ctx.shadowBlur = 8;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(e.angle);
+    ctx.fillStyle   = e.flash > 0 ? '#ffffff' : e.color + '88';
+    ctx.strokeStyle = e.flash > 0 ? '#ffffff' : e.color;
+    ctx.lineWidth   = e.isBoss ? 2.5 : 1.5;
+    ctx.beginPath();
+    if(e.type === 'tank' || e.isBoss) { ctx.rect(-e.size, -e.size, e.size*2, e.size*2); }
+    else if(e.type === 'fast') { ctx.moveTo(e.size,0); ctx.lineTo(-e.size,e.size*0.6); ctx.lineTo(-e.size,-e.size*0.6); ctx.closePath(); }
+    else { ctx.arc(0, 0, e.size, 0, Math.PI*2); }
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+    ctx.shadowBlur = 0;
+
+    const hpR = e.hp / e.maxHp;
+    const bw = e.size * 2.5, bx = x - bw/2, by = y - e.size - 8;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(bx, by, bw, 3);
+    ctx.fillStyle = e.color; ctx.fillRect(bx, by, bw * hpR, 3);
+    if(e.isBoss) {
+      ctx.font = '10px Orbitron,monospace'; ctx.fillStyle = '#ff0066'; ctx.textAlign = 'center';
+      ctx.fillText('BOSS', x, y - e.size - 13);
+    }
+  });
+}
+
+function drawProjectiles() {
+  G.projectiles.forEach(p => {
+    ctx.shadowColor = p.color; ctx.shadowBlur = 12;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+    // Trail
+    ctx.strokeStyle = p.color + '66'; ctx.lineWidth = p.size * 0.6;
+    const dx = p.tx - p.x, dy = p.ty - p.y, d = Math.hypot(dx, dy);
+    if(d > 0) {
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - dx/d*14, p.y - dy/d*14); ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  });
+}
+
+function drawParticles() {
+  G.particles.forEach(p => {
+    const alpha = p.life / p.maxLife;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawFloatingTexts() {
+  G.floatingTexts.forEach(f => {
+    const alpha = f.life / f.maxLife;
+    ctx.globalAlpha = alpha;
+    ctx.font = 'bold 12px Orbitron,monospace';
+    ctx.fillStyle = f.color; ctx.textAlign = 'center';
+    ctx.fillText(f.text, f.x, f.y);
+  });
+  ctx.globalAlpha = 1; ctx.textAlign = 'left';
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+function gameLoop(ts) {
+  if(!G || G.over) return;
+  const rawDt = Math.min(ts - G.lastTime, 50);
+  G.lastTime = ts;
+  const dt = rawDt * gameSpeed;
+  G.now += dt;
+
+  // Wave logic
+  if(!G.waveActive && G.now >= G.waveTimer) startWave();
+  if(G.waveActive) {
+    while(G.enemySpawnIndex < G.waveEnemies.length) {
+      const next = G.waveEnemies[G.enemySpawnIndex];
+      if(!next._startTime) next._startTime = G.now;
+      if(G.now - next._startTime >= next.delay / gameSpeed) {
+        G.enemies.push(spawnEnemy(next.isBoss));
+        G.enemySpawnIndex++;
+      } else break;
+    }
+    if(G.enemySpawnIndex >= G.waveEnemies.length && G.enemies.filter(e => e.alive).length === 0) {
+      G.waveActive = false;
+      document.getElementById('waveAlert').style.display = 'none';
+      document.getElementById('startWaveBtn').disabled = false;
+      G.waveTimer = G.now + G.waveInterval;
+      updateWavePreview();
+      showNotif('✓ VAGUE ' + G.wave + ' NEUTRALISÉE', 'notif-xp');
+    }
+  }
+
+  G.modules.forEach(m => { if(m.alive) moduleShoot(m, G.now); });
+  updateProjectiles(dt);
+  updateEnemies(dt, G.now);
+  updateParticles(dt);
+
+  G.modules.forEach(m => {
+    if(!m.alive) return;
+    const stats = getModuleStats(m);
+    if(m.maxHp !== stats.maxHp) {
+      m.hp = Math.min(m.hp * (stats.maxHp / Math.max(1, m.maxHp)), stats.maxHp);
+      m.maxHp = stats.maxHp;
+    }
+  });
+
+  render(G.now);
+  updateHUD();
+  if(!G.over) requestAnimationFrame(gameLoop);
+}
+
+// ============================================================
+// HUD
+// ============================================================
+function updateHUD() {
+  document.getElementById('hudCredits').textContent = G.credits;
+  document.getElementById('hudSamples').textContent = G.samples;
+  document.getElementById('hudXP').textContent      = G.xp + '/' + G.xpNeeded;
+  document.getElementById('hudSP').textContent      = G.superPoints;
+
+  const energyRatio = getEnergyRatio();
+  const rawPct = G.usedEnergy > 0 ? Math.round(energyRatio * 100) : 100;
+  const el = document.getElementById('hudEnergy');
+  el.textContent = rawPct + '%';
+  el.style.color = rawPct > 100 ? '#00ffdd' : rawPct < 80 ? 'var(--neon-red)' : rawPct < 95 ? 'var(--neon-orange)' : 'var(--neon-yellow)';
+
+  if(G.selectedModule && G.selectedModule.alive) updateModuleInfo(G.selectedModule);
+}
+
+// ============================================================
+// TABS / UI
+// ============================================================
+function renderTabs() {
+  const active = document.querySelector('.tab.active')?.dataset.tab || 'shop';
+  renderTab(active);
+}
+
+function renderTab(tab) {
+  const content = document.getElementById('tabContent');
+
+  if(tab === 'shop') {
+    let html = '<div class="card-grid">';
+    Object.entries(MODULE_TYPES).forEach(([typeId, def]) => {
+      if(typeId === 'core') return;
+      const canAfford = G.credits >= def.cost.credits && G.samples >= (def.cost.samples || 0);
+      const locked    = !def.unlocked;
+      const cls       = locked ? 'locked' : canAfford ? 'affordable' : '';
+      const energyStr = def.energy > 0 ? `-${def.energy}%⚡` : def.energy < 0 ? `+${Math.abs(def.energy)}%⚡` : '';
+      html += `<div class="shop-card ${cls}" onclick="handleShopClick('${typeId}')">
+        <div class="card-name">${def.name}</div>
+        <span class="card-icon">${def.icon}</span>
+        <div class="card-desc">${def.desc}</div>
+        <div class="card-cost">
+          ${def.cost.credits > 0 ? `<span class="cost-credits">¢${def.cost.credits}</span>` : ''}
+          ${(def.cost.samples||0) > 0 ? `<span class="cost-samples">🔬${def.cost.samples}</span>` : ''}
+          ${def.cost.credits === 0 && (def.cost.samples||0) === 0 ? '<span style="color:var(--neon-green)">GRATUIT</span>' : ''}
+          ${energyStr ? `<span style="color:${def.energy<0?'var(--neon-green)':'var(--neon-orange)'}">${energyStr}</span>` : ''}
+        </div>
+        ${locked ? `<div class="card-badge" style="color:var(--text-dim);border-color:var(--text-dim)">VERROUILLÉ</div>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  }
+
+  else if(tab === 'upgrades') {
+    let html = '<div class="upgrade-list">';
+    UPGRADE_DEFS.forEach(u => {
+      const lv      = upgradeLevels[u.id] || 0;
+      const cost    = Math.floor(u.baseCost.credits * Math.pow(u.costScale, lv));
+      const sc      = u.baseCost.samples || 0;
+      const maxed   = lv >= u.maxLevel;
+      const canAfford = G.credits >= cost && G.samples >= sc;
+      html += `<div class="upgrade-card ${maxed || !canAfford ? 'locked' : ''}" onclick="buyUpgrade('${u.id}')">
+        <div class="upg-name">${u.name}</div>
+        <div class="upg-desc">${u.desc}</div>
+        <div class="upg-progress"><div class="upg-bar" style="width:${lv/u.maxLevel*100}%"></div></div>
+        <div class="upg-level">${maxed ? 'MAX' : lv+'/'+u.maxLevel}${maxed ? '' : ` — ¢${cost}${sc>0?' 🔬'+sc:''}`}</div>
+      </div>`;
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  }
+
+  else if(tab === 'superpoints') {
+    let html = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+      <div style="font-family:Orbitron,sans-serif;font-size:13px;color:var(--neon-purple)">★ SUPER POINTS: <span style="font-size:18px;">${G.superPoints}</span>
+      <span style="font-size:11px;color:var(--text-dim);margin-left:12px;">Total dépensé: ${G.totalSP - G.superPoints}</span></div>
+    </div><div class="sp-grid">`;
+    SP_BONUSES.forEach(sp => {
+      const count = G.bonus[sp.effect] || 0;
+      html += `<div class="sp-card" onclick="buySP('${sp.effect}')">
+        <div class="sp-name">${sp.name}</div>
+        <div class="sp-desc">${sp.desc}</div>
+        <div class="sp-count">×${count} (+${count}%)</div>
+      </div>`;
+    });
+    html += '</div>';
+    content.innerHTML = html;
+  }
+}
+
+function handleShopClick(typeId) {
+  const def = MODULE_TYPES[typeId];
+  if(!def.unlocked) { showNotif('Module verrouillé — acquérez des échantillons !', 'notif-warn'); return; }
+  if(G.credits < def.cost.credits || G.samples < (def.cost.samples||0)) { showNotif('Ressources insuffisantes !', 'notif-warn'); return; }
+  G.placingModule = typeId;
+  showNotif('Cliquez sur une case adjacente pour placer le module', 'notif-xp');
+}
+
+// ============================================================
+// MODULE INFO PANEL
+// ============================================================
+function showModuleInfo(mod) {
+  G.selectedModule = mod;
+  document.getElementById('moduleInfo').classList.add('visible');
+  updateModuleInfo(mod);
+}
+
+function updateModuleInfo(mod) {
+  if(!mod || !mod.alive) { hideModuleInfo(); return; }
+  const def   = MODULE_TYPES[mod.typeId];
+  const stats = getModuleStats(mod);
+  document.getElementById('infoTitle').textContent = def.name;
+  document.getElementById('infoType').textContent  = def.isCore ? 'Noyau' : def.isShooter ? 'Offensif' : def.isPassive ? 'Passif' : 'Module';
+  document.getElementById('infoLevel').textContent = `${mod.level}/33`;
+  document.getElementById('infoMK').textContent    = `MK${mod.mk}`;
+  document.getElementById('infoHpBar').style.width = (mod.hp / stats.maxHp * 100) + '%';
+  document.getElementById('infoHp').textContent    = `${Math.ceil(mod.hp)}/${stats.maxHp}`;
+
+  let extra = '';
+  if(def.isShooter || def.isCore) {
+    extra += `<div class="info-stat"><span class="info-stat-label">Dégâts</span><span class="info-stat-value">${stats.dmg.toFixed(1)}</span></div>`;
+    extra += `<div class="info-stat"><span class="info-stat-label">Portée</span><span class="info-stat-value">${(stats.range/G.CELL).toFixed(1)} cases</span></div>`;
+    extra += `<div class="info-stat"><span class="info-stat-label">Cadence</span><span class="info-stat-value">${(1000/stats.fireRate).toFixed(2)}/s</span></div>`;
+  }
+  if(def.energy !== 0) extra += `<div class="info-stat"><span class="info-stat-label">Énergie</span><span class="info-stat-value" style="color:${def.energy<0?'var(--neon-green)':'var(--neon-orange)'}">${def.energy<0?'+':'-'}${Math.abs(def.energy)}%</span></div>`;
+  document.getElementById('infoExtraStats').innerHTML = extra;
+
+  const lvCost = getModuleLevelUpCost(mod);
+  const canLvl = G.credits >= lvCost && mod.level < 33;
+  const canMK2 = mod.level >= 33 && mod.mk === 1;
+
+  let actions = '';
+  if(mod.level < 33) {
+    actions += `<div onclick="levelUpModule('${mod.id}')" style="cursor:pointer;padding:7px 10px;border:1px solid ${canLvl?'var(--neon-green)':'rgba(0,200,255,0.2)'};color:${canLvl?'var(--neon-green)':'var(--text-dim)'};font-family:Orbitron,monospace;font-size:11px;letter-spacing:1px;text-align:center;margin-bottom:4px;">
+      ⬆ AMÉLIORER (¢${lvCost})</div>`;
+  } else if(canMK2) {
+    actions += `<div onclick="upgradeMK2('${mod.id}')" style="cursor:pointer;padding:7px 10px;border:1px solid var(--neon-purple);color:var(--neon-purple);font-family:Orbitron,monospace;font-size:11px;letter-spacing:1px;text-align:center;margin-bottom:4px;">
+      ★ PASSER MK2 (🔬5)</div>`;
+  } else if(mod.level >= 33 && mod.mk === 2) {
+    actions += '<div style="color:var(--neon-purple);font-size:11px;font-family:Orbitron,monospace;text-align:center;">★ MK2 NIVEAU MAX</div>';
+  } else {
+    actions += '<div style="color:var(--neon-yellow);font-size:11px;font-family:Orbitron,monospace;text-align:center;">NIVEAU MAX — Débloquez MK2</div>';
+  }
+  document.getElementById('infoActions').innerHTML = actions;
+}
+
+function hideModuleInfo() {
+  G.selectedModule = null;
+  document.getElementById('moduleInfo').classList.remove('visible');
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+function showNotif(msg, cls) {
+  const el = document.createElement('div');
+  el.className = `notif ${cls}`;
+  el.textContent = msg;
+  document.getElementById('notifContainer').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+C.addEventListener('mousedown', e => {
+  if(e.button === 2) { G.placingModule = null; return; }
+  G.isDragging = false;
+  G.lastMouse = {x:e.clientX, y:e.clientY};
+  G._mouseDownPos = {x:e.clientX, y:e.clientY};
+  G._mouseDown = true;
+});
+
+C.addEventListener('mousemove', e => {
+  if(!G._mouseDown) return;
+  const dx = e.clientX - G.lastMouse.x, dy = e.clientY - G.lastMouse.y;
+  if(Math.abs(e.clientX - G._mouseDownPos.x) > 5 || Math.abs(e.clientY - G._mouseDownPos.y) > 5) G.isDragging = true;
+  if(G.isDragging) { G.cam.x -= dx / G.cam.zoom; G.cam.y -= dy / G.cam.zoom; }
+  G.lastMouse = {x:e.clientX, y:e.clientY};
+});
+
+C.addEventListener('mouseup', e => {
+  G._mouseDown = false;
+  if(G.isDragging) { G.isDragging = false; return; }
+
+  const wx = (e.clientX - W/2) / G.cam.zoom + G.cam.x;
+  const wy = (e.clientY - H/2) / G.cam.zoom + G.cam.y;
+  const gx = Math.round(wx / G.CELL);
+  const gy = Math.round(wy / G.CELL);
+
+  if(G.placingModule) {
+    const def = MODULE_TYPES[G.placingModule];
+    if(canPlaceModule(gx, gy)) {
+      if(G.credits < def.cost.credits || G.samples < (def.cost.samples||0)) {
+        showNotif('Ressources insuffisantes !', 'notif-warn');
+        G.placingModule = null; return;
+      }
+      G.credits -= def.cost.credits; G.samples -= (def.cost.samples || 0);
+      const mod = placeModule(G.placingModule, gx, gy);
+      if(mod) showNotif(`${def.name} placé !`, 'notif-xp');
+      checkUnlocks();
+      G.placingModule = null;
+      renderTabs(); updateHUD();
+    } else {
+      showNotif('Placement invalide — doit être dans la zone et adjacent !', 'notif-warn');
+    }
+    return;
+  }
+
+  const clicked = G.modules.find(m => m.alive && Math.hypot(m.x - wx, m.y - wy) < G.CELL * 0.45);
+  if(clicked) showModuleInfo(clicked);
+  else hideModuleInfo();
+});
+
+C.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY > 0 ? 0.9 : 1.1;
+  G.cam.zoom = Math.max(0.25, Math.min(3, G.cam.zoom * factor));
+}, {passive:false});
+
+C.addEventListener('contextmenu', e => e.preventDefault());
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') { G.placingModule = null; hideModuleInfo(); }
+
+  // CTRL+ALT+S = debug cheat
+  if(e.ctrlKey && e.altKey && (e.key === 's' || e.key === 'S')) {
+    e.preventDefault();
+    if(!G || G.over) return;
+    // Max everything
+    G.credits  = 999999;
+    G.samples  = 9999;
+    G.xp       = 0;
+    G.level    = 50;
+    G.superPoints = 9999;
+    G.totalSP  = 9999;
+    G.xpNeeded = Math.floor(100 * Math.pow(1.3, 49));
+    // All SP bonuses x100
+    Object.keys(G.bonus).forEach(k => { G.bonus[k] = 100; });
+    // All upgrades max
+    UPGRADE_DEFS.forEach(u => { upgradeLevels[u.id] = u.maxLevel; });
+    // Unlock all modules
+    Object.keys(MODULE_TYPES).forEach(k => { MODULE_TYPES[k].unlocked = true; });
+    // Max all placed modules
+    G.modules.forEach(m => { m.level = 33; m.mk = 2; const stats = getModuleStats(m); m.hp = stats.maxHp; m.maxHp = stats.maxHp; });
+    // Unlock x4
+    document.getElementById('spd4').classList.remove('locked');
+    recalcEnergy();
+    renderTabs(); updateHUD();
+    showNotif('🔧 MODE DEBUG ACTIVÉ — Tout au maximum !', 'notif-levelup');
+  }
+});
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    renderTab(t.dataset.tab);
+  });
+});
+
+document.getElementById('closeInfo').addEventListener('click', hideModuleInfo);
+window.addEventListener('resize', resizeCanvas);
+
+setInterval(() => { if(G && !G.over) checkUnlocks(); }, 2000);
+</script>
+</body>
+</html>
