@@ -1,159 +1,416 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sören's Scratch Games</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #111;
-            color: #eee;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sören's Games</title>
 
-        header {
-            background-color: #1a1a1a;
-            padding: 25px 0;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
+  <!-- Theme applied before paint — no flash -->
+  <script>
+    const THEMES = ['acid','blood','ice','amber','violet'];
+    document.documentElement.setAttribute('data-theme',
+      THEMES[Math.floor(Math.random() * THEMES.length)]);
+  </script>
 
-        header h1 {
-            margin: 0;
-            font-size: 2em;
-        }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=DM+Mono:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Raleway:wght@400;700;800&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
-        main {
-            padding: 50px 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-        }
+  <style>
+    /* ============================================================
+       THEMES — pour ajouter un thème : copier un bloc [data-theme]
+       et changer les variables
+    ============================================================ */
+    :root {
+      /* ACID — défaut */
+      --bg:#0b0b0f; --surface:#111118; --surface2:#18181f;
+      --border:rgba(255,255,255,.07); --border-hover:rgba(255,255,255,.15);
+      --text:#e8e8f0; --muted:#6b6b7e;
+      --accent:#c8f032; --accent-bg:rgba(200,240,50,.1);
+      --font-body:'DM Mono',monospace; --font-title:'Syne',sans-serif;
+    }
+    [data-theme="blood"] {
+      --bg:#0d0608; --surface:#140a0c; --surface2:#1e1014;
+      --border:rgba(255,255,255,.06); --border-hover:rgba(255,80,80,.2);
+      --text:#f0dde0; --muted:#7a5860;
+      --accent:#ff2244; --accent-bg:rgba(255,34,68,.1);
+      --font-body:'Space Mono',monospace; --font-title:'Bebas Neue',sans-serif;
+    }
+    [data-theme="ice"] {
+      --bg:#edf1f7; --surface:#fff; --surface2:#e4eaf4;
+      --border:rgba(0,0,0,.09); --border-hover:rgba(0,80,255,.2);
+      --text:#0f1828; --muted:#6878a8;
+      --accent:#0055ee; --accent-bg:rgba(0,85,238,.08);
+      --font-body:'IBM Plex Mono',monospace; --font-title:'Syne',sans-serif;
+    }
+    [data-theme="amber"] {
+      --bg:#0c0a05; --surface:#131009; --surface2:#1c1910;
+      --border:rgba(255,255,255,.06); --border-hover:rgba(255,170,0,.2);
+      --text:#f2e8cc; --muted:#7a6e50;
+      --accent:#ffaa00; --accent-bg:rgba(255,170,0,.1);
+      --font-body:'Courier Prime',monospace; --font-title:'Syne',sans-serif;
+    }
+    [data-theme="violet"] {
+      --bg:#07060f; --surface:#0e0c1a; --surface2:#161324;
+      --border:rgba(255,255,255,.07); --border-hover:rgba(180,120,255,.2);
+      --text:#e4ddf8; --muted:#6a5d88;
+      --accent:#b87aff; --accent-bg:rgba(184,122,255,.1);
+      --font-body:'JetBrains Mono',monospace; --font-title:'Raleway',sans-serif;
+    }
 
-        .game-card {
-            background-color: #1f1f1f;
-            border-radius: 15px;
-            overflow: hidden;
-            width: 300px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: transform 0.3s, box-shadow 0.3s;
-            text-align: center;
-        }
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+    html { scroll-behavior:smooth }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:var(--font-body);
+      min-height:100vh; overflow-x:hidden;
+    }
+    /* scanlines */
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:200;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,
+        rgba(0,0,0,.022) 2px,rgba(0,0,0,.022) 4px);
+    }
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-        }
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    header {
+      max-width:var(--max-w,1100px); margin:0 auto;
+      padding:clamp(40px,8vw,90px) clamp(16px,4vw,48px) clamp(32px,5vw,64px);
+    }
+    .header-top {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:12px; margin-bottom:18px;
+    }
+    .header-label {
+      font-size:clamp(10px,1.2vw,12px); letter-spacing:.2em;
+      color:var(--accent); text-transform:uppercase;
+    }
+    /* petit badge thème + raccourci */
+    .theme-badge {
+      display:flex; align-items:center; gap:8px;
+      font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--muted); border:1px solid var(--border);
+      padding:5px 12px; border-radius:2px; user-select:none;
+      white-space:nowrap;
+    }
+    .theme-badge b { color:var(--accent); font-weight:500 }
+    .theme-dot {
+      width:5px; height:5px; border-radius:50%;
+      background:var(--accent); flex-shrink:0;
+    }
+    h1 {
+      font-family:var(--font-title);
+      font-size:clamp(2.6rem,9vw,6.5rem);
+      font-weight:800; line-height:.95; letter-spacing:-.03em;
+      color:var(--text);
+    }
+    [data-theme="blood"] h1 { letter-spacing:.02em }
+    h1 span { display:block; color:var(--accent) }
+    .header-sub {
+      margin-top:20px; font-size:clamp(11px,1.3vw,13px);
+      color:var(--muted); letter-spacing:.06em;
+    }
+    .header-line { width:44px; height:1px; background:var(--accent); margin-top:32px }
 
-        .game-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
+    /* ============================================================
+       GRILLE — responsive automatique
+       - mobile  < 540px  → 1 colonne
+       - tablette 540-900 → 2 colonnes
+       - desktop  900+    → 3 colonnes (auto-fill)
+       - TV       1600+   → 4 colonnes (via --cols)
+    ============================================================ */
+    .grid {
+      --cols:3;
+      max-width:var(--max-w,1100px); margin:0 auto;
+      padding:0 clamp(0px,3vw,40px) clamp(60px,8vw,100px);
+      display:grid;
+      grid-template-columns:repeat(var(--cols),1fr);
+      gap:1px;
+      background:var(--border);
+      border:1px solid var(--border);
+    }
+    @media(max-width:900px)  { .grid { --cols:2 } }
+    @media(max-width:540px)  { .grid { --cols:1; padding:0 0 60px } }
+    @media(min-width:1600px) { .grid { --cols:4; --max-w:1500px } }
+    @media(min-width:1600px) { header { --max-w:1500px } }
 
-        .game-card h2 {
-            margin: 15px 0 10px;
-        }
+    /* ============================================================
+       CARD
+    ============================================================ */
+    .card {
+      background:var(--surface); padding:clamp(20px,3vw,32px) clamp(16px,2.5vw,28px);
+      position:relative; overflow:hidden;
+      display:flex; flex-direction:column; gap:14px;
+      transition:background .2s;
+    }
+    /* barre accent en haut */
+    .card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:var(--card-color,var(--accent));
+      transform:scaleX(0); transform-origin:left;
+      transition:transform .3s ease;
+    }
+    .card:hover { background:var(--surface2) }
+    .card:hover::before { transform:scaleX(1) }
 
-        .game-card p {
-            padding: 0 15px 15px;
-            font-size: 0.95em;
-        }
+    /* featured occupe 2 colonnes (réduit à 1 sur mobile) */
+    .card-featured { grid-column:span 2 }
+    .card-featured .card-title { font-size:clamp(1.4rem,3vw,2.1rem) }
+    @media(max-width:540px) { .card-featured { grid-column:span 1 } }
 
-        .game-card a {
-            display: inline-block;
-            margin-bottom: 15px;
-            padding: 10px 20px;
-            background-color: #ff5722;
-            color: #fff;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
+    .card-index {
+      font-size:10px; letter-spacing:.15em;
+      color:var(--muted); font-weight:300;
+    }
+    .card-title {
+      font-family:var(--font-title);
+      font-size:clamp(1.1rem,2vw,1.4rem);
+      font-weight:700; letter-spacing:-.01em; line-height:1.1;
+    }
+    [data-theme="blood"] .card-title { letter-spacing:.04em }
 
-        .game-card a:hover {
-            background-color: #e64a19;
-        }
+    /* STATUS BADGES */
+    .badge {
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+      padding:4px 10px; border-radius:2px; font-weight:500; width:fit-content;
+    }
+    .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor }
+    .badge-beta      { background:var(--accent-bg); color:var(--accent) }
+    .badge-broken    { background:rgba(255,50,50,.1); color:#ff5555 }
+    .badge-paused    { background:rgba(255,180,0,.1); color:#ffb700 }
+    .badge-abandoned { background:rgba(120,120,140,.13); color:#7a7a9a }
 
-        footer {
-            background-color: #1a1a1a;
-            padding: 15px;
-            text-align: center;
-            font-size: 0.9em;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
-        }
+    .card-desc { font-size:clamp(11.5px,1.2vw,13px); color:var(--muted); line-height:1.75; font-weight:300; flex:1 }
 
-        @media (max-width: 650px) {
-            main {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
+    /* TAGS */
+    .card-tags { display:flex; flex-wrap:wrap; gap:6px }
+    .tag {
+      font-size:10px; letter-spacing:.07em; color:var(--muted);
+      border:1px solid var(--border); padding:3px 9px; border-radius:2px;
+    }
+
+    /* LIEN */
+    .card-link {
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--card-color,var(--accent));
+      text-decoration:none; font-weight:500;
+      margin-top:auto; transition:gap .2s;
+    }
+    .card-link:hover { gap:14px }
+    .card-link svg { width:12px; height:12px; flex-shrink:0 }
+
+    /* ============================================================
+       TOAST "THEME SWITCHER"
+    ============================================================ */
+    #toast {
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(16px);
+      background:var(--surface2); border:1px solid var(--border);
+      color:var(--text); font-family:var(--font-body);
+      font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+      padding:10px 20px; border-radius:2px;
+      opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
+      white-space:nowrap; z-index:999;
+    }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0) }
+    #toast b { color:var(--accent); font-weight:500 }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      border-top:1px solid var(--border);
+      padding:clamp(16px,3vw,28px) clamp(16px,4vw,40px);
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+      max-width:var(--max-w,1100px); margin:0 auto;
+      font-size:11px; color:var(--muted); letter-spacing:.08em;
+    }
+    .footer-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Sören's Games</h1>
-        <p>Mes projets Scratch en ligne</p>
-    </header>
-    <main>
-        <!-- Snake Game Card -->
-        <div class="game-card">
-            <h2>Snake</h2><h2 style="color:red;"><strong>[NON FONCTIONNEL]</strong></h2>
-            <p>Un classique revisité sur Scratch.</p>
-            <a href="games/SN@KE.html">Jouer →</a>
-            <p style="color : orange;"><strong>Solo|Contre la montre|Leaderboard local|Coloré|Snake|Scratch made</strong></p>
-        </div>
 
-        <!-- Coming Soon Card -->
-        <div class="game-card">
-            <h2>Project Coming Soon</h2><h2 style="color:red;"><strong>[EN PAUSE]</strong></h2>
-            <p>Un nouveau jeu est en préparation.</p>
-            <a href="games/Project coming soon.html">Tester →</a>
-            <p>(pre-Alpha)</p>
-            <p style="color : orange;"><strong>Solo|Spaceships fights|Galaxy|Customisation|Infini|Scratch made</strong></p>
-        </div>
-                <!-- Snake II -->
-        <div class="game-card">
-            <h2>Snake II </h2><h2 style="color:red;"><strong>[ABANDONNE]</strong></h2>
-            <p>Un nouveau Snake est en préparation. Clique pour en savoir plus et rester à l'affût !</p>
-            <a href="games/test.html">Tester →</a>
-            <p>(abandonned)</p>
-            <p style="color : orange;"><strong>Multiplayer|Snake|Customisation|Coloré|FFA|Giant map|Scratch made</strong></p>
-        </div>
-        <div class="game-card">
-            <h2>Neon Defense</h2>
-            <p>Un nouveau mini jeu réalisé avec IA, c'est un tower defense style neon que j'ameliore de temps en temps</p>
-            <a href="games/TD.html">Tester →</a>
-            <p>New Beta !</p>
-            <p style="color : orange;"><strong>TowerDefense|IAmade|1.5k+PromtWords</strong></p>
-        </div>
-        
-        <div class="game-card">
-            <h2>FluidEntities</h2>
-            <p>Un nouveau "mini jeu" satisfaisant réalisé avec Scratch, c'est un jeu ou tu contrôles des cercles bleus et il faut battre les cercles rouges avec !</p>
-            <a href="games/Clones.html">Tester →</a>
-            <p>New Beta !</p>
-            <p style="color : orange;"><strong>Scratch made|satisfaying|Neon|New</strong></p>
-        </div>
-        <div class="game-card">
-    <h2>CESTUS</h2>
-    <p>Un tower defense néon intense où tu es au centre du chaos. Construis, optimise et résiste à des vagues d’ennemis de plus en plus fortes.</p>
-    <a href="games/CESTUS/CESTUS.html">Tester →</a>
-    <p>New Beta !</p>
-    <p style="color : orange;"><strong>TowerDefense|IAmade|Neon|Survival|3k+PromptWords</strong></p>
-</div>
-    </main>
-    <footer>
-        &copy; 2025 Sören. Tous droits réservés.
-    </footer>
+  <header>
+    <div class="header-top">
+      <p class="header-label">// Sören — Projets interactifs</p>
+      <div class="theme-badge">
+        <span class="theme-dot"></span>
+        Thème&nbsp;<b id="theme-label">—</b>
+        <span style="opacity:.45">· Ctrl+Alt+S</span>
+      </div>
+    </div>
+    <h1>SÖREN'S<span>GAMES</span></h1>
+    <p class="header-sub">Projets Scratch &amp; IA · En développement permanent</p>
+    <div class="header-line"></div>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <span>© 2025 Sören — Tous droits réservés</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="footer-dot"></div>
+      <span>Projets actifs</span>
+    </div>
+  </footer>
+
+  <div id="toast"></div>
+
+  <script>
+  /* ============================================================
+     PROJETS — pour ajouter un projet, copier un objet { ... }
+     dans le tableau et modifier les champs. C'est tout !
+  ============================================================ */
+  const PROJECTS = [
+    {
+      featured: true,             // true = occupe 2 colonnes
+      index: '001',
+      title: 'CESTUS',
+      status: 'beta',             // 'beta' | 'broken' | 'paused' | 'abandoned'
+      statusLabel: 'New Beta',
+      desc: 'Tower defense néon intense. Tu es au centre du chaos — construis, optimise, résiste à des vagues d\'ennemis de plus en plus violentes. Le projet le plus ambitieux à ce jour.',
+      tags: ['TowerDefense','IA Made','Neon','Survival','3k+ Prompt Words'],
+      link: 'games/CESTUS/CESTUS.html',
+      linkLabel: 'Jouer maintenant',
+      color: 'var(--accent)',     // couleur de l'accent de la carte
+    },
+    {
+      index: '002',
+      title: 'Neon Defense',
+      status: 'beta',
+      statusLabel: 'Beta',
+      desc: 'Tower defense style neon réalisé avec IA. Amélioré au fil du temps, première version publique.',
+      tags: ['TowerDefense','IA Made','1.5k+ Prompts'],
+      link: 'games/TD.html',
+      linkLabel: 'Tester',
+      color: '#33aaff',
+    },
+    {
+      index: '003',
+      title: 'FluidEntities',
+      status: 'beta',
+      statusLabel: 'Beta',
+      desc: 'Tu contrôles des cercles bleus, tu dois battre les rouges. Simple, satisfaisant, neon. Fait sur Scratch.',
+      tags: ['Scratch','Satisfying','Neon'],
+      link: 'games/Clones.html',
+      linkLabel: 'Tester',
+      color: '#aa55ff',
+    },
+    {
+      index: '004',
+      title: 'SN@KE',
+      status: 'broken',
+      statusLabel: 'Non fonctionnel',
+      desc: 'Le classique revisité sur Scratch. Contre la montre, leaderboard local, couleurs vives. En attente de fix.',
+      tags: ['Solo','Contre la montre','Leaderboard','Scratch'],
+      link: 'games/SN@KE.html',
+      linkLabel: 'Voir quand même',
+      color: '#ff5533',
+    },
+    {
+      index: '005',
+      title: 'Project Coming Soon',
+      status: 'paused',
+      statusLabel: 'En pause',
+      desc: 'Combats de vaisseaux dans une galaxie infinie. Personnalisation, mode solo, ambitions énormes. Suspendu pour l\'instant.',
+      tags: ['Solo','Spaceships','Galaxy','Scratch'],
+      link: 'games/Project coming soon.html',
+      linkLabel: 'Pré-Alpha',
+      color: '#ffb700',
+    },
+    {
+      index: '006',
+      title: 'Snake II',
+      status: 'abandoned',
+      statusLabel: 'Abandonné',
+      desc: 'Refonte multijoueur du Snake original. Carte géante, FFA, personnalisation. Projet stoppé.',
+      tags: ['Multiplayer','FFA','Giant Map','Scratch'],
+      link: 'games/test.html',
+      linkLabel: 'Archives',
+      color: '#6b6b7e',
+    },
+    /* ── TEMPLATE — décommenter, copier-coller, modifier ──
+    {
+      index: '007',
+      title: 'Mon Nouveau Jeu',
+      status: 'beta',            // beta | broken | paused | abandoned
+      statusLabel: 'New Beta',
+      desc: 'Description de ton jeu ici.',
+      tags: ['Tag1','Tag2','Tag3'],
+      link: 'games/mon-jeu.html',
+      linkLabel: 'Jouer',
+      color: '#ff55aa',          // couleur de la barre et du lien
+    },
+    ── */
+  ];
+
+  /* ── Rendu des cartes ── */
+  const ARROW = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>`;
+
+  function render() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = PROJECTS.map(p => {
+      const tags = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      return `
+        <div class="card${p.featured ? ' card-featured' : ''}" style="--card-color:${p.color}">
+          <span class="card-index">${p.index}${p.featured ? ' — FEATURED' : ''}</span>
+          <div class="card-title">${p.title}</div>
+          <span class="badge badge-${p.status}">${p.statusLabel}</span>
+          <p class="card-desc">${p.desc}</p>
+          <div class="card-tags">${tags}</div>
+          <a href="${p.link}" class="card-link">${p.linkLabel} ${ARROW}</a>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── Thèmes ── */
+  const THEME_NAMES = { acid:'ACID', blood:'BLOOD', ice:'ICE', amber:'AMBER', violet:'VIOLET' };
+  let themeIndex = THEMES.indexOf(document.documentElement.getAttribute('data-theme'));
+
+  function setTheme(name) {
+    document.documentElement.setAttribute('data-theme', name);
+    document.getElementById('theme-label').textContent = THEME_NAMES[name];
+  }
+
+  function showToast(name) {
+    const t = document.getElementById('toast');
+    t.innerHTML = `Thème <b>${THEME_NAMES[name]}</b>`;
+    t.classList.add('show');
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => t.classList.remove('show'), 1400);
+  }
+
+  /* ── Ctrl+Alt+S : cycle les thèmes avec délai 1s ── */
+  let cycling = false;
+  let cycleTimer = null;
+
+  function cycleNext() {
+    themeIndex = (themeIndex + 1) % THEMES.length;
+    const name = THEMES[themeIndex];
+    setTheme(name);
+    showToast(name);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      if (cycling) return; // déjà en cours, on attend
+      cycling = true;
+      cycleNext();
+      cycleTimer = setTimeout(() => { cycling = false; }, 1000);
+    }
+  });
+
+  /* ── Init ── */
+  render();
+  setTheme(THEMES[themeIndex]);
+  </script>
 </body>
 </html>
-
-
-
-
