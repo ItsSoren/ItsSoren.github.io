@@ -195,15 +195,35 @@
       border:1px solid var(--border); padding:3px 9px; border-radius:2px;
     }
 
-    /* LIEN */
-    .card-link {
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-      color:var(--card-color,var(--accent));
-      text-decoration:none; font-weight:500;
-      margin-top:auto; transition:gap .2s;
+    /* BOUTON — séparateur au-dessus */
+    .card-link-wrap {
+      margin-top:auto;
+      padding-top:18px;
+      border-top:1px solid var(--border);
     }
-    .card-link:hover { gap:14px }
+    .card-link {
+      display:inline-flex; align-items:center; gap:10px;
+      font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+      font-weight:600; text-decoration:none;
+      padding:11px 20px;
+      border-radius:2px;
+      /* fond plein couleur de la carte */
+      background:var(--card-color,var(--accent));
+      /* texte foncé sur fond clair, clair sur fond foncé — géré par mix-blend */
+      color:var(--btn-text,#000);
+      transition:opacity .18s, gap .2s, transform .18s;
+      position:relative; overflow:hidden;
+    }
+    /* thème ICE : les couleurs vives restent lisibles en noir */
+    /* pour les cartes avec couleur claire on garde le noir automatiquement */
+    .card-link::after {
+      content:''; position:absolute; inset:0;
+      background:rgba(255,255,255,.12);
+      opacity:0; transition:opacity .18s;
+    }
+    .card-link:hover { gap:16px; transform:translateY(-1px) }
+    .card-link:hover::after { opacity:1 }
+    .card-link:active { transform:translateY(0); opacity:.85 }
     .card-link svg { width:12px; height:12px; flex-shrink:0 }
 
     /* ============================================================
@@ -351,6 +371,14 @@
     ── */
   ];
 
+  /* ── Contraste auto : texte noir ou blanc selon luminosité du fond ── */
+  function btnTextColor(hex) {
+    if (!hex || hex.startsWith('var')) return '#000';
+    const c = hex.replace('#','');
+    const r = parseInt(c.slice(0,2),16), g = parseInt(c.slice(2,4),16), b = parseInt(c.slice(4,6),16);
+    return (0.299*r + 0.587*g + 0.114*b) / 255 > 0.55 ? '#000' : '#fff';
+  }
+
   /* ── Rendu des cartes ── */
   const ARROW = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>`;
 
@@ -358,6 +386,7 @@
     const grid = document.getElementById('grid');
     grid.innerHTML = PROJECTS.map(p => {
       const tags = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      const btnTxt = btnTextColor(p.color);
       return `
         <div class="card${p.featured ? ' card-featured' : ''}" style="--card-color:${p.color}">
           <span class="card-index">${p.index}${p.featured ? ' — FEATURED' : ''}</span>
@@ -365,7 +394,9 @@
           <span class="badge badge-${p.status}">${p.statusLabel}</span>
           <p class="card-desc">${p.desc}</p>
           <div class="card-tags">${tags}</div>
-          <a href="${p.link}" class="card-link">${p.linkLabel} ${ARROW}</a>
+          <div class="card-link-wrap">
+            <a href="${p.link}" class="card-link" style="--btn-text:${btnTxt}">${p.linkLabel} ${ARROW}</a>
+          </div>
         </div>`;
     }).join('');
   }
