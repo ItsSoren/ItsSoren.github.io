@@ -1,132 +1,700 @@
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Pixel Trail — Multijoueur</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-#app{width:100%;min-height:580px;background:#0d0d1a;color:#fff;font-family:'Segoe UI',sans-serif;position:relative;overflow:hidden;}
-#lobby{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:580px;padding:2rem;gap:1.5rem;}
-#lobby h2{font-size:22px;font-weight:500;color:#c9b8ff;letter-spacing:1px;}
-#pseudo-input{background:rgba(255,255,255,0.08);border:0.5px solid rgba(180,150,255,0.4);border-radius:8px;color:#fff;font-size:15px;padding:10px 16px;width:260px;outline:none;transition:border 0.2s;}
-#pseudo-input:focus{border-color:rgba(180,150,255,0.8);}
-#play-btn{background:rgba(130,80,255,0.8);color:#fff;border:none;border-radius:8px;padding:11px 36px;font-size:15px;font-weight:500;cursor:pointer;transition:background 0.2s,transform 0.1s;}
-#play-btn:hover{background:rgba(130,80,255,1);}
-#play-btn:active{transform:scale(0.97);}
-.lobby-stats{display:flex;gap:24px;margin-top:8px;}
-.stat-pill{background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.15);border-radius:20px;padding:6px 16px;font-size:13px;color:rgba(255,255,255,0.7);}
-.stat-pill span{color:#b8f5c8;font-weight:500;}
-#game-screen{display:none;width:100%;min-height:580px;position:relative;background:#0d0d1a;}
-#canvas{display:block;cursor:none;}
-#hud{position:absolute;top:0;left:0;right:0;height:44px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;padding:0 16px;gap:16px;border-bottom:0.5px solid rgba(255,255,255,0.1);}
-#my-tag{font-size:13px;font-weight:500;letter-spacing:0.5px;}
-#sidebar{position:absolute;top:44px;right:0;width:180px;height:calc(100% - 44px);background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);border-left:0.5px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;padding:12px;gap:12px;overflow:hidden;}
-.side-section{background:rgba(255,255,255,0.05);border-radius:6px;padding:8px 10px;}
-.side-title{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
-.side-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:3px;}
-.side-label{color:rgba(255,255,255,0.5);}
-.side-val{font-weight:500;color:#fff;}
-#ping-val{color:#b8f5c8;}
-#leaderboard-list{display:flex;flex-direction:column;gap:4px;}
-.lb-row{display:flex;align-items:center;gap:6px;font-size:12px;}
-.lb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,0.8);}
-.lb-score{color:#ffd97d;font-weight:500;font-size:11px;}
-#controls-hint{position:absolute;bottom:8px;left:calc(50% - 90px);font-size:11px;color:rgba(255,255,255,0.3);}
-</style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600&display=swap');
 
-<div id="app">
+:root {
+  --bg: #080b14;
+  --surface: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --purple: #7c4dff;
+  --purple-soft: rgba(124,77,255,0.15);
+  --text: #e8e8f0;
+  --text-dim: rgba(232,232,240,0.4);
+  --green: #4fffb0;
+  --yellow: #ffe566;
+  --red: rgba(255,70,70,0.8);
+  --hud-h: 48px;
+  --hud-h-mobile: 44px;
+  --sidebar-w: 190px;
+  --joy-size: 130px;
+  --joy-knob: 50px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* ── LOBBY ────────────────────────────────────────────── */
+#lobby {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px 20px;
+  gap: 0;
+  background: var(--bg);
+  overflow-y: auto;
+}
+
+.lobby-bg {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.lobby-bg::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(124,77,255,0.12) 0%, transparent 70%);
+  top: -200px; left: 50%; transform: translateX(-50%);
+  animation: pulse-bg 4s ease-in-out infinite alternate;
+}
+.lobby-bg::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(79,255,176,0.07) 0%, transparent 70%);
+  bottom: -100px; left: 50%; transform: translateX(-50%);
+  animation: pulse-bg 4s ease-in-out infinite alternate-reverse;
+}
+@keyframes pulse-bg {
+  from { opacity: 0.5; transform: translateX(-50%) scale(1); }
+  to { opacity: 1; transform: translateX(-50%) scale(1.15); }
+}
+
+.lobby-inner {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 20px; width: 100%; max-width: 340px;
+}
+
+.lobby-logo {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+}
+
+.logo-icon {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--purple), #b060ff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  box-shadow: 0 0 30px rgba(124,77,255,0.4), 0 8px 32px rgba(0,0,0,0.5);
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.logo-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px; font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #fff 30%, var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.logo-sub {
+  font-size: 12px; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase;
+}
+
+.lobby-input-wrap {
+  width: 100%;
+  position: relative;
+}
+
+.lobby-input-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 16px; opacity: 0.5; pointer-events: none;
+}
+
+#pseudo-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px; /* prevent zoom on iOS */
+  padding: 14px 16px 14px 44px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+#pseudo-input:focus {
+  border-color: rgba(124,77,255,0.6);
+  background: rgba(255,255,255,0.08);
+}
+#pseudo-input::placeholder { color: var(--text-dim); }
+
+#play-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #7c4dff, #b060ff);
+  border: none; border-radius: 12px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 600;
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(124,77,255,0.4);
+  -webkit-appearance: none;
+}
+#play-btn:active { transform: scale(0.97); box-shadow: 0 2px 12px rgba(124,77,255,0.3); }
+
+.lobby-stats {
+  display: flex; gap: 10px; width: 100%;
+}
+
+.stat-pill {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+}
+.stat-pill .val { color: var(--green); font-weight: 600; font-size: 14px; display: block; }
+
+.lobby-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── GAME SCREEN ──────────────────────────────────────── */
+#game-screen {
+  position: fixed; inset: 0;
+  display: none;
+  background: var(--bg);
+}
+
+#canvas {
+  position: absolute;
+  top: 0; left: 0;
+  display: block;
+}
+
+/* ── HUD ──────────────────────────────────────────────── */
+#hud {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: var(--hud-h);
+  background: rgba(8,11,20,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 12px 0 16px;
+  gap: 10px;
+  z-index: 100;
+  padding-left: calc(16px + var(--safe-left));
+  padding-right: calc(12px + var(--safe-right));
+}
+
+#my-tag {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 500;
+  min-width: 0; flex: 1;
+  overflow: hidden;
+}
+#my-tag-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#my-tag-uid { color: var(--text-dim); font-size: 11px; font-family: 'Space Mono', monospace; flex-shrink: 0; }
+
+.hud-score {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 600; color: var(--yellow);
+  flex-shrink: 0;
+}
+
+.hud-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+.hud-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  -webkit-appearance: none;
+  white-space: nowrap;
+}
+.hud-btn:active { background: rgba(255,255,255,0.12); }
+.hud-btn.danger {
+  color: rgba(255,130,130,0.9);
+  border-color: rgba(255,70,70,0.25);
+  background: rgba(255,70,70,0.08);
+}
+.hud-btn.danger:active { background: rgba(255,70,70,0.18); }
+
+/* icon-only button for mobile */
+.hud-btn-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  padding: 0;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────────── */
+#sidebar {
+  position: absolute;
+  top: var(--hud-h);
+  right: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: rgba(8,11,20,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 12px;
+  gap: 10px;
+  z-index: 90;
+  overflow-y: auto;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  padding-right: calc(12px + var(--safe-right));
+}
+
+.side-section {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.side-title {
+  font-size: 9px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 8px; font-weight: 600;
+}
+.side-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; margin-bottom: 4px;
+}
+.side-row:last-child { margin-bottom: 0; }
+.side-label { color: var(--text-dim); }
+.side-val { font-weight: 500; color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px; }
+#ping-val { color: var(--green); }
+
+.lb-list { display: flex; flex-direction: column; gap: 5px; }
+.lb-row {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px;
+  padding: 4px 0;
+}
+.lb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.lb-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgba(255,255,255,0.8); font-size: 12px; }
+.lb-score { color: var(--yellow); font-weight: 600; font-size: 11px; font-family: 'Space Mono', monospace; }
+.lb-me { background: rgba(124,77,255,0.1); border-radius: 6px; padding: 2px 4px; }
+
+/* ── MOBILE SIDEBAR TOGGLE ───────────────────────────── */
+#sidebar-toggle {
+  display: none;
+}
+
+/* ── MOBILE: sidebar slides in from right ─────────────── */
+@media (max-width: 680px) {
+  :root { --sidebar-w: 220px; }
+
+  #sidebar {
+    transform: translateX(100%);
+    box-shadow: -8px 0 32px rgba(0,0,0,0.5);
+  }
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  #sidebar-toggle {
+    display: flex;
+  }
+
+  #sidebar-overlay {
+    display: none;
+    position: absolute; inset: 0;
+    z-index: 89;
+    background: rgba(0,0,0,0.4);
+  }
+  #sidebar-overlay.open { display: block; }
+
+  #controls-hint { display: none; }
+}
+
+/* ── JOYSTICK ─────────────────────────────────────────── */
+#joystick-wrap {
+  position: absolute;
+  bottom: calc(24px + var(--safe-bottom));
+  left: calc(24px + var(--safe-left));
+  width: var(--joy-size);
+  height: var(--joy-size);
+  z-index: 200;
+  display: none; /* shown only on touch */
+  touch-action: none;
+  user-select: none;
+}
+
+.joy-base {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* crosshair lines */
+.joy-base::before, .joy-base::after {
+  content: '';
+  position: absolute;
+  background: rgba(255,255,255,0.08);
+}
+.joy-base::before {
+  width: 1px; height: 100%;
+  left: 50%; transform: translateX(-50%);
+}
+.joy-base::after {
+  width: 100%; height: 1px;
+  top: 50%; transform: translateY(-50%);
+}
+
+.joy-knob {
+  position: absolute;
+  width: var(--joy-knob);
+  height: var(--joy-knob);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124,77,255,0.9), rgba(176,96,255,0.9));
+  border: 2px solid rgba(255,255,255,0.3);
+  box-shadow: 0 4px 20px rgba(124,77,255,0.5);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s;
+  pointer-events: none;
+}
+
+/* Arrow hints on joystick base */
+.joy-arrow {
+  position: absolute;
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  pointer-events: none;
+}
+.joy-arrow.up { top: 6px; left: 50%; transform: translateX(-50%); }
+.joy-arrow.down { bottom: 6px; left: 50%; transform: translateX(-50%); }
+.joy-arrow.left { left: 6px; top: 50%; transform: translateY(-50%); }
+.joy-arrow.right { right: 6px; top: 50%; transform: translateY(-50%); }
+
+/* ── KEYBOARD DPAD (fallback for tablet) ───────────────── */
+#dpad {
+  position: absolute;
+  bottom: calc(24px + var(--safe-bottom));
+  right: calc(24px + var(--safe-right));
+  display: none;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+  gap: 4px;
+  z-index: 200;
+}
+
+.dpad-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.1s;
+  -webkit-appearance: none;
+  touch-action: none;
+  user-select: none;
+}
+.dpad-btn:active, .dpad-btn.pressed {
+  background: rgba(124,77,255,0.3);
+  border-color: rgba(124,77,255,0.4);
+  color: #fff;
+}
+
+/* ── CONTROLS HINT ───────────────────────────────────── */
+#controls-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  z-index: 50;
+  pointer-events: none;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ── SHOW TOUCH CONTROLS ON MOBILE ──────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  #joystick-wrap { display: block; }
+  #controls-hint { display: none; }
+  #canvas { cursor: default !important; }
+}
+
+/* ── STATUS BADGE ─────────────────────────────────────── */
+.status-badge {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ── CANVAS AREA adjustement with sidebar ──────────────── */
+@media (min-width: 681px) {
+  #canvas { right: var(--sidebar-w); }
+}
+
+/* ── RESPONSIVE ADJUSTMENTS ────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --hud-h: 44px; }
+  .hud-score-label { display: none; }
+  #my-tag-uid { display: none; }
+}
+
+/* ── SPLASH / TRANSITION ───────────────────────────────── */
+.screen-fade {
+  animation: fadeIn 0.35s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── TOAST NOTIFICATION ────────────────────────────────── */
+#toast {
+  position: fixed;
+  top: calc(var(--hud-h) + 10px);
+  left: 50%; transform: translateX(-50%);
+  background: rgba(20,20,36,0.95);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ─── LOBBY ─────────────────────────────────────────── -->
 <div id="lobby">
-  <div style="font-size:32px;margin-bottom:-8px;">🎮</div>
-  <h2>PIXEL TRAIL — multijoueur</h2>
-  <input id="pseudo-input" placeholder="Ton pseudo..." maxlength="16" autocomplete="off"/>
-  <button id="play-btn">Jouer</button>
-  <div class="lobby-stats">
-    <div class="stat-pill">Ping <span id="lobby-ping">—</span> ms</div>
-    <div class="stat-pill"><span id="lobby-players">—</span> joueur(s) en ligne</div>
+  <div class="lobby-bg"></div>
+  <div class="lobby-inner screen-fade">
+    <div class="lobby-logo">
+      <div class="logo-icon">🎮</div>
+      <div class="logo-title">PIXEL TRAIL</div>
+      <div class="logo-sub">Multijoueur · Carte infinie</div>
+    </div>
+
+    <div class="lobby-input-wrap">
+      <span class="lobby-input-icon">✏️</span>
+      <input id="pseudo-input" placeholder="Ton pseudo..." maxlength="16" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    </div>
+
+    <button id="play-btn">Jouer maintenant →</button>
+
+    <div class="lobby-stats">
+      <div class="stat-pill">
+        <span class="val" id="lobby-ping">—</span>
+        Ping (ms)
+      </div>
+      <div class="stat-pill">
+        <span class="val" id="lobby-players">—</span>
+        En ligne
+      </div>
+    </div>
+
+    <div class="lobby-hint">
+      🕹️ Joystick sur mobile · ZQSD / flèches sur clavier<br>
+      Laisse ta trace et domine le classement !
+    </div>
   </div>
-  <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:-4px;">ZQSD ou flèches pour se déplacer · laisse ta trace</div>
 </div>
 
+<!-- ─── GAME ───────────────────────────────────────────── -->
 <div id="game-screen">
+
+  <!-- Canvas -->
   <canvas id="canvas"></canvas>
+
+  <!-- Overlay for mobile sidebar -->
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- HUD -->
   <div id="hud">
-    <div id="my-tag"></div>
-    <div style="flex:1"></div>
-    <button onclick="quitGame()" style="background:rgba(255,60,60,0.2);border:0.5px solid rgba(255,60,60,0.4);color:rgba(255,120,120,0.9);border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;">Quitter</button>
+    <div id="my-tag">
+      <div id="my-tag-dot" style="width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);flex-shrink:0;"></div>
+      <span id="my-tag-name">—</span>
+      <span id="my-tag-uid"></span>
+    </div>
+
+    <div class="hud-score">
+      <span>⬛</span>
+      <span id="score-val">0</span>
+    </div>
+
+    <div class="hud-btns">
+      <div class="status-badge" id="status-badge">🟡 —</div>
+      <button class="hud-btn hud-btn-icon" id="sidebar-toggle" onclick="toggleSidebar()" title="Classement">📊</button>
+      <button class="hud-btn danger hud-btn-icon" onclick="quitGame()" title="Quitter">✕</button>
+    </div>
   </div>
-  <canvas id="canvas" style="display:none"></canvas>
+
+  <!-- Sidebar -->
   <div id="sidebar">
     <div class="side-section">
       <div class="side-title">Connexion</div>
       <div class="side-row"><span class="side-label">Ping</span><span class="side-val" id="ping-val">— ms</span></div>
       <div class="side-row"><span class="side-label">Joueurs</span><span class="side-val" id="players-val">—</span></div>
-      <div class="side-row"><span class="side-label">Statut</span><span class="side-val" id="status-val" style="font-size:11px;">—</span></div>
+      <div class="side-row"><span class="side-label">Statut</span><span class="side-val" id="status-val">—</span></div>
     </div>
     <div class="side-section" style="flex:1;overflow:hidden;">
-      <div class="side-title">Classement (cases)</div>
-      <div id="leaderboard-list"></div>
+      <div class="side-title">🏆 Classement</div>
+      <div class="lb-list" id="leaderboard-list"></div>
+    </div>
+    <div style="font-size:10px;color:var(--text-dim);text-align:center;padding:4px 0;font-family:'Space Mono',monospace;">
+      PIXEL TRAIL v2.0
     </div>
   </div>
-  <div id="controls-hint">ZQSD / flèches · la carte est infinie</div>
+
+  <!-- Joystick (tactile) -->
+  <div id="joystick-wrap">
+    <div class="joy-base">
+      <span class="joy-arrow up">▲</span>
+      <span class="joy-arrow down">▼</span>
+      <span class="joy-arrow left">◀</span>
+      <span class="joy-arrow right">▶</span>
+    </div>
+    <div class="joy-knob" id="joy-knob"></div>
+  </div>
+
+  <!-- Controls hint (desktop only) -->
+  <div id="controls-hint">ZQSD · ↑↓←→ · carte infinie</div>
+
 </div>
-</div>
+
+<!-- Toast -->
+<div id="toast"></div>
 
 <script>
+// ────────────────────────────────────────────────────────
+// CONFIG
+// ────────────────────────────────────────────────────────
 const PROJECT_ID = "1234567890";
-const CLOUD_VAR = "☁ score";
 const TILE = 20;
-const CANVAS_W = () => Math.max(400, window.innerWidth - 180);
-const CANVAS_H = () => Math.max(536, window.innerHeight - 44);
-
 const COLORS = ["#e05c5c","#e08c3c","#d4c03a","#5ccc6c","#3cc8d8","#5c8ce0","#b05ce0","#e05ca0","#60e0b0","#e0a050"];
+const MOVE_INTERVAL = 110;
 
+// ────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────
 let me = null, ws = null, wsOK = false;
 let players = {}, trailData = {}, myTrailCount = 0;
 let camX = 0, camY = 0;
 let keys = {};
 let pingMs = 0, pingStart = 0, pingInterval = null;
 let canvas, ctx, animFrame;
-let moveTimer = 0;
+let moveAcc = 0, lastTime = 0, broadcastTimer = 0;
 let gameRunning = false;
+let myLocalTrail = {};
+let lobbyWs = null;
 
+// Joystick state
+let joyActive = false;
+let joyDX = 0, joyDY = 0;
+let joyTouchId = null;
+
+// ────────────────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────────────────
 function genId(){ return "#"+(Math.floor(Math.random()*0xFFFFF)).toString(16).toUpperCase().padStart(5,"0"); }
 function pickColor(){ return COLORS[Math.floor(Math.random()*COLORS.length)]; }
 function tileKey(tx,ty){ return tx+","+ty; }
+function savePseudo(p){ try{ localStorage.setItem("pixeltrail_pseudo",p); }catch(e){} }
+function loadPseudo(){ try{ return localStorage.getItem("pixeltrail_pseudo")||""; }catch(e){ return ""; } }
+function isMobile(){ return window.matchMedia("(hover:none) and (pointer:coarse)").matches; }
 
-function savePseudo(p){ try{localStorage.setItem("pixeltrail_pseudo",p);}catch(e){} }
-function loadPseudo(){ try{return localStorage.getItem("pixeltrail_pseudo")||"";}catch(e){return "";} }
+function showToast(msg, duration=2000){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), duration);
+}
 
-window.addEventListener("DOMContentLoaded",()=>{
+// ────────────────────────────────────────────────────────
+// SIDEBAR TOGGLE (mobile)
+// ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sb = document.getElementById("sidebar");
+  const ov = document.getElementById("sidebar-overlay");
+  sb.classList.toggle("open");
+  ov.classList.toggle("open");
+}
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-overlay").classList.remove("open");
+}
+
+// ────────────────────────────────────────────────────────
+// LOBBY
+// ────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", ()=>{
   const inp = document.getElementById("pseudo-input");
   const saved = loadPseudo();
   if(saved) inp.value = saved;
 
-  startLobbyPing();
-
   document.getElementById("play-btn").onclick = startGame;
-  inp.addEventListener("keydown", e=>{ if(e.key==="Enter") startGame(); });
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter"){ inp.blur(); startGame(); } });
+
+  wsLobby();
 });
 
-function startLobbyPing(){
-  wsLobby();
-}
-
-let lobbyWs = null;
 function wsLobby(){
   try{
     lobbyWs = new WebSocket("wss://clouddata.turbowarp.org");
-    lobbyWs.onopen=()=>{
+    lobbyWs.onopen = ()=>{
       lobbyWs.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:"lobby_"+Math.random()}));
       pingLobby();
     };
-    lobbyWs.onmessage=(e)=>{
+    lobbyWs.onmessage = (e)=>{
       try{
-        const lines=e.data.split("\n");
+        const lines = e.data.split("\n");
         for(const l of lines){
           if(!l.trim()) continue;
-          const d=JSON.parse(l);
+          const d = JSON.parse(l);
           if(d.method==="set" && d.name==="☁ players"){
             document.getElementById("lobby-players").textContent = parseInt(d.value)||"0";
           }
           if(d.method==="pong"||d.method==="set"){
-            const now=Date.now();
+            const now = Date.now();
             if(pingStart>0){ pingMs=now-pingStart; pingStart=0; document.getElementById("lobby-ping").textContent=pingMs; }
           }
         }
@@ -137,80 +705,184 @@ function wsLobby(){
 
 function pingLobby(){
   setInterval(()=>{
-    pingStart=Date.now();
-    if(lobbyWs&&lobbyWs.readyState===1){
+    pingStart = Date.now();
+    if(lobbyWs && lobbyWs.readyState===1){
       lobbyWs.send(JSON.stringify({method:"set",name:"☁ ping_probe",value:String(pingStart),project_id:PROJECT_ID,user:"lobby"}));
     }
-  },2000);
+  }, 2000);
 }
 
+// ────────────────────────────────────────────────────────
+// START GAME
+// ────────────────────────────────────────────────────────
 function startGame(){
   let pseudo = document.getElementById("pseudo-input").value.trim();
-  if(!pseudo){ pseudo = "Joueur"+(Math.floor(Math.random()*999)+1); }
+  if(!pseudo) pseudo = "Joueur"+(Math.floor(Math.random()*999)+1);
   savePseudo(pseudo);
 
   const uid = genId();
   const color = pickColor();
   const username = pseudo + uid;
 
-  me = {
-    pseudo: pseudo,
-    uid: uid,
-    username: username,
-    color: color,
-    x: 0, y: 0,
-    tx: 0, ty: 0
-  };
+  me = { pseudo, uid, username, color, x:0, y:0, tx:0, ty:0 };
 
-  document.getElementById("my-tag").innerHTML =
-    `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};border:1.5px solid #fff;margin-right:8px;vertical-align:middle;"></span>`+
-    `<span style="color:${color};font-weight:500;">${pseudo}</span>`+
-    `<span style="color:rgba(255,255,255,0.4);font-size:11px;margin-left:4px;">${uid}</span>`;
+  // HUD
+  document.getElementById("my-tag-dot").style.background = color;
+  document.getElementById("my-tag-name").textContent = pseudo;
+  document.getElementById("my-tag-uid").textContent = uid;
+  document.getElementById("my-tag-dot").style.boxShadow = `0 0 8px ${color}`;
 
   document.getElementById("lobby").style.display = "none";
-  document.getElementById("game-screen").style.display = "block";
+  const gs = document.getElementById("game-screen");
+  gs.style.display = "block";
 
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
   resizeCanvas();
 
   window.addEventListener("resize", resizeCanvas);
-  window.addEventListener("keydown", e=>{ keys[e.key]=true; e.preventDefault&&["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)&&e.preventDefault(); });
-  window.addEventListener("keyup", e=>{ keys[e.key]=false; });
+  window.addEventListener("keydown", onKeyDown, {passive:false});
+  window.addEventListener("keyup",   onKeyUp);
+
+  setupJoystick();
 
   connectWS();
   gameRunning = true;
+  lastTime = 0;
   gameLoop(0);
 
-  pingInterval = setInterval(sendPing,2000);
+  pingInterval = setInterval(sendPing, 2000);
+
+  if(isMobile()) showToast("🕹️ Utilise le joystick pour te déplacer !");
 }
 
+// ────────────────────────────────────────────────────────
+// CANVAS RESIZE
+// ────────────────────────────────────────────────────────
 function resizeCanvas(){
   if(!canvas) return;
-  canvas.width = CANVAS_W();
-  canvas.height = CANVAS_H();
+  const isMob = window.innerWidth <= 680;
+  const hudH = isMob ? 44 : 48;
+  const sideW = isMob ? 0 : 190;
+  canvas.width  = window.innerWidth  - sideW;
+  canvas.height = window.innerHeight - hudH;
+  canvas.style.top = hudH + "px";
+  canvas.style.left = "0";
+  canvas.style.width  = (window.innerWidth  - sideW) + "px";
+  canvas.style.height = (window.innerHeight - hudH)  + "px";
+  // Also reposition sidebar top
+  document.getElementById("sidebar").style.top = hudH + "px";
 }
 
+// ────────────────────────────────────────────────────────
+// KEYBOARD
+// ────────────────────────────────────────────────────────
+function onKeyDown(e){
+  keys[e.key] = true;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) e.preventDefault();
+}
+function onKeyUp(e){ keys[e.key] = false; }
+
+// ────────────────────────────────────────────────────────
+// JOYSTICK (touch)
+// ────────────────────────────────────────────────────────
+function setupJoystick(){
+  const wrap = document.getElementById("joystick-wrap");
+  const knob = document.getElementById("joy-knob");
+  const joySize = 130;
+  const joyRadius = joySize / 2;
+  const knobRadius = 25;
+  const maxDist = joyRadius - knobRadius - 2;
+
+  function getJoyCenter(){
+    const r = wrap.getBoundingClientRect();
+    return { cx: r.left + joyRadius, cy: r.top + joyRadius };
+  }
+
+  function updateKnob(touchX, touchY){
+    const { cx, cy } = getJoyCenter();
+    let dx = touchX - cx;
+    let dy = touchY - cy;
+    const dist = Math.hypot(dx, dy);
+
+    if(dist > maxDist){
+      dx = dx / dist * maxDist;
+      dy = dy / dist * maxDist;
+    }
+
+    const norm = Math.hypot(dx, dy);
+    if(norm > 15){
+      // Snap to 8 directions, but only use 4 for movement
+      const angle = Math.atan2(dy, dx);
+      const snap45 = Math.round(angle / (Math.PI/4)) * (Math.PI/4);
+      joyDX = Math.round(Math.cos(snap45));
+      joyDY = Math.round(Math.sin(snap45));
+    } else {
+      joyDX = 0; joyDY = 0;
+    }
+
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  }
+
+  function resetKnob(){
+    knob.style.transform = "translate(-50%, -50%)";
+    joyDX = 0; joyDY = 0;
+    joyActive = false;
+    joyTouchId = null;
+  }
+
+  wrap.addEventListener("touchstart", e=>{
+    e.preventDefault();
+    if(joyTouchId !== null) return;
+    const t = e.changedTouches[0];
+    joyTouchId = t.identifier;
+    joyActive = true;
+    updateKnob(t.clientX, t.clientY);
+  }, {passive:false});
+
+  document.addEventListener("touchmove", e=>{
+    if(!joyActive) return;
+    for(const t of e.changedTouches){
+      if(t.identifier === joyTouchId){
+        e.preventDefault();
+        updateKnob(t.clientX, t.clientY);
+        break;
+      }
+    }
+  }, {passive:false});
+
+  document.addEventListener("touchend", e=>{
+    for(const t of e.changedTouches){
+      if(t.identifier === joyTouchId){
+        resetKnob();
+        break;
+      }
+    }
+  });
+
+  document.addEventListener("touchcancel", resetKnob);
+}
+
+// ────────────────────────────────────────────────────────
+// WEBSOCKET
+// ────────────────────────────────────────────────────────
 function connectWS(){
   try{
     ws = new WebSocket("wss://clouddata.turbowarp.org");
-    ws.onopen=()=>{
+    ws.onopen = ()=>{
       ws.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:me.username}));
-      wsOK=true;
+      wsOK = true;
       updateStatus("🟢 Cloud");
       broadcastMe();
       sendPing();
     };
-    ws.onmessage=handleWS;
-    ws.onclose=()=>{
-      wsOK=false;
+    ws.onmessage = handleWS;
+    ws.onclose = ()=>{
+      wsOK = false;
       updateStatus("🔴 Déco...");
-      if(gameRunning) setTimeout(connectWS,2000);
+      if(gameRunning) setTimeout(connectWS, 2000);
     };
-    ws.onerror=()=>{
-      wsOK=false;
-      updateStatus("🟡 Local");
-    };
+    ws.onerror = ()=>{ wsOK=false; updateStatus("🟡 Local"); };
   }catch(e){ wsOK=false; updateStatus("🟡 Local"); }
 }
 
@@ -221,34 +893,30 @@ function handleWS(event){
     try{
       const d = JSON.parse(line);
       if(d.method==="set"){
-        const n = d.name, v = d.value;
+        const n=d.name, v=d.value;
         if(n.startsWith("☁ p_") && !n.includes(me.uid)){
           try{
-            const pd = JSON.parse(v);
-            if(pd && pd.uid){
-              if(!players[pd.uid]) players[pd.uid]={};
-              Object.assign(players[pd.uid], pd);
-            }
+            const pd=JSON.parse(v);
+            if(pd&&pd.uid){ if(!players[pd.uid]) players[pd.uid]={}; Object.assign(players[pd.uid],pd); }
           }catch(e){}
         }
         if(n.startsWith("☁ t_")){
           try{
-            const td = JSON.parse(v);
-            if(td && td.uid && td.uid!==me.uid && td.tiles){
+            const td=JSON.parse(v);
+            if(td&&td.uid&&td.uid!==me.uid&&td.tiles){
               if(!trailData[td.uid]) trailData[td.uid]={color:td.color,tiles:{}};
               trailData[td.uid].color=td.color;
-              Object.assign(trailData[td.uid].tiles, td.tiles);
+              Object.assign(trailData[td.uid].tiles,td.tiles);
             }
           }catch(e){}
         }
         if(n==="☁ players"){
-          document.getElementById("players-val").textContent = v;
+          document.getElementById("players-val").textContent=v;
         }
         if(n.startsWith("☁ pong_")&&n.includes(me.uid)){
           const t=parseInt(v)||0;
           pingMs=Date.now()-t;
           document.getElementById("ping-val").textContent=pingMs+" ms";
-          document.getElementById("lobby-ping").textContent=pingMs;
         }
       }
     }catch(err){}
@@ -261,63 +929,62 @@ function sendCloud(name,value){
   }
 }
 
-let broadcastTimer=0;
-let myLocalTrail={};
-
 function broadcastMe(){
-  const data = JSON.stringify({uid:me.uid,pseudo:me.pseudo,color:me.color,tx:me.tx,ty:me.ty,score:myTrailCount});
-  sendCloud("☁ p_"+me.uid, data);
+  sendCloud("☁ p_"+me.uid, JSON.stringify({uid:me.uid,pseudo:me.pseudo,color:me.color,tx:me.tx,ty:me.ty,score:myTrailCount}));
 }
-
 function broadcastTrail(){
-  const data = JSON.stringify({uid:me.uid,color:me.color,tiles:myLocalTrail});
-  sendCloud("☁ t_"+me.uid, data);
+  sendCloud("☁ t_"+me.uid, JSON.stringify({uid:me.uid,color:me.color,tiles:myLocalTrail}));
 }
-
 function sendPing(){
   const t=Date.now();
-  sendCloud("☁ pong_"+me.uid, String(t));
+  sendCloud("☁ pong_"+me.uid,String(t));
   pingStart=t;
 }
 
-let lastTime=0, moveAcc=0;
-const MOVE_INTERVAL=120;
-const SPEED=4;
-
+// ────────────────────────────────────────────────────────
+// GAME LOOP
+// ────────────────────────────────────────────────────────
 function gameLoop(ts){
   if(!gameRunning) return;
-  const dt = ts-lastTime; lastTime=ts;
+  const dt = lastTime ? ts - lastTime : 16;
+  lastTime = ts;
 
   handleInput(dt);
   render();
   updateLeaderboard();
 
-  broadcastTimer+=dt;
-  if(broadcastTimer>500){ broadcastTimer=0; broadcastMe(); }
+  broadcastTimer += dt;
+  if(broadcastTimer > 500){ broadcastTimer=0; broadcastMe(); }
 
   animFrame = requestAnimationFrame(gameLoop);
 }
 
 function handleInput(dt){
   if(!me) return;
-  moveAcc+=dt;
-  if(moveAcc<MOVE_INTERVAL) return;
-  moveAcc=0;
+  moveAcc += dt;
+  if(moveAcc < MOVE_INTERVAL) return;
+  moveAcc = 0;
 
-  let dx=0,dy=0;
-  if(keys["z"]||keys["Z"]||keys["ArrowUp"]) dy=-1;
-  if(keys["s"]||keys["S"]||keys["ArrowDown"]) dy=1;
-  if(keys["q"]||keys["Q"]||keys["ArrowLeft"]) dx=-1;
-  if(keys["d"]||keys["D"]||keys["ArrowRight"]) dx=1;
+  let dx=0, dy=0;
+
+  // Keyboard
+  if(keys["z"]||keys["Z"]||keys["ArrowUp"])    dy=-1;
+  if(keys["s"]||keys["S"]||keys["ArrowDown"])   dy= 1;
+  if(keys["q"]||keys["Q"]||keys["ArrowLeft"])   dx=-1;
+  if(keys["d"]||keys["D"]||keys["ArrowRight"])  dx= 1;
+
+  // Joystick overrides keyboard if active
+  if(joyActive){
+    dx = joyDX;
+    dy = joyDY;
+  }
 
   if(dx!==0||dy!==0){
     me.tx+=dx; me.ty+=dy;
     me.x=me.tx*TILE; me.y=me.ty*TILE;
     const k=tileKey(me.tx,me.ty);
-    if(!myLocalTrail[k]){
-      myLocalTrail[k]=1;
-      myTrailCount++;
-    }
+    if(!myLocalTrail[k]){ myLocalTrail[k]=1; myTrailCount++; }
+    document.getElementById("score-val").textContent=myTrailCount;
     broadcastMe();
     broadcastTrail();
   }
@@ -326,23 +993,26 @@ function handleInput(dt){
   camY = me.y - canvas.height/2 + TILE/2;
 }
 
+// ────────────────────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────────────────────
 function hexToRgba(hex, alpha){
-  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function render(){
   if(!canvas||!ctx) return;
   const W=canvas.width, H=canvas.height;
-  ctx.clearRect(0,0,W,H);
 
-  ctx.fillStyle="#0d0d1a";
+  ctx.fillStyle="#080b14";
   ctx.fillRect(0,0,W,H);
 
   const startTX=Math.floor(camX/TILE)-1, startTY=Math.floor(camY/TILE)-1;
   const endTX=startTX+Math.ceil(W/TILE)+2, endTY=startTY+Math.ceil(H/TILE)+2;
 
-  ctx.strokeStyle="rgba(255,255,255,0.04)";
+  // Grid
+  ctx.strokeStyle="rgba(255,255,255,0.035)";
   ctx.lineWidth=0.5;
   for(let tx=startTX;tx<=endTX;tx++){
     const sx=tx*TILE-camX;
@@ -353,77 +1023,120 @@ function render(){
     ctx.beginPath(); ctx.moveTo(0,sy); ctx.lineTo(W,sy); ctx.stroke();
   }
 
+  // Trails
   for(let tx=startTX;tx<=endTX;tx++){
     for(let ty=startTY;ty<=endTY;ty++){
       const k=tileKey(tx,ty);
       const sx=tx*TILE-camX, sy=ty*TILE-camY;
       if(myLocalTrail[k]){
-        ctx.fillStyle=hexToRgba(me.color,0.28);
-        ctx.fillRect(sx,sy,TILE,TILE);
+        ctx.fillStyle=hexToRgba(me.color,0.3);
+        ctx.fillRect(sx+1,sy+1,TILE-2,TILE-2);
       }
       for(const uid in trailData){
         if(trailData[uid].tiles[k]){
-          ctx.fillStyle=hexToRgba(trailData[uid].color,0.28);
-          ctx.fillRect(sx,sy,TILE,TILE);
+          ctx.fillStyle=hexToRgba(trailData[uid].color,0.3);
+          ctx.fillRect(sx+1,sy+1,TILE-2,TILE-2);
         }
       }
     }
   }
 
+  // Other players
   for(const uid in players){
     const p=players[uid];
     if(!p||typeof p.tx==="undefined") continue;
     const sx=p.tx*TILE-camX, sy=p.ty*TILE-camY;
+    // glow
+    ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,10,0,Math.PI*2);
+    ctx.fillStyle=hexToRgba(p.color||"#aaa",0.2);
+    ctx.fill();
+    // dot
     ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,7,0,Math.PI*2);
     ctx.fillStyle=p.color||"#aaa";
     ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,0.6)";
-    ctx.lineWidth=1.5; ctx.stroke();
-    ctx.fillStyle="rgba(255,255,255,0.7)";
-    ctx.font="11px Segoe UI";
+    ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=1.5; ctx.stroke();
+    // name
+    ctx.fillStyle="rgba(255,255,255,0.75)";
+    ctx.font="11px Outfit,sans-serif";
     ctx.textAlign="center";
-    ctx.fillText((p.pseudo||"?").substring(0,10),sx+TILE/2,sy-4);
+    ctx.fillText((p.pseudo||"?").substring(0,10),sx+TILE/2,sy-5);
   }
 
+  // My player
   if(me){
     const sx=me.tx*TILE-camX, sy=me.ty*TILE-camY;
-    ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,8,0,Math.PI*2);
-    ctx.fillStyle=me.color;
-    ctx.fill();
-    ctx.strokeStyle="#fff";
-    ctx.lineWidth=2; ctx.stroke();
+    // outer glow
+    const grad=ctx.createRadialGradient(sx+TILE/2,sy+TILE/2,4,sx+TILE/2,sy+TILE/2,16);
+    grad.addColorStop(0,hexToRgba(me.color,0.5));
+    grad.addColorStop(1,hexToRgba(me.color,0));
+    ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,16,0,Math.PI*2);
+    ctx.fillStyle=grad; ctx.fill();
+    // dot
+    ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,9,0,Math.PI*2);
+    ctx.fillStyle=me.color; ctx.fill();
+    ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke();
+    // name
     ctx.fillStyle="#fff";
-    ctx.font="bold 11px Segoe UI";
+    ctx.font="bold 12px Outfit,sans-serif";
     ctx.textAlign="center";
-    ctx.fillText(me.pseudo.substring(0,12),sx+TILE/2,sy-5);
+    ctx.fillText(me.pseudo.substring(0,12),sx+TILE/2,sy-6);
   }
 }
 
+// ────────────────────────────────────────────────────────
+// LEADERBOARD
+// ────────────────────────────────────────────────────────
 function updateLeaderboard(){
   const entries=[];
-  if(me) entries.push({pseudo:me.pseudo,uid:me.uid,color:me.color,score:myTrailCount});
+  if(me) entries.push({pseudo:me.pseudo,uid:me.uid,color:me.color,score:myTrailCount,isMe:true});
   for(const uid in players){
     const p=players[uid];
-    if(p&&p.pseudo) entries.push({pseudo:p.pseudo,uid:p.uid||uid,color:p.color||"#aaa",score:parseInt(p.score)||0});
+    if(p&&p.pseudo) entries.push({pseudo:p.pseudo,uid:p.uid||uid,color:p.color||"#aaa",score:parseInt(p.score)||0,isMe:false});
   }
   entries.sort((a,b)=>b.score-a.score);
+
   const list=document.getElementById("leaderboard-list");
-  list.innerHTML=entries.slice(0,8).map((e,i)=>
-    `<div class="lb-row"><div class="lb-dot" style="background:${e.color}"></div><span class="lb-name">${e.pseudo}</span><span class="lb-score">${e.score}</span></div>`
-  ).join("");
-  document.getElementById("players-val").textContent = entries.length;
+  const medals=["🥇","🥈","🥉"];
+  list.innerHTML=entries.slice(0,8).map((e,i)=>`
+    <div class="lb-row${e.isMe?' lb-me':''}">
+      <div class="lb-dot" style="background:${e.color};box-shadow:0 0 6px ${e.color}44"></div>
+      <span class="lb-name" title="${e.pseudo}">${medals[i]||''} ${e.pseudo}</span>
+      <span class="lb-score">${e.score}</span>
+    </div>
+  `).join("");
+
+  document.getElementById("players-val").textContent=entries.length;
 }
 
-function updateStatus(s){ const el=document.getElementById("status-val"); if(el) el.textContent=s; }
+// ────────────────────────────────────────────────────────
+// STATUS
+// ────────────────────────────────────────────────────────
+function updateStatus(s){
+  const el=document.getElementById("status-val");
+  const badge=document.getElementById("status-badge");
+  if(el) el.textContent=s;
+  if(badge) badge.textContent=s;
+}
 
-window.quitGame = function(){
+// ────────────────────────────────────────────────────────
+// QUIT
+// ────────────────────────────────────────────────────────
+window.quitGame=function(){
   gameRunning=false;
   cancelAnimationFrame(animFrame);
   clearInterval(pingInterval);
   if(ws) ws.close();
+  window.removeEventListener("keydown",onKeyDown);
+  window.removeEventListener("keyup",onKeyUp);
   players={}; trailData={}; myLocalTrail={}; myTrailCount=0; me=null; keys={};
+  joyDX=0; joyDY=0; joyActive=false;
   document.getElementById("game-screen").style.display="none";
-  document.getElementById("lobby").style.display="flex";
-  startLobbyPing();
+  const lobby=document.getElementById("lobby");
+  lobby.style.display="flex";
+  document.getElementById("score-val").textContent="0";
+  closeSidebar();
+  wsLobby();
 };
 </script>
+</body>
+</html>
