@@ -608,10 +608,13 @@ body {
 // ────────────────────────────────────────────────────────
 // CONFIG
 // ────────────────────────────────────────────────────────
-const PROJECT_ID = "1234567890";
+const PROJECT_ID = "1234567890"; // À remplacer par ton ID de projet
 const TILE = 20;
 const COLORS = ["#e05c5c","#e08c3c","#d4c03a","#5ccc6c","#3cc8d8","#5c8ce0","#b05ce0","#e05ca0","#60e0b0","#e0a050"];
 const MOVE_INTERVAL = 110;
+
+// Variables Cloud fixes (DOIVENT EXISTER DANS LE PROJET SCRATCH)
+const CLOUD_SLOTS = ["☁ p1","☁ p2","☁ p3","☁ p4","☁ p5","☁ p6","☁ p7","☁ p8","☁ p9","☁ p10"];
 
 // ────────────────────────────────────────────────────────
 // STATE
@@ -626,11 +629,50 @@ let moveAcc = 0, lastTime = 0, broadcastTimer = 0;
 let gameRunning = false;
 let myLocalTrail = {};
 let lobbyWs = null;
+let mySlotIndex = -1; // Le slot (1-10) que j'occupe
 
 // Joystick state
 let joyActive = false;
 let joyDX = 0, joyDY = 0;
 let joyTouchId = null;
+
+// ────────────────────────────────────────────────────────
+// ENCODEUR NUMÉRIQUE (TurboWarp n'accepte que les chiffres)
+// ────────────────────────────────────────────────────────
+const CHARS = " abcdefghijklmnopqrstuvwxyz0123456789.,!?-+*/()[]{}#@:";
+function encodeData(obj) {
+    // Format: [Timestamp(13)][TX+10000(5)][TY+10000(5)][ColorIdx(2)][Score(6)][Pseudo(20)]
+    let ts = String(Date.now()).padStart(13, "0");
+    let tx = String(obj.tx + 10000).padStart(5, "0");
+    let ty = String(obj.ty + 10000).padStart(5, "0");
+    let col = String(COLORS.indexOf(obj.color)).padStart(2, "0");
+    let sc = String(obj.score).padStart(6, "0");
+    
+    let ps = "";
+    let name = obj.pseudo.toLowerCase().substring(0, 10);
+    for(let i=0; i<10; i++) {
+        let char = name[i] || " ";
+        let idx = CHARS.indexOf(char);
+        ps += String(idx === -1 ? 0 : idx).padStart(2, "0");
+    }
+    return ts + tx + ty + col + sc + ps;
+}
+
+function decodeData(str) {
+    if (str.length < 51) return null;
+    let ts = parseInt(str.substring(0, 13));
+    let tx = parseInt(str.substring(13, 18)) - 10000;
+    let ty = parseInt(str.substring(18, 23)) - 10000;
+    let colIdx = parseInt(str.substring(23, 25));
+    let sc = parseInt(str.substring(25, 31));
+    
+    let pseudo = "";
+    for(let i=0; i<10; i++) {
+        let idx = parseInt(str.substring(31 + i*2, 33 + i*2));
+        pseudo += CHARS[idx] || " ";
+    }
+    return { ts, tx, ty, color: COLORS[colIdx] || COLORS[0], score: sc, pseudo: pseudo.trim() };
+}
 
 // ────────────────────────────────────────────────────────
 // UTILS
@@ -644,23 +686,10 @@ function isMobile(){ return window.matchMedia("(hover:none) and (pointer:coarse)
 
 function showToast(msg, duration=2000){
   const t = document.getElementById("toast");
+  if(!t) return;
   t.textContent = msg;
   t.classList.add("show");
   setTimeout(()=> t.classList.remove("show"), duration);
-}
-
-// ────────────────────────────────────────────────────────
-// SIDEBAR TOGGLE (mobile)
-// ────────────────────────────────────────────────────────
-function toggleSidebar(){
-  const sb = document.getElementById("sidebar");
-  const ov = document.getElementById("sidebar-overlay");
-  sb.classList.toggle("open");
-  ov.classList.toggle("open");
-}
-function closeSidebar(){
-  document.getElementById("sidebar").classList.remove("open");
-  document.getElementById("sidebar-overlay").classList.remove("open");
 }
 
 // ────────────────────────────────────────────────────────
@@ -682,7 +711,6 @@ function wsLobby(){
     lobbyWs = new WebSocket("wss://clouddata.turbowarp.org");
     lobbyWs.onopen = ()=>{
       lobbyWs.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:"lobby_"+Math.random()}));
-      pingLobby();
     };
     lobbyWs.onmessage = (e)=>{
       try{
@@ -693,23 +721,122 @@ function wsLobby(){
           if(d.method==="set" && d.name==="☁ players"){
             document.getElementById("lobby-players").textContent = parseInt(d.value)||"0";
           }
-          if(d.method==="pong"||d.method==="set"){
-            const now = Date.now();
-            if(pingStart>0){ pingMs=now-pingStart; pingStart=0; document.getElementById("lobby-ping").textContent=pingMs; }
-          }
         }
       }catch(err){}
     };
   }catch(e){}
 }
 
-function pingLobby(){
-  setInterval(()=>{
-    pingStart = Date.now();
-    if(lobbyWs && lobbyWs.readyState===1){
-      lobbyWs.send(JSON.stringify({method:"set",name:"☁ ping_probe",value:String(pingStart),project_id:PROJECT_ID,user:"lobby"}));
-    }
-  }, 2000);
+// ────────────────────────────────────────────────────────
+// WEBSOCKET & CLOUD
+// ────────────────────────────────────────────────────────
+function connectWS(){
+  try{
+    ws = new WebSocket("wss://clouddata.turbowarp.org");
+    ws.onopen = ()=>{
+      ws.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:me.username}));
+      wsOK = true;
+      updateStatus("🟢 Connecté");
+      findFreeSlot();
+    };
+    ws.onmessage = handleWS;
+    ws.onclose = ()=>{
+      wsOK = false;
+      updateStatus("🔴 Déconnecté");
+      if(gameRunning) setTimeout(connectWS, 2000);
+    };
+    ws.onerror = ()=>{ wsOK=false; updateStatus("🟡 Erreur"); };
+  }catch(e){ wsOK=false; updateStatus("🟡 Erreur"); }
+}
+
+function findFreeSlot() {
+    // On attend un peu de recevoir les messages des autres pour voir quels slots sont pris
+    setTimeout(() => {
+        let now = Date.now();
+        for(let i=0; i<CLOUD_SLOTS.length; i++) {
+            let slotName = CLOUD_SLOTS[i];
+            // Si on n'a rien reçu de ce slot ou si le timestamp est vieux (> 10s), il est libre
+            if (!players[slotName] || (now - players[slotName].ts > 10000)) {
+                mySlotIndex = i;
+                console.log("Slot trouvé : " + slotName);
+                broadcastMe();
+                return;
+            }
+        }
+        showToast("Serveur plein (10/10)", 5000);
+    }, 1500);
+}
+
+function handleWS(event){
+  const lines = event.data.split("\n");
+  for(const line of lines){
+    if(!line.trim()) continue;
+    try{
+      const d = JSON.parse(line);
+      if(d.method==="set"){
+        const n=d.name, v=d.value;
+        
+        // Si c'est l'un des slots de joueur
+        if(CLOUD_SLOTS.includes(n)) {
+            let data = decodeData(v);
+            if(data) {
+                // Si ce n'est pas mon propre slot, on l'ajoute/met à jour
+                if(n !== CLOUD_SLOTS[mySlotIndex]) {
+                    // Si le joueur a changé de position, on ajoute à sa trace
+                    if(players[n] && (players[n].tx !== data.tx || players[n].ty !== data.ty)) {
+                        const k = tileKey(data.tx, data.ty);
+                        if(!trailData[n]) trailData[n] = {color: data.color, tiles: {}};
+                        trailData[n].tiles[k] = 1;
+                    }
+                    players[n] = data;
+                }
+            }
+        }
+        
+        if(n==="☁ players"){
+          document.getElementById("players-val").textContent=v;
+        }
+      }
+    }catch(err){}
+  }
+}
+
+function sendCloud(name,value){
+  if(wsOK && ws && ws.readyState===1){
+    ws.send(JSON.stringify({method:"set",name,value:String(value),project_id:PROJECT_ID,user:me.username}));
+  }
+}
+
+function broadcastMe(){
+  if(mySlotIndex === -1) return;
+  let encoded = encodeData({
+      pseudo: me.pseudo,
+      tx: me.tx,
+      ty: me.ty,
+      color: me.color,
+      score: myTrailCount
+  });
+  sendCloud(CLOUD_SLOTS[mySlotIndex], encoded);
+}
+
+function broadcastTrail() {
+  // Dans ce système de slots, broadcastMe envoie déjà la position.
+  // Les autres clients dessinent la trace quand ils reçoivent une nouvelle position.
+  broadcastMe();
+}
+
+// ────────────────────────────────────────────────────────
+// SIDEBAR TOGGLE (mobile)
+// ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sb = document.getElementById("sidebar");
+  const ov = document.getElementById("sidebar-overlay");
+  sb.classList.toggle("open");
+  ov.classList.toggle("open");
+}
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-overlay").classList.remove("open");
 }
 
 // ────────────────────────────────────────────────────────
@@ -750,8 +877,6 @@ function startGame(){
   gameRunning = true;
   lastTime = 0;
   gameLoop(0);
-
-  pingInterval = setInterval(sendPing, 2000);
 
   if(isMobile()) showToast("🕹️ Utilise le joystick pour te déplacer !");
 }
@@ -861,84 +986,6 @@ function setupJoystick(){
   });
 
   document.addEventListener("touchcancel", resetKnob);
-}
-
-// ────────────────────────────────────────────────────────
-// WEBSOCKET
-// ────────────────────────────────────────────────────────
-function connectWS(){
-  try{
-    ws = new WebSocket("wss://clouddata.turbowarp.org");
-    ws.onopen = ()=>{
-      ws.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:me.username}));
-      wsOK = true;
-      updateStatus("🟢 Cloud");
-      broadcastMe();
-      sendPing();
-    };
-    ws.onmessage = handleWS;
-    ws.onclose = ()=>{
-      wsOK = false;
-      updateStatus("🔴 Déco...");
-      if(gameRunning) setTimeout(connectWS, 2000);
-    };
-    ws.onerror = ()=>{ wsOK=false; updateStatus("🟡 Local"); };
-  }catch(e){ wsOK=false; updateStatus("🟡 Local"); }
-}
-
-function handleWS(event){
-  const lines = event.data.split("\n");
-  for(const line of lines){
-    if(!line.trim()) continue;
-    try{
-      const d = JSON.parse(line);
-      if(d.method==="set"){
-        const n=d.name, v=d.value;
-        if(n.startsWith("☁ p_") && !n.includes(me.uid)){
-          try{
-            const pd=JSON.parse(v);
-            if(pd&&pd.uid){ if(!players[pd.uid]) players[pd.uid]={}; Object.assign(players[pd.uid],pd); }
-          }catch(e){}
-        }
-        if(n.startsWith("☁ t_")){
-          try{
-            const td=JSON.parse(v);
-            if(td&&td.uid&&td.uid!==me.uid&&td.tiles){
-              if(!trailData[td.uid]) trailData[td.uid]={color:td.color,tiles:{}};
-              trailData[td.uid].color=td.color;
-              Object.assign(trailData[td.uid].tiles,td.tiles);
-            }
-          }catch(e){}
-        }
-        if(n==="☁ players"){
-          document.getElementById("players-val").textContent=v;
-        }
-        if(n.startsWith("☁ pong_")&&n.includes(me.uid)){
-          const t=parseInt(v)||0;
-          pingMs=Date.now()-t;
-          document.getElementById("ping-val").textContent=pingMs+" ms";
-        }
-      }
-    }catch(err){}
-  }
-}
-
-function sendCloud(name,value){
-  if(wsOK&&ws&&ws.readyState===1){
-    ws.send(JSON.stringify({method:"set",name,value:String(value),project_id:PROJECT_ID,user:me.username}));
-  }
-}
-
-function broadcastMe(){
-  sendCloud("☁ p_"+me.uid, JSON.stringify({uid:me.uid,pseudo:me.pseudo,color:me.color,tx:me.tx,ty:me.ty,score:myTrailCount}));
-}
-function broadcastTrail(){
-  sendCloud("☁ t_"+me.uid, JSON.stringify({uid:me.uid,color:me.color,tiles:myLocalTrail}));
-}
-function sendPing(){
-  const t=Date.now();
-  sendCloud("☁ pong_"+me.uid,String(t));
-  pingStart=t;
 }
 
 // ────────────────────────────────────────────────────────
