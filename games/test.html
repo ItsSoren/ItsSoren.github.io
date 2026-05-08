@@ -473,6 +473,43 @@ body {
   #my-tag-uid { display: none; }
 }
 
+/* ── MINIMAP ────────────────────────────────────────── */
+#minimap-container {
+  position: fixed;
+  bottom: 24px;
+  right: calc(var(--sidebar-w) + 24px);
+  width: 150px;
+  height: 150px;
+  background: rgba(8, 11, 20, 0.7);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+#minimap-canvas { width: 100%; height: 100%; }
+#minimap-label {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 680px) {
+  #minimap-container { right: 20px; width: 120px; height: 120px; }
+}
+
 /* ── SPLASH / TRANSITION ───────────────────────────────── */
 .screen-fade {
   animation: fadeIn 0.35s ease-out;
@@ -556,6 +593,11 @@ body {
       <span id="my-tag-uid"></span>
     </div>
 
+    <div class="hud-score" style="margin-right:12px; font-family:'Space Mono'; color:var(--text-dim); font-size:11px;">
+      <span>📍</span>
+      <span id="pos-val">0, 0</span>
+    </div>
+
     <div class="hud-score">
       <span>⬛</span>
       <span id="score-val">0</span>
@@ -566,6 +608,12 @@ body {
       <button class="hud-btn hud-btn-icon" id="sidebar-toggle" onclick="toggleSidebar()" title="Classement">📊</button>
       <button class="hud-btn danger hud-btn-icon" onclick="quitGame()" title="Quitter">✕</button>
     </div>
+  </div>
+
+  <!-- Minimap -->
+  <div id="minimap-container">
+    <div id="minimap-label">Radar</div>
+    <canvas id="minimap-canvas" width="150" height="150"></canvas>
   </div>
 
   <!-- Sidebar -->
@@ -748,19 +796,41 @@ function initCloud() {
 }
 
 function handleCloudMessage(n, v) {
-    // Mise à jour des joueurs
     if(CLOUD_SLOTS.includes(n)) {
         let data = decodeData(v);
         if(data) {
+            // On ignore ses propres messages pour les slots
             if(n !== CLOUD_SLOTS[mySlotIndex]) {
-                if(players[n] && (players[n].tx !== data.tx || players[n].ty !== data.ty)) {
-                    const k = tileKey(data.tx, data.ty);
-                    if(!trailData[n]) trailData[n] = {color: data.color, tiles: {}};
-                    trailData[n].tiles[k] = 1;
+                // SÉCURITÉ : On ignore le message s'il est plus vieux que celui qu'on a déjà
+                if(players[n] && data.ts <= players[n].ts) return;
+
+                // Initialiser ou mettre à jour la trace (INSTANTANÉ)
+                if(!trailData[n]) trailData[n] = {color: data.color, tiles: {}};
+                const k = tileKey(data.tx, data.ty);
+                trailData[n].tiles[k] = 1;
+                trailData[n].color = data.color;
+
+                // Si c'est un nouveau joueur, on initialise sa position visuelle (vx, vy)
+                if(!players[n]) {
+                    data.vx = data.tx * TILE;
+                    data.vy = data.ty * TILE;
+                    players[n] = data;
+                } else {
+                    // On met à jour les cibles
+                    players[n].tx = data.tx;
+                    players[n].ty = data.ty;
+                    players[n].ts = data.ts;
+                    players[n].score = data.score;
+                    players[n].pseudo = data.pseudo;
+                    players[n].color = data.color;
                 }
-                players[n] = data;
             }
         }
+    }
+    // Ping response
+    if(n === "☁ ping_" + usernameForCloud) {
+        pingMs = Date.now() - parseInt(v);
+        document.getElementById("ping-val").textContent = pingMs + " ms";
     }
     // Compteur de joueurs global
     if(n === "☁ players") {
@@ -1005,12 +1075,40 @@ function gameLoop(ts){
   const dt = lastTime ? ts - lastTime : 16;
   lastTime = ts;
 
+  // Nettoyage et Interpolation des autres joueurs
+  const now = Date.now();
+  for(let n in players) {
+      if(now - players[n].ts > 5000) {
+          delete players[n];
+          delete trailData[n];
+          continue;
+      }
+      // Interpolation visuelle (plus rapide pour coller aux tuiles)
+      let p = players[n];
+      p.vx += (p.tx * TILE - p.vx) * 0.3;
+      p.vy += (p.ty * TILE - p.vy) * 0.3;
+  }
+
   handleInput(dt);
+  
+  // Caméra fluide (interpolation vers le joueur)
+  if(me) {
+      let targetCamX = me.x - canvas.width/2 + TILE/2;
+      let targetCamY = me.y - canvas.height/2 + TILE/2;
+      camX += (targetCamX - camX) * 0.1;
+      camY += (targetCamY - camY) * 0.1;
+  }
+
   render();
   updateLeaderboard();
 
   broadcastTimer += dt;
-  if(broadcastTimer > 500){ broadcastTimer=0; broadcastMe(); }
+  if(broadcastTimer > 1000){ // Réduit à 1s pour le "keep-alive" uniquement
+      broadcastTimer=0; 
+      broadcastMe();
+      // Envoi du ping
+      if(wsOK) sendCloud("☁ ping_" + usernameForCloud, Date.now());
+  }
 
   animFrame = requestAnimationFrame(gameLoop);
 }
@@ -1041,12 +1139,10 @@ function handleInput(dt){
     const k=tileKey(me.tx,me.ty);
     if(!myLocalTrail[k]){ myLocalTrail[k]=1; myTrailCount++; }
     document.getElementById("score-val").textContent=myTrailCount;
+    document.getElementById("pos-val").textContent = `${me.tx}, ${me.ty}`;
     broadcastMe();
     broadcastTrail();
   }
-
-  camX = me.x - canvas.width/2 + TILE/2;
-  camY = me.y - canvas.height/2 + TILE/2;
 }
 
 // ────────────────────────────────────────────────────────
@@ -1100,9 +1196,10 @@ function render(){
   // Other players
   for(const uid in players){
     const p=players[uid];
-    if(!p||typeof p.tx==="undefined") continue;
-    const sx=p.tx*TILE-camX, sy=p.ty*TILE-camY;
-    // glow
+    if(!p || typeof p.vx === "undefined") continue;
+    const sx=p.vx-camX, sy=p.vy-camY;
+    if(sx > -TILE && sx < W && sy > -TILE && sy < H) {
+        // glow
     ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,10,0,Math.PI*2);
     ctx.fillStyle=hexToRgba(p.color||"#aaa",0.2);
     ctx.fill();
@@ -1116,6 +1213,9 @@ function render(){
     ctx.font="11px Outfit,sans-serif";
     ctx.textAlign="center";
     ctx.fillText((p.pseudo||"?").substring(0,10),sx+TILE/2,sy-5);
+    } else {
+        drawRadar(p, W, H);
+    }
   }
 
   // My player
@@ -1137,6 +1237,74 @@ function render(){
     ctx.textAlign="center";
     ctx.fillText(me.pseudo.substring(0,12),sx+TILE/2,sy-6);
   }
+
+  renderMinimap();
+}
+
+function renderMinimap() {
+    const mCanvas = document.getElementById("minimap-canvas");
+    if(!mCanvas || !me) return;
+    const mCtx = mCanvas.getContext("2d");
+    const mW = mCanvas.width, mH = mCanvas.height;
+    const mCenter = mW / 2;
+    const mScale = 0.5; // Dézoom (plus petit = plus de zone visible)
+    const maxR = mCenter - 6;
+
+    mCtx.clearRect(0,0,mW,mH);
+
+    // Fond
+    mCtx.fillStyle = "rgba(0,0,0,0.2)";
+    mCtx.beginPath(); mCtx.arc(mCenter, mCenter, mCenter, 0, Math.PI*2); mCtx.fill();
+
+    // Autres joueurs sur la minimap
+    for(let uid in players) {
+        let p = players[uid];
+        let relX = (p.tx - me.tx) * mScale;
+        let relY = (p.ty - me.ty) * mScale;
+        let dist = Math.hypot(relX, relY);
+        
+        mCtx.fillStyle = p.color;
+        mCtx.shadowBlur = 4; mCtx.shadowColor = p.color;
+
+        if(dist < maxR) {
+            // Joueur à portée : gros point
+            mCtx.beginPath();
+            mCtx.arc(mCenter + relX, mCenter + relY, 3, 0, Math.PI*2);
+            mCtx.fill();
+        } else {
+            // Joueur hors portée : petit point au bord (radar)
+            let angle = Math.atan2(relY, relX);
+            let edgeX = Math.cos(angle) * maxR;
+            let edgeY = Math.sin(angle) * maxR;
+            mCtx.beginPath();
+            mCtx.arc(mCenter + edgeX, mCenter + edgeY, 1.5, 0, Math.PI*2);
+            mCtx.fill();
+        }
+        mCtx.shadowBlur = 0;
+    }
+
+    // Moi (au centre)
+    mCtx.fillStyle = "#fff";
+    mCtx.shadowBlur = 8; mCtx.shadowColor = "#fff";
+    mCtx.beginPath(); mCtx.arc(mCenter, mCenter, 4, 0, Math.PI*2); mCtx.fill();
+    mCtx.shadowBlur = 0;
+
+    // Bordure
+    mCtx.strokeStyle = "rgba(255,255,255,0.15)";
+    mCtx.lineWidth = 2;
+    mCtx.beginPath(); mCtx.arc(mCenter, mCenter, mCenter-1, 0, Math.PI*2); mCtx.stroke();
+}
+
+function drawRadar(p, W, H) {
+    const centerX = W/2, centerY = H/2;
+    const dx = (p.vx - camX + TILE/2) - centerX, dy = (p.vy - camY + TILE/2) - centerY;
+    const angle = Math.atan2(dy, dx), dist = Math.floor(Math.hypot(dx, dy) / TILE), margin = 34;
+    let rx = centerX + Math.cos(angle) * (W/2 - margin), ry = centerY + Math.sin(angle) * (H/2 - margin);
+    rx = Math.max(margin, Math.min(W - margin, rx)); ry = Math.max(margin, Math.min(H - margin, ry));
+    ctx.save(); ctx.translate(rx, ry); ctx.rotate(angle);
+    ctx.fillStyle = p.color; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-5, -5); ctx.lineTo(-5, 5); ctx.fill();
+    ctx.rotate(-angle); ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "bold 9px Space Mono"; ctx.textAlign = "center";
+    ctx.fillText(dist + "m", 0, 15); ctx.restore();
 }
 
 // ────────────────────────────────────────────────────────
