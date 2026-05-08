@@ -608,12 +608,10 @@ body {
 // ────────────────────────────────────────────────────────
 // CONFIG
 // ────────────────────────────────────────────────────────
-const PROJECT_ID = "1234567890"; // À remplacer par ton ID de projet
+const PROJECT_ID = "1234567890"; 
 const TILE = 20;
 const COLORS = ["#e05c5c","#e08c3c","#d4c03a","#5ccc6c","#3cc8d8","#5c8ce0","#b05ce0","#e05ca0","#60e0b0","#e0a050"];
 const MOVE_INTERVAL = 110;
-
-// Variables Cloud fixes (DOIVENT EXISTER DANS LE PROJET SCRATCH)
 const CLOUD_SLOTS = ["☁ p1","☁ p2","☁ p3","☁ p4","☁ p5","☁ p6","☁ p7","☁ p8","☁ p9","☁ p10"];
 
 // ────────────────────────────────────────────────────────
@@ -623,13 +621,13 @@ let me = null, ws = null, wsOK = false;
 let players = {}, trailData = {}, myTrailCount = 0;
 let camX = 0, camY = 0;
 let keys = {};
-let pingMs = 0, pingStart = 0, pingInterval = null;
+let pingMs = 0, pingStart = 0;
 let canvas, ctx, animFrame;
 let moveAcc = 0, lastTime = 0, broadcastTimer = 0;
 let gameRunning = false;
 let myLocalTrail = {};
-let lobbyWs = null;
-let mySlotIndex = -1; // Le slot (1-10) que j'occupe
+let mySlotIndex = -1;
+let usernameForCloud = "User_" + Math.floor(Math.random() * 100000);
 
 // Joystick state
 let joyActive = false;
@@ -637,19 +635,17 @@ let joyDX = 0, joyDY = 0;
 let joyTouchId = null;
 
 // ────────────────────────────────────────────────────────
-// ENCODEUR NUMÉRIQUE (TurboWarp n'accepte que les chiffres)
+// ENCODEUR NUMÉRIQUE (Identique à la logique TurboWarp)
 // ────────────────────────────────────────────────────────
 const CHARS = " abcdefghijklmnopqrstuvwxyz0123456789.,!?-+*/()[]{}#@:";
 function encodeData(obj) {
-    // Format: [Timestamp(13)][TX+10000(5)][TY+10000(5)][ColorIdx(2)][Score(6)][Pseudo(20)]
     let ts = String(Date.now()).padStart(13, "0");
     let tx = String(obj.tx + 10000).padStart(5, "0");
     let ty = String(obj.ty + 10000).padStart(5, "0");
     let col = String(COLORS.indexOf(obj.color)).padStart(2, "0");
     let sc = String(obj.score).padStart(6, "0");
-    
     let ps = "";
-    let name = obj.pseudo.toLowerCase().substring(0, 10);
+    let name = obj.pseudo.toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 10);
     for(let i=0; i<10; i++) {
         let char = name[i] || " ";
         let idx = CHARS.indexOf(char);
@@ -659,13 +655,12 @@ function encodeData(obj) {
 }
 
 function decodeData(str) {
-    if (str.length < 51) return null;
+    if (!str || str.length < 51) return null;
     let ts = parseInt(str.substring(0, 13));
     let tx = parseInt(str.substring(13, 18)) - 10000;
     let ty = parseInt(str.substring(18, 23)) - 10000;
     let colIdx = parseInt(str.substring(23, 25));
     let sc = parseInt(str.substring(25, 31));
-    
     let pseudo = "";
     for(let i=0; i<10; i++) {
         let idx = parseInt(str.substring(31 + i*2, 33 + i*2));
@@ -677,7 +672,7 @@ function decodeData(str) {
 // ────────────────────────────────────────────────────────
 // UTILS
 // ────────────────────────────────────────────────────────
-function genId(){ return "#"+(Math.floor(Math.random()*0xFFFFF)).toString(16).toUpperCase().padStart(5,"0"); }
+function genId(){ return Math.floor(Math.random()*0xFFFFF).toString(16).toUpperCase(); }
 function pickColor(){ return COLORS[Math.floor(Math.random()*COLORS.length)]; }
 function tileKey(tx,ty){ return tx+","+ty; }
 function savePseudo(p){ try{ localStorage.setItem("pixeltrail_pseudo",p); }catch(e){} }
@@ -693,118 +688,112 @@ function showToast(msg, duration=2000){
 }
 
 // ────────────────────────────────────────────────────────
-// LOBBY
+// INITIALISATION CLOUD (COMME DANS VAR.HTML)
 // ────────────────────────────────────────────────────────
-window.addEventListener("DOMContentLoaded", ()=>{
-  const inp = document.getElementById("pseudo-input");
-  const saved = loadPseudo();
-  if(saved) inp.value = saved;
+function initCloud() {
+    return new Promise((resolve, reject) => {
+        try {
+            ws = new WebSocket("wss://clouddata.turbowarp.org");
+            
+            const timeout = setTimeout(() => {
+                if(ws) ws.close();
+                reject("timeout");
+            }, 5000);
 
-  document.getElementById("play-btn").onclick = startGame;
-  inp.addEventListener("keydown", e=>{ if(e.key==="Enter"){ inp.blur(); startGame(); } });
-
-  wsLobby();
-});
-
-function wsLobby(){
-  try{
-    lobbyWs = new WebSocket("wss://clouddata.turbowarp.org");
-    lobbyWs.onopen = ()=>{
-      lobbyWs.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:"lobby_"+Math.random()}));
-    };
-    lobbyWs.onmessage = (e)=>{
-      try{
-        const lines = e.data.split("\n");
-        for(const l of lines){
-          if(!l.trim()) continue;
-          const d = JSON.parse(l);
-          if(d.method==="set" && d.name==="☁ players"){
-            document.getElementById("lobby-players").textContent = parseInt(d.value)||"0";
-          }
+            ws.onopen = () => {
+                clearTimeout(timeout);
+                console.log("✅ Cloud connecté");
+                ws.send(JSON.stringify({
+                    method: "handshake",
+                    project_id: PROJECT_ID,
+                    user: usernameForCloud
+                }));
+                wsOK = true;
+                updateStatus("🟢 Connecté");
+                // On cherche un slot après connexion
+                setTimeout(findFreeSlot, 1000);
+                resolve();
+            };
+            
+            ws.onmessage = (event) => {
+                const lines = event.data.split("\n");
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        const d = JSON.parse(line);
+                        if (d.method === "set") {
+                            handleCloudMessage(d.name, d.value);
+                        }
+                    } catch (e) {}
+                }
+            };
+            
+            ws.onclose = () => {
+                wsOK = false;
+                updateStatus("🔴 Déconnecté");
+                if (gameRunning) {
+                    console.log("🔄 Reconnexion...");
+                    setTimeout(() => initCloud(), 3000);
+                }
+            };
+            
+            ws.onerror = () => {
+                clearTimeout(timeout);
+                reject("error");
+            };
+        } catch (e) {
+            reject(e);
         }
-      }catch(err){}
-    };
-  }catch(e){}
+    });
 }
 
-// ────────────────────────────────────────────────────────
-// WEBSOCKET & CLOUD
-// ────────────────────────────────────────────────────────
-function connectWS(){
-  try{
-    ws = new WebSocket("wss://clouddata.turbowarp.org");
-    ws.onopen = ()=>{
-      ws.send(JSON.stringify({method:"handshake",project_id:PROJECT_ID,user:me.username}));
-      wsOK = true;
-      updateStatus("🟢 Connecté");
-      findFreeSlot();
-    };
-    ws.onmessage = handleWS;
-    ws.onclose = ()=>{
-      wsOK = false;
-      updateStatus("🔴 Déconnecté");
-      if(gameRunning) setTimeout(connectWS, 2000);
-    };
-    ws.onerror = ()=>{ wsOK=false; updateStatus("🟡 Erreur"); };
-  }catch(e){ wsOK=false; updateStatus("🟡 Erreur"); }
+function handleCloudMessage(n, v) {
+    // Mise à jour des joueurs
+    if(CLOUD_SLOTS.includes(n)) {
+        let data = decodeData(v);
+        if(data) {
+            if(n !== CLOUD_SLOTS[mySlotIndex]) {
+                if(players[n] && (players[n].tx !== data.tx || players[n].ty !== data.ty)) {
+                    const k = tileKey(data.tx, data.ty);
+                    if(!trailData[n]) trailData[n] = {color: data.color, tiles: {}};
+                    trailData[n].tiles[k] = 1;
+                }
+                players[n] = data;
+            }
+        }
+    }
+    // Compteur de joueurs global
+    if(n === "☁ players") {
+        document.getElementById("players-val").textContent = v;
+        if(document.getElementById("lobby-players")) document.getElementById("lobby-players").textContent = v;
+    }
 }
 
 function findFreeSlot() {
-    // On attend un peu de recevoir les messages des autres pour voir quels slots sont pris
-    setTimeout(() => {
-        let now = Date.now();
-        for(let i=0; i<CLOUD_SLOTS.length; i++) {
-            let slotName = CLOUD_SLOTS[i];
-            // Si on n'a rien reçu de ce slot ou si le timestamp est vieux (> 10s), il est libre
-            if (!players[slotName] || (now - players[slotName].ts > 10000)) {
-                mySlotIndex = i;
-                console.log("Slot trouvé : " + slotName);
-                broadcastMe();
-                return;
-            }
+    let now = Date.now();
+    for(let i=0; i<CLOUD_SLOTS.length; i++) {
+        let slotName = CLOUD_SLOTS[i];
+        if (!players[slotName] || (now - players[slotName].ts > 10000)) {
+            mySlotIndex = i;
+            console.log("Slot choisi : " + slotName);
+            broadcastMe();
+            return;
         }
-        showToast("Serveur plein (10/10)", 5000);
-    }, 1500);
+    }
+    showToast("Serveur plein (10/10)");
 }
 
-function handleWS(event){
-  const lines = event.data.split("\n");
-  for(const line of lines){
-    if(!line.trim()) continue;
-    try{
-      const d = JSON.parse(line);
-      if(d.method==="set"){
-        const n=d.name, v=d.value;
-        
-        // Si c'est l'un des slots de joueur
-        if(CLOUD_SLOTS.includes(n)) {
-            let data = decodeData(v);
-            if(data) {
-                // Si ce n'est pas mon propre slot, on l'ajoute/met à jour
-                if(n !== CLOUD_SLOTS[mySlotIndex]) {
-                    // Si le joueur a changé de position, on ajoute à sa trace
-                    if(players[n] && (players[n].tx !== data.tx || players[n].ty !== data.ty)) {
-                        const k = tileKey(data.tx, data.ty);
-                        if(!trailData[n]) trailData[n] = {color: data.color, tiles: {}};
-                        trailData[n].tiles[k] = 1;
-                    }
-                    players[n] = data;
-                }
-            }
-        }
-        
-        if(n==="☁ players"){
-          document.getElementById("players-val").textContent=v;
-        }
-      }
-    }catch(err){}
+function sendCloud(name, value){
+  if(wsOK && ws && ws.readyState === WebSocket.OPEN){
+    ws.send(JSON.stringify({
+        method: "set",
+        name: name,
+        value: String(value),
+        project_id: PROJECT_ID,
+        user: usernameForCloud
+    }));
   }
-}
-
-function sendCloud(name,value){
-  if(wsOK && ws && ws.readyState===1){
-    ws.send(JSON.stringify({method:"set",name,value:String(value),project_id:PROJECT_ID,user:me.username}));
-  }
+  localStorage.setItem("pixeltrail_sync_" + name, value);
 }
 
 function broadcastMe(){
@@ -820,10 +809,29 @@ function broadcastMe(){
 }
 
 function broadcastTrail() {
-  // Dans ce système de slots, broadcastMe envoie déjà la position.
-  // Les autres clients dessinent la trace quand ils reçoivent une nouvelle position.
   broadcastMe();
 }
+
+// ────────────────────────────────────────────────────────
+// LOBBY & FALLBACK
+// ────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", ()=>{
+  const inp = document.getElementById("pseudo-input");
+  const saved = loadPseudo();
+  if(saved) inp.value = saved;
+  document.getElementById("play-btn").onclick = startGame;
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter"){ inp.blur(); startGame(); } });
+  
+  // Dans le lobby, on lance juste une connexion pour voir les joueurs en ligne
+  initCloud().catch(() => updateStatus("🟡 Mode Local"));
+});
+
+window.addEventListener('storage', (e) => {
+    if(e.key && e.key.startsWith("pixeltrail_sync_")) {
+        const n = e.key.replace("pixeltrail_sync_", "");
+        handleCloudMessage(n, e.newValue);
+    }
+});
 
 // ────────────────────────────────────────────────────────
 // SIDEBAR TOGGLE (mobile)
@@ -873,7 +881,8 @@ function startGame(){
 
   setupJoystick();
 
-  connectWS();
+  if(!wsOK) initCloud();
+  
   gameRunning = true;
   lastTime = 0;
   gameLoop(0);
@@ -1182,8 +1191,7 @@ window.quitGame=function(){
   lobby.style.display="flex";
   document.getElementById("score-val").textContent="0";
   closeSidebar();
-  wsLobby();
-};
+}
 </script>
 </body>
 </html>
