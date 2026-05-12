@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -16,22 +16,27 @@
         #towerInfo.hidden { transform: translateX(120%) !important; }
         #bonus { bottom: 20px; left: 20px; background: rgba(138,43,226,0.9); border-color: #f0f; box-shadow: 0 0 20px #f0f; }
         #bonus.hidden { transform: translateX(-90%) !important; }
+        #wiki { top: 20px; right: 20px; display: none; max-height: 90vh; overflow-y: auto; max-width: 450px; background: rgba(0,50,100,0.95); border-color: #0ff; }
+        #wiki.hidden { transform: translateX(120%) !important; }
         #zoomControl { bottom: 20px; right: 20px; background: rgba(0,0,0,0.95); border: 2px solid #0ff; box-shadow: 0 0 20px #0ff; padding: 10px; border-radius: 10px; }
         .stat { margin: 6px 0; font-size: 14px; color: #0ff; text-shadow: 0 0 5px #0ff; font-weight: bold; }
         .stat.temp-bonus { color: #ff0; text-shadow: 0 0 5px #ff0; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .btn { background: linear-gradient(135deg, #0ff 0%, #00a8cc 100%); border: 2px solid #0ff; padding: 8px 12px; margin: 4px 2px; cursor: pointer; color: #000; font-weight: bold; border-radius: 6px; font-size: 12px; transition: 0.2s; box-shadow: 0 0 10px #0ff; position: relative; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #0ff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-small { padding: 4px 8px; font-size: 11px; margin: 2px; background: linear-gradient(135deg, #f0f 0%, #a0f 100%); border-color: #f0f; box-shadow: 0 0 10px #f0f; }
-        .btn-small:hover { box-shadow: 0 0 20px #fff; transform: scale(1.05); }
+        .btn-small:hover:not(:disabled) { box-shadow: 0 0 20px #fff; transform: scale(1.05); }
         .btn-purple { background: linear-gradient(135deg, #f0f 0%, #a0f 100%); border-color: #f0f; box-shadow: 0 0 10px #f0f; }
-        .btn-purple:hover { box-shadow: 0 0 20px #f0f; }
+        .btn-purple:hover:not(:disabled) { box-shadow: 0 0 20px #f0f; }
         .btn-green { background: linear-gradient(135deg, #0f0 0%, #0a0 100%); border-color: #0f0; box-shadow: 0 0 10px #0f0; }
-        .btn-green:hover { box-shadow: 0 0 20px #0f0; }
+        .btn-green:hover:not(:disabled) { box-shadow: 0 0 20px #0f0; }
         .btn-gold { background: linear-gradient(135deg, #ff0 0%, #fa0 100%); border-color: #ff0; box-shadow: 0 0 10px #ff0; }
-        .btn-gold:hover { box-shadow: 0 0 20px #ff0; }
+        .btn-gold:hover:not(:disabled) { box-shadow: 0 0 20px #ff0; }
         .btn-orange { background: linear-gradient(135deg, #fa0 0%, #f60 100%); border-color: #fa0; box-shadow: 0 0 10px #fa0; }
-        .btn-orange:hover { box-shadow: 0 0 20px #fa0; }
+        .btn-orange:hover:not(:disabled) { box-shadow: 0 0 20px #fa0; }
+        .btn-red { background: linear-gradient(135deg, #f00 0%, #a00 100%); border-color: #f00; box-shadow: 0 0 10px #f00; }
+        .btn-red:hover:not(:disabled) { box-shadow: 0 0 20px #f00; }
         .upgrade-item { font-size: 11px; color: #0f0; margin: 3px 0; padding: 3px; background: rgba(0,255,0,0.1); border-radius: 3px; text-shadow: 0 0 3px #0f0; }
         .tower-desc { font-size: 10px; color: #0ff; margin-top: 3px; opacity: 0.8; }
         .hotkey { position: absolute; top: 2px; right: 2px; font-size: 8px; color: #ff0; background: rgba(255,255,0,0.2); padding: 2px 4px; border-radius: 3px; }
@@ -47,8 +52,8 @@
         .zoom-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #0ff; }
         .zoom-level { color: #0ff; text-align: center; margin: 5px 0; font-size: 13px; text-shadow: 0 0 5px #0ff; font-weight: bold; }
         .spt-upgrade { background: linear-gradient(135deg, #f0f 0%, #a0f 100%); border: 2px solid #f0f; padding: 4px 8px; margin: 2px; cursor: pointer; color: #000; font-weight: bold; border-radius: 4px; font-size: 10px; box-shadow: 0 0 10px #f0f; display: inline-block; }
-        .spt-upgrade:hover { transform: scale(1.05); box-shadow: 0 0 15px #f0f; }
-        .spt-upgrade.disabled { opacity: 0.4; cursor: not-allowed; }
+        .spt-upgrade:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 15px #f0f; }
+        .spt-upgrade:disabled { opacity: 0.4; cursor: not-allowed; }
         .spt-section { background: rgba(255,0,255,0.1); padding: 8px; border-radius: 6px; margin: 6px 0; border: 1px solid #f0f; }
         .coin-section { background: rgba(255,165,0,0.1); padding: 8px; border-radius: 6px; margin: 6px 0; border: 1px solid #fa0; }
         #rouletteModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.98); border: 3px solid #f0f; border-radius: 15px; padding: 30px; z-index: 1000; box-shadow: 0 0 50px #f0f; min-width: 400px; }
@@ -58,6 +63,15 @@
         .roulette-result { text-align: center; font-size: 18px; color: #0ff; text-shadow: 0 0 10px #0ff; margin-top: 20px; font-weight: bold; }
         .close-modal { position: absolute; top: 10px; right: 10px; cursor: pointer; color: #f0f; font-size: 24px; font-weight: bold; }
         .close-modal:hover { color: #fff; text-shadow: 0 0 10px #fff; }
+        .targeting-menu { background: rgba(0,255,255,0.1); border: 1px solid #0ff; padding: 6px; border-radius: 4px; margin: 4px 0; }
+        .targeting-option { color: #0ff; font-size: 10px; margin: 2px 0; padding: 2px 4px; cursor: pointer; border-radius: 2px; }
+        .targeting-option.active { background: #0ff; color: #000; font-weight: bold; }
+        .targeting-option:hover { background: rgba(0,255,255,0.3); }
+        .wiki-section { margin: 10px 0; padding: 8px; background: rgba(0,255,255,0.05); border-left: 2px solid #0ff; }
+        .wiki-title { color: #0ff; font-weight: bold; font-size: 12px; margin-bottom: 4px; }
+        .wiki-content { font-size: 10px; color: #0ff; line-height: 1.4; }
+        .wiki-btn { background: linear-gradient(135deg, #00a8cc 0%, #0ff 100%); border: 1px solid #0ff; padding: 4px 8px; cursor: pointer; color: #000; font-weight: bold; border-radius: 3px; font-size: 10px; margin: 2px; }
+        .wiki-btn:hover { box-shadow: 0 0 10px #0ff; }
     </style>
 </head>
 <body>
@@ -74,6 +88,7 @@
         </div>
         <hr style="margin: 8px 0;">
         <button class="btn btn-green" onclick="game.startWave()" style="width: calc(100% - 4px); margin: 8px 2px; font-size: 13px;">▶️ LANCER<span class="hotkey">SPC</span></button>
+        <button class="btn btn-gold" onclick="toggleWiki()" style="width: calc(100% - 4px); margin: 8px 2px; font-size: 13px;">📖 WIKI<span class="hotkey">W</span></button>
         <hr style="margin: 8px 0;">
         <div style="font-size: 11px; margin: 5px 0;">
             <span class="tab active" onclick="switchTab(0)">BASIQUE</span>
@@ -94,8 +109,8 @@
             <button class="btn btn-purple" onclick="game.buyTower(8)">🎆 Mortier (150)<div class="tower-desc">AoE Zone</div><span class="hotkey">9</span></button>
         </div>
         <div id="tab2" class="tab-content">
-            <button class="btn btn-gold" onclick="game.buyTower(9)">🧲 Ancre (130)<div class="tower-desc">Debuff+Slow</div></button>
-            <button class="btn btn-gold" onclick="game.buyTower(10)">🔥 Pyro (110)<div class="tower-desc">Burn Spread</div></button>
+            <button class="btn btn-gold" onclick="game.buyTower(9)">🧲 Ancre (130)<div class="tower-desc">Grab+Slow</div></button>
+            <button class="btn btn-gold" onclick="game.buyTower(10)">🔥 Lance-Flamme (120)<div class="tower-desc">AoE Burn</div></button>
             <button class="btn btn-gold" onclick="game.buyTower(11)">🛡️ Disrupt (95)<div class="tower-desc">vs Shield</div></button>
             <button class="btn btn-gold" onclick="game.buyTower(12)">📍 Marker (85)<div class="tower-desc">Target Mark</div></button>
             <button class="btn btn-gold" onclick="game.buyTower(13)">🌪️ Distort (100)<div class="tower-desc">Path Slow</div></button>
@@ -104,6 +119,82 @@
         </div>
     </div>
     <div id="towerInfo" class="panel"></div>
+    <div id="wiki" class="panel">
+        <div class="toggle" onclick="togglePanel('wiki')">◀</div>
+        <div style="font-size: 13px; margin-bottom: 8px; text-shadow: 0 0 5px #0ff; font-weight: bold; color: #0ff;">📖 GUIDE DU JEU</div>
+        
+        <div class="wiki-section">
+            <div class="wiki-title">🎮 OBJECTIF</div>
+            <div class="wiki-content">Construisez des tours pour défendre votre base contre les vagues d'ennemis croissants. Gagnez de l'argent en tuant les ennemis et améliorez vos tours.</div>
+        </div>
+
+        <div class="wiki-section">
+            <div class="wiki-title">🏗️ SYSTÈMES PRINCIPAUX</div>
+            <div class="wiki-content">
+                <strong>💰 Argent:</strong> Gagnez en tuant les ennemis, dépensez pour construire/améliorer<br>
+                <strong>⭐ Exp/Niveaux:</strong> Les tours montent en niveau automatiquement<br>
+                <strong>💜 Super Points:</strong> Obtenus en montant de niveau, pour améliorations ciblées<br>
+                <strong>🔮 Bonus de Tuile:</strong> Améliorations gratuites placées aléatoirement
+            </div>
+        </div>
+
+        <div class="wiki-section">
+            <div class="wiki-title">🎯 TOURS BASIQUES</div>
+            <div class="wiki-content">
+                <strong>🔫 Mitraillette:</strong> Tirs rapides, faible dégâts<br>
+                <strong>💣 Canon:</strong> Équilibré, polyvalent<br>
+                <strong>💥 Lourd:</strong> Gros dégâts, lent, splash<br>
+                <strong>❄️ Gel:</strong> Ralentit les ennemis
+            </div>
+        </div>
+
+        <div class="wiki-section">
+            <div class="wiki-title">⚡ TOURS SPÉCIALES</div>
+            <div class="wiki-content">
+                <strong>⚡ Laser:</strong> DPS continu, touche aérien/terrestre<br>
+                <strong>🎯 Sniper:</strong> Long range, tires précis<br>
+                <strong>🚁 AA:</strong> Anti-aérien uniquement<br>
+                <strong>🚀 Missile:</strong> Guidé avec splash<br>
+                <strong>🎆 Mortier:</strong> Grand AoE
+            </div>
+        </div>
+
+        <div class="wiki-section">
+            <div class="wiki-title">🔥 TOURS AVANCÉES</div>
+            <div class="wiki-content">
+                <strong>🧲 Ancre:</strong> Saisit et ralentit les ennemis<br>
+                <strong>🔥 Lance-Flamme:</strong> Brûle zones, propagation<br>
+                <strong>🛡️ Disrupt:</strong> Détruit les boucliers<br>
+                <strong>📍 Marker:</strong> Marque les cibles (x1.3 dégâts)<br>
+                <strong>⚡ Kinetic:</strong> Accumule puis burst énorme<br>
+                <strong>🧬 Bio:</strong> Bloque la régénération
+            </div>
+        </div>
+
+        <div class="wiki-section">
+            <div class="wiki-title">👾 ENNEMIS</div>
+            <div class="wiki-content">
+                <strong>Rapide:</strong> Peu de PV, très rapide<br>
+                <strong>Normal:</strong> Équilibré<br>
+                <strong>Blindé:</strong> Beaucoup de PV, armure<br>
+                <strong>Aérien:</strong> Ignore les obstacles<br>
+                <strong>Régénérant:</strong> Récupère des PV<br>
+                <strong>Bouclier:</strong> Bloque les dégâts<br>
+                <strong>Division:</strong> Se divise à mi-vie
+            </div>
+        </div>
+
+        <div class="wiki-section">
+            <div class="wiki-title">✨ ASTUCES</div>
+            <div class="wiki-content">
+                • Les bonus de tuile donnent des améliorations gratuites<br>
+                • Utilisez les SPts pour spécialiser vos tours<br>
+                • Vendez les tours qu'on oublie (60% du coût)<br>
+                • La roulette à 500💰 peut changer le jeu<br>
+                • Visée: changez avec ◀▶ pour adapter votre stratégie
+            </div>
+        </div>
+    </div>
     <div id="bonus" class="panel">
         <div class="toggle" onclick="togglePanel('bonus')">◀</div>
         <div style="font-size: 12px; margin-bottom: 6px; text-shadow: 0 0 5px #f0f; font-weight: bold;">🎰 ROULETTE (500💰)</div>
@@ -132,7 +223,7 @@
         const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
         const GRID = 40, COLS = 35, ROWS = 22;
         
-        let panelStates = { ui: false, towerInfo: false, bonus: false };
+        let panelStates = { ui: false, towerInfo: false, bonus: false, wiki: false };
         
         function togglePanel(id) { 
             const el = document.getElementById(id);
@@ -143,6 +234,16 @@
             } else {
                 el.classList.remove('hidden');
                 el.querySelector('.toggle').textContent = '◀';
+            }
+        }
+
+        function toggleWiki() {
+            const wiki = document.getElementById('wiki');
+            if (wiki.style.display === 'none') {
+                wiki.style.display = 'block';
+                panelStates.wiki = false;
+            } else {
+                wiki.style.display = wiki.style.display === 'block' ? 'none' : 'block';
             }
         }
 
@@ -194,16 +295,17 @@
             constructor(type, wave, isBoss = false) {
                 const types = [
                     {hp: 30, spd: 3, arm: 0, rew: 3, col: '#ff0080', name: 'Rapide', air: false, reg: 0, shield: 0, split: false},
-                    {hp: 60, spd: 1.5, arm: 0.2, rew: 4, col: '#00ffff', name: 'Normal', air: false, reg: 0, shield: 0, split: false},
-                    {hp: 150, spd: 0.8, arm: 0.5, rew: 8, col: '#ffaa00', name: 'Blindé', air: false, reg: 0, shield: 0, split: false},
-                    {hp: 80, spd: 2.5, arm: 0, rew: 7, col: '#c084fc', name: 'Aérien', air: true, reg: 0, shield: 0, split: false},
-                    {hp: 100, spd: 1.2, arm: 0.3, rew: 10, col: '#00ff00', name: 'Régénérant', air: false, reg: 2, shield: 0, split: false},
-                    {hp: 80, spd: 1.3, arm: 0, rew: 12, col: '#00ffff', name: 'Bouclier', air: false, reg: 0, shield: 50, split: false},
-                    {hp: 90, spd: 1.6, arm: 0.2, rew: 9, col: '#ff00ff', name: 'Division', air: false, reg: 0, shield: 0, split: true}
+                    {hp: 50, spd: 1.5, arm: 0.15, rew: 4, col: '#00ffff', name: 'Normal', air: false, reg: 0, shield: 0, split: false},
+                    {hp: 120, spd: 0.8, arm: 0.4, rew: 8, col: '#ffaa00', name: 'Blindé', air: false, reg: 0, shield: 0, split: false},
+                    {hp: 60, spd: 2.2, arm: 0, rew: 6, col: '#c084fc', name: 'Aérien Léger', air: true, reg: 0, shield: 0, split: false},
+                    {hp: 80, spd: 1.2, arm: 0.3, rew: 10, col: '#00ff00', name: 'Régénérant', air: false, reg: 2, shield: 0, split: false},
+                    {hp: 70, spd: 1.1, arm: 0, rew: 12, col: '#00ffff', name: 'Bouclier', air: false, reg: 0, shield: 60, split: false},
+                    {hp: 85, spd: 1.4, arm: 0.2, rew: 9, col: '#ff00ff', name: 'Division', air: false, reg: 0, shield: 0, split: true},
+                    {hp: 90, spd: 0.9, arm: 0.3, rew: 15, col: '#9b59b6', name: 'Aérien Lourd', air: true, reg: 0, shield: 80, split: false}
                 ];
                 const t = types[type];
                 this.type = type; this.boss = isBoss;
-                this.hp = this.maxHp = t.hp * (1 + wave * 0.3) * (isBoss ? 10 : 1);
+                this.hp = this.maxHp = t.hp * (1 + wave * 0.3) * (isBoss ? 12 : 1);
                 this.spd = t.spd * (isBoss ? 0.5 : 1); this.arm = t.arm; this.rew = t.rew * (1 + wave * 0.1) * (isBoss ? 5 : 1);
                 this.col = t.col; this.name = t.name; this.air = t.air; this.reg = t.reg; this.split = t.split; this.hasSplit = false;
                 this.shield = t.shield; this.maxShield = t.shield;
@@ -235,7 +337,7 @@
                         });
                     }
                 }
-                if (this.anchored > 0) { this.anchored--; this.slow = Math.max(0.3, this.slow); }
+                if (this.anchored > 0) { this.anchored--; this.slow = Math.max(0.2, this.slow); }
                 if (this.bioBlocked > 0) { this.bioBlocked--; }
                 if (this.shieldDebuff > 0) { this.shieldDebuff--; this.shield = Math.max(0, this.shield - 1); }
                 
@@ -273,16 +375,17 @@
             hit(dmg) { 
                 let finalDmg = dmg;
                 if (this.marked) finalDmg *= 1.3;
-                if (this.anchored > 0) finalDmg *= (1 + (1 - this.slow));
+                if (this.anchored > 0) finalDmg *= (1 + (1 - this.slow) * 0.5);
                 
                 if (this.shield > 0) {
-                    const shieldMult = this.shieldDebuff > 0 ? 2 : 1;
+                    const shieldMult = this.shieldDebuff > 0 ? 2.5 : 1;
                     this.shield -= finalDmg * shieldMult;
                     if (this.shield < 0) { this.hp += this.shield / shieldMult; this.shield = 0; }
-                } else {
-                    const actual = finalDmg * (1 - this.arm);
-                    this.hp -= actual;
+                    return;
                 }
+                
+                const actual = finalDmg * (1 - this.arm);
+                this.hp -= actual;
                 this.lastHit = Date.now();
                 
                 if (this.split && !this.hasSplit && this.hp < this.maxHp * 0.5) {
@@ -298,6 +401,10 @@
                     this.hp *= 0.4;
                 }
             }
+
+            blockProjectile() {
+                return this.shield > 0;
+            }
         }
 
         class Projectile {
@@ -305,11 +412,12 @@
                 this.x = x; this.y = y; this.tgt = tgt; this.dmg = dmg; this.splash = splash || 0; this.laser = laser || false; 
                 this.homing = homing || false; this.arc = arc || false; 
                 this.bulletSpeed = bulletSpeed || 1; this.bulletStyle = bulletStyle || 'default';
-                this.spd = arc ? (3 * this.bulletSpeed) : (homing ? (3 * this.bulletSpeed) : (10 * this.bulletSpeed));
+                this.spd = arc ? (6* this.bulletSpeed) : (homing ? (6 * this.bulletSpeed) : (15 * this.bulletSpeed));
                 this.vy = arc ? -16 : 0; 
                 this.col = this.getBulletColor();
                 this.burn = burn || false; this.mark = mark || false;
                 this.trail = [];
+                this.flamethrower = bulletStyle === 'flame';
             }
 
             getBulletColor() {
@@ -323,17 +431,44 @@
                     explosive: '#ff8800',
                     graviton: '#00ccff',
                     bio: '#00ff88',
-                    disruption: '#ff00ff'
+                    disruption: '#ff00ff',
+                    flame: "images/fire.png",
                 };
                 return styles[this.bulletStyle] || '#ffff00';
             }
 
             update() {
                 if (!this.tgt || this.tgt.hp <= 0) return false;
+                
                 if (this.laser) {
                     this.tgt.hit(this.dmg);
                     for(let i=0;i<3;i++) game.particles.push(new Particle(this.tgt.x, this.tgt.y, this.col));
                     return false;
+                }
+                
+                if (this.flamethrower) {
+                    this.x += (this.tgt.x - this.x) * 0.08;
+                    this.y += (this.tgt.y - this.y) * 0.08;
+                    
+                    if (Math.random() < 0.4) {
+                        game.particles.push(new Particle(this.x, this.y, '#ff6600', 5));
+                    }
+                    
+                    game.enemies.forEach(e => {
+                        if (Math.hypot(e.x - this.x, e.y - this.y) < 40) {
+                            if (!e.hit_by_flamethrower) {
+                                e.hit(this.dmg * 0.3);
+                                e.burning = Math.max(e.burning, 120);
+                                e.burnDmg = this.dmg * 0.15;
+                                e.hit_by_flamethrower = true;
+                            }
+                        }
+                    });
+                    
+                    if (Math.hypot(this.tgt.x - this.x, this.tgt.y - this.y) < 30) {
+                        return Math.random() > 0.05;
+                    }
+                    return true;
                 }
                 
                 this.trail.push({x: this.x, y: this.y, life: 5});
@@ -343,7 +478,11 @@
                     this.vy += 0.4; this.x += (this.tgt.x - this.x) * 0.05; this.y += this.vy;
                     if (Math.hypot(this.tgt.x - this.x, this.tgt.y - this.y) < 30) {
                         for(let i=0;i<18;i++) game.particles.push(new Particle(this.x, this.y, this.col));
-                        game.enemies.forEach(e => { if (Math.hypot(e.x - this.x, e.y - this.y) < this.splash) e.hit(this.dmg); });
+                        game.enemies.forEach(e => { 
+                            if (Math.hypot(e.x - this.x, e.y - this.y) < this.splash) {
+                                if (!e.blockProjectile()) e.hit(this.dmg);
+                            }
+                        });
                         return false;
                     }
                 } else {
@@ -354,7 +493,16 @@
                         if (this.burn) { this.tgt.burning = 90; this.tgt.burnDmg = this.dmg * 0.1; }
                         if (this.mark) this.tgt.marked = true;
                         for(let i=0;i<12;i++) game.particles.push(new Particle(this.x, this.y, this.col));
-                        if (this.splash > 0) game.enemies.forEach(e => { if (e !== this.tgt && Math.hypot(e.x - this.x, e.y - this.y) < this.splash) { e.hit(this.dmg * 0.5); if (this.burn) { e.burning = 60; e.burnDmg = this.dmg * 0.05; } } });
+                        if (this.splash > 0) {
+                            game.enemies.forEach(e => { 
+                                if (e !== this.tgt && Math.hypot(e.x - this.x, e.y - this.y) < this.splash) {
+                                    if (!e.blockProjectile()) {
+                                        e.hit(this.dmg * 0.5); 
+                                        if (this.burn) { e.burning = 60; e.burnDmg = this.dmg * 0.05; }
+                                    }
+                                }
+                            });
+                        }
                         return false;
                     }
                 }
@@ -374,15 +522,10 @@
                     });
                     ctx.globalAlpha = 1;
                     
-                    ctx.shadowBlur = 20; ctx.shadowColor = this.col;
-                    ctx.fillStyle = this.col; ctx.beginPath(); 
-                    ctx.arc(this.x, this.y, this.arc ? 6 : 5, 0, Math.PI * 2); ctx.fill(); 
-                    
-                    if (this.bulletStyle === 'fire') {
-                        ctx.fillStyle = '#ffff00';
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-                        ctx.fill();
+                    if (!this.flamethrower) {
+                        ctx.shadowBlur = 20; ctx.shadowColor = this.col;
+                        ctx.fillStyle = this.col; ctx.beginPath(); 
+                        ctx.arc(this.x, this.y, this.arc ? 6 : 5, 0, Math.PI * 2); ctx.fill(); 
                     }
                     ctx.shadowBlur = 0;
                 } 
@@ -390,38 +533,49 @@
         }
 
         class Particle {
-            constructor(x, y, col) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 7; this.vy = (Math.random() - 0.5) * 4; this.col = col; this.life = 10; this.size = 2 + Math.random() * 3; }
+            constructor(x, y, col, size = null) { 
+                this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 7; this.vy = (Math.random() - 0.5) * 4; this.col = col; this.life = 10; this.size = size || (2 + Math.random() * 3); 
+            }
             update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.life--; return this.life > 0; }
             draw() { ctx.globalAlpha = this.life / 20; ctx.shadowBlur = 20; ctx.shadowColor = this.col; ctx.fillStyle = this.col; ctx.fillRect(this.x, this.y, this.size, this.size); ctx.shadowBlur = 0; ctx.globalAlpha = 1; }
         }
+
+        const TARGETING_MODES = ['closest', 'farthest', 'high_hp', 'low_hp', 'random'];
+        const TARGETING_LABELS = {
+            closest: 'Plus proche',
+            farthest: 'Plus loin',
+            high_hp: 'Plus de PV',
+            low_hp: 'Moins de PV',
+            random: 'Aléatoire'
+        };
 
         class Tower {
             constructor(x, y, type) {
                 this.x = x; this.y = y;
                 const types = [
-                    {dmg: 6, rng: 110, rate: 4, col: '#ff0080', name: '🔫', cost: 50, eff: [3, 1, 0.5, 0.3, 0.8, 1, 1.2], desc: 'Mitrailleuse', bulletSpeed: 2, bulletStyle: 'energy'},
-                    {dmg: 20, rng: 90, rate: 30, col: '#ff4400', name: '💣', cost: 80, eff: [1, 1, 1, 0.8, 1, 1, 1], desc: 'Canon', bulletSpeed: 1.2, bulletStyle: 'explosive'},
-                    {dmg: 45, rng: 75, rate: 60, col: '#ffaa00', name: '💥', splash: 40, cost: 120, eff: [0.7, 1, 2.5, 0.5, 1, 0.8, 0.9], desc: 'Lourd', bulletSpeed: 0.8, bulletStyle: 'explosive'},
+                    {dmg: 7, rng: 110, rate: 4, col: '#ff0080', name: '🔫', cost: 50, eff: [3, 1, 0.5, 0.3, 0.8, 1, 1.2], desc: 'Mitrailleuse', bulletSpeed: 2, bulletStyle: 'energy'},
+                    {dmg: 18, rng: 90, rate: 30, col: '#ff4400', name: '💣', cost: 80, eff: [1, 1, 1, 0.8, 1, 1, 1], desc: 'Canon', bulletSpeed: 1.2, bulletStyle: 'explosive'},
+                    {dmg: 40, rng: 75, rate: 60, col: '#ffaa00', name: '💥', splash: 40, cost: 120, eff: [0.7, 1, 2.5, 0.5, 1, 0.8, 0.9], desc: 'Lourd', bulletSpeed: 0.8, bulletStyle: 'explosive'},
                     {dmg: 1, rng: 75, rate: 15, col: '#00ffff', name: '❄️', freeze: true, cost: 60, eff: [1, 1, 1, 0.8, 1, 1, 1], desc: 'Gel', bulletSpeed: 1.5, bulletStyle: 'ice'},
-                    {dmg: 80, rng: 200, rate: 70, col: '#00ff00', name: '🎯', cost: 90, eff: [0.5, 0.8, 0.7, 0.3, 3, 1, 0.8], desc: 'Sniper', bulletSpeed: 3, bulletStyle: 'energy'},
-                    {dmg: 1, rng: 60, rate: 1, col: '#c084fc', name: '⚡', laser: true, cost: 100, eff: [2, 2, 1.5, 0.5, 2.5, 0.8, 0.2], desc: 'Laser', bulletSpeed: 1, bulletStyle: 'plasma'},
-                    {dmg: 10, rng: 180, rate: 20, col: '#00ffaa', name: '🚁', air: true, cost: 70, eff: [0.3, 0.5, 0.2, 3, 0.4, 0.5, 0.3], desc: 'Anti-Air', bulletSpeed: 2.5, bulletStyle: 'energy'},
-                    {dmg: 30, rng: 250, rate: 100, col: '#ffff00', name: '🚀', splash: 30, homing: true, cost: 110, eff: [1, 1.2, 1.5, 2, 1.3, 1, 1], desc: 'Missile', bulletSpeed: 1.3, bulletStyle: 'explosive'},
-                    {dmg: 40, rng: 160, rate: 80, col: '#ff8800', name: '🎆', splash: 120, arc: true, minRng: 70, cost: 150, eff: [1.2, 1.5, 1.8, 0, 1.3, 1.4, 1.5], desc: 'Mortier', bulletSpeed: 0.9, bulletStyle: 'explosive'},
-                    {dmg: 5, rng: 120, rate: 40, col: '#0ff', name: '🧲', anchor: true, cost: 130, eff: [0.8, 1.2, 2, 0.5, 1.5, 1.2, 1], desc: 'Ancre Gravitationnelle', bulletSpeed: 1.1, bulletStyle: 'graviton'},
-                    {dmg: 15, rng: 80, rate: 35, col: '#ff4400', name: '🔥', burn: true, cost: 110, eff: [1.2, 1.5, 0.8, 0.4, 2, 1.8, 2.5], desc: 'Pyro-Propagation', bulletSpeed: 1.4, bulletStyle: 'fire'},
+                    {dmg: 75, rng: 200, rate: 70, col: '#00ff00', name: '🎯', cost: 90, eff: [0.5, 0.8, 0.7, 0.3, 3, 1, 0.8], desc: 'Sniper', bulletSpeed: 3, bulletStyle: 'energy'},
+                    {dmg: 2, rng: 60, rate: 1, col: '#c084fc', name: '⚡', laser: true, cost: 100, eff: [2, 2, 1.5, 0.5, 2.5, 0.8, 0.2], desc: 'Laser', bulletSpeed: 1, bulletStyle: 'plasma'},
+                    {dmg: 12, rng: 180, rate: 20, col: '#00ffaa', name: '🚁', air: true, cost: 70, eff: [0.3, 0.5, 0.2, 3, 0.4, 0.5, 0.3], desc: 'Anti-Air', bulletSpeed: 2.5, bulletStyle: 'energy'},
+                    {dmg: 28, rng: 250, rate: 100, col: '#ffff00', name: '🚀', splash: 30, homing: true, cost: 110, eff: [1, 1.2, 1.5, 2, 1.3, 1, 1], desc: 'Missile', bulletSpeed: 1.3, bulletStyle: 'explosive'},
+                    {dmg: 35, rng: 160, rate: 80, col: '#ff8800', name: '🎆', splash: 120, arc: true, minRng: 70, cost: 150, eff: [1.2, 1.5, 1.8, 0, 1.3, 1.4, 1.5], desc: 'Mortier', bulletSpeed: 0.9, bulletStyle: 'explosive'},
+                    {dmg: 8, rng: 100, rate: 50, col: '#0ff', name: '🧲', anchor: true, cost: 130, eff: [0.8, 1.2, 2, 0.5, 1.5, 1.2, 1], desc: 'Ancre Gravitationnelle', bulletSpeed: 1.1, bulletStyle: 'graviton'},
+                    {dmg: 5, rng: 85, rate: 8, col: '#ff4400', name: '🔥', flamethrower: true, cost: 120, eff: [1.2, 1.5, 0.8, 0.4, 2, 1.8, 2.5], desc: 'Lance-Flamme', bulletSpeed: 1, bulletStyle: 'flame'},
                     {dmg: 2, rng: 100, rate: 10, col: '#f0f', name: '🛡️', disrupt: true, cost: 95, eff: [0.5, 1, 0.8, 0.3, 0.6, 3, 0.7], desc: 'Disrupteur Boucliers', bulletSpeed: 1.8, bulletStyle: 'disruption'},
                     {dmg: 1, rng: 250, rate: 120, col: '#ff0', name: '📍', mark: true, cost: 85, eff: [0.6, 1, 1.5, 0.4, 1.8, 1.2, 1], desc: 'Marqueur Balistique', bulletSpeed: 2.8, bulletStyle: 'energy'},
                     {dmg: 0, rng: 90, rate: 1, col: '#8b5cf6', name: '🌪️', distort: true, cost: 100, eff: [2, 1.5, 1, 1.2, 1, 1, 1], desc: 'Distorsion Chemin', bulletSpeed: 1, bulletStyle: 'graviton'},
-                    {dmg: 60, rng: 85, rate: 150, col: '#fa0', name: '⚡', kinetic: true, cost: 140, eff: [1, 1.5, 2.5, 0.2, 1.8, 1.5, 1.2], desc: 'Condensateur', bulletSpeed: 1.2, bulletStyle: 'electric'},
-                    {dmg: 8, rng: 95, rate: 25, col: '#0f0', name: '🧬', bio: true, cost: 105, eff: [0.5, 1, 0.7, 0.4, 3, 1.5, 3], desc: 'Neutraliseur Bio', bulletSpeed: 1.6, bulletStyle: 'bio'}
+                    {dmg: 55, rng: 85, rate: 150, col: '#fa0', name: '⚡', kinetic: true, cost: 140, eff: [1, 1.5, 2.5, 0.2, 1.8, 1.5, 1.2], desc: 'Condensateur Kinetic', bulletSpeed: 1.2, bulletStyle: 'electric'},
+                    {dmg: 7, rng: 95, rate: 25, col: '#0f0', name: '🧬', bio: true, cost: 105, eff: [0.5, 1, 0.7, 0.4, 3, 1.5, 3], desc: 'Neutraliseur Bio', bulletSpeed: 1.6, bulletStyle: 'bio'}
                 ];
                 const t = types[type];
                 this.type = type; this.baseDmg = t.dmg; this.dmg = t.dmg; this.baseRng = t.rng; this.rng = t.rng; 
                 this.baseRate = t.rate; this.rate = t.rate; this.col = t.col; this.icon = t.name; this.cost = t.cost;
                 this.splash = t.splash || 0; this.baseSplash = t.splash || 0; this.freeze = t.freeze || false; this.laser = t.laser || false; this.air = t.air || false;
                 this.homing = t.homing || false; this.arc = t.arc || false; this.minRng = t.minRng || 0;
-                this.anchor = t.anchor || false; this.burn = t.burn || false; this.disrupt = t.disrupt || false;
+                this.anchor = t.anchor || false; this.flamethrower = t.flamethrower || false; this.disrupt = t.disrupt || false;
                 this.mark = t.mark || false; this.distort = t.distort || false; this.kinetic = t.kinetic || false; this.bio = t.bio || false;
                 this.baseBulletSpeed = t.bulletSpeed || 1; this.bulletSpeed = t.bulletSpeed || 1;
                 this.bulletStyle = t.bulletStyle || 'default';
@@ -430,6 +584,8 @@
                 this.spts = 0; this.sptUpgrades = {}; this.coinUpgrades = 0; this.levelUp = false; this.kineticCharge = 0; this.desc = t.desc;
                 this.tempBonuses = {};
                 this.tileBonus = null;
+                this.targetingMode = 'closest';
+                this.totalSpent = t.cost;
             }
 
             applyTileBonus(bonus) {
@@ -448,10 +604,34 @@
                 else if (bonus.type === 'multi') this.multi = this.baseMulti + bonus.level;
             }
 
+            selectTarget(enemies) {
+                let valid = enemies.filter(e => {
+                    const dist = Math.hypot(e.x - this.x, e.y - this.y);
+                    const inRng = dist <= this.rng && dist >= this.minRng;
+                    if (this.air) return inRng && e.air;
+                    return inRng && !e.air;
+                });
+
+                if (valid.length === 0) return [];
+
+                if (this.targetingMode === 'closest') {
+                    valid.sort((a, b) => Math.hypot(a.x - this.x, a.y - this.y) - Math.hypot(b.x - this.x, b.y - this.y));
+                } else if (this.targetingMode === 'farthest') {
+                    valid.sort((a, b) => Math.hypot(b.x - this.x, b.y - this.y) - Math.hypot(a.x - this.x, a.y - this.y));
+                } else if (this.targetingMode === 'high_hp') {
+                    valid.sort((a, b) => b.hp - a.hp);
+                } else if (this.targetingMode === 'low_hp') {
+                    valid.sort((a, b) => a.hp - b.hp);
+                } else if (this.targetingMode === 'random') {
+                    valid = [valid[Math.floor(Math.random() * valid.length)]];
+                }
+
+                return valid;
+            }
+
             update() {
                 this.cd--;
                 
-                // Mise à jour des bonus temporaires
                 Object.keys(this.tempBonuses).forEach(key => {
                     if (this.tempBonuses[key].endTime < Date.now()) {
                         delete this.tempBonuses[key];
@@ -459,18 +639,12 @@
                     }
                 });
                 
-                let valid = game.enemies.filter(e => {
-                    const dist = Math.hypot(e.x - this.x, e.y - this.y);
-                    const inRng = dist <= this.rng && dist >= this.minRng;
-                    if (this.air) return inRng && e.air;
-                    if (this.laser) return inRng && !e.air;
-                    return inRng && !e.air;
-                });
+                let valid = this.selectTarget(game.enemies);
 
                 if (this.freeze) valid.forEach(e => e.slow = 0.4);
-                if (this.distort) valid.forEach(e => { e.slow = Math.min(e.slow, 0.5); });
+                if (this.distort) valid.forEach(e => { e.slow = Math.min(e.slow, 0.5); if (e.air) e.slow = Math.min(e.slow, 0.3); });
                 if (this.kinetic && valid.length > 0) {
-                    this.kineticCharge += valid.length * 0.5;
+                    this.kineticCharge += Math.min(valid.length, 6) * 0.5;
                     if (this.kineticCharge > 200) {
                         valid.forEach(e => e.hit(this.kineticCharge));
                         for(let i=0;i<30;i++) game.particles.push(new Particle(this.x, this.y, '#fa0'));
@@ -489,16 +663,17 @@
                 } else {
                     this.laserTgt = null;
                     if (valid.length > 0 && this.cd <= 0) {
-                        let tgts = this.type === 4 ? valid.sort((a,b) => b.hp - a.hp).slice(0, this.multi) : valid.slice(0, this.multi);
+                        let tgts = valid.slice(0, this.multi);
                         tgts.forEach(tgt => {
                             let d = this.dmg * (this.eff[tgt.type] || 1);
                             if (Math.random() < this.crit) d *= 2;
-                            if (this.anchor) { tgt.anchored = 120; tgt.slow = 0.3; }
+                            if (this.anchor) { tgt.anchored = 150; tgt.slow = 0.2; }
                             if (this.disrupt) tgt.shieldDebuff = 90;
                             if (this.bio) tgt.bioBlocked = 120;
-                            game.projectiles.push(new Projectile(this.x, this.y, tgt, d, this.splash, false, this.homing, this.arc, this.burn, this.mark, this.bulletSpeed, this.bulletStyle));
+                            game.projectiles.push(new Projectile(this.x, this.y, tgt, d, this.splash, false, this.homing, this.arc, this.flamethrower ? false : this.flamethrower, this.mark, this.bulletSpeed, this.bulletStyle));
                         });
                         this.cd = this.rate;
+                        this.xp += tgts.length * 0.5;
                     }
                 }
 
@@ -568,6 +743,7 @@
                 if (game.money >= cost) {
                     game.money -= cost;
                     this.coinUpgrades++;
+                    this.totalSpent += cost;
                     
                     this.baseDmg *= 1.08;
                     this.baseRng *= 1.05;
@@ -580,6 +756,12 @@
                     return true;
                 }
                 return false;
+            }
+
+            sellTower() {
+                const refund = Math.floor(this.totalSpent * 0.6);
+                game.money += refund;
+                return refund;
             }
 
             recalculateStats() {
@@ -609,6 +791,12 @@
                 };
                 this.recalculateStats();
             }
+
+            changeTargeting(direction) {
+                const currentIdx = TARGETING_MODES.indexOf(this.targetingMode);
+                const newIdx = (currentIdx + direction + TARGETING_MODES.length) % TARGETING_MODES.length;
+                this.targetingMode = TARGETING_MODES[newIdx];
+            }
         }
 
         class Game {
@@ -620,12 +808,12 @@
                 this.buildSpots = this.getSpots(); this.camX = 0; this.camY = 0; this.drag = false; this.dragX = 0; this.dragY = 0; this.speed = 1;
                 this.zoom = 1; this.minZoom = 0.5; this.maxZoom = 2;
                 this.tileBonuses = this.generateTileBonuses();
+                this.waveSpawned = false;
             }
 
             generateTileBonuses() {
                 const bonuses = [];
                 const types = ['dmg', 'rng', 'rate', 'bulletSpeed', 'crit', 'splash', 'multi'];
-                const usedSpots = new Set();
                 
                 this.buildSpots.forEach(spot => {
                     if (Math.random() < 0.15) {
@@ -684,24 +872,25 @@
 
             startWave() {
                 if (this.waveActive) return;
-                this.wave++; this.waveActive = true;
-                const count = 12 + this.wave * 5, isBossWave = this.wave % 10 === 0;
+                this.wave++; this.waveActive = true; this.waveSpawned = false;
+                const count = 10 + this.wave * 4, isBossWave = this.wave % 10 === 0;
                 
                 if (isBossWave) {
-                    setTimeout(() => this.enemies.push(new Enemy(Math.floor(Math.random() * 7), this.wave, true)), 1000);
+                    setTimeout(() => { this.enemies.push(new Enemy(Math.floor(Math.random() * 8), this.wave, true)); this.waveSpawned = true; }, 1000);
                 } else {
                     for (let i = 0; i < count; i++) {
                         setTimeout(() => {
                             let type; const r = Math.random();
                             if (this.wave < 3) type = r < 0.6 ? 0 : r < 0.85 ? 1 : 2;
-                            else if (this.wave < 6) type = r < 0.2 ? 0 : r < 0.4 ? 1 : r < 0.6 ? 2 : r < 0.8 ? 3 : r < 0.9 ? 5 : 6;
-                            else type = r < 0.1 ? 0 : r < 0.25 ? 1 : r < 0.4 ? 2 : r < 0.55 ? 3 : r < 0.7 ? 4 : r < 0.8 ? 5 : 6;
+                            else if (this.wave < 6) type = r < 0.2 ? 0 : r < 0.4 ? 1 : r < 0.6 ? 2 : r < 0.8 ? 3 : r < 0.9 ? 4 : r < 0.95 ? 5 : 6;
+                            else type = r < 0.1 ? 0 : r < 0.25 ? 1 : r < 0.35 ? 2 : r < 0.5 ? 3 : r < 0.6 ? 4 : r < 0.7 ? 5 : r < 0.85 ? 6 : 7;
                             this.enemies.push(new Enemy(type, this.wave));
-                        }, i * 400);
+                        }, i * 350);
                     }
+                    this.waveSpawned = true;
                 }
                 
-                const duration = isBossWave ? 5000 : count * 400 + 3000;
+                const duration = isBossWave ? 5000 : count * 350 + 3000;
                 setTimeout(() => { this.waveActive = false; this.autoWave = setTimeout(() => this.startWave(), 3000); }, duration);
             }
 
@@ -849,6 +1038,14 @@
                     }
                     
                     const coinUpgradeCost = Math.floor(t.cost * Math.pow(1.5, t.coinUpgrades));
+                    const refundValue = Math.floor(t.totalSpent * 0.6);
+
+                    let targetingHTML = `<div class="targeting-menu"><div style="font-size: 10px; color: #0ff; margin-bottom: 4px;">🎯 Visée:</div>`;
+                    TARGETING_MODES.forEach(mode => {
+                        const isActive = t.targetingMode === mode;
+                        targetingHTML += `<div class="targeting-option ${isActive ? 'active' : ''}" onclick="game.selectedTower.changeTargeting(${TARGETING_MODES.indexOf(mode) - TARGETING_MODES.indexOf(t.targetingMode)}); game.draw();">${TARGETING_LABELS[mode]}</div>`;
+                    });
+                    targetingHTML += `</div>`;
                     
                     info.innerHTML = `<div class="toggle" onclick="togglePanel('towerInfo')">◀</div>
                         <div style="font-size: 15px; margin-bottom: 8px; text-shadow: 0 0 10px ${t.col}; font-weight: bold;"><b>${t.desc}</b></div>
@@ -866,21 +1063,23 @@
                         ${t.splash > 0 ? `<div class="stat">AoE: ${Math.floor(t.splash)}</div>` : ''}
                         ${t.crit > 0 ? `<div class="stat">Crit: ${Math.floor(t.crit * 100)}%</div>` : ''}
                         ${t.kinetic ? `<div class="stat">⚡ Charge: ${Math.floor(t.kineticCharge)}/200</div>` : ''}
+                        ${targetingHTML}
                         <div class="spt-section">
                             <div style="font-size: 11px; margin-bottom: 4px; color: #f0f; text-shadow: 0 0 5px #f0f; font-weight: bold;">💜 Super Points (${t.spts}):</div>
-                            <button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('dmg')">💥 Dégâts</button>
-                            <button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('rng')">🎯 Portée</button>
-                            <button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('rate')">⚡ Cadence</button>
-                            <button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('bulletSpeed')">🚀 Vitesse</button>
-                            <button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('multi')">× Multi</button>
-                            <button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('crit')">⭐ Crit</button>
-                            ${t.splash > 0 ? `<button class="spt-upgrade ${t.spts <= 0 ? 'disabled' : ''}" onclick="if(game.selectedTower.spts > 0) game.selectedTower.upgradeSpt('splash')">💣 AoE</button>` : ''}
+                            <button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('dmg'); game.draw(); }">💥 Dégâts</button>
+                            <button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('rng'); game.draw(); }">🎯 Portée</button>
+                            <button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('rate'); game.draw(); }">⚡ Cadence</button>
+                            <button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('bulletSpeed'); game.draw(); }">🚀 Vitesse</button>
+                            <button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('multi'); game.draw(); }">× Multi</button>
+                            <button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('crit'); game.draw(); }">⭐ Crit</button>
+                            ${t.splash > 0 ? `<button class="spt-upgrade" ${t.spts <= 0 ? 'disabled' : ''} onclick="if(game.selectedTower && game.selectedTower.spts > 0) { game.selectedTower.upgradeSpt('splash'); game.draw(); }">💣 AoE</button>` : ''}
                         </div>
                         <div class="coin-section">
                             <div style="font-size: 11px; margin-bottom: 4px; color: #fa0; text-shadow: 0 0 5px #fa0; font-weight: bold;">💰 Upgrade Global:</div>
-                            <button class="btn-small btn-orange" style="width: 100%;" onclick="game.selectedTower.upgradeCoin()">⬆️ Tout améliorer (${coinUpgradeCost}💰)</button>
+                            <button class="btn-small btn-orange" style="width: 100%;" ${game.money < coinUpgradeCost ? 'disabled' : ''} onclick="if(game.selectedTower && game.money >= ${coinUpgradeCost}) { game.selectedTower.upgradeCoin(); game.draw(); }">⬆️ Tout (${coinUpgradeCost}💰)</button>
                             <div style="font-size: 9px; margin-top: 3px; color: #fa0;">Upgrades: ${t.coinUpgrades}</div>
-                        </div>`;
+                        </div>
+                        <button class="btn-small btn-red" style="width: 100%; margin-top: 6px;" onclick="if(game.selectedTower) { const refund = game.selectedTower.sellTower(); game.towers = game.towers.filter(t => t !== game.selectedTower); game.selectedTower = null; game.draw(); }">🔴 VENDRE (${refundValue}💰)</button>`;
                 } else { document.getElementById('towerInfo').style.display = 'none'; }
             }
         }
@@ -892,6 +1091,7 @@
             const key = e.key.toLowerCase();
             if (key === ' ' || key === 'enter') { e.preventDefault(); game.startWave(); }
             else if (key === 'r' && game.selectedTower) game.spinBonus();
+            else if (key === 'w') toggleWiki();
             else if (key >= '1' && key <= '9') game.buyTower(parseInt(key) - 1);
             else if (key === '+' || key === '=') game.zoomIn();
             else if (key === '-') game.zoomOut();
@@ -955,4 +1155,4 @@
         loop();
     </script>
 </body>
-</html
+</html>
