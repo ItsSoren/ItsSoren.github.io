@@ -96,14 +96,25 @@ body{background:#111;color:#eee;font-family:monospace;overflow:hidden;user-selec
 const CFG = {
   PROJECT_ID: "YOUR_PROJECT_ID", // <- remplacer
   TILE:  20,   // px par tuile
-  MOVE:  150,  // ms entre deplacements
-  SEG:   80,   // tuiles par segment cloud
-  SLOTS: 8,    // joueurs max simultanes
-  MAP_W: 100,  // largeur carte (tuiles)
-  MAP_H: 75,   // hauteur carte (tuiles)
+  MOVE:  80,   // ms entre deplacements
+  SEG:   120,  // tuiles par segment cloud (plus grand = moins de segments a cycler)
+  SLOTS: 29,   // joueurs max simultanes
+  MAP_W: 200,  // largeur carte (tuiles)
+  MAP_H: 200,  // hauteur carte (tuiles)
 };
 
-const COLORS = ["#e74c3c","#3498db","#f39c12","#2ecc71","#9b59b6","#1abc9c","#e67e22","#e91e63"];
+// Derive une couleur stable depuis le tag #xxx du pseudo
+// => meme tag = meme couleur, independamment du slot
+function colorFromTag(name){
+  // Extraire le nombre apres #
+  const m = name.match(/#(\d+)$/);
+  const seed = m ? parseInt(m[1]) : 0;
+  // Hue derive du seed, saturation et luminosite fixes pour rester lisible
+  const hue = (seed * 137.508) % 360; // golden angle = distribution uniforme
+  return `hsl(${hue|0},80%,60%)`;
+}
+
+
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ENCODAGE 100% NUMERIQUE (obligatoire TurboWarp)
@@ -125,14 +136,23 @@ const COLORS = ["#e74c3c","#3498db","#f39c12","#2ecc71","#9b59b6","#1abc9c","#e6
 
 const PAD = (n,d) => String(Math.max(0,Math.min(n,Math.pow(10,d)-1))|0).padStart(d,"0");
 
-function encodePosMsg(x,y,sc) {
-  return PAD(x,3)+PAD(y,3)+PAD(sc,9);
+// Format P{slot} : XXXYYYSSSSSSSSSNOM
+// XXX=x(3) YYY=y(3) SSSSSSSSS=score(9) puis nom encodé ASCII 3 digits/char
+function encodePosMsg(x,y,sc,name) {
+  let enc = PAD(x,3)+PAD(y,3)+PAD(sc,9);
+  for(let i=0;i<Math.min((name||"").length,16);i++) enc+=PAD(name.charCodeAt(i),3);
+  return enc;
 }
 function decodePosMsg(v) {
   if(!v||v.length<15) return null;
   const x=parseInt(v.slice(0,3)), y=parseInt(v.slice(3,6)), sc=parseInt(v.slice(6,15));
   if(isNaN(x)||isNaN(y)) return null;
-  return {x,y,score:sc||0};
+  let name="";
+  for(let i=15;i+2<v.length;i+=3){
+    const code=parseInt(v.slice(i,i+3));
+    if(code>=32&&code<127) name+=String.fromCharCode(code);
+  }
+  return {x, y, score:sc||0, name:name||null};
 }
 
 // Deltas : 1=droite 2=gauche 3=bas 4=haut
@@ -192,24 +212,10 @@ function decodeChatMsg(v){
   }
   return text||null;
 }
-function encodeName(name){
-  let enc="";
-  for(let i=0;i<Math.min(name.length,16);i++) enc+=PAD(name.charCodeAt(i),3);
-  return enc||"0";
-}
-function decodeName(v){
-  if(!v||v==="0"||v.length<3) return null;
-  let name="";
-  for(let i=0;i+2<v.length;i+=3){
-    const code=parseInt(v.slice(i,i+3));
-    if(code>=32&&code<127) name+=String.fromCharCode(code);
-  }
-  return name||null;
-}
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let mySlot=-1, myName="";
+let mySlot=-1, myName="", myColor="#4cf";
 let px=Math.floor(CFG.MAP_W/2), py=Math.floor(CFG.MAP_H/2);
 let myTrail=[];    // [{x,y}] toutes mes tuiles (local)
 let slideIdx=0;    // index de rotation pour broadcastTrailSeg
@@ -224,9 +230,14 @@ const LERP = 0.14; // facteur d'interpolation (plus petit = plus smooth/lent)
 
 const players={};   // players[slot]={x,y,score,name,color,lastSeen}
 
-// trailSegs[slot] = Map<segIdx, [{x,y}]>
+// trailSegs[slot] = Map<segIdx, {tiles:[{x,y}], ts:Date.now()}>
 // On REMPLACE le segment a l'index recu, jamais append
 const trailSegs={};
+
+// TTL d'un segment : combien de ms avant qu'on le considere "expiré"
+// = (totalSegs / 2 segs par tick) * MOVE * marge de securite x1.8
+// Pour 2000 tiles / 120 seg = ~17 segs => cycle = ~17/2 * 150 = ~1275ms => TTL 2300ms
+const SEG_TTL = () => Math.max(2500, Math.ceil(myTrail.length / CFG.SEG) * CFG.MOVE * 1.0);
 
 // PERF FIX : cache du trail reconstitue par slot
 // Invalide uniquement quand un nouveau segment arrive
@@ -235,13 +246,26 @@ const trailCache={};  // trailCache[slot] = [{x,y}] | null
 
 function invalidateTrailCache(slot){ trailCache[slot]=null; }
 
+// Purge periodique des segments trop vieux (joueur deconnecte ou trail reduit)
+setInterval(()=>{
+  const now=Date.now();
+  for(const slot in trailSegs){
+    const m=trailSegs[slot];
+    let changed=false;
+    for(const [idx,seg] of m){
+      if(now - seg.ts > 8000){ m.delete(idx); changed=true; } // 8s = joueur inactif
+    }
+    if(changed) invalidateTrailCache(parseInt(slot));
+  }
+},2000);
+
 function getRemoteTrail(slot){
   if(trailCache[slot]) return trailCache[slot];
   const m=trailSegs[slot];
   if(!m||m.size===0) return (trailCache[slot]=[]);
   const sorted=[...m.keys()].sort((a,b)=>a-b);
   const out=[];
-  for(const k of sorted) for(const t of m.get(k)) out.push(t);
+  for(const k of sorted) for(const t of m.get(k).tiles) out.push(t);
   trailCache[slot]=out;
   return out;
 }
@@ -292,11 +316,10 @@ function cloudSet(name,val){
 // RECEPTION CLOUD
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function onCloudVar(name,val){
-  // Position : P0 a P7
-  if(/^P[0-9]$/.test(name)){
-    const slot=parseInt(name[1]);
-    if(slot===mySlot) return;
-    // "0" = slot libere (joueur parti)
+  // Position : P0 a P28
+  if(/^P\d{1,2}$/.test(name)){
+    const slot=parseInt(name.slice(1));
+    if(slot>=CFG.SLOTS||slot===mySlot) return;
     if(!val||val==="0"){
       delete players[slot];
       document.getElementById("hp").textContent=Object.keys(players).length+1;
@@ -305,49 +328,43 @@ function onCloudVar(name,val){
     }
     const d=decodePosMsg(val);
     if(!d) return;
-    if(!players[slot]) players[slot]={color:COLORS[slot%COLORS.length],name:"J"+slot};
-    Object.assign(players[slot],d,{lastSeen:Date.now()});
+    // Couleur derivee du tag #xxx contenu dans le nom
+    const color = d.name ? colorFromTag(d.name) : colorFromTag("#"+(slot*137));
+    if(!players[slot]) players[slot]={color, name:d.name||("J"+slot)};
+    else {
+      if(d.name) { players[slot].name=d.name; players[slot].color=colorFromTag(d.name); }
+    }
+    Object.assign(players[slot],{x:d.x,y:d.y,score:d.score,lastSeen:Date.now()});
     document.getElementById("hp").textContent=Object.keys(players).length+1;
     updateSB();
     return;
   }
-  // Pseudo : N0 a N7
-  if(/^N[0-9]$/.test(name)){
-    const slot=parseInt(name[1]);
-    if(slot===mySlot) return;
-    if(!val||val==="0") return;
-    const pname=decodeName(val);
-    if(!pname) return;
-    if(!players[slot]) players[slot]={color:COLORS[slot%COLORS.length],name:pname};
-    else players[slot].name=pname;
-    return;
-  }
-  // Trail : T0 a T7
-  if(/^T[0-9]$/.test(name)){
-    const slot=parseInt(name[1]);
-    if(slot===mySlot) return;
+  // Trail : T0 a T28
+  if(/^T\d{1,2}$/.test(name)){
+    const slot=parseInt(name.slice(1));
+    if(slot>=CFG.SLOTS||slot===mySlot) return;
     if(!val||val==="0") return;
     const r=decodeTrailSeg(val);
     if(!r) return;
     if(!trailSegs[slot]) trailSegs[slot]=new Map();
-    trailSegs[slot].set(r.segIdx,r.tiles);
+    trailSegs[slot].set(r.segIdx,{tiles:r.tiles, ts:Date.now()});
     invalidateTrailCache(slot);
-    const maxSegs=Math.ceil(1000/CFG.SEG);
+    const maxSegs=Math.ceil(3000/CFG.SEG);
     if(trailSegs[slot].size>maxSegs+2){
       const keys=[...trailSegs[slot].keys()].sort((a,b)=>a-b);
       while(trailSegs[slot].size>maxSegs) trailSegs[slot].delete(keys.shift());
     }
   }
-  // Chat : MSG0 a MSG7
-  if(/^MSG[0-9]$/.test(name)){
-    const slot=parseInt(name[3]);
-    if(slot===mySlot) return;
+  // Chat : MSG0 a MSG28
+  if(/^MSG\d{1,2}$/.test(name)){
+    const slot=parseInt(name.slice(3));
+    if(slot>=CFG.SLOTS||slot===mySlot) return;
     if(!val||val==="0") return;
     const text=decodeChatMsg(val);
     if(!text) return;
     const p=players[slot];
     const pname=p?p.name:("J"+slot);
-    const color=COLORS[slot%COLORS.length];
+    const color=p?p.color:colorFromTag("#"+(slot*137));
     pushChatMsg(pname,color,text);
   }
 }
@@ -357,14 +374,35 @@ function onCloudVar(name,val){
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function broadcastPos(){
   if(mySlot<0) return;
-  cloudSet("P"+mySlot, encodePosMsg(px,py,score));
-  // Broadcaster le pseudo a chaque tick (permet aux nouveaux de le recevoir)
-  if(myName) ws&&ws.readyState===1&&ws.send(JSON.stringify({method:"set",name:"☁ N"+mySlot,value:encodeName(myName)}));
+  cloudSet("P"+mySlot, encodePosMsg(px,py,score,myName));
 }
 
 function broadcastTrailSeg(){
   if(mySlot<0||myTrail.length===0) return;
   const totalSegs=Math.ceil(myTrail.length/CFG.SEG);
+  if(totalSegs===0) return;
+
+  const PROX=50; // distance manhattan max pour considerer "proche"
+
+  // Trouve le segment le plus proche du joueur parmi tous les segments
+  let closestSeg=-1, closestDist=Infinity;
+  for(let i=0;i<totalSegs;i++){
+    const start=i*CFG.SEG, end=Math.min(start+CFG.SEG,myTrail.length)-1;
+    for(const idx of [start,end]){
+      const t=myTrail[idx];
+      if(!t) continue;
+      const d=Math.abs(t.x-px)+Math.abs(t.y-py);
+      if(d<closestDist){closestDist=d;closestSeg=i;}
+    }
+  }
+
+  // Tick 1 : toujours envoyer le segment le plus proche si dans la zone
+  if(closestSeg>=0 && closestDist<PROX){
+    const chunk=myTrail.slice(closestSeg*CFG.SEG,(closestSeg+1)*CFG.SEG);
+    cloudSet("T"+mySlot, encodeTrailSeg(closestSeg,chunk));
+  }
+
+  // Tick 2 : round-robin sur tous les segments (coverage complet)
   const segIdx=slideIdx%totalSegs;
   slideIdx=(slideIdx+1)%totalSegs;
   const chunk=myTrail.slice(segIdx*CFG.SEG,(segIdx+1)*CFG.SEG);
@@ -414,68 +452,67 @@ const T=CFG.TILE;
 function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
 resize(); window.addEventListener("resize",resize);
 
-// Camera interpolee (smooth)
-const camX=()=>camRx-cv.width/2;
-const camY=()=>camRy-cv.height/2;
-
-function drawTile(tx,ty,color,alpha){
-  const sx=tx*T-camX(), sy=ty*T-camY();
-  if(sx<-T||sx>cv.width||sy<-T||sy>cv.height) return;
-  ctx.globalAlpha=alpha??1;
-  ctx.fillStyle=color;
-  ctx.fillRect(sx+1,sy+1,T-2,T-2);
-}
-
+// Camera interpolee (smooth) - valeurs brutes utilisees directement dans render
 function render(){
   if(!running){requestAnimationFrame(render);return;}
 
-  // Mise a jour smooth de la camera vers la position logique du joueur
-  const targetX = px*T;
-  const targetY = py*T;
-  camRx += (targetX - camRx) * LERP;
-  camRy += (targetY - camRy) * LERP;
+  // Camera smooth
+  camRx += (px*T - camRx) * LERP;
+  camRy += (py*T - camRy) * LERP;
+
+  const cx=camRx-cv.width/2, cy=camRy-cv.height/2;
+  // Viewport en tuiles (avec marge)
+  const vx0=Math.floor(cx/T)-1, vy0=Math.floor(cy/T)-1;
+  const vx1=vx0+Math.ceil(cv.width/T)+2, vy1=vy0+Math.ceil(cv.height/T)+2;
 
   ctx.clearRect(0,0,cv.width,cv.height);
-  ctx.globalAlpha=1;
 
   // Grille
   ctx.strokeStyle="#ffffff07";ctx.lineWidth=1;
-  const ox=(-camX())%T, oy=(-camY())%T;
+  const ox=(-cx)%T, oy=(-cy)%T;
   for(let x=ox;x<cv.width;x+=T){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke();}
   for(let y=oy;y<cv.height;y+=T){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cv.width,y);ctx.stroke();}
 
-  // Trails distants
-  for(const s in players){
-    const trail=getRemoteTrail(parseInt(s));
-    for(const t of trail) drawTile(t.x,t.y,players[s].color,0.45);
+  // Helper : dessine un tableau de tiles [{x,y}] avec une seule couleur (batching)
+  function drawTrailBatch(tiles, color, alpha){
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=color;
+    for(const t of tiles){
+      if(t.x<vx0||t.x>vx1||t.y<vy0||t.y>vy1) continue; // culling
+      ctx.fillRect(t.x*T-cx+1, t.y*T-cy+1, T-2, T-2);
+    }
   }
-  ctx.globalAlpha=1;
+
+  // Trails distants (1 batch par joueur = 1 fillStyle)
+  for(const s in players){
+    drawTrailBatch(getRemoteTrail(parseInt(s)), players[s].color, 0.45);
+  }
 
   // Mon trail
-  const myColor=COLORS[mySlot<0?0:mySlot];
-  for(const t of myTrail) drawTile(t.x,t.y,myColor,0.6);
+  drawTrailBatch(myTrail, myColor, 0.6);
+
   ctx.globalAlpha=1;
 
   // Joueurs distants
   ctx.textAlign="center";ctx.font="9px monospace";
   for(const s in players){
     const p=players[s];
-    const sx=p.x*T-camX()+T/2, sy=p.y*T-camY()+T/2;
+    const sx=p.x*T-cx+T/2, sy=p.y*T-cy+T/2;
     ctx.fillStyle=p.color;
     ctx.beginPath();ctx.arc(sx,sy,T/2-1,0,Math.PI*2);ctx.fill();
     ctx.fillStyle="#fff";
-    ctx.fillText(p.name||"J"+s,sx,sy-T/2-3);
+    ctx.globalAlpha=1;
+    ctx.fillText(p.name||"?",sx,sy-T/2-3);
   }
 
-  // Mon joueur (position visuelle = centre de l'ecran + offset sub-pixel smooth)
-  const snapX = cv.width/2 + (px*T - camRx) + T/2;
-  const snapY = cv.height/2 + (py*T - camRy) + T/2;
-  const sx=snapX, sy=snapY;
+  // Mon joueur
+  const snapX=cv.width/2+(px*T-camRx)+T/2, snapY=cv.height/2+(py*T-camRy)+T/2;
   ctx.fillStyle=myColor;
-  ctx.beginPath();ctx.arc(sx,sy,T/2-1,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.beginPath();ctx.arc(snapX,snapY,T/2-1,0,Math.PI*2);ctx.fill();
   if(dx||dy){
     ctx.strokeStyle=myColor;ctx.lineWidth=2;ctx.globalAlpha=0.3;
-    ctx.beginPath();ctx.arc(sx,sy,T,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(snapX,snapY,T,0,Math.PI*2);ctx.stroke();
     ctx.globalAlpha=1;
   }
 
@@ -489,31 +526,62 @@ function drawMinimap(){
   mctx.save();
   mctx.beginPath();mctx.arc(R,R,R-1,0,Math.PI*2);mctx.clip();
   mctx.fillStyle="#000a";mctx.fillRect(0,0,W,W);
-  const sc=W/Math.max(CFG.MAP_W,CFG.MAP_H);
-  const toM=(tx,ty)=>[(tx-px)*sc+R,(ty-py)*sc+R];
-  const myColor=COLORS[mySlot<0?0:mySlot];
 
-  // Trails
-  mctx.globalAlpha=0.4;
-  for(const t of myTrail){const[mx,my]=toM(t.x,t.y);mctx.fillStyle=myColor;mctx.fillRect(mx,my,1.5,1.5);}
+  const sc=W/Math.max(CFG.MAP_W,CFG.MAP_H);
+
+  // Dessiner les trails via ImageData (beaucoup plus rapide que des fillRect)
+  const imgData=mctx.createImageData(W,W);
+  const d=imgData.data;
+
+  function paintTile(tx,ty,hexColor,alpha){
+    const mx=((tx-px)*sc+R)|0, my=((ty-py)*sc+R)|0;
+    if(mx<0||mx>=W||my<0||my>=W) return;
+    const off=(my*W+mx)*4;
+    // Parse couleur hex -> rgb (cache simple)
+    const rgb=hexToRgb(hexColor);
+    d[off]=rgb[0]; d[off+1]=rgb[1]; d[off+2]=rgb[2]; d[off+3]=(alpha*255)|0;
+  }
+
+  for(const t of myTrail) paintTile(t.x,t.y,myColor,0.7);
   for(const s in players){
     const trail=getRemoteTrail(parseInt(s));
-    mctx.fillStyle=players[s].color;
-    for(const t of trail){const[mx,my]=toM(t.x,t.y);mctx.fillRect(mx,my,1.5,1.5);}
+    for(const t of trail) paintTile(t.x,t.y,players[s].color,0.5);
   }
-  mctx.globalAlpha=1;
+  mctx.putImageData(imgData,0,0);
 
-  // Points joueurs
-  for(const s in players){const[mx,my]=toM(players[s].x,players[s].y);mctx.fillStyle=players[s].color;mctx.beginPath();mctx.arc(mx,my,3,0,Math.PI*2);mctx.fill();}
+  // Points joueurs par dessus
+  for(const s in players){
+    const mx=((players[s].x-px)*sc+R), my=((players[s].y-py)*sc+R);
+    mctx.fillStyle=players[s].color;mctx.beginPath();mctx.arc(mx,my,3,0,Math.PI*2);mctx.fill();
+  }
   mctx.fillStyle=myColor;mctx.beginPath();mctx.arc(R,R,4,0,Math.PI*2);mctx.fill();
   mctx.restore();
+}
+
+// Cache de parsing hex -> [r,g,b]
+const _hexCache={};
+function hexToRgb(hex){
+  if(_hexCache[hex]) return _hexCache[hex];
+  // Supporte hsl(...) aussi
+  if(hex.startsWith("hsl")){
+    // Convertir HSL -> RGB
+    const m=hex.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if(m){
+      const h=parseInt(m[1])/360,s=parseInt(m[2])/100,l=parseInt(m[3])/100;
+      const q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q;
+      const hue2rgb=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};
+      return _hexCache[hex]=[(hue2rgb(p,q,h+1/3)*255)|0,(hue2rgb(p,q,h)*255)|0,(hue2rgb(p,q,h-1/3)*255)|0];
+    }
+  }
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return _hexCache[hex]=[r,g,b];
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // SCOREBOARD
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function updateSB(){
-  const list=[{name:myName,score,color:COLORS[mySlot<0?0:mySlot]}];
+  const list=[{name:myName,score,color:myColor}];
   for(const s in players) list.push({name:players[s].name,score:players[s].score||0,color:players[s].color});
   list.sort((a,b)=>b.score-a.score);
   document.getElementById("sl").innerHTML=list.slice(0,6).map(p=>
@@ -681,7 +749,6 @@ function sendChatMsg(){
   const enc=encodeChatMsg(text);
   ws.send(JSON.stringify({method:"set",name:"☁ MSG"+mySlot,value:enc}));
   // Afficher son propre message immediatement
-  const myColor=COLORS[mySlot<0?0:mySlot];
   pushChatMsg(myName,myColor,text,true);
 }
 
@@ -699,7 +766,6 @@ window.addEventListener("beforeunload",()=>{
     ws.send(JSON.stringify({method:"set",name:"☁ P"+mySlot,value:"0"}));
     ws.send(JSON.stringify({method:"set",name:"☁ T"+mySlot,value:"0"}));
     ws.send(JSON.stringify({method:"set",name:"☁ MSG"+mySlot,value:"0"}));
-    ws.send(JSON.stringify({method:"set",name:"☁ N"+mySlot,value:"0"}));
   }
 });
 function setStatus(msg){document.getElementById("st").textContent=msg;}
@@ -712,6 +778,7 @@ document.getElementById("pb").addEventListener("click",()=>{
   // Tag #xxx aleatoire => 2 joueurs meme pseudo ne se confondent pas
   const tag="#"+String(Math.floor(100+Math.random()*900));
   myName=raw+tag;
+  myColor=colorFromTag(myName);
   setStatus("Connexion...");
   cloudConnect();
   const trySlot=()=>{
