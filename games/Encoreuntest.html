@@ -381,9 +381,9 @@ function cloudConnect(onReady){
   const user = "p" + Math.floor(1000+Math.random()*8999);
   ws = new WebSocket("wss://clouddata.turbowarp.org");
   ws.onopen = () => {
-    ws.send(JSON.stringify({method:"handshake", project_id: CFG.PROJECT_ID, user}));
+    ws.send(JSON.stringify({method:"handshake", project_id: CFG.PROJECT_ID, user}) + "\n");
     setConnStatus(true,"Connecté");
-    if(onReady) setTimeout(onReady, 400);
+    if(onReady) setTimeout(onReady, 1200);
   };
   ws.onmessage = (e) => {
     for(const line of e.data.split("\n")){
@@ -400,7 +400,10 @@ function cloudConnect(onReady){
   };
   ws.onclose = (e) => {
     setConnStatus(false,"Déconnecté — reconnexion…");
-    setTimeout(()=>cloudConnect(), 2500);
+    if(!window.__reconnecting){
+      window.__reconnecting = true;
+      setTimeout(()=>{ window.__reconnecting = false; cloudConnect(); }, 2500);
+    }
   };
   ws.onerror = () => setConnStatus(false,"Erreur réseau");
 }
@@ -408,7 +411,7 @@ function cloudConnect(onReady){
 function cloudSet(name,val){
   const safe = String(val).replace(/[^0-9]/g,"");
   if(!ws || ws.readyState!==1 || safe==="") return;
-  ws.send(JSON.stringify({method:"set", name:"☁ "+name, value: safe}));
+  ws.send(JSON.stringify({method:"set", name:"☁ "+name, value: safe}) + "\n");
 }
 
 function setConnStatus(on,text){
@@ -866,7 +869,7 @@ document.getElementById("btn-back-picker").addEventListener("click", ()=>{
 
 window.addEventListener("beforeunload", ()=>{
   if(mySlot>=0 && ws && ws.readyState===1){
-    ws.send(JSON.stringify({method:"set", name:"☁ SLOT"+mySlot, value: encodeSlot(myRoom,isHost,false,myScore,myName).replace(/[^0-9]/g,"")}));
+    ws.send(JSON.stringify({method:"set", name:"☁ SLOT"+mySlot, value: encodeSlot(myRoom,isHost,false,myScore,myName).replace(/[^0-9]/g,"")}) + "\n");
   }
 });
 
