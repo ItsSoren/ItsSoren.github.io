@@ -31,7 +31,7 @@ input[type=text]:focus{border-color:var(--accent2)}
 .bigcode{text-align:center;font-size:1.8em;letter-spacing:8px;font-weight:800;color:var(--accent2)}
 label{display:block;font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
 .field{margin-bottom:14px}
-button{font-family:var(--mono);font-weight:700;font-size:14px;border:none;border-radius:8px;padding:15px;cursor:pointer;transition:transform .08s ease,opacity .08s ease,background .08s ease;-webkit-user-select:none;user-select:none}
+button{font-family:var(--mono);font-weight:700;font-size:14px;border:none;border-radius:8px;padding:15px;cursor:pointer;transition:transform .08s ease,opacity .08s ease,background .08s ease;-webkit-user-select:none;user-select:none;min-height:46px}
 button:active:not(:disabled){transform:scale(.95);opacity:.75}
 button:disabled{opacity:.35}
 .p{background:var(--accent);color:#1a0d06;width:100%}
@@ -62,13 +62,22 @@ button:disabled{opacity:.35}
 .warcard{width:74px;height:104px;border-radius:9px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center}
 .warcard .v{font-size:1.7em;font-weight:800;color:var(--accent2)}
 .warcard .nm{font-size:9px;color:var(--dim);margin-top:6px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.warcard.win{border-color:var(--ok)}
 .memgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:360px;margin-top:16px}
 .memcard{aspect-ratio:1;background:var(--panel);border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.6em;font-weight:800;color:var(--accent2);font-family:var(--mono)}
 .memcard.hidden{color:var(--dim);background:#0e1114}
 .memcard.matched{border-color:var(--ok);opacity:.45}
 .row2{display:flex;gap:10px;width:100%;max-width:440px;margin-top:16px}
 .row2 button{flex:1}
+#tgt{width:min(65vw,260px);height:min(65vw,260px);border-radius:50%;background:var(--bad);margin:24px auto;display:flex;align-items:center;justify-content:center;font-weight:800;letter-spacing:2px;color:#1a0106;transition:background .1s}
+#tgt.go{background:var(--ok);color:#03170c}
+.qopts{display:flex;flex-direction:column;gap:10px;width:100%;max-width:440px;margin-top:16px}
+.qopt{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:16px;font-size:14px;text-align:left;color:var(--text);font-family:var(--mono)}
+.qopt.sel{border-color:var(--accent)}
+#sk-canvas{background:#0e1114;border:1px solid var(--line);border-radius:8px;touch-action:none;margin-top:10px}
+.dpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px);gap:6px;margin-top:18px;justify-content:center}
+.dpad button{background:var(--panel);border:1px solid var(--line);color:var(--text);font-size:1.3em;padding:0;min-height:0}
+.dpad .empty{visibility:hidden}
+.sk-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:11px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -78,7 +87,7 @@ button:disabled{opacity:.35}
   <div class="wrap">
     <div class="eyebrow">// nebula party</div>
     <h1>Choisis ton <span class="a">pseudo</span></h1>
-    <p class="lead">2 à 4 joueurs, une manette chacun. Aucun compte — juste un pseudo et un code.</p>
+    <p class="lead">1 à 4 joueurs, une manette chacun. Aucun compte — juste un pseudo et un code.</p>
     <div class="card">
       <div class="field"><label>Pseudo</label><input type="text" id="i-name" maxlength="12" placeholder="Nova"></div>
       <button class="p" id="b-name">Continuer →</button>
@@ -91,7 +100,7 @@ button:disabled{opacity:.35}
   <div class="wrap">
     <div class="eyebrow">// salon</div>
     <h1>Rejoindre ou <span class="a">créer</span></h1>
-    <div class="card"><label>Créer un salon (2-4 joueurs)</label><button class="p" id="b-create">Créer un salon</button></div>
+    <div class="card"><label>Créer un salon (1-4 joueurs)</label><button class="p" id="b-create">Créer un salon</button></div>
     <div class="div">OU</div>
     <div class="card">
       <label>Code du salon</label>
@@ -115,10 +124,12 @@ button:disabled{opacity:.35}
 <section class="scr" id="s-picker">
   <div class="wrap"><div class="eyebrow">// chef de partie</div><h1>Choisis le <span class="a">jeu</span></h1></div>
   <div class="gamegrid">
-    <button class="gcard" data-g="1"><span class="gtag">Hasard</span><div class="gname">BATAILLE DE CARTES</div><div class="gdesc">Retourne une carte, la plus forte gagne la manche.</div></button>
-    <button class="gcard" data-g="2"><span class="gtag">Mémoire</span><div class="gname">MÉMORY</div><div class="gdesc">Tour par tour, retrouve les paires sur le plateau commun.</div></button>
-    <button class="gcard" data-g="3"><span class="gtag">Casino</span><div class="gname">BLACKJACK</div><div class="gdesc">Tire des cartes, approche-toi de 21 sans dépasser.</div></button>
-    <button class="gcard" data-g="4"><span class="gtag">Pari</span><div class="gname">PLUS OU MOINS</div><div class="gdesc">Devine si la carte suivante sera plus haute ou plus basse.</div></button>
+    <button class="gcard" data-g="1"><span class="gtag">Cartes · Hasard</span><div class="gname">BATAILLE DE CARTES</div><div class="gdesc">Retourne une carte, la plus forte gagne la manche.</div></button>
+    <button class="gcard" data-g="2"><span class="gtag">Cartes · Mémoire</span><div class="gname">MÉMORY</div><div class="gdesc">Tour par tour, retrouve les paires sur le plateau commun.</div></button>
+    <button class="gcard" data-g="3"><span class="gtag">Cartes · Casino</span><div class="gname">BLACKJACK</div><div class="gdesc">Tire des cartes, approche-toi de 21 sans dépasser.</div></button>
+    <button class="gcard" data-g="4"><span class="gtag">Arcade · Réflexe</span><div class="gname">CLIC RAPIDE</div><div class="gdesc">Attends le vert, clique le plus vite possible.</div></button>
+    <button class="gcard" data-g="5"><span class="gtag">Arcade · Culture</span><div class="gname">QUIZ ÉCLAIR</div><div class="gdesc">4 réponses, 10 secondes, rapidité + exactitude.</div></button>
+    <button class="gcard" data-g="6"><span class="gtag">Arcade · Classique</span><div class="gname">SNAKE</div><div class="gdesc">Tous sur la même grille. Le dernier serpent vivant gagne.</div></button>
   </div>
 </section>
 
@@ -153,14 +164,37 @@ button:disabled{opacity:.35}
   <div class="msg" id="bj-msg"></div>
 </section>
 
-<section class="scr" id="s-hl">
-  <div id="top"><div class="pill">Manche <b id="hl-round">1</b></div></div>
-  <div class="wrap" style="margin-top:60px;text-align:center">
-    <div class="eyebrow">// plus ou moins</div><h1>La carte suivante sera…</h1>
+<section class="scr" id="s-reflex">
+  <div id="top"><div class="pill">Manche <b id="r-round">1</b></div></div>
+  <div class="wrap" style="text-align:center;margin-top:60px">
+    <div class="eyebrow">// clic rapide</div>
+    <h1 id="r-state">Attends le vert…</h1>
+    <div id="tgt">PATIENTE</div>
+    <div class="msg" id="r-msg"></div>
   </div>
-  <div class="warrow"><div class="warcard win"><div class="v" id="hl-card">–</div><div class="nm">carte actuelle</div></div></div>
-  <div class="row2"><button class="p" id="hl-lo">▼ Plus basse</button><button class="p" id="hl-hi">▲ Plus haute</button></div>
-  <div class="msg" id="hl-msg"></div>
+</section>
+
+<section class="scr" id="s-quiz">
+  <div id="top"><div class="pill">Q<b id="q-round">1</b> · <b id="q-timer">10</b>s</div></div>
+  <div class="wrap" style="margin-top:60px;text-align:center"><div class="eyebrow">// quiz éclair</div><h1 id="q-q">…</h1></div>
+  <div class="qopts" id="q-opts"></div>
+  <div class="msg" id="q-msg"></div>
+</section>
+
+<section class="scr" id="s-snake">
+  <div id="top"><div class="pill">Vivants <b id="sk-alive">–</b></div></div>
+  <div class="wrap" style="margin-top:60px;text-align:center">
+    <div class="eyebrow">// snake</div>
+    <h1>Même grille, dernier vivant gagne</h1>
+  </div>
+  <canvas id="sk-canvas" width="288" height="288"></canvas>
+  <div class="dpad">
+    <span class="empty"></span><button id="sk-up">▲</button><span class="empty"></span>
+    <button id="sk-left">◀</button><span class="empty"></span><button id="sk-right">▶</button>
+    <span class="empty"></span><button id="sk-down">▼</button><span class="empty"></span>
+  </div>
+  <div class="sk-legend" id="sk-legend"></div>
+  <div class="msg" id="sk-msg"></div>
 </section>
 
 <section class="scr" id="s-results">
@@ -187,27 +221,31 @@ const PAD=(n,d)=>String(Math.max(0,Math.min(Math.trunc(n),10**d-1))).padStart(d,
 function n2d(s){let o="";for(let i=0;i<Math.min(s.length,14);i++)o+=PAD(s.charCodeAt(i),3);return o}
 function d2n(s){let o="";for(let i=0;i+2<s.length;i+=3){const c=parseInt(s.slice(i,i+3));if(c>=32&&c<127)o+=String.fromCharCode(c)}return o}
 
-// SLOT{n}: RRRR H P SSSSSSS + nom
 function encSlot(room,host,present,score,name){return PAD(room,4)+(host?"1":"0")+(present?"1":"0")+PAD(score+5000000,7)+n2d(name)}
 function decSlot(v){if(!v||v.length<14)return null;const r=parseInt(v.slice(0,4));if(isNaN(r))return null;
   return {room:r,isHost:v[4]==="1",present:v[5]==="1",score:parseInt(v.slice(6,13))-5000000,name:d2n(v.slice(13))}}
 
-// GAME: RRRR PP MM SS EEEEEEEEEE
 function encGame(room,phase,gid,round,epoch){return PAD(room,4)+PAD(phase,2)+PAD(gid,2)+PAD(round,2)+PAD(epoch%1e10,10)}
 function decGame(v){if(!v||v.length<20)return null;return{room:parseInt(v.slice(0,4)),phase:parseInt(v.slice(4,6)),gameId:parseInt(v.slice(6,8)),round:parseInt(v.slice(8,10)),epoch:parseInt(v.slice(10,20))}}
 
-// ANS{n}: RRRR SS VVVVVVVVVV
 function encAns(room,round,val){return PAD(room,4)+PAD(round,2)+PAD(val,10)}
 function decAns(v){if(!v||v.length<16)return null;return{room:parseInt(v.slice(0,4)),round:parseInt(v.slice(4,6)),value:parseInt(v.slice(6,16))}}
 
-// DELTA: RRRR GG SS D0000 D0000 D0000 D0000 (gains à appliquer par slot, diffusé une fois par manche)
 function encDelta(room,gid,round,arr){let s=PAD(room,4)+PAD(gid,2)+PAD(round,2);for(let i=0;i<4;i++)s+=PAD(arr[i]||0,4);return s}
 function decDelta(v){if(!v||v.length<24)return null;const room=parseInt(v.slice(0,4)),gid=parseInt(v.slice(4,6)),round=parseInt(v.slice(6,8)),d=[];
   for(let i=0;i<4;i++)d.push(parseInt(v.slice(8+i*4,12+i*4)));return{room,gid,round,d}}
 
-// MACT{n}: RRRR CC (case cliquée au mémory)
 function encAct(room,card){return PAD(room,4)+PAD(card,2)}
 function decAct(v){if(!v||v.length<6)return null;return{room:parseInt(v.slice(0,4)),card:parseInt(v.slice(4,6))}}
+
+function encSkDir(room,dir){return PAD(room,4)+String(dir)}
+function decSkDir(v){if(!v||v.length<5)return null;return{room:parseInt(v.slice(0,4)),dir:parseInt(v[4])}}
+
+function encSnake(room,tick,food,arr){let s=PAD(room,4)+PAD(tick,4)+PAD(food[0],2)+PAD(food[1],2);
+  for(const p of arr)s+=(p.alive?"1":"0")+PAD(p.len,2)+PAD(p.x,2)+PAD(p.y,2)+String(p.dir);return s}
+function decSnake(v){if(!v||v.length<44)return null;const room=parseInt(v.slice(0,4)),tick=parseInt(v.slice(4,8)),food=[parseInt(v.slice(8,10)),parseInt(v.slice(10,12))],arr=[];
+  let o=12;for(let i=0;i<4;i++){arr.push({alive:v[o]==="1",len:parseInt(v.slice(o+1,o+3)),x:parseInt(v.slice(o+3,o+5)),y:parseInt(v.slice(o+5,o+7)),dir:parseInt(v[o+7])});o+=8}
+  return{room,tick,food,arr}}
 
 function mulberry32(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function shuffled(arr,seed){const rnd=mulberry32(seed),a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -215,6 +253,7 @@ function shuffled(arr,seed){const rnd=mulberry32(seed),a=arr.slice();for(let i=a
 let ws=null,myName="",mySlot=-1,myRoom=0,isHost=false,myScore=0,lastGame=null,handled=-1,deltaHandled=null;
 const cvars={},players={};
 let memHost=null,memRender={board:"000000000000",turnSlot:-1,seed:0};
+let skHost=null,skRender=null,skMyNext=0;
 
 function connect(cb){
   const user="p"+Math.floor(1000+Math.random()*8999);
@@ -251,6 +290,20 @@ function onVar(name,val){
     if(!isHost||!memHost)return;
     const slot=parseInt(name.slice(4)),d=decAct(val);if(!d||d.room!==myRoom)return;
     handleMemFlip(slot,d.card);return;
+  }
+  if(name==="SNAKESTATE"){
+    const d=decSnake(val);if(!d||d.room!==myRoom)return;
+    if(skRender.tick!==-1&&d.tick<=skRender.tick)return;
+    skRender.tick=d.tick;skRender.food=d.food;
+    d.arr.forEach((s,i)=>{const r=skRender.snakes[i];if(s.alive){r.trail.unshift({x:s.x,y:s.y});if(r.trail.length>s.len)r.trail.length=s.len}r.alive=s.alive;r.dir=s.dir});
+    drawSnake();return;
+  }
+  if(/^SKDIR\d$/.test(name)){
+    if(!isHost||!skHost)return;
+    const slot=parseInt(name.slice(5)),d=decSkDir(val);if(!d||d.room!==myRoom)return;
+    const s=skHost.snakes[slot];if(!s||!s.alive)return;
+    if(Math.abs(d.dir-s.dir)!==2)s.nextDir=d.dir;
+    return;
   }
 }
 
@@ -302,7 +355,7 @@ function enterLobby(room){
   document.getElementById("lobbycode").textContent="#"+room;
   document.getElementById("barroom").textContent="Salon "+room;
   document.getElementById("hostctl").style.display=isHost?"block":"none";
-  document.getElementById("lobbyhint").textContent=isHost?"Chef de partie : lance une manche quand tout le monde est là.":"En attente du chef de partie…";
+  document.getElementById("lobbyhint").textContent=isHost?"Chef de partie : lance une manche quand tu es prêt.":"En attente du chef de partie…";
   msg("m-join","");show("s-lobby");refreshLobby();
   clearInterval(lobbyPoll);
   lobbyPoll=setInterval(()=>{if(mySlot>=0)cset("SLOT"+mySlot,encSlot(myRoom,isHost,true,myScore,myName))},4000);
@@ -321,7 +374,7 @@ function refreshLobby(){
 }
 document.getElementById("b-picker").onclick=()=>{if(isHost)cset("GAME",encGame(myRoom,1,0,0,Date.now()))};
 
-const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,MEMORY:2,BJ:3,HL:4};
+const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,MEMORY:2,BJ:3,REFLEX:4,QUIZ:5,SNAKE:6};
 function onPhase(st){
   if(st.phase===PHASE.PICKER){show(isHost?"s-picker":"s-lobby");if(!isHost)document.getElementById("lobbyhint").textContent="Le chef choisit un jeu…";return}
   if(st.phase===PHASE.PLAY){const k=st.gameId+":"+st.round+":"+st.epoch;if(handled===k)return;handled=k;launch(st);return}
@@ -338,7 +391,9 @@ function launch(st){
   if(st.gameId===GID.WAR)runWar(st);
   else if(st.gameId===GID.MEMORY)runMem(st);
   else if(st.gameId===GID.BJ)runBJ(st);
-  else if(st.gameId===GID.HL)runHL(st);
+  else if(st.gameId===GID.REFLEX)runReflex(st);
+  else if(st.gameId===GID.QUIZ)runQuiz(st);
+  else if(st.gameId===GID.SNAKE)runSnake(st);
 }
 
 // ---- CARTES PARTAGÉES ----
@@ -448,20 +503,159 @@ function runBJ(st){
   if(isHost)hostTimeout(st,20000);
 }
 
-// ---- PLUS OU MOINS ----
-function runHL(st){
-  show("s-hl");document.getElementById("hl-round").textContent=st.round;msg("hl-msg","");
-  const cur=fullDeck(st.epoch)[0];document.getElementById("hl-card").textContent=cardName(cur);
-  let answered=false;
-  const lo=document.getElementById("hl-lo"),hi=document.getElementById("hl-hi");
-  lo.disabled=false;hi.disabled=false;
-  const pick=dir=>{
-    if(answered)return;answered=true;lo.disabled=true;hi.disabled=true;
-    const elapsed=Math.min(Date.now()-st.epoch,999999999);
-    submitAns(st.round,dir*1000000000+elapsed);msg("hl-msg","Pari envoyé…","ok");
+// ---- CLIC RAPIDE ----
+function runReflex(st){
+  show("s-reflex");document.getElementById("r-round").textContent=st.round;
+  const tgt=document.getElementById("tgt");tgt.className="";tgt.textContent="PATIENTE";
+  document.getElementById("r-state").textContent="Attends le vert…";msg("r-msg","");
+  let answered=false,goTime=0;const delay=1500+Math.random()*3000,startAt=st.epoch;
+  tgt.onclick=()=>{
+    if(answered)return;
+    if(!tgt.classList.contains("go")){answered=true;msg("r-msg","Trop tôt !","err");submitAns(st.round,9999999998);return}
+    answered=true;const rt=Date.now()-goTime;msg("r-msg","Envoyé : "+rt+" ms","ok");submitAns(st.round,Math.min(rt,9999999997));
   };
-  lo.onclick=()=>pick(0);hi.onclick=()=>pick(1);
-  if(isHost)hostTimeout(st,9000);
+  const tick=()=>{
+    if(!document.getElementById("s-reflex").classList.contains("active"))return;
+    if(Date.now()-startAt>=delay&&!tgt.classList.contains("go")&&!answered){tgt.classList.add("go");tgt.textContent="CLIQUE !";document.getElementById("r-state").textContent="MAINTENANT !";goTime=Date.now()}
+    if(!answered)requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  setTimeout(()=>{if(!answered){answered=true;submitAns(st.round,9999999998);msg("r-msg","Temps écoulé.","err")}},delay+4000);
+  if(isHost)hostTimeout(st,delay+5200);
+}
+
+// ---- QUIZ ÉCLAIR ----
+const QUIZ=[
+  {q:"Combien de continents sur Terre ?",o:["5","6","7","8"],c:2},
+  {q:"Langage créé par Brendan Eich en 1995 ?",o:["Python","JavaScript","Ruby","PHP"],c:1},
+  {q:"Capitale de l'Australie ?",o:["Sydney","Melbourne","Canberra","Perth"],c:2},
+  {q:"1 octet = combien de bits ?",o:["4","8","16","32"],c:1},
+  {q:"Plus grand océan du monde ?",o:["Atlantique","Indien","Arctique","Pacifique"],c:3},
+  {q:"Symbole chimique de l'or ?",o:["Go","Au","Ag","Or"],c:1},
+];
+function runQuiz(st){
+  show("s-quiz");document.getElementById("q-round").textContent=st.round;
+  const q=QUIZ[st.round%QUIZ.length];
+  document.getElementById("q-q").textContent=q.q;
+  const el=document.getElementById("q-opts");el.innerHTML="";msg("q-msg","");
+  let answered=false;
+  q.o.forEach((opt,i)=>{
+    const b=document.createElement("button");b.className="qopt";b.textContent=opt;
+    b.onclick=()=>{
+      if(answered)return;answered=true;
+      document.querySelectorAll(".qopt").forEach(x=>x.disabled=true);b.classList.add("sel");
+      const elapsed=Date.now()-st.epoch,val=i*1000000000+Math.min(elapsed,999999999);
+      submitAns(st.round,val);msg("q-msg",i===q.c?"Bonne réponse !":"Réponse enregistrée.",i===q.c?"ok":"");
+    };
+    el.appendChild(b);
+  });
+  let left=10;document.getElementById("q-timer").textContent=left;
+  const iv=setInterval(()=>{
+    if(!document.getElementById("s-quiz").classList.contains("active")){clearInterval(iv);return}
+    left--;document.getElementById("q-timer").textContent=Math.max(left,0);
+    if(left<=0){clearInterval(iv);if(!answered){answered=true;document.querySelectorAll(".qopt").forEach(x=>x.disabled=true);submitAns(st.round,9000000000);msg("q-msg","Temps écoulé.","err")}}
+  },1000);
+  if(isHost)hostTimeout(st,11200);
+}
+
+// ---- SNAKE ----
+const SK_GRID=12,SK_CELL=24,SK_DXY=[[0,-1],[1,0],[0,1],[-1,0]];
+function colorSlot(i){return players[i]?color(players[i].name):(i===mySlot?color(myName):"#6b7480")}
+function skLegend(){
+  const el=document.getElementById("sk-legend");if(!el)return;
+  el.innerHTML=roomPlayers().map(p=>`<span><span class="pdot" style="background:${color(p.name)};display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px"></span>${esc(p.name)}</span>`).join("");
+}
+function drawSnake(){
+  const cv=document.getElementById("sk-canvas");if(!cv||!skRender)return;
+  const ctx=cv.getContext("2d");
+  ctx.fillStyle="#0e1114";ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle="#ff6a2b";
+  ctx.fillRect(skRender.food[0]*SK_CELL+2,skRender.food[1]*SK_CELL+2,SK_CELL-4,SK_CELL-4);
+  skRender.snakes.forEach((s,i)=>{
+    if(!s.trail.length)return;
+    ctx.fillStyle=s.alive?colorSlot(i):"#3a4048";
+    s.trail.forEach(c=>ctx.fillRect(c.x*SK_CELL+1,c.y*SK_CELL+1,SK_CELL-2,SK_CELL-2));
+  });
+  document.getElementById("sk-alive").textContent=skRender.snakes.filter(s=>s.alive).length;
+}
+function skSetDir(d){skMyNext=d;if(mySlot>=0)cset("SKDIR"+mySlot,encSkDir(myRoom,d))}
+function bindSkControls(){
+  document.getElementById("sk-up").onclick=()=>skSetDir(0);
+  document.getElementById("sk-right").onclick=()=>skSetDir(1);
+  document.getElementById("sk-down").onclick=()=>skSetDir(2);
+  document.getElementById("sk-left").onclick=()=>skSetDir(3);
+}
+document.addEventListener("keydown",e=>{
+  const el=document.getElementById("s-snake");if(!el||!el.classList.contains("active"))return;
+  const map={ArrowUp:0,ArrowRight:1,ArrowDown:2,ArrowLeft:3};
+  if(map[e.key]!==undefined){e.preventDefault();skSetDir(map[e.key])}
+});
+function runSnake(st){
+  show("s-snake");msg("sk-msg","");
+  skRender={tick:-1,food:[0,0],snakes:[0,1,2,3].map(()=>({alive:false,trail:[],dir:0}))};
+  skMyNext=0;drawSnake();skLegend();bindSkControls();
+  if(isHost)skInit(st);
+}
+function skInit(st){
+  const present=roomPlayers().map(p=>p.__slot);
+  const spawns=[[2,2,1],[SK_GRID-3,2,2],[2,SK_GRID-3,1],[SK_GRID-3,SK_GRID-3,3]];
+  skHost={tick:0,food:[0,0],delta:{},initialCount:present.length,snakes:[0,1,2,3].map(s=>{
+    if(!present.includes(s))return{alive:false,body:[],dir:0,nextDir:0,growth:0};
+    const[x,y,dir]=spawns[s],body=[];
+    for(let i=0;i<3;i++)body.push({x:x-SK_DXY[dir][0]*i,y:y-SK_DXY[dir][1]*i});
+    return{alive:true,body,dir,nextDir:dir,growth:0};
+  })};
+  skPlaceFood();skBroadcast();
+  clearInterval(skHost.timer);
+  skHost.timer=setInterval(()=>skTick(st),450);
+}
+function skPlaceFood(){
+  const occ=new Set();
+  skHost.snakes.forEach(s=>s.alive&&s.body.forEach(c=>occ.add(c.x+","+c.y)));
+  let x,y,tries=0;
+  do{x=Math.floor(Math.random()*SK_GRID);y=Math.floor(Math.random()*SK_GRID);tries++}while(occ.has(x+","+y)&&tries<100);
+  skHost.food=[x,y];
+}
+function skTick(st){
+  if(!skHost)return;
+  skHost.tick++;
+  skHost.snakes.forEach(s=>{if(s.alive)s.dir=s.nextDir});
+  const heads={};
+  skHost.snakes.forEach((s,i)=>{if(!s.alive)return;const[dx,dy]=SK_DXY[s.dir];heads[i]={x:s.body[0].x+dx,y:s.body[0].y+dy}});
+  skHost.snakes.forEach((s,i)=>{
+    if(!s.alive)return;
+    const h=heads[i];let dead=h.x<0||h.x>=SK_GRID||h.y<0||h.y>=SK_GRID;
+    if(!dead)skHost.snakes.forEach((s2,j)=>{
+      if(!s2.alive)return;
+      const body2=j===i?s2.body.slice(0,-1):s2.body;
+      if(body2.some(c=>c.x===h.x&&c.y===h.y))dead=true;
+      if(j!==i&&heads[j]&&heads[j].x===h.x&&heads[j].y===h.y)dead=true;
+    });
+    if(dead){s.alive=false;skHost.delta[i]=(skHost.delta[i]||0)+10}
+  });
+  skHost.snakes.forEach((s,i)=>{
+    if(!s.alive)return;
+    const h=heads[i];s.body.unshift(h);
+    if(h.x===skHost.food[0]&&h.y===skHost.food[1]){s.growth++;skHost.delta[i]=(skHost.delta[i]||0)+15;skPlaceFood()}
+    if(s.growth>0)s.growth--;else s.body.pop();
+  });
+  const aliveCount=skHost.snakes.filter(s=>s.alive).length;
+  skBroadcast();
+  const over=skHost.initialCount>1?aliveCount<=1:aliveCount===0;
+  if(over){
+    skHost.snakes.forEach((s,i)=>{if(s.alive)skHost.delta[i]=(skHost.delta[i]||0)+40});
+    clearInterval(skHost.timer);
+    setTimeout(()=>finishSnake(st),600);
+  }
+}
+function skBroadcast(){
+  const arr=skHost.snakes.map(s=>({alive:s.alive,len:s.alive?s.body.length:0,x:s.alive?s.body[0].x:0,y:s.alive?s.body[0].y:0,dir:s.dir}));
+  cset("SNAKESTATE",encSnake(myRoom,skHost.tick,skHost.food,arr));
+}
+function finishSnake(st){
+  broadcastDelta(st,skHost.delta);
+  cset("GAME",encGame(myRoom,PHASE.RESULTS,st.gameId,st.round,Date.now()));
+  skHost=null;
 }
 
 function submitAns(round,val){if(mySlot>=0)cset("ANS"+mySlot,encAns(myRoom,round,val))}
@@ -495,9 +689,11 @@ function compute(st){
     }
   }else if(st.gameId===GID.BJ){
     Object.entries(ans).filter(([,v])=>v>0&&v<=21).sort((a,b)=>b[1]-a[1]).forEach(([s],i)=>delta[s]=Math.max(80-i*20,20));
-  }else if(st.gameId===GID.HL){
-    const deck=fullDeck(st.epoch),correct=deck[1]>deck[0]?1:(deck[1]<deck[0]?0:-1);
-    if(correct>=0)Object.entries(ans).map(([s,v])=>({s,dir:Math.floor(v/1000000000),t:v%1000000000})).filter(r=>r.dir===correct).sort((a,b)=>a.t-b.t).forEach((r,i)=>delta[r.s]=Math.max(90-i*20,25));
+  }else if(st.gameId===GID.REFLEX){
+    Object.entries(ans).filter(([,v])=>v<9999999997).sort((a,b)=>a[1]-b[1]).forEach(([s],i)=>delta[s]=Math.max(100-i*25,25));
+  }else if(st.gameId===GID.QUIZ){
+    const q=QUIZ[st.round%QUIZ.length];
+    Object.entries(ans).map(([s,v])=>({s,idx:Math.floor(v/1000000000),t:v%1000000000})).filter(r=>r.idx===q.c).sort((a,b)=>a.t-b.t).forEach((r,i)=>delta[r.s]=Math.max(100-i*20,30));
   }
   broadcastDelta(st,delta);
   cset("GAME",encGame(myRoom,PHASE.RESULTS,st.gameId,st.round,Date.now()));
@@ -505,7 +701,7 @@ function compute(st){
 
 function showResults(st){
   show("s-results");
-  const delta=window.__delta||{},names={1:"Bataille de cartes",2:"Mémory",3:"Blackjack",4:"Plus ou moins"};
+  const delta=window.__delta||{},names={1:"Bataille de cartes",2:"Mémory",3:"Blackjack",4:"Clic rapide",5:"Quiz éclair",6:"Snake"};
   const l=roomPlayers().sort((a,b)=>b.score-a.score);
   document.getElementById("res-detail").innerHTML=`<h2>${names[st.gameId]||"Manche"} — manche ${st.round}</h2>`+l.map(p=>{
     const g=delta[p.__slot]||0;
