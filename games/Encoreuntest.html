@@ -77,12 +77,14 @@ button:disabled{opacity:.35}
 .oppchip .nm{color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px}
 .oppchip .ct{color:var(--dim);font-family:var(--disp);margin-top:2px}
 .pile{display:flex;justify-content:center;align-items:center;gap:14px;min-height:120px;margin:10px 0}
-.card{width:70px;height:100px;border-radius:12px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative}
+.card{width:70px;height:100px;border-radius:12px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative;animation:cardIn .25s ease-out}
+@keyframes cardIn{from{transform:translateY(-14px) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes trumpPulse{0%,100%{box-shadow:0 3px 0 #0002,0 0 0 2px var(--accent)}50%{box-shadow:0 3px 0 #0002,0 0 10px 3px var(--accent)}}
 .card.red{color:#C0392B}
 .card .v{font-size:1.4em}
 .card .s{font-size:1.1em;margin-top:2px}
 .card.back{background:linear-gradient(135deg,var(--accent2),#B33A3A);color:transparent}
-.card.trump{box-shadow:0 3px 0 #0002,0 0 0 2px var(--accent)}
+.card.trump{animation:cardIn .25s ease-out,trumpPulse 1s ease-in-out infinite}
 .card.mini{width:52px;height:76px}
 .card.mini .v{font-size:1.05em}
 .handrow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:16px;max-width:460px}
@@ -286,16 +288,16 @@ document.getElementById("b-name").onclick=()=>{
 };
 document.getElementById("i-name").onkeydown=e=>{if(e.key==="Enter")document.getElementById("b-name").click()};
 
-function freeSlot(){
+function freeSlot(room){
   for(let i=0;i<CFG.SLOTS;i++){
     if(!cvars["SLOT"+i])return i;
     const d=decSlot(cvars["SLOT"+i]);
-    if(!d||!d.present)return i;
+    if(!d||!d.present||d.room!==room)return i; // un slot occupé par un AUTRE salon est libre pour nous
   }
   return -1;
 }
 function claim(room,host){
-  mySlot=freeSlot();
+  mySlot=freeSlot(room);
   if(mySlot<0){msg("m-join","Salon complet (4 joueurs max).","err");return false}
   myRoom=room;isHost=host;myScore=0;joinedAt=Date.now();
   cset("SLOT"+mySlot,encSlot(myRoom,isHost,true,myScore,myName));
@@ -437,7 +439,13 @@ function pushState(){
 }
 function sendAction(obj){
   if(mySlot<0)return;
-  cset("ACT",encState(myRoom,Date.now()%10000,Object.assign({slot:mySlot},obj)));
+  const payload=Object.assign({slot:mySlot},obj);
+  if(isHost&&gHost){
+    // le chef traite sa propre action tout de suite en local, sans dépendre d'un aller-retour cloud
+    handleAction(payload);
+  }else{
+    cset("ACT",encState(myRoom,Date.now()%10000,payload));
+  }
 }
 function handleAction(obj){
   if(!gHost||obj.slot===undefined)return;
@@ -468,12 +476,15 @@ function warAction(obj){
   const g=gHost;
   if(!g.active.includes(obj.slot))return;
   if(g.flipped[obj.slot])return;
-  if(!warHasCards(g,obj.slot))return; // sera géré par warCheckEliminations
+  if(!warHasCards(g,obj.slot))return;
   const card=g.piles[obj.slot].shift();
   g.flipped[obj.slot]={card};
   g.table.push({slot:obj.slot,card,hidden:false});
-  if(g.active.every(s=>g.flipped[s]||!warHasCards(g,s)))resolveWar();
-  pushState();
+  if(g.active.every(s=>g.flipped[s]||!warHasCards(g,s))){
+    resolveWar(); // resolveWar() republie déjà l'état dans tous ses chemins de sortie
+  }else{
+    pushState();
+  }
 }
 function warCheckEliminations(){
   const g=gHost;
@@ -486,7 +497,6 @@ function warCheckEliminations(){
 }
 function resolveWar(){
   const g=gHost;
-  // ignore les joueurs qui n'ont pas pu poser faute de cartes : ils sont éliminés
   const participants=g.active.filter(s=>g.flipped[s]);
   const eliminated=g.active.filter(s=>!g.flipped[s]);
   eliminated.forEach(s=>{g.alive=g.alive.filter(x=>x!==s)});
@@ -498,9 +508,17 @@ function resolveWar(){
   if(top.length===1){
     const winner=top[0];
     const won=g.table.map(t=>t.card);
-    g.piles[winner]=(g.piles[winner]||[]).concat(shuffled(won,(Date.now()+winner)%100000));
-    g.lastWinner=winner;g.table=[];g.flipped={};g.active=g.alive.slice();
-    if(g.alive.length<=1){finishWar();return}
+    // pause visuelle : on publie d'abord le pli remporté, table encore affichée, avant de la vider
+    g.lastWinner=winner;g.resolving=true;
+    pushState();
+    setTimeout(()=>{
+      if(!gHost||gHost!==g)return; // la manche a pu changer entre temps (ex: chef réassigné)
+      g.piles[winner]=(g.piles[winner]||[]).concat(shuffled(won,(Date.now()+winner)%100000));
+      g.table=[];g.flipped={};g.active=g.alive.slice();g.resolving=false;
+      if(g.alive.length<=1){finishWar();return}
+      pushState();
+    },1400);
+    return;
   }else{
     // bataille entre les joueurs à égalité : chacun pose 1 carte cachée puis 1 visible
     const stillTop=top.filter(s=>g.alive.includes(s));
@@ -528,15 +546,23 @@ function warRender(){
   document.getElementById("g-pill").textContent=(g.alive?g.alive.length:0)+" en jeu";
   document.getElementById("g-opps").innerHTML=oppStrip(null,s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" · éliminé":""));
   const trick=document.getElementById("g-trick");
-  trick.innerHTML=(g.table||[]).map(t=>`<div class="trickslot"><div class="nm">${esc(pName(t.slot))}</div>${t.hidden?backHTML():cardHTML(t.card.suit,t.card.rank)}</div>`).join("")||'<div class="waitbox">En attente…</div>';
-  const inBattle=g.active&&g.active.length&&g.table&&g.table.length>(g.alive?g.alive.length:0);
-  document.getElementById("g-center").textContent=inBattle?"Bataille ! Retournez une carte pour trancher":(g.lastWinner!==null&&g.lastWinner!==undefined?pName(g.lastWinner)+" a ramassé le pli":"");
+  trick.innerHTML=(g.table||[]).map(t=>{
+    const isWinningCard=g.resolving&&t.slot===g.lastWinner&&!t.hidden;
+    return `<div class="trickslot"><div class="nm">${esc(pName(t.slot))}</div>${t.hidden?backHTML():cardHTML(t.card.suit,t.card.rank,{trump:isWinningCard})}</div>`;
+  }).join("")||'<div class="waitbox">En attente…</div>';
+  const inBattle=g.active&&g.active.length&&g.table&&g.table.length>(g.alive?g.alive.length:0)&&!g.resolving;
+  let centerText="";
+  if(g.resolving&&g.lastWinner!==null&&g.lastWinner!==undefined)centerText=pName(g.lastWinner)+" remporte le pli ✦";
+  else if(inBattle)centerText="Bataille ! Retournez une carte pour trancher";
+  document.getElementById("g-center").textContent=centerText;
   const mySlotAlive=g.alive&&g.alive.includes(mySlot);
-  const needFlip=g.active&&g.active.includes(mySlot)&&!(g.flipped&&g.flipped[mySlot]);
+  const needFlip=!g.resolving&&g.active&&g.active.includes(mySlot)&&!(g.flipped&&g.flipped[mySlot]);
   const ctl=document.getElementById("g-controls");
   if(mySlotAlive&&needFlip){
     ctl.innerHTML=`<button class="p" id="warflip">Retourner ma carte</button>`;
     document.getElementById("warflip").onclick=()=>sendAction({type:"flip"});
+  }else if(g.resolving){
+    ctl.innerHTML=`<div class="waitbox">Le pli se ramasse…</div>`;
   }else{
     ctl.innerHTML=`<div class="waitbox">${mySlotAlive?"Carte envoyée, en attente des autres…":"Tu es éliminé, tu observes la suite."}</div>`;
   }
@@ -565,11 +591,12 @@ function tarotDeck(seed){
 function tarotFace(c){if(c.kind==="trump")return"AT."+c.rank;if(c.kind==="excuse")return"EXC";return c.face||String(c.rank)}
 function tarotCardHTML(c,opts){
   opts=opts||{};
+  const hi=opts.trump?" trump":""; // opts.trump ici = "mettre en avant visuellement", indépendant du type de carte
   if(c.kind==="trump"){
-    return `<div class="card${opts.mini?" mini":""}${opts.trump?" trump":""}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">${c.rank}</div><div class="s">Atout</div></div>`;
+    return `<div class="card${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">${c.rank}</div><div class="s">Atout</div></div>`;
   }
-  if(c.kind==="excuse")return `<div class="card${opts.mini?" mini":""}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">✦</div><div class="s">Excuse</div></div>`;
-  return `<div class="card${isRed(c.suit)?" red":""}${opts.mini?" mini":""}${opts.dis?" dis":""}"><div class="v">${rankLabel(c.rank<=10?c.rank:c.rank)}</div><div class="s">${TAROT_SUIT[c.suit]}</div></div>`;
+  if(c.kind==="excuse")return `<div class="card${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">✦</div><div class="s">Excuse</div></div>`;
+  return `<div class="card${isRed(c.suit)?" red":""}${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}"><div class="v">${rankLabel(c.rank<=10?c.rank:c.rank)}</div><div class="s">${TAROT_SUIT[c.suit]}</div></div>`;
 }
 function tarotInit(order,seed){
   const deck=tarotDeck(seed);
@@ -601,6 +628,7 @@ function tarotAction(obj){
   if(obj.type!=="play")return;
   const g=gHost;
   if(g.order[g.turnIdx]!==obj.slot)return;
+  if(g.resolving)return;
   const hand=g.hands[obj.slot];
   const idx=obj.cardIdx;
   if(idx<0||idx>=hand.length)return;
@@ -614,8 +642,8 @@ function tarotAction(obj){
     resolveTarotTrick();
   }else{
     g.turnIdx=(g.turnIdx+1)%g.order.length;
+    pushState();
   }
-  pushState();
 }
 function tarotCardStrength(card,leadKind,leadSuit){
   if(card.kind==="excuse")return -1;
@@ -632,14 +660,22 @@ function resolveTarotTrick(){
     const v=tarotCardStrength(t.card,leadKind,leadSuit);
     if(v>bestVal){bestVal=v;best=t.slot}
   });
-  g.tricksWon[best]=g.tricksWon[best].concat(g.trick.map(t=>t.card));
-  g.trick=[];
-  g.turnIdx=g.order.indexOf(best);
-  const allEmpty=g.order.every(s=>g.hands[s].length===0);
-  if(allEmpty){
-    if(g.chien&&g.chien.length)g.tricksWon[best]=g.tricksWon[best].concat(g.chien);
-    finishTarot();
-  }
+  // pause visuelle : le pli reste affiché avec le gagnant surligné avant d'être ramassé
+  g.resolving=true;g.trickWinner=best;
+  pushState();
+  setTimeout(()=>{
+    if(!gHost||gHost!==g)return;
+    g.tricksWon[best]=g.tricksWon[best].concat(g.trick.map(t=>t.card));
+    g.trick=[];g.resolving=false;g.trickWinner=null;
+    g.turnIdx=g.order.indexOf(best);
+    const allEmpty=g.order.every(s=>g.hands[s].length===0);
+    if(allEmpty){
+      if(g.chien&&g.chien.length)g.tricksWon[best]=g.tricksWon[best].concat(g.chien);
+      finishTarot();
+      return;
+    }
+    pushState();
+  },1400);
 }
 function finishTarot(){
   const g=gHost,delta={};
@@ -654,17 +690,20 @@ function tarotRender(){
   const g=gView;
   document.getElementById("g-eyebrow").textContent="// tarot allégé";
   document.getElementById("g-title").textContent="Suis la couleur ou coupe à l'atout";
-  document.getElementById("g-pill").textContent=(g.hands&&g.hands[g.order[g.turnIdx]]?"Tour de "+pName(g.order[g.turnIdx]):"");
-  document.getElementById("g-opps").innerHTML=oppStrip(g.order[g.turnIdx],s=>(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes · "+((g.tricksWon&&g.tricksWon[s])?g.tricksWon[s].length:0)+" plis");
+  document.getElementById("g-pill").textContent=g.resolving?"Pli terminé":(g.hands&&g.hands[g.order[g.turnIdx]]?"Tour de "+pName(g.order[g.turnIdx]):"");
+  document.getElementById("g-opps").innerHTML=oppStrip(g.resolving?null:g.order[g.turnIdx],s=>(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes · "+((g.tricksWon&&g.tricksWon[s])?g.tricksWon[s].length:0)+" plis");
   const trick=document.getElementById("g-trick");
-  trick.innerHTML=(g.trick||[]).map(t=>`<div class="trickslot"><div class="nm">${esc(pName(t.slot))}</div>${tarotCardHTML(t.card)}</div>`).join("")||'<div class="waitbox">Nouveau pli…</div>';
-  document.getElementById("g-center").textContent="";
+  trick.innerHTML=(g.trick||[]).map(t=>{
+    const isWinner=g.resolving&&t.slot===g.trickWinner;
+    return `<div class="trickslot"><div class="nm">${esc(pName(t.slot))}</div>${tarotCardHTML(t.card,{trump:isWinner})}</div>`;
+  }).join("")||'<div class="waitbox">Nouveau pli…</div>';
+  document.getElementById("g-center").textContent=g.resolving&&g.trickWinner!==null?pName(g.trickWinner)+" remporte le pli ✦":"";
   document.getElementById("g-pile").innerHTML="";
   const ctl=document.getElementById("g-controls");
   ctl.innerHTML="";
   const hand=document.getElementById("g-hand");
   const myHand=(g.hands&&g.hands[mySlot])||[];
-  const isMyTurn=g.order[g.turnIdx]===mySlot;
+  const isMyTurn=!g.resolving&&g.order[g.turnIdx]===mySlot;
   const leadKind=g.trick&&g.trick.length?g.trick[0].card.kind:null;
   const leadSuit=g.trick&&g.trick.length&&g.trick[0].card.kind==="suit"?g.trick[0].card.suit:null;
   const legal=isMyTurn?tarotLegal(myHand,leadKind,leadSuit):[];
@@ -719,9 +758,22 @@ function bjAdvanceTurn(){
 }
 function bjDealerPlay(){
   const g=gHost;g.dealerRevealed=true;
-  while(bjHandTotal(g.dealer)<17)g.dealer.push(g.deck.pop());
-  g.dealerDone=true;
-  finishBJ();
+  pushState();
+  bjDealerStep(g);
+}
+function bjDealerStep(g){
+  if(!gHost||gHost!==g)return;
+  if(bjHandTotal(g.dealer)<17){
+    setTimeout(()=>{
+      if(!gHost||gHost!==g)return;
+      g.dealer.push(g.deck.pop());
+      pushState();
+      bjDealerStep(g);
+    },900);
+  }else{
+    g.dealerDone=true;
+    setTimeout(()=>finishBJ(),700); // pause pour voir le total final du croupier avant les résultats
+  }
 }
 function finishBJ(){
   const g=gHost,delta={},dTotal=bjHandTotal(g.dealer),dBust=dTotal>21;
@@ -834,9 +886,19 @@ function promoteToHost(){
 window.addEventListener("beforeunload",()=>{
   if(mySlot>=0&&ws&&ws.readyState===1)ws.send(JSON.stringify({method:"set",name:"☁ SLOT"+mySlot,value:encSlot(myRoom,isHost,false,myScore,myName)}));
 });
-setInterval(()=>{refreshLobby();refreshResults();renderGame()},1200);
+setInterval(()=>{refreshLobby();refreshResults()},1200);
+setInterval(()=>{renderGame()},5000);
 setInterval(()=>{if(isHost&&myRoom)cset("HOSTBEAT",encBeat(myRoom,Date.now()))},2000);
 setInterval(checkFailover,3000);
+// Le serveur cloud TurboWarp peut regrouper/perdre certaines mises à jour (documenté officiellement).
+// Le chef republie donc l'état de jeu courant toutes les 3s tant qu'une manche est active,
+// pour que quiconque ait raté le message initial finisse par recevoir un état à jour.
+setInterval(()=>{
+  if(isHost&&gHost&&lastGame&&(lastGame.phase===PHASE.PLAY||lastGame.phase===PHASE.RESULTS)){
+    cset("STATE",encState(myRoom,gHost.seq,gHost));
+    cset("GAME",encGame(myRoom,lastGame.phase,lastGame.gameId,lastGame.round,lastGame.epoch));
+  }
+},3000);
 </script>
 </body>
 </html>
