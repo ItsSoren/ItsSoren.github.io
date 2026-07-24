@@ -393,17 +393,17 @@ function msg2Picker(t){document.getElementById("pk-hint").textContent=t}
 
 function launch(st){
   const order=onlinePlayers().map(p=>p.__slot).sort((a,b)=>a-b);
+  gSeqSeen=-1;gView=null;
+  show("s-game");msg("g-msg","");
+  document.getElementById("g-hand").innerHTML="";
+  document.getElementById("g-controls").innerHTML="";
   if(isHost){
     if(st.gameId===GID.WAR)gHost=warInit(order,st.epoch);
     else if(st.gameId===GID.TAROT)gHost=tarotInit(order,st.epoch);
     else if(st.gameId===GID.BJ)gHost=bjInit(order,st.epoch);
     gHost.gid=st.gameId;gHost.room=myRoom;gHost.seq=0;gHost.round=st.round;
-    pushState();
+    pushState(); // remplit gView et déclenche le premier rendu pour le chef
   }
-  show("s-game");msg("g-msg","");
-  gSeqSeen=-1;gView=null;
-  document.getElementById("g-hand").innerHTML="";
-  document.getElementById("g-controls").innerHTML="";
 }
 
 // ================= MOTEUR CARTES COMMUN =================
@@ -431,7 +431,9 @@ function oppStrip(activeSlot,extraFn){
 function pushState(){
   if(!isHost||!gHost)return;
   gHost.seq=(gHost.seq||0)+1;
+  gView=gHost;gSeqSeen=gHost.seq; // le chef voit son propre état tout de suite, sans attendre l'écho du serveur
   cset("STATE",encState(myRoom,gHost.seq,gHost));
+  renderGame();
 }
 function sendAction(obj){
   if(mySlot<0)return;
