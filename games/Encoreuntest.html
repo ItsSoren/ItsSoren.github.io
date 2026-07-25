@@ -125,21 +125,31 @@ button:disabled{opacity:.35}
 .seat.turn .avatar{animation:avatarPulse 1.4s ease-in-out infinite;box-shadow:0 0 0 3px var(--accent)}
 .seat.turn .nm{background:var(--accent);color:#2A1D00}
 @keyframes avatarPulse{0%,100%{box-shadow:0 0 0 3px var(--accent),0 0 0 0 #F2B70588}50%{box-shadow:0 0 0 3px var(--accent),0 0 0 9px #F2B70500}}
+.seatcard{display:flex;justify-content:center}
+.seatcard .card{width:30px;height:42px;border-radius:6px;box-shadow:0 2px 4px #0006}
+.seatcard .card .v{font-size:.72em}
+.seatcard .card .s{font-size:.6em;margin-top:0}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;color:#152A22;position:relative;flex-shrink:0;box-shadow:0 3px 6px #0005}
 .avdot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--bg)}
 .avdot.on{background:var(--ok);box-shadow:0 0 4px var(--ok)}
 .pile{display:flex;justify-content:center;align-items:center;gap:14px;min-height:100px;margin:4px 0}
-.card{width:70px;height:100px;border-radius:12px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative;animation:cardIn .25s ease-out}
+.card{width:70px;height:100px;border-radius:12px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative;flex-shrink:0}
+.trickslot .card,.pile .card{animation:cardIn .25s ease-out} /* seules les cartes qui apparaissent réellement (pli, table) sont animées, pas la main relue à chaque refresh */
 @keyframes cardIn{from{transform:translateY(-14px) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes trumpPulse{0%,100%{box-shadow:0 3px 0 #0002,0 0 0 2px var(--accent)}50%{box-shadow:0 3px 0 #0002,0 0 10px 3px var(--accent)}}
 .card.red{color:#C0392B}
 .card .v{font-size:1.4em}
 .card .s{font-size:1.1em;margin-top:2px}
 .card.back{background:linear-gradient(135deg,var(--accent2),#B33A3A);color:transparent}
-.card.trump{animation:cardIn .25s ease-out,trumpPulse 1s ease-in-out infinite}
+.card.trump{animation:trumpPulse 1s ease-in-out infinite}
+.trickslot .card.trump,.pile .card.trump{animation:cardIn .25s ease-out,trumpPulse 1s ease-in-out infinite}
 .card.mini{width:52px;height:76px}
 .card.mini .v{font-size:1.05em}
-.handrow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:16px;max-width:460px}
+.handrow{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;margin-top:16px;max-width:460px;padding:4px 8px 10px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.handrow.compact .card{width:46px;height:66px}
+.handrow.compact .card .v{font-size:1em}
+.handrow.compact .card .s{font-size:.8em;margin-top:0}
+.handrow .card{scroll-snap-align:center}
 .handrow .card{cursor:pointer;transition:transform .1s}
 .handrow .card:active{transform:translateY(-6px)}
 .handrow .card.dis{opacity:.35;cursor:default}
@@ -466,7 +476,6 @@ function pruneStaleRooms(){
 function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function msg(id,t,c){const e=document.getElementById(id);e.textContent=t||"";e.className="msg"+(c?" "+c:"")}
 function esc(s){return String(s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}
-function color(name){let h=0;for(let i=0;i<name.length;i++)h=(h*31+name.charCodeAt(i))%360;return `hsl(${h},65%,60%)`}
 function isOnline(slot){return slot===mySlot||(players[slot]&&Date.now()-players[slot].lastSeen<60000)}
 
 
@@ -782,6 +791,7 @@ function launch(st){
   gSeqSeen=-1;gView=null;
   show("s-game");msg("g-msg","");
   document.getElementById("g-hand").innerHTML="";
+  document.getElementById("g-hand").classList.remove("compact");
   document.getElementById("g-controls").innerHTML="";
   if(isHost){
     if(st.gameId===GID.WAR)gHost=warInit(order,st.epoch);
@@ -808,11 +818,33 @@ function deck52(seed){const d=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)d.pus
 function war52Value(rank){return rank===1?14:rank} // As haut
 
 function pName(slot){if(slot===mySlot)return myName;return players[slot]?players[slot].name:("J"+slot)}
-function initials(name){return (name||"?").trim().slice(0,2).toUpperCase()}
+// Hash simple et stable d'une chaîne, utilisé pour dériver la couleur et le motif de l'identicon.
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0}return h}
+// Génère un identicon façon GitHub : grille 5x5 symétrique gauche-droite, dérivée du hash du pseudo.
+// Chaque pseudo donne toujours le même motif, sans dépendance externe ni compte.
+function identiconSVG(name,size){
+  const h=hashStr(name||"?");
+  const hue=h%360;
+  const fg=`hsl(${hue},70%,58%)`;
+  const bg=`hsl(${hue},35%,16%)`;
+  const cell=size/5;
+  let cells="";
+  // seulement 3 colonnes calculées (0,1,2), la grille est mirroir sur les colonnes 3,4
+  for(let col=0;col<3;col++){
+    for(let row=0;row<5;row++){
+      const bit=(h>>>((col*5+row)%28))&1;
+      if(!bit)continue;
+      const x1=col*cell,x2=(4-col)*cell;
+      cells+=`<rect x="${x1}" y="${row*cell}" width="${cell}" height="${cell}"/>`;
+      if(col!==2)cells+=`<rect x="${x2}" y="${row*cell}" width="${cell}" height="${cell}"/>`;
+    }
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="border-radius:50%;display:block"><rect width="${size}" height="${size}" fill="${bg}"/><g fill="${fg}">${cells}</g></svg>`;
+}
 function avatarHTML(p,size){
   size=size||34;
   const on=p.__me||isOnline(p.__slot);
-  return `<div class="avatar" style="width:${size}px;height:${size}px;background:${color(p.name)};font-size:${size*0.4}px">${esc(initials(p.name))}<span class="avdot${on?" on":""}"></span></div>`;
+  return `<div class="avatar" style="width:${size}px;height:${size}px">${identiconSVG(p.name,size)}<span class="avdot${on?" on":""}"></span></div>`;
 }
 // Positionne les joueurs en arc autour de la table ovale. Le joueur local est toujours
 // placé en bas (6h) pour se repérer facilement, les autres répartis sur le reste de l'ovale.
@@ -822,7 +854,7 @@ function seatPositions(n){
   for(let i=0;i<n;i++)angles.push(90+ (360/n)*i);
   return angles;
 }
-function renderSeats(activeSlot,extraFn){
+function renderSeats(activeSlot,extraFn,playedCardFn){
   const el=document.getElementById("seats");if(!el)return;
   const seatedPlayers=onlinePlayers();
   const meIdx=seatedPlayers.findIndex(p=>p.__me);
@@ -834,7 +866,13 @@ function renderSeats(activeSlot,extraFn){
     const x=50+rx*Math.cos(rad),y=50+ry*Math.sin(rad);
     const isTurn=p.__slot===activeSlot;
     const size=p.__me?46:38;
-    return `<div class="seat${isTurn?" turn":""}" style="left:${x}%;top:${y}%">${avatarHTML(p,size)}<div class="nm">${esc(p.name)}${p.__me?" (toi)":""}</div><div class="ct">${extraFn?extraFn(p.__slot):""}</div></div>`;
+    // la carte jouée se place du côté opposé au centre de la table, pour ne jamais chevaucher le tapis :
+    // au-dessus de l'avatar si le siège est dans la moitié haute, en-dessous sinon.
+    const aboveAvatar=Math.sin(rad)<0;
+    const playedHTML=playedCardFn?(playedCardFn(p.__slot)||""):"";
+    const playedBlock=playedHTML?`<div class="seatcard">${playedHTML}</div>`:"";
+    const inner=`${avatarHTML(p,size)}<div class="nm">${esc(p.name)}${p.__me?" (toi)":""}</div><div class="ct">${extraFn?extraFn(p.__slot):""}</div>`;
+    return `<div class="seat${isTurn?" turn":""}" style="left:${x}%;top:${y}%">${aboveAvatar?playedBlock+inner:inner+playedBlock}</div>`;
   }).join("");
 }
 
@@ -954,12 +992,17 @@ function warRender(){
   document.getElementById("g-eyebrow").textContent="// bataille";
   document.getElementById("g-title").textContent="Dernier avec des cartes gagne";
   document.getElementById("g-pill").textContent=(g.alive?g.alive.length:0)+" en jeu";
-  renderSeats(null,s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" · éliminé":""));
-  const trick=document.getElementById("g-trick");
-  trick.innerHTML=(g.table||[]).map(t=>{
-    const isWinningCard=g.resolving&&t.slot===g.lastWinner&&!t.hidden;
-    return `<div class="trickslot"><div class="nm">${esc(pName(t.slot))}</div>${t.hidden?backHTML():cardHTML(t.card.suit,t.card.rank,{trump:isWinningCard})}</div>`;
-  }).join("")||'<div class="waitbox">En attente…</div>';
+  renderSeats(null,
+    s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" · éliminé":""),
+    s=>{
+      // la carte la plus récente posée par ce joueur dans le pli en cours (gère le cas bataille où 2 cartes sont posées)
+      const entries=(g.table||[]).filter(t=>t.slot===s);
+      if(!entries.length)return"";
+      const last=entries[entries.length-1];
+      const isWinningCard=g.resolving&&s===g.lastWinner&&!last.hidden;
+      return last.hidden?backHTML(true):cardHTML(last.card.suit,last.card.rank,{trump:isWinningCard,mini:true});
+    }
+  );
   const inBattle=g.active&&g.active.length&&g.table&&g.table.length>(g.alive?g.alive.length:0)&&!g.resolving;
   let centerText="";
   if(g.resolving&&g.lastWinner!==null&&g.lastWinner!==undefined)centerText=pName(g.lastWinner)+" remporte le pli ✦";
@@ -1112,6 +1155,7 @@ function tarotRender(){
   const ctl=document.getElementById("g-controls");
   ctl.innerHTML="";
   const hand=document.getElementById("g-hand");
+  hand.classList.add("compact");
   const myHand=(g.hands&&g.hands[mySlot])||[];
   const isMyTurn=!g.resolving&&g.order[g.turnIdx]===mySlot;
   const leadKind=g.trick&&g.trick.length?g.trick[0].card.kind:null;
@@ -1204,10 +1248,17 @@ function bjRender(){
   document.getElementById("g-title").textContent="Approche-toi de 21";
   const activeSlot=g.turnIdx<g.order.length?g.order[g.turnIdx]:null;
   document.getElementById("g-pill").textContent=activeSlot!==null?"Tour de "+pName(activeSlot):"Croupier joue…";
-  renderSeats(activeSlot,s=>{
-    const t=g.hands&&g.hands[s]?bjHandTotal(g.hands[s]):0;
-    return t+(g.done&&g.done[s]?" · fini":"");
-  });
+  renderSeats(activeSlot,
+    s=>{
+      const t=g.hands&&g.hands[s]?bjHandTotal(g.hands[s]):0;
+      return t+(g.done&&g.done[s]?" · fini":"");
+    },
+    s=>{
+      const h=g.hands&&g.hands[s];
+      if(!h||!h.length)return"";
+      return cardHTML(h[h.length-1].suit,h[h.length-1].rank,{mini:true});
+    }
+  );
   const trick=document.getElementById("g-trick");
   const dealerCards=g.dealer||[];
   const shown=g.dealerRevealed?dealerCards:dealerCards.slice(0,1);
