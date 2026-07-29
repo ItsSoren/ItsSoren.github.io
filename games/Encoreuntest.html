@@ -119,6 +119,18 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 #top .pill{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:6px 16px;font-family:var(--disp);font-size:12px;color:var(--dim)}
 #top .pill b{color:var(--accent)}
 .bignum{font-family:var(--disp);font-size:3em;font-weight:600;color:var(--accent2);text-align:center;margin-top:8px}
+.reswrap{text-align:center;padding:26px 16px;border-radius:20px;margin-top:8px;position:relative;overflow:hidden}
+.reswrap.win{background:linear-gradient(160deg,#2A2308,var(--panel));border:2px solid var(--accent);animation:heroWinIn .5s cubic-bezier(.2,.9,.3,1.1)}
+.reswrap.lose{background:var(--panel);border:2px solid var(--line);animation:heroFadeIn .4s ease-out}
+@keyframes heroWinIn{from{transform:scale(.85);opacity:0}60%{transform:scale(1.03)}to{transform:scale(1);opacity:1}}
+@keyframes heroFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.reshero-avatars{display:flex;justify-content:center;gap:10px;margin-bottom:14px}
+.reswrap.win .reshero-avatars .avatar{animation:heroAvatarPop .6s cubic-bezier(.34,1.56,.64,1) .1s backwards,heroGlow 1.8s ease-in-out infinite}
+@keyframes heroAvatarPop{from{transform:scale(0) rotate(-15deg)}to{transform:scale(1) rotate(0)}}
+@keyframes heroGlow{0%,100%{box-shadow:0 3px 6px #0005,0 0 0 2px #ffffff14,0 0 0 0 #F2B70566}50%{box-shadow:0 3px 6px #0005,0 0 0 2px #ffffff14,0 0 22px 6px #F2B70566}}
+.reshero-title{font-family:var(--disp);font-size:clamp(1.3em,6vw,1.9em);font-weight:600}
+.reswrap.win .reshero-title{color:var(--accent)}
+.reshero-sub{color:var(--dim);font-size:12px;margin-top:8px}
 .sbrow{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:13px}
 .sbrow.me{border-color:var(--accent)}
 .sbrank{font-family:var(--disp);color:var(--dim);width:24px;font-weight:600}
@@ -177,6 +189,15 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 .handrow.compact .card .v{font-size:1em}
 .handrow.compact .card .s{font-size:.8em;margin-top:0}
 .handrow .card{scroll-snap-align:center}
+.tsuro-board{display:grid;gap:2px;background:var(--felt-edge);padding:4px;border-radius:8px;margin:0 auto}
+.tsuro-slot{position:relative}
+.tsuro-cell{background:#0F211B88;border-radius:3px}
+.tsuro-cell.filled{background:#0F211Bcc}
+.tsuro-pawns{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:2px;pointer-events:none;flex-wrap:wrap}
+.tsuro-pawn{width:8px;height:8px;border-radius:50%;box-shadow:0 0 3px #0008,0 0 0 1px #ffffff55}
+.tsuro-handtile{border-radius:8px;overflow:hidden;flex-shrink:0;background:#0F211B;border:2px solid var(--line);cursor:pointer;transition:border-color .15s ease,transform .15s ease}
+.tsuro-handtile.selected{border-color:var(--accent);transform:translateY(-4px)}
+.tsuro-handtile.dis{opacity:.4;pointer-events:none}
 .handrow .card{cursor:pointer;transition:transform .1s}
 .handrow .card:active{transform:translateY(-6px)}
 .handrow .card.dis{opacity:.4;filter:grayscale(70%) brightness(.75);cursor:default;transform:translateY(6px);box-shadow:none;pointer-events:none}
@@ -303,6 +324,7 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
     <button class="gcard" data-g="2"><span class="gicon">♦</span><span class="gtag">Cartes · 78 · Atouts</span><div class="gname">TAROT ALLÉGÉ</div><div class="gdesc">4 couleurs + 22 atouts. Plis tour par tour, obligation de suivre ou couper.</div></button>
     <button class="gcard" data-g="3"><span class="gicon">♣</span><span class="gtag">Cartes · Casino</span><div class="gname">BLACKJACK</div><div class="gdesc">Chacun joue son tour face au croupier. Approche-toi de 21 sans dépasser.</div></button>
     <button class="gcard" data-g="4"><span class="gicon">♥</span><span class="gtag">Cartes · Jetons</span><div class="gname">NAIN JAUNE</div><div class="gdesc">Suites croissantes, cases à jetons, premier à vider sa main gagne les jetons des autres.</div></button>
+    <button class="gcard" data-g="5"><span class="gicon">◈</span><span class="gtag">Tuiles · Plateau</span><div class="gname">TSURO</div><div class="gdesc">Pose des tuiles pour tracer ton chemin. Ne sors pas du plateau, le dernier en jeu gagne.</div></button>
   </div>
 </section>
 
@@ -330,9 +352,8 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 <section class="scr" id="s-results">
   <div id="confettiWrap"></div>
   <div class="wrap">
-    <div class="eyebrow">// résultats</div><h1>Fin de <span class="a">partie</span></h1>
-    <div class="card" id="res-detail" style="width:auto;height:auto;background:var(--panel);color:var(--text);display:block;box-shadow:none"></div>
-    <h2 style="margin-top:22px">Classement</h2>
+    <div id="res-hero"></div>
+    <h2 style="margin-top:24px">Classement</h2>
     <div id="res-sb"></div>
     <div id="res-hostctl" style="display:none;width:100%;margin-top:8px">
       <button class="p" id="b-next">Rejouer ce jeu →</button>
@@ -388,7 +409,8 @@ function decState(v){
 
 // KICK{n}: RRRR EEEEE (epoch tronqué, juste besoin d'un changement de valeur)
 function encKick(room,epoch){return PAD(room,4)+PAD(epoch%100000,5)}
-function encBeat(room,epoch){return PAD(room,4)+PAD(epoch%100000,5)}
+function encBeat(room,epoch,hostSlot){return PAD(room,4)+PAD(epoch%100000,5)+String(hostSlot)}
+function decBeat(v){if(!v||v.length<10)return null;return{room:parseInt(v.slice(0,4)),hostSlot:parseInt(v[9])}}
 
 // THEME: RRRR I (room + index de thème), le chef choisit le thème pour toute la table
 const THEMES=[
@@ -506,12 +528,23 @@ function onVar(name,val){
   if(/^SLOT\d$/.test(name)){
     const slot=parseInt(name.slice(4));if(slot===mySlot)return;
     const d=decSlot(val);if(!d)return;
-    if(!d.present||d.room!==myRoom)delete players[slot];
-    else{d.lastSeen=Date.now();players[slot]=d}
+    if(!d.present||d.room!==myRoom){
+      delete players[slot];
+      handlePlayerLeftDuringGame(slot);
+    }else{d.lastSeen=Date.now();players[slot]=d}
     refreshLobby();refreshResults();return;
   }
   if(name==="GAME"){const d=decGame(val);if(!d)return;if(myRoom&&d.room!==myRoom)return;lastGame=d;onPhase(d);return}
-  if(name==="HOSTBEAT"){lastHostBeatSeen=Date.now();return}
+  if(name==="HOSTBEAT"){
+    lastHostBeatSeen=Date.now();
+    const d=decBeat(val);
+    if(d&&d.room===myRoom&&isHost&&d.hostSlot!==mySlot){
+      // un autre joueur a pris le rôle de chef (ex: après une promotion pendant une coupure réseau) : je cède
+      isHost=false;gHost=null;
+      msg("g-msg","Un autre joueur a repris le rôle de chef.","");
+    }
+    return;
+  }
   if(name==="STATE"){
     const d=decState(val);if(!d||d.room!==myRoom)return;
     if(d.seq===gSeqSeen)return;gSeqSeen=d.seq;
@@ -745,8 +778,19 @@ function executeKick(slot){
   cset("SLOT"+slot,encSlot(myRoom,false,false,0,""));
   delete players[slot];refreshLobby();
 }
+function clearGameScreen(){
+  ["g-hand","g-controls","seats","g-trick","g-pile"].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML="";
+  });
+  document.getElementById("g-hand").classList.remove("compact");
+  document.getElementById("g-center").textContent="";
+  document.getElementById("g-title").textContent="…";
+  document.getElementById("g-pill").textContent="–";
+  msg("g-msg","");
+}
 function executeStopGame(){
   gHost=null;gView=null;
+  clearGameScreen();
   show("s-lobby");
   cset("GAME",encGame(myRoom,PHASE.LOBBY,0,lastGame?lastGame.round:0,Date.now()));
   refreshLobby();
@@ -757,12 +801,14 @@ function leaveRoom(){
   if(isHost&&isPublicRoom)unpublishRoom();
   clearInterval(lobbyPoll);
   mySlot=-1;isHost=false;myRoom=0;gHost=null;gView=null;currentVote=null;
+  clearGameScreen();
   Object.keys(players).forEach(k=>delete players[k]);
   show("s-join");
 }
 function kicked(){
   clearInterval(lobbyPoll);
-  mySlot=-1;isHost=false;myRoom=0;
+  mySlot=-1;isHost=false;myRoom=0;gHost=null;gView=null;currentVote=null;
+  clearGameScreen();
   show("s-join");msg("m-join","Tu as été exclu du salon par le chef.","err");
 }
 
@@ -890,8 +936,15 @@ document.getElementById("b-picker").onclick=()=>{
   cset("GAME",encGame(myRoom,1,0,0,Date.now()));
 };
 
-const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,TAROT:2,BJ:3,YELLOW:4};
+const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,TAROT:2,BJ:3,YELLOW:4,TSURO:5};
 function onPhase(st){
+  if(st.phase===PHASE.LOBBY){
+    gHost=null;gView=null;
+    clearGameScreen();
+    show("s-lobby");
+    refreshLobby();
+    return;
+  }
   if(st.phase===PHASE.PICKER){
     show(isHost?"s-picker":"s-lobby");
     if(!isHost)document.getElementById("lobbyhint").textContent="Le chef choisit un jeu…";
@@ -914,15 +967,13 @@ function msg2Picker(t){document.getElementById("pk-hint").textContent=t}
 function launch(st){
   const order=onlinePlayers().map(p=>p.__slot).sort((a,b)=>a-b);
   gSeqSeen=-1;gView=null;
-  show("s-game");msg("g-msg","");
-  document.getElementById("g-hand").innerHTML="";
-  document.getElementById("g-hand").classList.remove("compact");
-  document.getElementById("g-controls").innerHTML="";
+  show("s-game");clearGameScreen();
   if(isHost){
     if(st.gameId===GID.WAR)gHost=warInit(order,st.epoch);
     else if(st.gameId===GID.TAROT)gHost=tarotInit(order,st.epoch);
     else if(st.gameId===GID.BJ)gHost=bjInit(order,st.epoch);
     else if(st.gameId===GID.YELLOW)gHost=yellowInit(order,st.epoch);
+    else if(st.gameId===GID.TSURO)gHost=tsuroInit(order,st.epoch);
     gHost.gid=st.gameId;gHost.room=myRoom;gHost.seq=0;gHost.round=st.round;
     pushState(); // remplit gView et déclenche le premier rendu pour le chef
   }
@@ -1006,15 +1057,16 @@ function renderSeats(activeSlot,extraFn,playedCardFn){
     const x=50+rx*Math.cos(rad),y=50+ry*Math.sin(rad);
     const isTurn=p.__slot===activeSlot;
     const size=p.__me?46:38;
-    // la carte jouée se place du côté opposé au centre de la table, pour ne jamais chevaucher le tapis :
-    // au-dessus de l'avatar si le siège est dans la moitié haute, en-dessous sinon.
-    const aboveAvatar=Math.sin(rad)<0;
+    // la carte jouée se place toujours du côté du centre de la table (jamais vers l'extérieur,
+    // sinon pour un siège déjà proche du bord elle serait poussée hors du tapis / hors écran) :
+    // en dessous de l'avatar si le siège est dans la moitié haute (le centre est plus bas), au-dessus sinon.
+    const towardCenterIsBelow=Math.sin(rad)<0;
     const playedHTML=playedCardFn?(playedCardFn(p.__slot)||""):"";
     const playedBlock=playedHTML?`<div class="seatcard">${playedHTML}</div>`:"";
     const identity=`${avatarHTML(p,size)}<div class="nm">${esc(p.name)}${p.__me?" (toi)":""}</div><div class="ct">${extraFn?extraFn(p.__slot):""}</div>`;
     // le conteneur "anchor" est ancré exactement sur l'avatar (translate -50%,-50% appliqué à lui, pas au bloc entier) ;
     // la carte jouée est positionnée en absolu par rapport à cet ancrage, donc elle ne pousse jamais le nom/compteur
-    const cardOffset=aboveAvatar?`bottom:calc(100% + 4px)`:`top:calc(100% + 4px)`;
+    const cardOffset=towardCenterIsBelow?`top:calc(100% + 4px)`:`bottom:calc(100% + 4px)`;
     return `<div class="seat${isTurn?" turn":""}" style="left:${x}%;top:${y}%">
       ${playedBlock?`<div class="seatcard-anchor" style="${cardOffset}">${playedBlock}</div>`:""}
       ${identity}
@@ -1045,6 +1097,7 @@ function handleAction(obj){
   else if(gHost.gid===GID.TAROT)tarotAction(obj);
   else if(gHost.gid===GID.BJ)bjAction(obj);
   else if(gHost.gid===GID.YELLOW)yellowAction(obj);
+  else if(gHost.gid===GID.TSURO)tsuroAction(obj);
 }
 function renderGame(){
   if(!gView||!document.getElementById("s-game").classList.contains("active"))return;
@@ -1052,6 +1105,7 @@ function renderGame(){
   else if(gView.gid===GID.TAROT)tarotRender();
   else if(gView.gid===GID.BJ)bjRender();
   else if(gView.gid===GID.YELLOW)yellowRender();
+  else if(gView.gid===GID.TSURO)tsuroRender();
 }
 
 // ================= BATAILLE CLASSIQUE =================
@@ -1605,6 +1659,247 @@ function yellowRender(){
 }
 
 
+// ================= TSURO =================
+// Plateau 6x6. Chaque case a 8 points de connexion (0-7, sens horaire) :
+// 0,1 = bord haut (gauche,droite) ; 2,3 = bord droit (haut,bas) ; 4,5 = bord bas (droite,gauche) ; 6,7 = bord gauche (bas,haut)
+// Une tuile relie ces 8 points par 4 segments (paires). Poser une tuile déplace tous les pions
+// dont le segment d'entrée correspond, en cascade jusqu'à ce que chacun sorte du plateau ou soit bloqué.
+const TSURO_SIZE=6;
+// Les 35 tuiles officielles du jeu Tsuro (pas une génération procédurale : ce sont les vraies
+// définitions du jeu physique). Points numérotés 0-7 dans l'ordre : 0,1=haut(g,d) 2,3=droite(h,b)
+// 4,5=bas(d,g) 6,7=gauche(b,h).
+const TSURO_TILES=[
+  [[0,4],[1,5],[2,7],[3,6]],[[0,4],[1,5],[2,6],[3,7]],[[0,5],[1,4],[2,7],[3,6]],[[0,4],[1,3],[2,6],[5,7]],
+  [[0,7],[1,2],[3,4],[5,6]],[[0,4],[1,2],[3,7],[5,6]],[[0,4],[1,2],[3,6],[5,7]],[[0,3],[1,6],[2,5],[4,7]],
+  [[0,3],[1,5],[2,6],[4,7]],[[0,3],[1,4],[2,7],[5,6]],[[0,3],[1,4],[2,6],[5,7]],[[0,3],[1,2],[4,7],[5,6]],
+  [[0,2],[1,7],[3,5],[4,6]],[[0,2],[1,7],[3,4],[5,6]],[[0,2],[1,6],[3,5],[4,7]],[[0,2],[1,6],[3,4],[5,7]],
+  [[0,2],[1,5],[3,7],[4,6]],[[0,2],[1,5],[3,6],[4,7]],[[0,2],[1,4],[3,7],[5,6]],[[0,2],[1,4],[3,6],[5,7]],
+  [[0,2],[1,3],[4,7],[5,6]],[[0,2],[1,3],[4,6],[5,7]],[[0,1],[2,7],[3,6],[4,5]],[[0,1],[2,7],[3,5],[4,6]],
+  [[0,1],[2,7],[3,4],[5,6]],[[0,1],[2,6],[3,7],[4,5]],[[0,1],[2,6],[3,5],[4,7]],[[0,1],[2,6],[3,4],[5,7]],
+  [[0,1],[2,5],[3,7],[4,6]],[[0,1],[2,5],[3,6],[4,7]],[[0,1],[2,4],[3,7],[5,6]],[[0,1],[2,4],[3,6],[5,7]],
+  [[0,1],[2,3],[4,7],[5,6]],[[0,1],[2,3],[4,6],[5,7]],[[0,1],[2,3],[4,5],[6,7]]
+];
+// Décalage de case et point d'entrée correspondant quand on sort par un bord donné.
+// sortie par le point p (0-7) -> case voisine (dx,dy) et point d'entrée dans cette case.
+const TSURO_EXIT={0:{dx:0,dy:-1,enter:5},1:{dx:0,dy:-1,enter:4},2:{dx:1,dy:0,enter:7},3:{dx:1,dy:0,enter:6},
+  4:{dx:0,dy:1,enter:1},5:{dx:0,dy:1,enter:0},6:{dx:-1,dy:0,enter:3},7:{dx:-1,dy:0,enter:2}};
+const TSURO_START_SPOTS=(()=>{
+  // 4 côtés x 6 cases x 2 points par côté = 24 points de départ possibles autour du plateau
+  const spots=[];
+  for(let x=0;x<TSURO_SIZE;x++){spots.push({x,y:0,point:0});spots.push({x,y:0,point:1})} // bord haut
+  for(let y=0;y<TSURO_SIZE;y++){spots.push({x:TSURO_SIZE-1,y,point:2});spots.push({x:TSURO_SIZE-1,y,point:3})} // droite
+  for(let x=TSURO_SIZE-1;x>=0;x--){spots.push({x,y:TSURO_SIZE-1,point:4});spots.push({x,y:TSURO_SIZE-1,point:5})} // bas
+  for(let y=TSURO_SIZE-1;y>=0;y--){spots.push({x:0,y,point:6});spots.push({x:0,y,point:7})} // gauche
+  return spots;
+})();
+function tsuroTileFollow(tile,enterPoint){
+  for(const pair of tile){
+    if(pair[0]===enterPoint)return pair[1];
+    if(pair[1]===enterPoint)return pair[0];
+  }
+  return null;
+}
+function tsuroInit(order,seed){
+  const deck=shuffled(TSURO_TILES.map((t,i)=>i),seed);
+  const HAND_SIZE=3;
+  const hands={};order.forEach((s,i)=>hands[s]=deck.slice(i*HAND_SIZE,i*HAND_SIZE+HAND_SIZE));
+  let drawPile=deck.slice(order.length*HAND_SIZE);
+  const startSpots=shuffled(TSURO_START_SPOTS.map((_,i)=>i),seed+999);
+  const board={}; // "x,y" -> tile index posée
+  const pawns={}; // slot -> {x,y,point,alive}
+  order.forEach((s,i)=>{
+    const spot=TSURO_START_SPOTS[startSpots[i]];
+    pawns[s]={x:spot.x,y:spot.y,point:spot.point,alive:true};
+  });
+  return{order,hands,drawPile,board,pawns,turnIdx:0,finished:false,resolving:false,winners:[]};
+}
+function tsuroBoardKey(x,y){return x+","+y}
+// Simule le mouvement en cascade de TOUS les pions actifs après la pose d'une tuile.
+// Retourne la liste des pions éliminés (sortis du plateau ou en collision) durant cette résolution.
+// Exécute UNE vague de mouvement (tous les pions avancent d'une tuile si possible), retourne
+// {moved, eliminated} pour permettre à l'appelant d'afficher chaque vague séparément avec une pause.
+function tsuroResolveStep(g){
+  let moved=false;
+  const eliminated=[];
+  g.order.forEach(s=>{
+    const p=g.pawns[s];
+    if(!p.alive)return;
+    const tileIdx=g.board[tsuroBoardKey(p.x,p.y)];
+    if(tileIdx===undefined)return; // pas encore de tuile sur cette case, le pion attend
+    const tile=TSURO_TILES[tileIdx];
+    const exitPoint=tsuroTileFollow(tile,p.point);
+    if(exitPoint===null)return;
+    const dir=TSURO_EXIT[exitPoint];
+    const nx=p.x+dir.dx,ny=p.y+dir.dy;
+    if(nx<0||nx>=TSURO_SIZE||ny<0||ny>=TSURO_SIZE){
+      p.alive=false;eliminated.push(s);moved=true;return;
+    }
+    p.x=nx;p.y=ny;p.point=dir.enter;moved=true;
+  });
+  // détecte les collisions : deux pions ou plus sur la même case+point après cette vague
+  const occ={};
+  g.order.forEach(s=>{
+    const p=g.pawns[s];if(!p.alive)return;
+    const key=p.x+","+p.y+","+p.point;
+    (occ[key]=occ[key]||[]).push(s);
+  });
+  Object.values(occ).forEach(slots=>{
+    if(slots.length>1)slots.forEach(s=>{if(g.pawns[s].alive){g.pawns[s].alive=false;eliminated.push(s)}});
+  });
+  return{moved,eliminated};
+}
+// Version synchrone (résout toute la cascade d'un coup) : utilisée par les tests et comme filet
+// de sécurité, mais le vrai jeu utilise tsuroAnimateResolution pour l'affichage progressif.
+function tsuroResolveMoves(g){
+  const allEliminated=[];
+  let guard=0,step;
+  do{step=tsuroResolveStep(g);allEliminated.push(...step.eliminated);guard++}while(step.moved&&guard<200);
+  return allEliminated;
+}
+function tsuroNextTurn(g){
+  // avance le tour en sautant les pions morts ET les joueurs qui n'ont plus aucune tuile à poser
+  // (main vide + pioche épuisée pour eux) : sans ça, un joueur sans tuile bloquerait la partie
+  // indéfiniment en attendant une action qu'il ne peut physiquement pas envoyer.
+  let guard=0;
+  do{
+    g.turnIdx=(g.turnIdx+1)%g.order.length;
+    guard++;
+  }while(guard<g.order.length&&(!g.pawns[g.order[g.turnIdx]].alive||g.hands[g.order[g.turnIdx]].length===0));
+}
+function tsuroAction(obj){
+  if(obj.type!=="place")return;
+  const g=gHost;
+  if(g.finished||g.resolving)return;
+  if(g.order[g.turnIdx]!==obj.slot)return;
+  const hand=g.hands[obj.slot];
+  const handIdx=obj.handIdx;
+  if(handIdx<0||handIdx>=hand.length)return;
+  const p=g.pawns[obj.slot];
+  if(!p.alive)return;
+  const key=tsuroBoardKey(p.x,p.y);
+  if(g.board[key]!==undefined)return; // case déjà occupée par une tuile
+  const tileIdx=hand[handIdx];
+  g.board[key]=tileIdx;
+  hand.splice(handIdx,1);
+  if(g.drawPile.length)hand.push(g.drawPile.pop());
+  g.resolving=true;g.lastEliminated=[];g.lastPlacer=obj.slot;
+  pushState();
+  tsuroAnimateStep(g,[]);
+}
+// Affiche la cascade de mouvement vague par vague, avec une pause entre chaque, au lieu de
+// résoudre tout d'un coup : on voit les pions glisser progressivement le long des tuiles posées.
+function tsuroAnimateStep(g,accEliminated){
+  if(!gHost||gHost!==g)return;
+  const{moved,eliminated}=tsuroResolveStep(g);
+  const allElim=accEliminated.concat(eliminated);
+  g.lastEliminated=allElim;
+  pushState();
+  if(moved){
+    setTimeout(()=>tsuroAnimateStep(g,allElim),450);
+    return;
+  }
+  g.resolving=false;
+  const aliveCount=g.order.filter(s=>g.pawns[s].alive).length;
+  const anyoneCanPlay=g.order.some(s=>g.pawns[s].alive&&g.hands[s].length>0);
+  if(aliveCount<=1||!anyoneCanPlay){
+    finishTsuro();
+    return;
+  }
+  tsuroNextTurn(g);
+  pushState();
+}
+function finishTsuro(){
+  const g=gHost,delta={};
+  const aliveSlots=g.order.filter(s=>g.pawns[s].alive);
+  if(aliveSlots.length===1){
+    delta[aliveSlots[0]]=100;
+    g.order.forEach(s=>{if(s!==aliveSlots[0])delta[s]=0});
+  }else if(aliveSlots.length>1){
+    // tous les survivants à égalité (plateau plein sans qu'il ne reste qu'un seul pion) se partagent la victoire
+    aliveSlots.forEach(s=>delta[s]=Math.round(100/aliveSlots.length));
+    g.order.forEach(s=>{if(!aliveSlots.includes(s))delta[s]=0});
+  }else{
+    g.order.forEach(s=>delta[s]=0); // tout le monde éliminé en même temps (collision finale)
+  }
+  broadcastScoreAndFinish(g,delta,{aliveSlots});
+}
+function tsuroCellHTML(tileIdx,size){
+  if(tileIdx===undefined)return `<div class="tsuro-cell empty" style="width:${size}px;height:${size}px"></div>`;
+  const tile=TSURO_TILES[tileIdx];
+  const pos={0:[0.35,0],1:[0.65,0],2:[1,0.35],3:[1,0.65],4:[0.65,1],5:[0.35,1],6:[0,0.65],7:[0,0.35]};
+  const paths=tile.map(([a,b])=>{
+    const[x1,y1]=pos[a],[x2,y2]=pos[b];
+    const cx=(x1+x2)/2*size,cy=(y1+y2)/2*size;
+    return `<path d="M${(x1*size).toFixed(1)},${(y1*size).toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${(x2*size).toFixed(1)},${(y2*size).toFixed(1)}" stroke="var(--accent)" stroke-width="2.5" fill="none" opacity="0.85"/>`;
+  }).join("");
+  return `<div class="tsuro-cell filled" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg></div>`;
+}
+function tsuroRender(){
+  const g=gView;
+  document.getElementById("g-eyebrow").textContent="// tsuro";
+  document.getElementById("g-title").textContent="Trace ton chemin, ne sors pas du plateau";
+  const activeSlot=g.order[g.turnIdx];
+  document.getElementById("g-pill").textContent=g.finished?"Partie terminée":"Tour de "+pName(activeSlot);
+  renderSeats(g.finished?null:activeSlot,s=>{
+    const p=g.pawns[s];
+    if(!p.alive)return"éliminé";
+    return (g.hands&&g.hands[s]?g.hands[s].length:0)+" tuiles";
+  });
+  document.getElementById("g-trick").innerHTML="";
+  let centerText="";
+  if(g.lastEliminated&&g.lastEliminated.length){
+    centerText=g.lastEliminated.map(s=>pName(s)).join(", ")+(g.lastEliminated.length>1?" sont éliminés":" est éliminé");
+  }
+  if(g.finished)centerText=g.aliveSlots&&g.aliveSlots.length===1?pName(g.aliveSlots[0])+" gagne ✦":"Partie terminée";
+  document.getElementById("g-center").textContent=centerText;
+  const boardEl=document.getElementById("g-pile");
+  const cellSize=Math.floor(Math.min(340,window.innerWidth-80)/TSURO_SIZE);
+  let grid=`<div class="tsuro-board" style="grid-template-columns:repeat(${TSURO_SIZE},${cellSize}px)">`;
+  for(let y=0;y<TSURO_SIZE;y++){
+    for(let x=0;x<TSURO_SIZE;x++){
+      const tileIdx=g.board[tsuroBoardKey(x,y)];
+      const pawnsHere=g.order.filter(s=>g.pawns[s].alive&&g.pawns[s].x===x&&g.pawns[s].y===y);
+      const pawnDots=pawnsHere.map(s=>`<span class="tsuro-pawn" style="background:${["#F2B705","#FF6B6B","#6BE38B","#5FB6F2"][g.order.indexOf(s)%4]}"></span>`).join("");
+      grid+=`<div class="tsuro-slot" data-x="${x}" data-y="${y}">${tsuroCellHTML(tileIdx,cellSize)}<div class="tsuro-pawns">${pawnDots}</div></div>`;
+    }
+  }
+  grid+="</div>";
+  boardEl.innerHTML=grid;
+  const myPawn=g.pawns[mySlot];
+  const isMyTurn=!g.finished&&!g.resolving&&activeSlot===mySlot&&myPawn&&myPawn.alive;
+  const ctl=document.getElementById("g-controls");
+  ctl.innerHTML="";
+  const hand=document.getElementById("g-hand");
+  const myHand=(g.hands&&g.hands[mySlot])||[];
+  hand.innerHTML=myHand.map((tileIdx,i)=>{
+    const dis=!isMyTurn;
+    return `<div class="tsuro-handtile${dis?" dis":""}" data-i="${i}">${tsuroCellHTML(tileIdx,52)}</div>`;
+  }).join("");
+  if(isMyTurn){
+    let selectedTile=null;
+    hand.querySelectorAll(".tsuro-handtile").forEach(el=>{
+      el.onclick=()=>{
+        hand.querySelectorAll(".tsuro-handtile").forEach(e=>e.classList.remove("selected"));
+        el.classList.add("selected");
+        selectedTile=parseInt(el.dataset.i);
+        msg("g-msg","Tuile sélectionnée. Tape sur ta case sur le plateau pour la poser.","ok");
+      };
+    });
+    const myKey=tsuroBoardKey(myPawn.x,myPawn.y);
+    boardEl.querySelectorAll(`[data-x="${myPawn.x}"][data-y="${myPawn.y}"]`).forEach(el=>{
+      el.style.outline="2px solid var(--accent)";
+      el.onclick=()=>{
+        if(selectedTile===null){msg("g-msg","Choisis d'abord une tuile dans ta main.","err");return}
+        sendAction({type:"place",handIdx:selectedTile});
+      };
+    });
+    if(selectedTile===null)msg("g-msg","À toi de jouer : choisis une tuile.","ok");
+  }else{
+    msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"…","");
+  }
+}
+
+
 // ================= FIN DE PARTIE COMMUNE =================
 function broadcastScoreAndFinish(g,delta,extra){
   Object.keys(delta).forEach(s=>{
@@ -1618,17 +1913,38 @@ function broadcastScoreAndFinish(g,delta,extra){
 let confettiShownFor=null;
 function showResults(st){
   show("s-results");
-  const names={1:"Bataille",2:"Tarot allégé",3:"Blackjack",4:"Nain Jaune"};
+  const names={1:"Bataille",2:"Tarot allégé",3:"Blackjack",4:"Nain Jaune",5:"Tsuro"};
   const delta=(gView&&gView.finalDelta)||{};
   const l=roomPlayers().sort((a,b)=>b.score-a.score);
-  document.getElementById("res-detail").innerHTML=`<h2>${names[st.gameId]||"Partie"}</h2>`+l.map(p=>{
-    const g=delta[p.__slot]||0;
-    return `<div class="prow"><span style="display:flex;align-items:center;gap:10px">${avatarHTML(p,30)}${esc(p.name)}</span><span style="color:${g>0?"var(--ok)":"var(--dim)"}">+${g}</span></div>`;
-  }).join("");
+  const roundKey=st.gameId+":"+st.round+":"+st.epoch;
+  if(confettiShownFor!==roundKey){
+    confettiShownFor=roundKey;
+    const roundGains=l.map(p=>({p,g:delta[p.__slot]||0}));
+    const maxGain=Math.max(...roundGains.map(r=>r.g),0);
+    const winners=roundGains.filter(r=>r.g===maxGain&&maxGain>0).map(r=>r.p);
+    const iWon=winners.some(p=>p.__me);
+    const hero=document.getElementById("res-hero");
+    if(winners.length){
+      const winnerNames=winners.map(p=>esc(p.name)+(p.__me?" (toi)":"")).join(" & ");
+      hero.innerHTML=`
+        <div class="eyebrow">// ${esc(names[st.gameId]||"partie")}</div>
+        <div class="reswrap ${iWon?"win":"lose"}">
+          <div class="reshero-avatars">${winners.map(p=>avatarHTML(p,iWon?84:60)).join("")}</div>
+          <h1 class="reshero-title">${iWon?"Tu gagnes cette manche !":winnerNames+" gagne cette manche"}</h1>
+          <p class="reshero-sub">${roundGains.map(r=>esc(r.p.name)+" +"+r.g).join(" · ")}</p>
+        </div>`;
+    }else{
+      hero.innerHTML=`
+        <div class="eyebrow">// ${esc(names[st.gameId]||"partie")}</div>
+        <div class="reswrap lose">
+          <h1 class="reshero-title">Manche terminée</h1>
+          <p class="reshero-sub">Personne ne marque de points cette fois.</p>
+        </div>`;
+    }
+    if(iWon)fireConfetti();
+  }
   document.getElementById("res-sb").innerHTML=l.map((p,i)=>`<div class="sbrow ${p.__me?"me":""}"><span class="sbrank">${i+1}</span><span class="sbname" style="gap:8px">${avatarHTML(p,26)}${esc(p.name)}${p.__me?" (toi)":""}</span><span class="sbscore">${p.score}</span></div>`).join("");
   document.getElementById("res-hostctl").style.display=isHost?"block":"none";
-  const roundKey=st.gameId+":"+st.round+":"+st.epoch;
-  if(confettiShownFor!==roundKey){confettiShownFor=roundKey;fireConfetti()}
 }
 function fireConfetti(){
   const wrap=document.getElementById("confettiWrap");if(!wrap)return;
@@ -1664,7 +1980,7 @@ document.getElementById("b-back").onclick=()=>{
 function checkFailover(){
   if(!myRoom||isHost||!lastGame)return;
   if(lastGame.phase!==PHASE.PLAY&&lastGame.phase!==PHASE.RESULTS)return;
-  if(Date.now()-lastHostBeatSeen<8000)return;
+  if(Date.now()-lastHostBeatSeen<20000)return; // délai de grâce large pour éviter les fausses promotions sur simple ralentissement réseau
   const online=onlinePlayers();
   if(!online.length)return;
   const minSlot=Math.min(...online.map(p=>p.__slot));
@@ -1674,7 +1990,7 @@ function checkFailover(){
 function promoteToHost(){
   isHost=true;
   cset("SLOT"+mySlot,encSlot(myRoom,true,true,myScore,myName));
-  cset("HOSTBEAT",encBeat(myRoom,Date.now()));
+  cset("HOSTBEAT",encBeat(myRoom,Date.now(),mySlot));
   refreshLobby();refreshResults();
   if(lastGame.phase===PHASE.PLAY&&gView){
     // reprend l'état depuis la dernière vue synchronisée reçue, sans redistribuer les cartes
@@ -1690,7 +2006,88 @@ window.addEventListener("beforeunload",()=>{
 });
 setInterval(()=>{refreshLobby();refreshResults()},1200);
 setInterval(()=>{renderGame()},5000);
-setInterval(()=>{if(isHost&&myRoom)cset("HOSTBEAT",encBeat(myRoom,Date.now()))},2000);
+setInterval(()=>{if(isHost&&myRoom)cset("HOSTBEAT",encBeat(myRoom,Date.now(),mySlot))},2000);
+// Empêche une partie de rester bloquée indéfiniment si le joueur dont c'est le tour
+// a quitté ou perdu sa connexion : le chef joue un coup valide à sa place après un délai.
+function handlePlayerLeftDuringGame(slot){
+  if(!isHost||!gHost||!lastGame||lastGame.phase!==PHASE.PLAY)return;
+  const g=gHost;
+  if(g.gid===GID.TSURO&&g.pawns&&g.pawns[slot]){
+    if(g.pawns[slot].alive){
+      g.pawns[slot].alive=false;
+      if(g.hands&&g.hands[slot]&&g.hands[slot].length){
+        g.drawPile=(g.drawPile||[]).concat(g.hands[slot]);
+        g.hands[slot]=[];
+      }
+      const anyoneCanPlay=g.order.some(s=>g.pawns[s].alive&&g.hands[s].length>0);
+      const aliveCount=g.order.filter(s=>g.pawns[s].alive).length;
+      if(aliveCount<=1||!anyoneCanPlay){finishTsuro();return}
+      if(g.order[g.turnIdx]===slot)tsuroNextTurn(g);
+      pushState();
+    }
+    return;
+  }
+  if(g.gid===GID.YELLOW&&g.hands&&g.hands[slot]){
+    if(g.hands[slot].length){g.drawPile=(g.drawPile||[]).concat(g.hands[slot]);g.hands[slot]=[]}
+    return;
+  }
+  if(g.gid===GID.TAROT&&g.hands&&g.hands[slot]){
+    // au tarot un joueur qui part laisse simplement sa main non jouée : elle ne compte pour personne,
+    // le jeu continue avec les autres via le mécanisme anti-blocage déjà en place pour son tour.
+    return;
+  }
+  if(g.gid===GID.WAR&&g.piles&&g.piles[slot]){
+    // en bataille, un joueur qui part avec des cartes est traité comme éliminé (perd la manche)
+    g.alive=(g.alive||[]).filter(s=>s!==slot);
+    return;
+  }
+}
+function checkStuckTurn(){
+  if(!isHost||!gHost||!lastGame||lastGame.phase!==PHASE.PLAY)return;
+  const g=gHost;
+  const online=onlinePlayers();
+  if(online.length<2){
+    // il ne reste plus assez de joueurs en ligne pour continuer : on arrête proprement plutôt que
+    // de laisser la partie se jouer automatiquement toute seule jusqu'à la fin
+    executeStopGame();
+    msg("g-msg","Partie arrêtée : plus assez de joueurs en ligne.","err");
+    return;
+  }
+  let waitingSlots=[];
+  if(g.gid===GID.WAR){
+    if(g.active&&!g.resolving)waitingSlots=g.active.filter(s=>!(g.flipped&&g.flipped[s]));
+  }else if(g.order){
+    if(!g.resolving&&!g.finished&&g.turnIdx<g.order.length)waitingSlots=[g.order[g.turnIdx]];
+  }
+  waitingSlots.forEach(slot=>{
+    if(slot===mySlot)return; // je suis le chef, si c'est mon tour ce n'est pas un blocage réseau
+    if(isOnline(slot))return;
+    autoPlayForStuckSlot(slot);
+  });
+}
+function autoPlayForStuckSlot(slot){
+  const g=gHost;
+  if(g.gid===GID.WAR){
+    warAction({slot,type:"flip"});
+  }else if(g.gid===GID.TAROT){
+    const hand=g.hands[slot]||[];
+    const leadKind=g.trick.length?g.trick[0].card.kind:null;
+    const leadSuit=g.trick.length&&g.trick[0].card.kind==="suit"?g.trick[0].card.suit:null;
+    const legal=tarotLegal(hand,leadKind,leadSuit);
+    if(legal.length)tarotAction({slot,type:"play",cardIdx:legal[0]});
+  }else if(g.gid===GID.BJ){
+    bjAction({slot,type:"stand"}); // par prudence, un joueur absent reste plutôt que de risquer un bust automatique
+  }else if(g.gid===GID.YELLOW){
+    const hand=g.hands[slot]||[];
+    const legal=yellowCanPlay(hand,g.lastRank);
+    if(legal.length)yellowAction({slot,type:"play",cardIdx:legal[0]});
+    else yellowAction({slot,type:"draw"});
+  }else if(g.gid===GID.TSURO){
+    const hand=g.hands[slot]||[];
+    if(hand.length)tsuroAction({slot,type:"place",handIdx:0});
+  }
+}
+setInterval(checkStuckTurn,10000); // vérifie toutes les 10s ; isOnline() a son propre seuil de 60s avant de considérer un joueur hors ligne
 setInterval(checkFailover,3000);
 // Le serveur cloud TurboWarp peut regrouper/perdre certaines mises à jour (documenté officiellement).
 // Le chef republie donc l'état de jeu courant toutes les 3s tant qu'une manche est active,
