@@ -193,8 +193,11 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 .tsuro-slot{position:relative}
 .tsuro-cell{background:#0F211B88;border-radius:3px}
 .tsuro-cell.filled{background:#0F211Bcc}
-.tsuro-pawns{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:2px;pointer-events:none;flex-wrap:wrap}
-.tsuro-pawn{width:8px;height:8px;border-radius:50%;box-shadow:0 0 3px #0008,0 0 0 1px #ffffff55}
+.tsuro-pawns{position:absolute;inset:0;pointer-events:none}
+.tsuro-pawn{position:absolute;width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 4px #0009,0 0 0 1.5px #ffffff77;transition:left .35s cubic-bezier(.4,0,.2,1),top .35s cubic-bezier(.4,0,.2,1);z-index:2}
+.tsuro-spot{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);background:var(--accent2);opacity:.55;border:none;padding:0;min-height:0;pointer-events:auto;animation:tsuroSpotPulse 1.4s ease-in-out infinite}
+.tsuro-spot:active{opacity:1;transform:translate(-50%,-50%) scale(1.3)}
+@keyframes tsuroSpotPulse{0%,100%{opacity:.4;box-shadow:0 0 0 0 #FF6B6B55}50%{opacity:.8;box-shadow:0 0 0 5px #FF6B6B00}}
 .tsuro-handtile{border-radius:8px;overflow:hidden;flex-shrink:0;background:#0F211B;border:2px solid var(--line);cursor:pointer;transition:border-color .15s ease,transform .15s ease}
 .tsuro-handtile.selected{border-color:var(--accent);transform:translateY(-4px)}
 .tsuro-handtile.dis{opacity:.4;pointer-events:none}
@@ -548,7 +551,9 @@ function onVar(name,val){
   if(name==="STATE"){
     const d=decState(val);if(!d||d.room!==myRoom)return;
     if(d.seq===gSeqSeen)return;gSeqSeen=d.seq;
-    gView=d.obj;renderGame();return;
+    gView=d.obj;
+    applyMyFinalDelta(gView);
+    renderGame();return;
   }
   if(name==="ACT"){
     if(!isHost||!gHost)return;
@@ -1704,14 +1709,27 @@ function tsuroInit(order,seed){
   const HAND_SIZE=3;
   const hands={};order.forEach((s,i)=>hands[s]=deck.slice(i*HAND_SIZE,i*HAND_SIZE+HAND_SIZE));
   let drawPile=deck.slice(order.length*HAND_SIZE);
-  const startSpots=shuffled(TSURO_START_SPOTS.map((_,i)=>i),seed+999);
   const board={}; // "x,y" -> tile index posée
-  const pawns={}; // slot -> {x,y,point,alive}
-  order.forEach((s,i)=>{
-    const spot=TSURO_START_SPOTS[startSpots[i]];
-    pawns[s]={x:spot.x,y:spot.y,point:spot.point,alive:true};
-  });
-  return{order,hands,drawPile,board,pawns,turnIdx:0,finished:false,resolving:false,winners:[]};
+  const pawns={}; // slot -> {x,y,point,alive} ; rempli au fur et à mesure du placement choisi par chaque joueur
+  return{order,hands,drawPile,board,pawns,turnIdx:0,placeIdx:0,phase:"placement",finished:false,resolving:false,winners:[]};
+}
+function tsuroTakenSpot(g,x,y,point){
+  return Object.values(g.pawns).some(p=>p.x===x&&p.y===y&&p.point===point);
+}
+function tsuroPlaceAction(obj){
+  const g=gHost;
+  if(g.phase!=="placement")return;
+  if(g.order[g.placeIdx]!==obj.slot)return;
+  const spot=TSURO_START_SPOTS.find(s=>s.x===obj.x&&s.y===obj.y&&s.point===obj.point);
+  if(!spot)return; // pas un point de départ valide (doit être sur le bord du plateau)
+  if(tsuroTakenSpot(g,obj.x,obj.y,obj.point))return; // déjà pris par un autre joueur
+  g.pawns[obj.slot]={x:obj.x,y:obj.y,point:obj.point,alive:true};
+  g.placeIdx++;
+  if(g.placeIdx>=g.order.length){
+    g.phase="playing";
+    g.turnIdx=0;
+  }
+  pushState();
 }
 function tsuroBoardKey(x,y){return x+","+y}
 // Simule le mouvement en cascade de TOUS les pions actifs après la pose d'une tuile.
@@ -1767,15 +1785,17 @@ function tsuroNextTurn(g){
   }while(guard<g.order.length&&(!g.pawns[g.order[g.turnIdx]].alive||g.hands[g.order[g.turnIdx]].length===0));
 }
 function tsuroAction(obj){
-  if(obj.type!=="place")return;
   const g=gHost;
+  if(obj.type==="placePawn"){tsuroPlaceAction(obj);return}
+  if(obj.type!=="placeTile")return;
+  if(g.phase!=="playing")return;
   if(g.finished||g.resolving)return;
   if(g.order[g.turnIdx]!==obj.slot)return;
   const hand=g.hands[obj.slot];
   const handIdx=obj.handIdx;
   if(handIdx<0||handIdx>=hand.length)return;
   const p=g.pawns[obj.slot];
-  if(!p.alive)return;
+  if(!p||!p.alive)return;
   const key=tsuroBoardKey(p.x,p.y);
   if(g.board[key]!==undefined)return; // case déjà occupée par une tuile
   const tileIdx=hand[handIdx];
@@ -1827,22 +1847,37 @@ function tsuroCellHTML(tileIdx,size){
   if(tileIdx===undefined)return `<div class="tsuro-cell empty" style="width:${size}px;height:${size}px"></div>`;
   const tile=TSURO_TILES[tileIdx];
   const pos={0:[0.35,0],1:[0.65,0],2:[1,0.35],3:[1,0.65],4:[0.65,1],5:[0.35,1],6:[0,0.65],7:[0,0.35]};
+  const center=0.5;
   const paths=tile.map(([a,b])=>{
     const[x1,y1]=pos[a],[x2,y2]=pos[b];
-    const cx=(x1+x2)/2*size,cy=(y1+y2)/2*size;
-    return `<path d="M${(x1*size).toFixed(1)},${(y1*size).toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${(x2*size).toFixed(1)},${(y2*size).toFixed(1)}" stroke="var(--accent)" stroke-width="2.5" fill="none" opacity="0.85"/>`;
+    // point de contrôle tiré vers le centre de la case (pas le milieu du segment, qui donnerait une ligne droite)
+    const midx=(x1+x2)/2,midy=(y1+y2)/2;
+    const cx=(midx+center)/2*size,cy=(midy+center)/2*size;
+    return `<path d="M${(x1*size).toFixed(1)},${(y1*size).toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${(x2*size).toFixed(1)},${(y2*size).toFixed(1)}" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.9"/>`;
   }).join("");
   return `<div class="tsuro-cell filled" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg></div>`;
 }
+let tsuroSelectedTile=null; // état global, survit aux re-renders périodiques (contrairement à une variable locale à la fonction)
+// Position en % à l'intérieur d'une case pour chaque point d'entrée/sortie (0-7), utilisée pour
+// positionner précisément les pions sur le bord exact qu'ils occupent, pas au centre de la case.
+const TSURO_POINT_POS={0:[35,2],1:[65,2],2:[98,35],3:[98,65],4:[65,98],5:[35,98],6:[2,65],7:[2,35]};
 function tsuroRender(){
   const g=gView;
   document.getElementById("g-eyebrow").textContent="// tsuro";
+  const boardEl=document.getElementById("g-pile");
+  const cellSize=Math.floor(Math.min(340,window.innerWidth-80)/TSURO_SIZE);
+
+  if(g.phase==="placement"){
+    tsuroRenderPlacement(g,boardEl,cellSize);
+    return;
+  }
+
   document.getElementById("g-title").textContent="Trace ton chemin, ne sors pas du plateau";
   const activeSlot=g.order[g.turnIdx];
   document.getElementById("g-pill").textContent=g.finished?"Partie terminée":"Tour de "+pName(activeSlot);
   renderSeats(g.finished?null:activeSlot,s=>{
     const p=g.pawns[s];
-    if(!p.alive)return"éliminé";
+    if(!p||!p.alive)return"éliminé";
     return (g.hands&&g.hands[s]?g.hands[s].length:0)+" tuiles";
   });
   document.getElementById("g-trick").innerHTML="";
@@ -1852,14 +1887,15 @@ function tsuroRender(){
   }
   if(g.finished)centerText=g.aliveSlots&&g.aliveSlots.length===1?pName(g.aliveSlots[0])+" gagne ✦":"Partie terminée";
   document.getElementById("g-center").textContent=centerText;
-  const boardEl=document.getElementById("g-pile");
-  const cellSize=Math.floor(Math.min(340,window.innerWidth-80)/TSURO_SIZE);
   let grid=`<div class="tsuro-board" style="grid-template-columns:repeat(${TSURO_SIZE},${cellSize}px)">`;
   for(let y=0;y<TSURO_SIZE;y++){
     for(let x=0;x<TSURO_SIZE;x++){
       const tileIdx=g.board[tsuroBoardKey(x,y)];
-      const pawnsHere=g.order.filter(s=>g.pawns[s].alive&&g.pawns[s].x===x&&g.pawns[s].y===y);
-      const pawnDots=pawnsHere.map(s=>`<span class="tsuro-pawn" style="background:${["#F2B705","#FF6B6B","#6BE38B","#5FB6F2"][g.order.indexOf(s)%4]}"></span>`).join("");
+      const pawnsHere=g.order.filter(s=>g.pawns[s]&&g.pawns[s].alive&&g.pawns[s].x===x&&g.pawns[s].y===y);
+      const pawnDots=pawnsHere.map(s=>{
+        const pt=g.pawns[s].point,[px,py]=TSURO_POINT_POS[pt];
+        return `<span class="tsuro-pawn" style="background:${["#F2B705","#FF6B6B","#6BE38B","#5FB6F2"][g.order.indexOf(s)%4]};left:${px}%;top:${py}%"></span>`;
+      }).join("");
       grid+=`<div class="tsuro-slot" data-x="${x}" data-y="${y}">${tsuroCellHTML(tileIdx,cellSize)}<div class="tsuro-pawns">${pawnDots}</div></div>`;
     }
   }
@@ -1867,47 +1903,102 @@ function tsuroRender(){
   boardEl.innerHTML=grid;
   const myPawn=g.pawns[mySlot];
   const isMyTurn=!g.finished&&!g.resolving&&activeSlot===mySlot&&myPawn&&myPawn.alive;
+  if(!isMyTurn)tsuroSelectedTile=null;
   const ctl=document.getElementById("g-controls");
   ctl.innerHTML="";
   const hand=document.getElementById("g-hand");
   const myHand=(g.hands&&g.hands[mySlot])||[];
+  if(tsuroSelectedTile!==null&&tsuroSelectedTile>=myHand.length)tsuroSelectedTile=null;
   hand.innerHTML=myHand.map((tileIdx,i)=>{
     const dis=!isMyTurn;
-    return `<div class="tsuro-handtile${dis?" dis":""}" data-i="${i}">${tsuroCellHTML(tileIdx,52)}</div>`;
+    const sel=tsuroSelectedTile===i?" selected":"";
+    return `<div class="tsuro-handtile${dis?" dis":""}${sel}" data-i="${i}">${tsuroCellHTML(tileIdx,52)}</div>`;
   }).join("");
   if(isMyTurn){
-    let selectedTile=null;
     hand.querySelectorAll(".tsuro-handtile").forEach(el=>{
       el.onclick=()=>{
+        tsuroSelectedTile=parseInt(el.dataset.i);
         hand.querySelectorAll(".tsuro-handtile").forEach(e=>e.classList.remove("selected"));
         el.classList.add("selected");
-        selectedTile=parseInt(el.dataset.i);
         msg("g-msg","Tuile sélectionnée. Tape sur ta case sur le plateau pour la poser.","ok");
       };
     });
-    const myKey=tsuroBoardKey(myPawn.x,myPawn.y);
     boardEl.querySelectorAll(`[data-x="${myPawn.x}"][data-y="${myPawn.y}"]`).forEach(el=>{
       el.style.outline="2px solid var(--accent)";
       el.onclick=()=>{
-        if(selectedTile===null){msg("g-msg","Choisis d'abord une tuile dans ta main.","err");return}
-        sendAction({type:"place",handIdx:selectedTile});
+        if(tsuroSelectedTile===null){msg("g-msg","Choisis d'abord une tuile dans ta main.","err");return}
+        const placedIdx=tsuroSelectedTile;
+        tsuroSelectedTile=null;
+        sendAction({type:"placeTile",handIdx:placedIdx});
       };
     });
-    if(selectedTile===null)msg("g-msg","À toi de jouer : choisis une tuile.","ok");
+    if(tsuroSelectedTile===null)msg("g-msg","À toi de jouer : choisis une tuile.","ok");
   }else{
     msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"…","");
+  }
+}
+// Phase de placement : chaque joueur choisit son propre point de départ sur le bord du plateau,
+// chacun son tour, avant que la partie ne commence vraiment.
+function tsuroRenderPlacement(g,boardEl,cellSize){
+  const placingSlot=g.order[g.placeIdx];
+  document.getElementById("g-title").textContent="Choisis ton point de départ sur le bord";
+  document.getElementById("g-pill").textContent=g.placeIdx>=g.order.length?"Prêt":"Tour de "+pName(placingSlot);
+  renderSeats(placingSlot,s=>g.pawns[s]?"prêt":"en attente");
+  document.getElementById("g-trick").innerHTML="";
+  document.getElementById("g-center").textContent="";
+  const takenSpots=new Set(Object.values(g.pawns).map(p=>p.x+","+p.y+","+p.point));
+  let grid=`<div class="tsuro-board" style="grid-template-columns:repeat(${TSURO_SIZE},${cellSize}px)">`;
+  for(let y=0;y<TSURO_SIZE;y++){
+    for(let x=0;x<TSURO_SIZE;x++){
+      const pawnsHere=g.order.filter(s=>g.pawns[s]&&g.pawns[s].x===x&&g.pawns[s].y===y);
+      const pawnDots=pawnsHere.map(s=>{
+        const pt=g.pawns[s].point,[px,py]=TSURO_POINT_POS[pt];
+        return `<span class="tsuro-pawn" style="background:${["#F2B705","#FF6B6B","#6BE38B","#5FB6F2"][g.order.indexOf(s)%4]};left:${px}%;top:${py}%"></span>`;
+      }).join("");
+      const spotsHere=TSURO_START_SPOTS.filter(s=>s.x===x&&s.y===y);
+      const spotDots=spotsHere.map(s=>{
+        const taken=takenSpots.has(s.x+","+s.y+","+s.point);
+        const[px,py]=TSURO_POINT_POS[s.point];
+        return taken?"":`<button class="tsuro-spot" data-x="${s.x}" data-y="${s.y}" data-point="${s.point}" style="left:${px}%;top:${py}%"></button>`;
+      }).join("");
+      grid+=`<div class="tsuro-slot" data-x="${x}" data-y="${y}">${tsuroCellHTML(undefined,cellSize)}<div class="tsuro-pawns">${pawnDots}${spotDots}</div></div>`;
+    }
+  }
+  grid+="</div>";
+  boardEl.innerHTML=grid;
+  document.getElementById("g-hand").innerHTML="";
+  document.getElementById("g-controls").innerHTML="";
+  const myTurn=g.placeIdx<g.order.length&&placingSlot===mySlot&&!g.pawns[mySlot];
+  if(myTurn){
+    boardEl.querySelectorAll(".tsuro-spot").forEach(el=>{
+      el.onclick=()=>{
+        sendAction({type:"placePawn",x:parseInt(el.dataset.x),y:parseInt(el.dataset.y),point:parseInt(el.dataset.point)});
+      };
+    });
+    msg("g-msg","Tape sur un point libre du bord pour placer ton pion.","ok");
+  }else{
+    msg("g-msg",g.pawns[mySlot]?"En attente des autres joueurs…":"Tour de "+pName(placingSlot)+"…","");
   }
 }
 
 
 // ================= FIN DE PARTIE COMMUNE =================
+let myAppliedDeltaFor=null; // clé de manche pour laquelle j'ai déjà appliqué mon delta, pour ne jamais l'appliquer deux fois
+function applyMyFinalDelta(g){
+  if(!g||!g.finalDelta||mySlot<0)return;
+  const key=g.gid+":"+g.room+":"+(g.round||0)+":"+(g.seq||0)+":final";
+  const roundKey=g.gid+":"+g.room+":"+(g.round||0);
+  if(myAppliedDeltaFor===roundKey)return; // déjà appliqué pour cette manche
+  const myGain=g.finalDelta[mySlot];
+  if(myGain===undefined)return;
+  myAppliedDeltaFor=roundKey;
+  myScore+=myGain;
+  cset("SLOT"+mySlot,encSlot(myRoom,isHost,true,myScore,myName));
+}
 function broadcastScoreAndFinish(g,delta,extra){
-  Object.keys(delta).forEach(s=>{
-    const slot=+s;
-    if(slot===mySlot){myScore+=delta[s];cset("SLOT"+mySlot,encSlot(myRoom,isHost,true,myScore,myName))}
-  });
   g.finalDelta=delta;g.finalExtra=extra||{};
   pushState();
+  applyMyFinalDelta(g); // le chef s'applique aussi son propre delta via le même chemin que tout le monde
   cset("GAME",encGame(myRoom,PHASE.RESULTS,g.gid,g.round,Date.now()));
 }
 let confettiShownFor=null;
@@ -2012,6 +2103,22 @@ setInterval(()=>{if(isHost&&myRoom)cset("HOSTBEAT",encBeat(myRoom,Date.now(),myS
 function handlePlayerLeftDuringGame(slot){
   if(!isHost||!gHost||!lastGame||lastGame.phase!==PHASE.PLAY)return;
   const g=gHost;
+  if(g.gid===GID.TSURO&&g.phase==="placement"){
+    if(g.pawns[slot])return; // il avait déjà placé son pion, rien à faire ici
+    const idxInOrder=g.order.indexOf(slot);
+    if(idxInOrder<0)return;
+    const wasCurrentPlacer=g.order[g.placeIdx]===slot;
+    g.order.splice(idxInOrder,1);
+    delete g.hands[slot];
+    if(wasCurrentPlacer){
+      // placeIdx pointait sur le joueur retiré : il pointe maintenant déjà sur le suivant, rien à ajuster
+    }else if(idxInOrder<g.placeIdx){
+      g.placeIdx--; // un joueur avant lui dans l'ordre a été retiré, décale l'index
+    }
+    if(g.placeIdx>=g.order.length&&g.order.length>0){g.phase="playing";g.turnIdx=0}
+    pushState();
+    return;
+  }
   if(g.gid===GID.TSURO&&g.pawns&&g.pawns[slot]){
     if(g.pawns[slot].alive){
       g.pawns[slot].alive=false;
@@ -2056,6 +2163,8 @@ function checkStuckTurn(){
   let waitingSlots=[];
   if(g.gid===GID.WAR){
     if(g.active&&!g.resolving)waitingSlots=g.active.filter(s=>!(g.flipped&&g.flipped[s]));
+  }else if(g.gid===GID.TSURO&&g.phase==="placement"){
+    if(g.placeIdx<g.order.length)waitingSlots=[g.order[g.placeIdx]];
   }else if(g.order){
     if(!g.resolving&&!g.finished&&g.turnIdx<g.order.length)waitingSlots=[g.order[g.turnIdx]];
   }
@@ -2083,8 +2192,14 @@ function autoPlayForStuckSlot(slot){
     if(legal.length)yellowAction({slot,type:"play",cardIdx:legal[0]});
     else yellowAction({slot,type:"draw"});
   }else if(g.gid===GID.TSURO){
-    const hand=g.hands[slot]||[];
-    if(hand.length)tsuroAction({slot,type:"place",handIdx:0});
+    if(g.phase==="placement"){
+      const takenSpots=new Set(Object.values(g.pawns).map(p=>p.x+","+p.y+","+p.point));
+      const free=TSURO_START_SPOTS.find(s=>!takenSpots.has(s.x+","+s.y+","+s.point));
+      if(free)tsuroAction({slot,type:"placePawn",x:free.x,y:free.y,point:free.point});
+    }else{
+      const hand=g.hands[slot]||[];
+      if(hand.length)tsuroAction({slot,type:"placeTile",handIdx:0});
+    }
   }
 }
 setInterval(checkStuckTurn,10000); // vérifie toutes les 10s ; isOnline() a son propre seuil de 60s avant de considérer un joueur hors ligne
