@@ -173,7 +173,7 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 .avdot.on{background:var(--ok);box-shadow:0 0 4px var(--ok)}
 .pile{display:flex;justify-content:center;align-items:center;gap:14px;min-height:100px;margin:4px 0}
 .card{width:70px;height:100px;border-radius:12px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative;flex-shrink:0}
-.trickslot .card,.pile .card{animation:cardIn .25s ease-out} /* seules les cartes qui apparaissent réellement (pli, table) sont animées, pas la main relue à chaque refresh */
+.trickslot .card,.pile .card{animation:cardIn .25s ease-out}
 @keyframes cardIn{from{transform:translateY(-14px) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes trumpPulse{0%,100%{box-shadow:0 3px 0 #0002,0 0 0 2px var(--accent)}50%{box-shadow:0 3px 0 #0002,0 0 10px 3px var(--accent)}}
 .card.red{color:#C0392B}
@@ -232,10 +232,10 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 </head>
 <body>
 <div id="bar">
-  <span><span class="dot"></span><span id="bartxt">Non connecté</span></span>
+  <span><span class="dot"></span><span id="bartxt">Non connectÃ©</span></span>
   <span style="display:flex;align-items:center;gap:10px">
     <span id="barroom"></span>
-    <button id="b-menu" style="display:none;background:none;border:none;padding:4px;min-height:0;color:var(--text);font-size:18px;line-height:1">☰</button>
+    <button id="b-menu" style="display:none;background:none;border:none;padding:4px;min-height:0;color:var(--text);font-size:18px;line-height:1">â°</button>
   </span>
 </div>
 
@@ -253,10 +253,10 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
   <div class="wrap">
     <div class="eyebrow">// tapis de jeu</div>
     <h1>Choisis ton <span class="a">pseudo</span></h1>
-    <p class="lead">2 à 4 joueurs, une manette chacun. Aucun compte — juste un pseudo et un code.</p>
+    <p class="lead">2 Ã  4 joueurs, une manette chacun. Aucun compte â juste un pseudo et un code.</p>
     <div class="card" style="width:auto;height:auto;background:var(--panel);color:var(--text);display:block;box-shadow:none">
       <div class="field"><label>Pseudo</label><input type="text" id="i-name" maxlength="12" placeholder="Nova"></div>
-      <button class="p" id="b-name">Continuer →</button>
+      <button class="p" id="b-name">Continuer â</button>
       <div class="msg" id="m-name"></div>
     </div>
   </div>
@@ -265,22 +265,22 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 <section class="scr" id="s-join">
   <div class="wrap">
     <div class="eyebrow">// salon</div>
-    <h1>Rejoindre ou <span class="a">créer</span></h1>
+    <h1>Rejoindre ou <span class="a">crÃ©er</span></h1>
     <div id="recentRooms"></div>
     <div class="card" style="width:auto;height:auto;background:var(--panel);color:var(--text);display:block;box-shadow:none">
-      <label>Créer un salon (2-4 joueurs)</label>
+      <label>CrÃ©er un salon (2-4 joueurs)</label>
       <div class="togglerow">
         <div>
           <div class="togglelabel">Salon public</div>
-          <div class="togglesub">Désactivé : accessible uniquement avec le code</div>
+          <div class="togglesub">DÃ©sactivÃ© : accessible uniquement avec le code</div>
         </div>
         <button id="b-public-toggle" class="toggle" aria-pressed="false"><span class="knob"></span></button>
       </div>
       <div id="publicNameField" style="display:none;margin-top:10px">
         <label>Nom du salon (visible dans la liste)</label>
-        <input type="text" id="i-public-name" maxlength="24" placeholder="Soirée jeux">
+        <input type="text" id="i-public-name" maxlength="24" placeholder="SoirÃ©e jeux">
       </div>
-      <button class="p" id="b-create" style="margin-top:14px">Créer un salon</button>
+      <button class="p" id="b-create" style="margin-top:14px">CrÃ©er un salon</button>
     </div>
     <div class="div">OU</div>
     <div class="card" style="width:auto;height:auto;background:var(--panel);color:var(--text);display:block;box-shadow:none">
@@ -301,9 +301,12 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
   <div class="wrap">
     <div class="eyebrow">// salons publics</div>
     <h1>Rejoindre un <span class="a">salon public</span></h1>
-    <p class="lead">Ces salons sont ouverts à tous, sans code.</p>
+    <p class="lead">Ces salons sont ouverts Ã  tous, sans code.</p>
     <div id="publicList"></div>
-    <button class="o" id="b-browse-back" style="margin-top:14px">Retour</button>
+    <div class="row2" style="margin-top:14px">
+      <button class="o" id="b-browse-refresh">Actualiser</button>
+      <button class="o" id="b-browse-back">Retour</button>
+    </div>
   </div>
 </section>
 
@@ -317,25 +320,25 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
     <div id="lobbyFelt"><div class="centerlabel" id="lc-label">Joueurs (<span id="lc">1</span>/4)</div></div>
     <div id="lobbySeats"></div>
   </div>
-  <div id="hostctl" style="display:none;width:100%;max-width:440px"><button class="p" id="b-picker" style="margin-top:14px">Choisir un jeu →</button></div>
+  <div id="hostctl" style="display:none;width:100%;max-width:440px"><button class="p" id="b-picker" style="margin-top:14px">Choisir un jeu â</button></div>
 </section>
 
 <section class="scr" id="s-picker">
   <div class="wrap"><div class="eyebrow">// chef de partie</div><h1>Choisis le <span class="a">jeu</span></h1><p class="lead" id="pk-hint"></p></div>
   <div class="gamegrid">
-    <button class="gcard" data-g="1"><span class="gicon">♠</span><span class="gtag">Cartes · 52</span><div class="gname">BATAILLE</div><div class="gdesc">Paquet réparti. La plus forte carte ramasse le pli. Égalité = bataille. Dernier avec des cartes gagne.</div></button>
-    <button class="gcard" data-g="2"><span class="gicon">♦</span><span class="gtag">Cartes · 78 · Atouts</span><div class="gname">TAROT ALLÉGÉ</div><div class="gdesc">4 couleurs + 22 atouts. Plis tour par tour, obligation de suivre ou couper.</div></button>
-    <button class="gcard" data-g="3"><span class="gicon">♣</span><span class="gtag">Cartes · Casino</span><div class="gname">BLACKJACK</div><div class="gdesc">Chacun joue son tour face au croupier. Approche-toi de 21 sans dépasser.</div></button>
-    <button class="gcard" data-g="4"><span class="gicon">♥</span><span class="gtag">Cartes · Jetons</span><div class="gname">NAIN JAUNE</div><div class="gdesc">Suites croissantes, cases à jetons, premier à vider sa main gagne les jetons des autres.</div></button>
-    <button class="gcard" data-g="5"><span class="gicon">◈</span><span class="gtag">Tuiles · Plateau</span><div class="gname">TSURO</div><div class="gdesc">Pose des tuiles pour tracer ton chemin. Ne sors pas du plateau, le dernier en jeu gagne.</div></button>
+    <button class="gcard" data-g="1"><span class="gicon">â </span><span class="gtag">Cartes Â· 52</span><div class="gname">BATAILLE</div><div class="gdesc">Paquet rÃ©parti. La plus forte carte ramasse le pli. ÃgalitÃ© = bataille. Dernier avec des cartes gagne.</div></button>
+    <button class="gcard" data-g="2"><span class="gicon">â¦</span><span class="gtag">Cartes Â· 78 Â· Atouts</span><div class="gname">TAROT ALLÃGÃ</div><div class="gdesc">4 couleurs + 22 atouts. Plis tour par tour, obligation de suivre ou couper.</div></button>
+    <button class="gcard" data-g="3"><span class="gicon">â£</span><span class="gtag">Cartes Â· Casino</span><div class="gname">BLACKJACK</div><div class="gdesc">Chacun joue son tour face au croupier. Approche-toi de 21 sans dÃ©passer.</div></button>
+    <button class="gcard" data-g="4"><span class="gicon">â¥</span><span class="gtag">Cartes Â· Jetons</span><div class="gname">NAIN JAUNE</div><div class="gdesc">Suites croissantes, cases Ã  jetons, premier Ã  vider sa main gagne les jetons des autres.</div></button>
+    <button class="gcard" data-g="5"><span class="gicon">â</span><span class="gtag">Tuiles Â· Plateau</span><div class="gname">TSURO</div><div class="gdesc">Pose des tuiles pour tracer ton chemin. Ne sors pas du plateau, le dernier en jeu gagne.</div></button>
   </div>
 </section>
 
 <section class="scr" id="s-game">
-  <div id="top"><div class="pill" id="g-pill">–</div></div>
+  <div id="top"><div class="pill" id="g-pill">â</div></div>
   <div class="wrap" style="margin-top:56px;text-align:center;max-width:520px">
     <div class="eyebrow" id="g-eyebrow">// jeu</div>
-    <h1 id="g-title" style="font-size:clamp(1.1em,5.2vw,1.6em);line-height:1.25">…</h1>
+    <h1 id="g-title" style="font-size:clamp(1.1em,5.2vw,1.6em);line-height:1.25">â¦</h1>
   </div>
 
   <div id="tableOval">
@@ -359,7 +362,7 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
     <h2 style="margin-top:24px">Classement</h2>
     <div id="res-sb"></div>
     <div id="res-hostctl" style="display:none;width:100%;margin-top:8px">
-      <button class="p" id="b-next">Rejouer ce jeu →</button>
+      <button class="p" id="b-next">Rejouer ce jeu â</button>
       <button class="o" id="b-back" style="margin-top:8px">Changer de jeu</button>
     </div>
   </div>
@@ -367,9 +370,11 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 
 <script>
 'use strict';
-/* project_id texte non-numérique = conforme aux règles TurboWarp cloud
-   (un ID purement numérique est traité comme un vrai projet Scratch et
-   déclenche une vérification qui échoue silencieusement) */
+/* Version corrigÃ©e :
+   - les salons rÃ©cents ne restent plus 7 jours ;
+   - l'annuaire public possÃ¨de un vrai bouton Actualiser ;
+   - l'Ã©cran de navigation ignore les GAME des autres salons ;
+   - les hÃ´tes rÃ©pondent Ã  PUBLICPING pour republier les salons publics actifs. */
 const CFG = {PROJECT_ID:"soren-lab.github.io/nebula-party", SLOTS:4};
 const PAD=(n,d)=>String(Math.max(0,Math.min(Math.trunc(n),10**d-1))).padStart(d,"0");
 function checksum2(s){let sum=0;for(let i=0;i<s.length;i++)sum+=s.charCodeAt(i);return PAD(sum%100,2)}
@@ -384,10 +389,8 @@ function decSlot(v){if(!v||v.length<14)return null;const r=parseInt(v.slice(0,4)
 function encGame(room,phase,gid,round,epoch){return PAD(room,4)+PAD(phase,2)+PAD(gid,2)+PAD(round,2)+PAD(epoch%1e10,10)}
 function decGame(v){if(!v||v.length<20)return null;return{room:parseInt(v.slice(0,4)),phase:parseInt(v.slice(4,6)),gameId:parseInt(v.slice(6,8)),round:parseInt(v.slice(8,10)),epoch:parseInt(v.slice(10,20))}}
 
-// ETAT{n}: un blob JSON encodé en base numérique (chiffres seulement), fragmenté si besoin.
-// On encode chaque caractère JSON en 2 chiffres (index dans un alphabet de 90 symboles imprimables).
 function txt2num(s){
-  const bytes=new TextEncoder().encode(s); // encode en UTF-8, gère nativement les accents et tout Unicode
+  const bytes=new TextEncoder().encode(s);
   let o="";for(let i=0;i<bytes.length;i++)o+=PAD(bytes[i],3);
   return o;
 }
@@ -410,17 +413,15 @@ function decState(v){
   try{const obj=JSON.parse(num2txt(body.slice(8)));return{room,seq,obj}}catch(_){return null}
 }
 
-// KICK{n}: RRRR EEEEE (epoch tronqué, juste besoin d'un changement de valeur)
 function encKick(room,epoch){return PAD(room,4)+PAD(epoch%100000,5)}
 function encBeat(room,epoch,hostSlot){return PAD(room,4)+PAD(epoch%100000,5)+String(hostSlot)}
 function decBeat(v){if(!v||v.length<10)return null;return{room:parseInt(v.slice(0,4)),hostSlot:parseInt(v[9])}}
 
-// THEME: RRRR I (room + index de thème), le chef choisit le thème pour toute la table
 const THEMES=[
-  {id:"emerald",label:"Émeraude",swatch:["#0F1F19","#1E4030","#F2B705"]},
+  {id:"emerald",label:"Ãmeraude",swatch:["#0F1F19","#1E4030","#F2B705"]},
   {id:"night",label:"Nuit",swatch:["#0B1220","#16233D","#5FB6F2"]},
   {id:"bordeaux",label:"Bordeaux",swatch:["#1A0E10","#4A1620","#E8B84B"]},
-  {id:"amethyst",label:"Améthyste",swatch:["#150F24","#2A1D4A","#C9A6FF"]},
+  {id:"amethyst",label:"AmÃ©thyste",swatch:["#150F24","#2A1D4A","#C9A6FF"]},
 ];
 function encTheme(room,themeIdx){return PAD(room,4)+PAD(themeIdx,1)}
 function decTheme(v){if(!v||v.length<5)return null;return{room:parseInt(v.slice(0,4)),themeIdx:parseInt(v[4])}}
@@ -433,16 +434,12 @@ function applyTheme(theme,broadcast){
   }
 }
 
-// VOTE: proposition en cours nécessitant l'approbation d'un autre joueur (kick ou arrêt de partie).
-// Encodée comme un petit blob JSON via le même système que STATE (chiffres uniquement).
 function encVote(room,voteObj){return encState(room,Date.now()%10000,Object.assign({room},voteObj))}
 function decVote(v){return decState(v)}
 
 function mulberry32(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function shuffled(arr,seed){const rnd=mulberry32(seed),a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
-// PUBLIC: liste des salons publics actifs, fusionnée en CRDT simplifié (chacun republie
-// sa propre entrée + toutes celles connues et encore fraîches, pour survivre aux pertes de messages).
 function encPublicList(listObj){
   const body=JSON.stringify(listObj);
   const payload=PAD(0,4)+PAD(Date.now()%10000,4)+txt2num(body);
@@ -458,19 +455,20 @@ function decPublicList(v){
 let ws=null,myName="",mySlot=-1,myRoom=0,isHost=false,myScore=0,lastGame=null,joinedAt=0;
 const cvars={},players={};
 let lastHostBeatSeen=Date.now();
-let gHost=null;     // état complet du jeu, détenu par le chef
-let gView=null;     // dernière vue reçue (tous les clients, y compris le chef)
+let gHost=null;
+let gView=null;
 let gSeqSeen=-1;
-let gHandled=-1;    // clé de manche déjà lancée localement
-let currentVote=null; // {type:"kick"|"stop", initiator, target, approvals:[...], epoch}
+let gHandled=-1;
+let currentVote=null;
 let voteSeqSeen=-1;
 let menuOpen=false;
 let isPublicRoom=false;
-let publicRooms={}; // {roomCode: {name, playerCount, updatedAt}} — vue locale fusionnée des salons publics connus
+let publicRooms={};
 let publicListPoll=null;
+let browseRefreshPoll=null;
 
-// ================= PRÉFÉRENCES LOCALES (persistées, propres à cet appareil) =================
 const PREFS_KEY="tapis_prefs_v1";
+const RECENT_ROOM_TTL=30*60*1000;
 function loadPrefs(){
   try{
     const raw=localStorage.getItem(PREFS_KEY);
@@ -500,15 +498,13 @@ function playTone(freq,dur){
     gain.gain.setValueAtTime(0.08,audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
     osc.start();osc.stop(audioCtx.currentTime+dur);
-  }catch(_){}
-}
+  }catch(_){}}
 function sfxCardPlay(){playTone(520,0.12)}
 function sfxMyTurn(){playTone(760,0.15);vibrate(30)}
 function sfxWin(){playTone(880,0.1);setTimeout(()=>playTone(1100,0.2),110);vibrate([30,40,30])}
 
 function connect(cb){
   if(ws&&(ws.readyState===0||ws.readyState===1)){
-    // connexion déjà active ou en cours : on attend qu'elle soit prête plutôt que d'en ouvrir une deuxième
     if(ws.readyState===1){if(cb)cb();return}
     const prevOnOpen=ws.onopen;
     ws.onopen=(e)=>{if(prevOnOpen)prevOnOpen(e);if(cb)cb()};
@@ -516,15 +512,15 @@ function connect(cb){
   }
   const user="p"+Math.floor(1000+Math.random()*8999);
   ws=new WebSocket("wss://clouddata.turbowarp.org");
-  ws.onopen=()=>{ws.send(JSON.stringify({method:"handshake",project_id:CFG.PROJECT_ID,user}));setBar(true,"Connecté");if(cb)setTimeout(cb,350)};
+  ws.onopen=()=>{ws.send(JSON.stringify({method:"handshake",project_id:CFG.PROJECT_ID,user}));setBar(true,"ConnectÃ©");if(cb)setTimeout(cb,350)};
   ws.onmessage=e=>{for(const l of e.data.split("\n")){if(!l.trim())continue;try{
     const d=JSON.parse(l);
-    if(d.method==="set"){const nm=d.name.replace(/^☁\s?/,"");cvars[nm]=String(d.value);onVar(nm,String(d.value))}
+    if(d.method==="set"){const nm=d.name.replace(/^â\s?/,"");cvars[nm]=String(d.value);onVar(nm,String(d.value))}
   }catch(_){}}};
-  ws.onclose=()=>{setBar(false,"Déconnecté — reconnexion…");setTimeout(()=>connect(),2500)};
-  ws.onerror=()=>setBar(false,"Erreur réseau");
+  ws.onclose=()=>{setBar(false,"DÃ©connectÃ© â reconnexionâ¦");setTimeout(()=>connect(),2500)};
+  ws.onerror=()=>setBar(false,"Erreur rÃ©seau");
 }
-function cset(name,val){const s=String(val).replace(/[^0-9]/g,"");if(!ws||ws.readyState!==1||!s)return;ws.send(JSON.stringify({method:"set",name:"☁ "+name,value:s}))}
+function cset(name,val){const s=String(val).replace(/[^0-9]/g,"");if(!ws||ws.readyState!==1||!s)return;ws.send(JSON.stringify({method:"set",name:"â "+name,value:s}))}
 function setBar(on,txt){document.getElementById("bar").classList.toggle("on",on);document.getElementById("bartxt").textContent=txt}
 
 function onVar(name,val){
@@ -537,14 +533,21 @@ function onVar(name,val){
     }else{d.lastSeen=Date.now();players[slot]=d}
     refreshLobby();refreshResults();return;
   }
-  if(name==="GAME"){const d=decGame(val);if(!d)return;if(myRoom&&d.room!==myRoom)return;lastGame=d;onPhase(d);return}
+  if(name==="GAME"){
+    const d=decGame(val);
+    if(!d)return;
+    if(myRoom===0||mySlot<0)return;
+    if(d.room!==myRoom)return;
+    lastGame=d;
+    onPhase(d);
+    return;
+  }
   if(name==="HOSTBEAT"){
     lastHostBeatSeen=Date.now();
     const d=decBeat(val);
     if(d&&d.room===myRoom&&isHost&&d.hostSlot!==mySlot){
-      // un autre joueur a pris le rôle de chef (ex: après une promotion pendant une coupure réseau) : je cède
       isHost=false;gHost=null;
-      msg("g-msg","Un autre joueur a repris le rôle de chef.","");
+      msg("g-msg","Un autre joueur a repris le rÃ´le de chef.","");
     }
     return;
   }
@@ -575,6 +578,17 @@ function onVar(name,val){
     if(isHost&&currentVote)checkVoteResolved();
     return;
   }
+  if(name==="PUBLICPING"){
+    if(isHost&&isPublicRoom&&myRoom){
+      publicRooms[String(myRoom)]={
+        name:publicRoomName||("Salon de "+myName),
+        playerCount:onlinePlayers().length||1,
+        updatedAt:Date.now()
+      };
+      broadcastPublicList();
+    }
+    return;
+  }
   if(name==="PUBLIC"){
     const list=decPublicList(val);if(!list||!list.rooms)return;
     Object.entries(list.rooms).forEach(([code,entry])=>{
@@ -595,20 +609,23 @@ function onVar(name,val){
 function pruneStaleRooms(){
   const now=Date.now();
   Object.keys(publicRooms).forEach(code=>{
-    if(now-publicRooms[code].updatedAt>90000)delete publicRooms[code]; // salon considéré fermé après 90s sans republication
+    if(!publicRooms[code]||!Number.isFinite(Number(publicRooms[code].updatedAt))||now-publicRooms[code].updatedAt>90000)delete publicRooms[code];
   });
 }
 
 function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="s-join")renderRecentRooms()}
 function renderRecentRooms(){
   const el=document.getElementById("recentRooms");if(!el)return;
-  const rooms=(prefs.recentRooms||[]).filter(r=>Date.now()-r.ts<7*24*3600*1000); // garde les salons visités dans les 7 derniers jours
+  const now=Date.now();
+  prefs.recentRooms=(prefs.recentRooms||[]).filter(r=>r&&Number.isFinite(Number(r.ts))&&now-r.ts<RECENT_ROOM_TTL);
+  savePrefs();
+  const rooms=prefs.recentRooms;
   if(!rooms.length){el.innerHTML="";return}
-  el.innerHTML=`<div class="eyebrow" style="font-size:9px;margin-bottom:6px">Salons récents</div>`+
-    rooms.map(r=>`<div class="publicroom" style="padding:10px 14px"><div><div class="prname" style="font-size:12px">${esc(r.name||("Salon #"+r.room))}</div><div class="prmeta">#${r.room}</div></div><button class="o" style="width:auto;padding:8px 14px;font-size:11px" data-recent="${r.room}">Rejoindre</button></div>`).join("");
+  el.innerHTML=`<div class="eyebrow" style="font-size:9px;margin-bottom:6px">Historique rÃ©cent</div>`+
+    rooms.map(r=>`<div class="publicroom" style="padding:10px 14px"><div><div class="prname" style="font-size:12px">${esc(r.name||("Salon #"+r.room))}</div><div class="prmeta">#${r.room} Â· disponibilitÃ© non garantie</div></div><button class="o" style="width:auto;padding:8px 14px;font-size:11px" data-recent="${r.room}">Rejoindre</button></div>`).join("");
   el.querySelectorAll("[data-recent]").forEach(b=>b.onclick=()=>{
     const room=parseInt(b.dataset.recent);
-    msg("m-join","Connexion…");
+    msg("m-join","Connexionâ¦");
     connect(()=>{if(claim(room,false))enterLobby(room);else show("s-join")});
   });
 }
@@ -630,7 +647,7 @@ function freeSlot(room){
   for(let i=0;i<CFG.SLOTS;i++){
     if(!cvars["SLOT"+i])return i;
     const d=decSlot(cvars["SLOT"+i]);
-    if(!d||!d.present||d.room!==room)return i; // un slot occupé par un AUTRE salon est libre pour nous
+    if(!d||!d.present||d.room!==room)return i;
   }
   return -1;
 }
@@ -650,26 +667,26 @@ document.getElementById("b-public-toggle").onclick=()=>{
 };
 
 document.getElementById("b-create").onclick=()=>{
-  msg("m-join","Création…");
+  msg("m-join","CrÃ©ationâ¦");
   const publicName=document.getElementById("i-public-name").value.trim().slice(0,24);
   const wantsPublic=isPublicRoom;
   connect(()=>{const room=1000+Math.floor(Math.random()*9000);
     if(claim(room,true)){
+      if(wantsPublic)publicRoomName=publicName||("Salon de "+myName);
       enterLobby(room);
       cset("GAME",encGame(room,0,0,0,Date.now()));
-      if(wantsPublic)publishRoom(room,publicName||("Salon de "+myName));
+      if(wantsPublic)publishRoom(room,publicRoomName);
     }});
 };
 document.getElementById("b-join").onclick=()=>{
   const code=document.getElementById("i-code").value.trim();
   if(!/^\d{4}$/.test(code)){msg("m-join","Le code fait 4 chiffres.","err");return}
-  msg("m-join","Connexion…");
+  msg("m-join","Connexionâ¦");
   connect(()=>{if(claim(parseInt(code),false))enterLobby(parseInt(code))});
 };
 document.getElementById("i-code").oninput=e=>{e.target.value=e.target.value.replace(/[^0-9]/g,"").slice(0,4)};
 document.getElementById("i-code").onkeydown=e=>{if(e.key==="Enter")document.getElementById("b-join").click()};
 
-// ================= SALONS PUBLICS =================
 let publicRoomName=null;
 function publishRoom(room,name){
   publicRoomName=name;
@@ -677,7 +694,7 @@ function publishRoom(room,name){
   broadcastPublicList();
   clearInterval(publicListPoll);
   publicListPoll=setInterval(()=>{
-    if(!isHost||!isPublicRoom||myRoom!==room)return; // le salon a pu changer/fermer entre temps
+    if(!isHost||!isPublicRoom||myRoom!==room)return;
     publicRooms[String(room)]={name,playerCount:onlinePlayers().length||1,updatedAt:Date.now()};
     pruneStaleRooms();
     broadcastPublicList();
@@ -693,30 +710,50 @@ function broadcastPublicList(){
   pruneStaleRooms();
   cset("PUBLIC",encPublicList({rooms:publicRooms}));
 }
+function requestPublicRooms(){
+  const el=document.getElementById("publicList");
+  publicRooms={};
+  if(el)el.innerHTML='<div class="waitbox">Recherche des salons publicsâ¦</div>';
+  connect(()=>{
+    const cached=decPublicList(cvars.PUBLIC);
+    if(cached&&cached.rooms){
+      Object.entries(cached.rooms).forEach(([code,entry])=>publicRooms[code]=entry);
+      pruneStaleRooms();
+      renderPublicList();
+    }
+    cset("PUBLICPING",PAD(Date.now()%1e10,10));
+    setTimeout(()=>renderPublicList(),1400);
+  });
+}
 
 document.getElementById("b-browse").onclick=()=>{
   show("s-browse");
-  publicRooms={};
-  connect(()=>{renderPublicList()});
+  requestPublicRooms();
+  clearInterval(browseRefreshPoll);
+  browseRefreshPoll=setInterval(()=>{
+    if(document.getElementById("s-browse").classList.contains("active"))renderPublicList();
+  },2000);
 };
-document.getElementById("b-browse-back").onclick=()=>{show("s-join")};
+document.getElementById("b-browse-refresh").onclick=requestPublicRooms;
+document.getElementById("b-browse-back").onclick=()=>{clearInterval(browseRefreshPoll);show("s-join")};
 function renderPublicList(){
   pruneStaleRooms();
   const el=document.getElementById("publicList");
-  const entries=Object.entries(publicRooms);
+  const entries=Object.entries(publicRooms).sort((a,b)=>(b[1].updatedAt||0)-(a[1].updatedAt||0));
   if(!entries.length){
     el.innerHTML='<div class="waitbox">Aucun salon public ouvert pour le moment.</div>';
     return;
   }
   el.innerHTML=entries.map(([code,r])=>`
     <div class="publicroom">
-      <div><div class="prname">${esc(r.name)}</div><div class="prmeta">Salon #${code} · ${r.playerCount}/4 joueurs</div></div>
+      <div><div class="prname">${esc(r.name)}</div><div class="prmeta">Salon #${code} Â· ${r.playerCount}/4 joueurs</div></div>
       <button class="p" style="width:auto;padding:10px 16px" data-joinpublic="${code}">Rejoindre</button>
     </div>`).join("");
   el.querySelectorAll("[data-joinpublic]").forEach(b=>{
     b.onclick=()=>{
+      clearInterval(browseRefreshPoll);
       const room=parseInt(b.dataset.joinpublic);
-      msg("m-join","Connexion…");
+      msg("m-join","Connexionâ¦");
       if(claim(room,false))enterLobby(room);
       else show("s-join");
     };
@@ -736,7 +773,6 @@ function proposeKick(slot){
   if(!isHost||slot===mySlot)return;
   const target=players[slot];if(!target)return;
   if(onlinePlayers().length<3){
-    // à 2 joueurs, personne d'autre ne peut approuver : le chef peut exclure directement
     if(!confirm(`Exclure ${target.name} du salon ?`))return;
     executeKick(slot);
     return;
@@ -748,7 +784,7 @@ function proposeKick(slot){
 function proposeStopGame(){
   if(!isHost||!lastGame||lastGame.phase!==PHASE.PLAY)return;
   if(onlinePlayers().length<3){
-    if(!confirm("Arrêter la partie en cours et revenir au salon ?"))return;
+    if(!confirm("ArrÃªter la partie en cours et revenir au salon ?"))return;
     executeStopGame();
     return;
   }
@@ -761,7 +797,7 @@ function approveVote(){
   currentVote.approvals.push(mySlot);
   cset("VOTE",encVote(myRoom,currentVote));
   renderVoteBanner();
-  if(isHost)checkVoteResolved(); // le chef qui approuve lui-même son propre check (cas à 3 joueurs où le chef est aussi votant potentiel... en pratique jamais puisqu'il est l'initiateur, mais gardé par sécurité)
+  if(isHost)checkVoteResolved();
 }
 function cancelVote(){
   if(!currentVote||currentVote.initiator!==mySlot)return;
@@ -789,8 +825,8 @@ function clearGameScreen(){
   });
   document.getElementById("g-hand").classList.remove("compact");
   document.getElementById("g-center").textContent="";
-  document.getElementById("g-title").textContent="…";
-  document.getElementById("g-pill").textContent="–";
+  document.getElementById("g-title").textContent="â¦";
+  document.getElementById("g-pill").textContent="â";
   msg("g-msg","");
 }
 function executeStopGame(){
@@ -806,6 +842,7 @@ function leaveRoom(){
   if(isHost&&isPublicRoom)unpublishRoom();
   clearInterval(lobbyPoll);
   mySlot=-1;isHost=false;myRoom=0;gHost=null;gView=null;currentVote=null;
+  document.getElementById("barroom").textContent="";
   clearGameScreen();
   Object.keys(players).forEach(k=>delete players[k]);
   show("s-join");
@@ -813,11 +850,11 @@ function leaveRoom(){
 function kicked(){
   clearInterval(lobbyPoll);
   mySlot=-1;isHost=false;myRoom=0;gHost=null;gView=null;currentVote=null;
+  document.getElementById("barroom").textContent="";
   clearGameScreen();
-  show("s-join");msg("m-join","Tu as été exclu du salon par le chef.","err");
+  show("s-join");msg("m-join","Tu as Ã©tÃ© exclu du salon par le chef.","err");
 }
 
-// ================= MENU IN-GAME =================
 document.getElementById("b-menu").onclick=()=>{menuOpen=true;renderMenu();document.getElementById("menuOverlay").style.display="flex"};
 document.getElementById("b-menu-close").onclick=()=>{menuOpen=false;document.getElementById("menuOverlay").style.display="none"};
 document.getElementById("menuOverlay").onclick=(e)=>{if(e.target.id==="menuOverlay"){menuOpen=false;document.getElementById("menuOverlay").style.display="none"}};
@@ -829,17 +866,17 @@ function renderMenu(){
   let html="";
   const others=onlinePlayers().filter(p=>!p.__me);
   if(isHost){
-    html+=`<div class="eyebrow" style="font-size:9px">Thème de la table</div>`;
+    html+=`<div class="eyebrow" style="font-size:9px">ThÃ¨me de la table</div>`;
     html+=`<div class="themerow">`+THEMES.map(t=>{
       const active=document.body.getAttribute("data-theme")===(t.id==="emerald"?"":t.id);
       return `<button class="themeswatch${active?" active":""}" data-theme-id="${t.id}" style="background:linear-gradient(135deg,${t.swatch[1]},${t.swatch[0]})" title="${t.label}"><span style="background:${t.swatch[2]}"></span></button>`;
     }).join("")+`</div>`;
-    html+=`<button class="menu-action" id="menu-public-toggle">${isPublicRoom?"Rendre le salon privé":"Rendre le salon public"}</button>`;
+    html+=`<button class="menu-action" id="menu-public-toggle">${isPublicRoom?"Rendre le salon privÃ©":"Rendre le salon public"}</button>`;
   }else{
     const currentThemeId=document.body.getAttribute("data-theme")||"emerald";
     const currentTheme=THEMES.find(t=>t.id===currentThemeId)||THEMES[0];
-    html+=`<div class="eyebrow" style="font-size:9px">Thème de la table</div>`;
-    html+=`<div class="togglerow"><div><div class="togglelabel">${currentTheme.label}</div><div class="togglesub">Seul le chef peut changer le thème</div></div><span class="themeswatch" style="background:linear-gradient(135deg,${currentTheme.swatch[1]},${currentTheme.swatch[0]});pointer-events:none"><span style="background:${currentTheme.swatch[2]}"></span></span></div>`;
+    html+=`<div class="eyebrow" style="font-size:9px">ThÃ¨me de la table</div>`;
+    html+=`<div class="togglerow"><div><div class="togglelabel">${currentTheme.label}</div><div class="togglesub">Seul le chef peut changer le thÃ¨me</div></div><span class="themeswatch" style="background:linear-gradient(135deg,${currentTheme.swatch[1]},${currentTheme.swatch[0]});pointer-events:none"><span style="background:${currentTheme.swatch[2]}"></span></span></div>`;
   }
   html+=`<div class="eyebrow" style="font-size:9px;margin-top:6px">Confort</div>`;
   html+=`<div class="togglerow"><div><div class="togglelabel">Vibrations</div></div><button id="menu-vib-toggle" class="toggle" aria-pressed="${prefs.vibrate}">\u200b<span class="knob"></span></button></div>`;
@@ -852,7 +889,7 @@ function renderMenu(){
     });
   }
   if(isHost&&inGame){
-    html+=`<button class="menu-action warn" id="menu-stop">Arrêter la partie${onlinePlayers().length>=3?" (vote requis)":""}</button>`;
+    html+=`<button class="menu-action warn" id="menu-stop">ArrÃªter la partie${onlinePlayers().length>=3?" (vote requis)":""}</button>`;
   }
   html+=`<button class="menu-action danger" id="menu-leave">Quitter le salon</button>`;
   body.innerHTML=html;
@@ -883,15 +920,15 @@ function renderVoteBanner(){
   const targetName=currentVote.type==="kick"?pName(currentVote.target):null;
   const label=currentVote.type==="kick"
     ? `${esc(initiatorName)} propose d'exclure ${esc(targetName)}`
-    : `${esc(initiatorName)} propose d'arrêter la partie`;
+    : `${esc(initiatorName)} propose d'arrÃªter la partie`;
   const iApproved=currentVote.approvals.includes(mySlot);
   const isInitiator=currentVote.initiator===mySlot;
   el.style.display="flex";
   if(isInitiator){
-    el.innerHTML=`<span class="vtxt">${label} · en attente d'une approbation…</span><button class="o" id="vote-cancel">Annuler</button>`;
+    el.innerHTML=`<span class="vtxt">${label} Â· en attente d'une approbationâ¦</span><button class="o" id="vote-cancel">Annuler</button>`;
     document.getElementById("vote-cancel").onclick=cancelVote;
   }else if(iApproved){
-    el.innerHTML=`<span class="vtxt">${label} · tu as approuvé, en attente du chef…</span>`;
+    el.innerHTML=`<span class="vtxt">${label} Â· tu as approuvÃ©, en attente du chefâ¦</span>`;
   }else{
     el.innerHTML=`<span class="vtxt">${label}</span><button class="p" id="vote-approve">Approuver</button>`;
     document.getElementById("vote-approve").onclick=approveVote;
@@ -909,8 +946,8 @@ function refreshLobby(){
   const l=roomPlayers();
   document.getElementById("lc").textContent=l.length;
   const hint=isHost
-    ? (l.length<2?"Il faut au moins 2 joueurs pour lancer une partie.":"Chef de partie : lance une manche quand tu es prêt.")
-    : "En attente du chef de partie…";
+    ? (l.length<2?"Il faut au moins 2 joueurs pour lancer une partie.":"Chef de partie : lance une manche quand tu es prÃªt.")
+    : "En attente du chef de partieâ¦";
   document.getElementById("b-menu").style.display=mySlot>=0?"block":"none";
   if(document.getElementById("s-lobby").classList.contains("active")){
     renderLobbySeats(l);
@@ -943,6 +980,7 @@ document.getElementById("b-picker").onclick=()=>{
 
 const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,TAROT:2,BJ:3,YELLOW:4,TSURO:5};
 function onPhase(st){
+  if(!st||myRoom===0||mySlot<0||st.room!==myRoom)return;
   if(st.phase===PHASE.LOBBY){
     gHost=null;gView=null;
     clearGameScreen();
@@ -952,8 +990,8 @@ function onPhase(st){
   }
   if(st.phase===PHASE.PICKER){
     show(isHost?"s-picker":"s-lobby");
-    if(!isHost)document.getElementById("lobbyhint").textContent="Le chef choisit un jeu…";
-    else document.getElementById("pk-hint").textContent=onlinePlayers().length<2?"Il faut au moins 2 joueurs présents.":"Choisis un jeu pour la table.";
+    if(!isHost)document.getElementById("lobbyhint").textContent="Le chef choisit un jeuâ¦";
+    else document.getElementById("pk-hint").textContent=onlinePlayers().length<2?"Il faut au moins 2 joueurs prÃ©sents.":"Choisis un jeu pour la table.";
     return;
   }
   if(st.phase===PHASE.PLAY){const k=st.gameId+":"+st.round+":"+st.epoch;if(gHandled===k)return;gHandled=k;launch(st);return}
@@ -961,7 +999,7 @@ function onPhase(st){
 }
 document.querySelectorAll(".gcard").forEach(c=>c.onclick=()=>{
   if(!isHost)return;
-  if(onlinePlayers().length<2){msg2Picker("Il faut au moins 2 joueurs présents pour lancer une partie.");return}
+  if(onlinePlayers().length<2){msg2Picker("Il faut au moins 2 joueurs prÃ©sents pour lancer une partie.");return}
   const gid=parseInt(c.dataset.g),round=1,epoch=Date.now();
   const st={room:myRoom,phase:PHASE.PLAY,gameId:gid,round,epoch};
   lastGame=st;gHandled=gid+":"+round+":"+epoch;launch(st);
@@ -980,12 +1018,11 @@ function launch(st){
     else if(st.gameId===GID.YELLOW)gHost=yellowInit(order,st.epoch);
     else if(st.gameId===GID.TSURO)gHost=tsuroInit(order,st.epoch);
     gHost.gid=st.gameId;gHost.room=myRoom;gHost.seq=0;gHost.round=st.round;
-    pushState(); // remplit gView et déclenche le premier rendu pour le chef
+    pushState();
   }
 }
 
-// ================= MOTEUR CARTES COMMUN =================
-const SUITS=["♥","♦","♣","♠"]; // 0..3, rouge=0,1
+const SUITS=["â¥","â¦","â£","â "];
 const RANKN={1:"A",11:"V",12:"D",13:"R"};
 function rankLabel(r){return RANKN[r]||String(r)}
 function isRed(suit){return suit===0||suit===1}
@@ -996,14 +1033,10 @@ function cardHTML(suit,rank,opts){
 }
 function backHTML(mini){return `<div class="card back${mini?" mini":""}"></div>`}
 function deck52(seed){const d=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)d.push({suit:s,rank:r});return shuffled(d,seed)}
-function war52Value(rank){return rank===1?14:rank} // As haut
+function war52Value(rank){return rank===1?14:rank}
 
 function pName(slot){if(slot===mySlot)return myName;return players[slot]?players[slot].name:("J"+slot)}
-// Hash simple et stable d'une chaîne, utilisé pour dériver la couleur et le motif de l'identicon.
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0}return h}
-// Génère un identicon façon "cristal" : dégradé de fond à deux teintes complémentaires, avec
-// quelques formes géométriques (cercles, triangles, losanges) superposées en semi-transparence.
-// Tout est dérivé du hash du pseudo, donc stable et sans dépendance externe ni compte.
 function identiconSVG(name,size){
   const h=hashStr(name||"?");
   const rnd=mulberry32(h);
@@ -1042,12 +1075,9 @@ function avatarHTML(p,size){
   const on=p.__me||isOnline(p.__slot);
   return `<div class="avatar" style="width:${size}px;height:${size}px">${identiconSVG(p.name,size)}<span class="avdot${on?" on":""}"></span></div>`;
 }
-// Positionne les joueurs en arc autour de la table ovale. Le joueur local est toujours
-// placé en bas (6h) pour se repérer facilement, les autres répartis sur le reste de l'ovale.
 function seatPositions(n){
-  // angles en degrés, 0°=droite, 90°=bas, sens horaire ; on part de 90° (moi, en bas) et on répartit le reste
   const angles=[];
-  for(let i=0;i<n;i++)angles.push(90+ (360/n)*i);
+  for(let i=0;i<n;i++)angles.push(90+(360/n)*i);
   return angles;
 }
 function renderSeats(activeSlot,extraFn,playedCardFn){
@@ -1056,21 +1086,16 @@ function renderSeats(activeSlot,extraFn,playedCardFn){
   const meIdx=seatedPlayers.findIndex(p=>p.__me);
   const ordered=meIdx>0?seatedPlayers.slice(meIdx).concat(seatedPlayers.slice(0,meIdx)):seatedPlayers;
   const angles=seatPositions(ordered.length);
-  const rx=36,ry=32; // rayon resserré : laisse plus de marge au centre pour le message de statut, et vers les bords pour la carte jouée
+  const rx=36,ry=32;
   el.innerHTML=ordered.map((p,i)=>{
     const rad=angles[i]*Math.PI/180;
     const x=50+rx*Math.cos(rad),y=50+ry*Math.sin(rad);
     const isTurn=p.__slot===activeSlot;
     const size=p.__me?46:38;
-    // la carte jouée se place toujours du côté du centre de la table (jamais vers l'extérieur,
-    // sinon pour un siège déjà proche du bord elle serait poussée hors du tapis / hors écran) :
-    // en dessous de l'avatar si le siège est dans la moitié haute (le centre est plus bas), au-dessus sinon.
     const towardCenterIsBelow=Math.sin(rad)<0;
     const playedHTML=playedCardFn?(playedCardFn(p.__slot)||""):"";
     const playedBlock=playedHTML?`<div class="seatcard">${playedHTML}</div>`:"";
     const identity=`${avatarHTML(p,size)}<div class="nm">${esc(p.name)}${p.__me?" (toi)":""}</div><div class="ct">${extraFn?extraFn(p.__slot):""}</div>`;
-    // le conteneur "anchor" est ancré exactement sur l'avatar (translate -50%,-50% appliqué à lui, pas au bloc entier) ;
-    // la carte jouée est positionnée en absolu par rapport à cet ancrage, donc elle ne pousse jamais le nom/compteur
     const cardOffset=towardCenterIsBelow?`top:calc(100% + 4px)`:`bottom:calc(100% + 4px)`;
     return `<div class="seat${isTurn?" turn":""}" style="left:${x}%;top:${y}%">
       ${playedBlock?`<div class="seatcard-anchor" style="${cardOffset}">${playedBlock}</div>`:""}
@@ -1082,7 +1107,7 @@ function renderSeats(activeSlot,extraFn,playedCardFn){
 function pushState(){
   if(!isHost||!gHost)return;
   gHost.seq=(gHost.seq||0)+1;
-  gView=gHost;gSeqSeen=gHost.seq; // le chef voit son propre état tout de suite, sans attendre l'écho du serveur
+  gView=gHost;gSeqSeen=gHost.seq;
   cset("STATE",encState(myRoom,gHost.seq,gHost));
   renderGame();
 }
@@ -1090,7 +1115,6 @@ function sendAction(obj){
   if(mySlot<0)return;
   const payload=Object.assign({slot:mySlot},obj);
   if(isHost&&gHost){
-    // le chef traite sa propre action tout de suite en local, sans dépendre d'un aller-retour cloud
     handleAction(payload);
   }else{
     cset("ACT",encState(myRoom,Date.now()%10000,payload));
@@ -1113,16 +1137,12 @@ function renderGame(){
   else if(gView.gid===GID.TSURO)tsuroRender();
 }
 
-// ================= BATAILLE CLASSIQUE =================
 function warInit(order,seed){
   const deck=deck52(seed),piles={};
   order.forEach((s,i)=>piles[s]=[]);
   deck.forEach((c,i)=>{const s=order[i%order.length];piles[s].push(c)});
   return{piles,order,alive:order.slice(),active:order.slice(),table:[],flipped:{},lastWinner:null};
 }
-// g.active = joueurs qui doivent poser une carte visible dans le tour de résolution en cours
-//            (tous les vivants au départ, seulement ceux à égalité en cas de bataille)
-// g.flipped = cartes visibles déjà posées pour le tour en cours, par slot
 function warHasCards(g,slot){return g.piles[slot]&&g.piles[slot].length>0}
 function warAction(obj){
   if(obj.type!=="flip")return;
@@ -1134,7 +1154,7 @@ function warAction(obj){
   g.flipped[obj.slot]={card};
   g.table.push({slot:obj.slot,card,hidden:false});
   if(g.active.every(s=>g.flipped[s]||!warHasCards(g,s))){
-    resolveWar(); // resolveWar() republie déjà l'état dans tous ses chemins de sortie
+    resolveWar();
   }else{
     pushState();
   }
@@ -1144,7 +1164,6 @@ function warCheckEliminations(){
   g.alive=g.alive.filter(s=>warHasCards(g,s)||g.flipped[s]);
   const stillIn=g.alive.filter(s=>warHasCards(g,s));
   if(stillIn.length<g.alive.length){
-    // des joueurs sans carte au moment de poser sont éliminés immédiatement
     g.alive=g.alive.filter(s=>warHasCards(g,s)||g.flipped[s]);
   }
 }
@@ -1161,11 +1180,10 @@ function resolveWar(){
   if(top.length===1){
     const winner=top[0];
     const won=g.table.map(t=>t.card);
-    // pause visuelle : on publie d'abord le pli remporté, table encore affichée, avant de la vider
     g.lastWinner=winner;g.resolving=true;
     pushState();
     setTimeout(()=>{
-      if(!gHost||gHost!==g)return; // la manche a pu changer entre temps (ex: chef réassigné)
+      if(!gHost||gHost!==g)return;
       g.piles[winner]=(g.piles[winner]||[]).concat(shuffled(won,(Date.now()+winner)%100000));
       g.table=[];g.flipped={};g.active=g.alive.slice();g.resolving=false;
       if(g.alive.length<=1){finishWar();return}
@@ -1173,12 +1191,10 @@ function resolveWar(){
     },1400);
     return;
   }else{
-    // bataille entre les joueurs à égalité : chacun pose 1 carte cachée puis 1 visible
     const stillTop=top.filter(s=>g.alive.includes(s));
     stillTop.forEach(s=>{
       if(warHasCards(g,s)){const c=g.piles[s].shift();g.table.push({slot:s,card:c,hidden:true})}
     });
-    // élimine ceux qui n'ont plus rien pour la carte cachée
     g.alive=g.alive.filter(s=>!stillTop.includes(s)||warHasCards(g,s)||g.table.some(t=>t.slot===s));
     g.flipped={};
     g.active=stillTop.filter(s=>g.alive.includes(s));
@@ -1198,9 +1214,8 @@ function warRender(){
   document.getElementById("g-title").textContent="Dernier avec des cartes gagne";
   document.getElementById("g-pill").textContent=(g.alive?g.alive.length:0)+" en jeu";
   renderSeats(null,
-    s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" · éliminé":""),
+    s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" Â· Ã©liminÃ©":""),
     s=>{
-      // la carte la plus récente posée par ce joueur dans le pli en cours (gère le cas bataille où 2 cartes sont posées)
       const entries=(g.table||[]).filter(t=>t.slot===s);
       if(!entries.length)return"";
       const last=entries[entries.length-1];
@@ -1210,7 +1225,7 @@ function warRender(){
   );
   const inBattle=g.active&&g.active.length&&g.table&&g.table.length>(g.alive?g.alive.length:0)&&!g.resolving;
   let centerText="";
-  if(g.resolving&&g.lastWinner!==null&&g.lastWinner!==undefined)centerText=pName(g.lastWinner)+" remporte le pli ✦";
+  if(g.resolving&&g.lastWinner!==null&&g.lastWinner!==undefined)centerText=pName(g.lastWinner)+" remporte le pli â¦";
   else if(inBattle)centerText="Bataille ! Retournez une carte pour trancher";
   document.getElementById("g-center").textContent=centerText;
   const mySlotAlive=g.alive&&g.alive.includes(mySlot);
@@ -1220,20 +1235,16 @@ function warRender(){
     ctl.innerHTML=`<button class="p" id="warflip">Retourner ma carte</button>`;
     document.getElementById("warflip").onclick=()=>sendAction({type:"flip"});
   }else if(g.resolving){
-    ctl.innerHTML=`<div class="waitbox">Le pli se ramasse…</div>`;
+    ctl.innerHTML=`<div class="waitbox">Le pli se ramasseâ¦</div>`;
   }else{
-    ctl.innerHTML=`<div class="waitbox">${mySlotAlive?"Carte envoyée, en attente des autres…":"Tu es éliminé, tu observes la suite."}</div>`;
+    ctl.innerHTML=`<div class="waitbox">${mySlotAlive?"Carte envoyÃ©e, en attente des autresâ¦":"Tu es Ã©liminÃ©, tu observes la suite."}</div>`;
   }
   document.getElementById("g-hand").innerHTML="";
   document.getElementById("g-pile").innerHTML="";
 }
 
-// ================= TAROT ALLÉGÉ =================
-const TAROT_SUIT=["♥","♦","♣","♠"];
+const TAROT_SUIT=["â¥","â¦","â£","â "];
 function tarotDeck(seed){
-  const d=[];
-  for(let s=0;s<4;s++)for(let r=1;r<=10;r++)d.push({kind:"suit",suit:s,rank:r,pts:(r>=11?0:0)});
-  // valet/cavalier/dame/roi = rangs 11 (V) 12 (C) 13 (D) 14 (R) par couleur, remplace 11-14 fictifs
   const dd=[];
   for(let s=0;s<4;s++){
     for(let r=1;r<=10;r++)dd.push({kind:"suit",suit:s,rank:r,val:r,pts:0.5});
@@ -1249,17 +1260,17 @@ function tarotDeck(seed){
 function tarotFace(c){if(c.kind==="trump")return"AT."+c.rank;if(c.kind==="excuse")return"EXC";return c.face||String(c.rank)}
 function tarotCardHTML(c,opts){
   opts=opts||{};
-  const hi=opts.trump?" trump":""; // opts.trump ici = "mettre en avant visuellement", indépendant du type de carte
+  const hi=opts.trump?" trump":"";
   if(c.kind==="trump"){
     return `<div class="card${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">${c.rank}</div><div class="s">Atout</div></div>`;
   }
-  if(c.kind==="excuse")return `<div class="card${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">✦</div><div class="s">Excuse</div></div>`;
+  if(c.kind==="excuse")return `<div class="card${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}" style="background:#F5EFE0"><div class="v">â¦</div><div class="s">Excuse</div></div>`;
   return `<div class="card${isRed(c.suit)?" red":""}${opts.mini?" mini":""}${hi}${opts.dis?" dis":""}"><div class="v">${rankLabel(c.rank<=10?c.rank:c.rank)}</div><div class="s">${TAROT_SUIT[c.suit]}</div></div>`;
 }
 function tarotInit(order,seed){
   const deck=tarotDeck(seed);
   const perPlayer=Math.floor(deck.length/order.length);
-  const chien=deck.slice(perPlayer*order.length); // cartes en trop si non divisible, mises de côté
+  const chien=deck.slice(perPlayer*order.length);
   const hands={};order.forEach(s=>hands[s]=[]);
   let i=0;
   for(let k=0;k<perPlayer*order.length;k++){const s=order[i%order.length];hands[s].push(deck[k]);i++}
@@ -1318,7 +1329,6 @@ function resolveTarotTrick(){
     const v=tarotCardStrength(t.card,leadKind,leadSuit);
     if(v>bestVal){bestVal=v;best=t.slot}
   });
-  // pause visuelle : le pli reste affiché avec le gagnant surligné avant d'être ramassé
   g.resolving=true;g.trickWinner=best;
   pushState();
   setTimeout(()=>{
@@ -1346,12 +1356,12 @@ function finishTarot(){
 }
 function tarotRender(){
   const g=gView;
-  document.getElementById("g-eyebrow").textContent="// tarot allégé";
-  document.getElementById("g-title").textContent="Suis la couleur ou coupe à l'atout";
-  document.getElementById("g-pill").textContent=g.resolving?"Pli terminé":(g.hands&&g.hands[g.order[g.turnIdx]]?"Tour de "+pName(g.order[g.turnIdx]):"");
+  document.getElementById("g-eyebrow").textContent="// tarot allÃ©gÃ©";
+  document.getElementById("g-title").textContent="Suis la couleur ou coupe Ã  l'atout";
+  document.getElementById("g-pill").textContent=g.resolving?"Pli terminÃ©":(g.hands&&g.hands[g.order[g.turnIdx]]?"Tour de "+pName(g.order[g.turnIdx]):"");
   renderSeats(
     g.resolving?null:g.order[g.turnIdx],
-    s=>(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes · "+((g.tricksWon&&g.tricksWon[s])?g.tricksWon[s].length:0)+" plis",
+    s=>(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes Â· "+((g.tricksWon&&g.tricksWon[s])?g.tricksWon[s].length:0)+" plis",
     s=>{
       const t=(g.trick||[]).find(x=>x.slot===s);
       if(!t)return"";
@@ -1360,7 +1370,7 @@ function tarotRender(){
     }
   );
   document.getElementById("g-trick").innerHTML="";
-  document.getElementById("g-center").textContent=g.resolving&&g.trickWinner!==null?pName(g.trickWinner)+" remporte le pli ✦":((g.trick||[]).length===0?"Nouveau pli…":"");
+  document.getElementById("g-center").textContent=g.resolving&&g.trickWinner!==null?pName(g.trickWinner)+" remporte le pli â¦":((g.trick||[]).length===0?"Nouveau pliâ¦":"");
   document.getElementById("g-pile").innerHTML="";
   const ctl=document.getElementById("g-controls");
   ctl.innerHTML="";
@@ -1381,13 +1391,12 @@ function tarotRender(){
       if(!legal.includes(i))return;
       el.onclick=()=>sendAction({type:"play",cardIdx:i});
     });
-    msg("g-msg","À toi de jouer.","ok");
+    msg("g-msg","Ã toi de jouer.","ok");
   }else{
-    msg("g-msg","Tour de "+pName(g.order[g.turnIdx])+"…","");
+    msg("g-msg","Tour de "+pName(g.order[g.turnIdx])+"â¦","");
   }
 }
 
-// ================= BLACKJACK (tour par tour réel, croupier fixe) =================
 function bjVal(rank){if(rank===1)return 11;if(rank>=11)return 10;return rank}
 function bjHandTotal(hand){
   let total=hand.reduce((a,c)=>a+bjVal(c.rank),0),aces=hand.filter(c=>c.rank===1).length;
@@ -1436,7 +1445,7 @@ function bjDealerStep(g){
     },900);
   }else{
     g.dealerDone=true;
-    setTimeout(()=>finishBJ(),700); // pause pour voir le total final du croupier avant les résultats
+    setTimeout(()=>finishBJ(),700);
   }
 }
 function finishBJ(){
@@ -1457,11 +1466,11 @@ function bjRender(){
   document.getElementById("g-eyebrow").textContent="// blackjack";
   document.getElementById("g-title").textContent="Approche-toi de 21";
   const activeSlot=g.turnIdx<g.order.length?g.order[g.turnIdx]:null;
-  document.getElementById("g-pill").textContent=activeSlot!==null?"Tour de "+pName(activeSlot):"Croupier joue…";
+  document.getElementById("g-pill").textContent=activeSlot!==null?"Tour de "+pName(activeSlot):"Croupier joueâ¦";
   renderSeats(activeSlot,
     s=>{
       const t=g.hands&&g.hands[s]?bjHandTotal(g.hands[s]):0;
-      return t+(g.done&&g.done[s]?" · fini":"");
+      return t+(g.done&&g.done[s]?" Â· fini":"");
     }
   );
   const trick=document.getElementById("g-trick");
@@ -1482,42 +1491,34 @@ function bjRender(){
     msg("g-msg","","");
   }else{
     ctl.innerHTML="";
-    msg("g-msg",activeSlot===null?"Le croupier tire ses cartes…":"Tour de "+pName(activeSlot)+"…","");
+    msg("g-msg",activeSlot===null?"Le croupier tire ses cartesâ¦":"Tour de "+pName(activeSlot)+"â¦","");
   }
 }
 
-// ================= NAIN JAUNE =================
-// Plateau : 5 cases avec mise de départ et carte qui la ramasse.
-// index 0=7♦ Nain Jaune(5j) 1=10♦(1j) 2=V♣(2j) 3=D♠(3j) 4=R♥(4j)
 const YELLOW_BOARD=[
-  {suit:1,rank:7,stake:5,label:"Nain Jaune (7♦)"},
-  {suit:1,rank:10,stake:1,label:"10♦"},
-  {suit:2,rank:11,stake:2,label:"Valet♣"},
-  {suit:3,rank:12,stake:3,label:"Dame♠"},
-  {suit:0,rank:13,stake:4,label:"Roi♥"},
+  {suit:1,rank:7,stake:5,label:"Nain Jaune (7â¦)"},
+  {suit:1,rank:10,stake:1,label:"10â¦"},
+  {suit:2,rank:11,stake:2,label:"Valetâ£"},
+  {suit:3,rank:12,stake:3,label:"Dameâ "},
+  {suit:0,rank:13,stake:4,label:"Roiâ¥"},
 ];
 function yellowBoardIndex(suit,rank){return YELLOW_BOARD.findIndex(b=>b.suit===suit&&b.rank===rank)}
 function yellowInit(order,seed){
   const deck=deck52(seed);
   const hands={};order.forEach(s=>hands[s]=[]);
-  // distribution de 7 cartes chacun, le reste forme la pioche (règle réelle)
   let i=0;
   for(let k=0;k<7*order.length;k++){const s=order[i%order.length];hands[s].push(deck[k]);i++}
   const drawPile=deck.slice(7*order.length);
   order.forEach(s=>hands[s].sort((a,b)=>a.rank-b.rank||a.suit-b.suit));
-  const pot=YELLOW_BOARD.map(b=>b.stake); // jetons misés sur chaque case pour cette manche
-  // le premier joueur démarre : celui qui a le 7 de carreau si présent en main, sinon le premier de l'ordre
+  const pot=YELLOW_BOARD.map(b=>b.stake);
   let starter=order[0];
   for(const s of order){if(hands[s].some(c=>c.suit===1&&c.rank===7)){starter=s;break}}
   return{order,hands,drawPile,pot,
     turnIdx:order.indexOf(starter),
-    played:[],       // suite en cours sur la table : liste de {suit,rank} dans l'ordre de pose
-    lastRank:null,   // rang de la dernière carte posée dans la suite courante (null = personne n'a démarré)
-    passedInRow:0,   // joueurs consécutifs qui ne peuvent pas jouer sur la suite courante
-    finished:false,resolving:false,winner:null};
+    played:[],lastRank:null,passedInRow:0,finished:false,resolving:false,winner:null};
 }
 function yellowCanPlay(hand,lastRank){
-  if(lastRank===null)return hand.map((_,i)=>i); // peut démarrer avec n'importe quelle carte
+  if(lastRank===null)return hand.map((_,i)=>i);
   return hand.map((c,i)=>({c,i})).filter(x=>x.c.rank===lastRank+1).map(x=>x.i);
 }
 function yellowAction(obj){
@@ -1547,7 +1548,6 @@ function yellowAction(obj){
       return;
     }
     if(card.rank===13){
-      // un Roi posé relance immédiatement une nouvelle suite, même joueur, sans passer la main
       g.lastRank=null;
       g.roiBonus=true;
       pushState();
@@ -1558,16 +1558,14 @@ function yellowAction(obj){
     return;
   }
   if(obj.type==="draw"){
-    // le joueur ne peut/veut pas continuer la suite : il pioche 1 carte de compensation si possible
     const legal=yellowCanPlay(hand,g.lastRank);
-    if(legal.length>0)return; // il a un coup jouable, il doit jouer
+    if(legal.length>0)return;
     if(g.drawPile.length>0){
       hand.push(g.drawPile.pop());
       hand.sort((a,b)=>a.rank-b.rank||a.suit-b.suit);
     }
     g.passedInRow++;
     if(g.passedInRow>=g.order.length){
-      // personne ne peut continuer : celui qui a posé la dernière carte relance une suite libre
       g.lastRank=null;g.passedInRow=0;
     }else{
       advanceYellowTurn();
@@ -1579,7 +1577,6 @@ function yellowAction(obj){
 function advanceYellowTurn(){
   const g=gHost;
   g.turnIdx=(g.turnIdx+1)%g.order.length;
-  // saute les joueurs qui ont déjà vidé leur main (ne devrait pas arriver avant fin de manche, sécurité)
   let guard=0;
   while(g.hands[g.order[g.turnIdx]].length===0&&guard<g.order.length){g.turnIdx=(g.turnIdx+1)%g.order.length;guard++}
 }
@@ -1590,7 +1587,6 @@ function yellowFinishRound(winnerSlot){
   setTimeout(()=>{
     if(!gHost||gHost!==g)return;
     if(!g.jetons)g.jetons={};
-    // chaque autre joueur donne des jetons au gagnant selon les cartes qui lui restent (1 carte = 1 jeton)
     const delta={};
     g.order.forEach(s=>{
       if(s===winnerSlot){delta[s]=(g.jetons[s]||0);return}
@@ -1598,8 +1594,6 @@ function yellowFinishRound(winnerSlot){
       delta[s]=(g.jetons[s]||0)-remaining;
       delta[winnerSlot]=(delta[winnerSlot]||0)+remaining;
     });
-    // les cases encore garnies (personne n'a posé la carte correspondante) restent en jeu pour la prochaine manche :
-    // ici en version single-round on les distribue au gagnant pour clore proprement
     g.pot.forEach(amount=>{if(amount>0)delta[winnerSlot]=(delta[winnerSlot]||0)+amount});
     g.resolving=false;
     broadcastScoreAndFinish(g,delta,{winnerSlot});
@@ -1608,32 +1602,30 @@ function yellowFinishRound(winnerSlot){
 function yellowRender(){
   const g=gView;
   document.getElementById("g-eyebrow").textContent="// nain jaune";
-  document.getElementById("g-title").textContent="Premier à vider sa main gagne les jetons";
+  document.getElementById("g-title").textContent="Premier Ã  vider sa main gagne les jetons";
   const activeSlot=g.order[g.turnIdx];
-  document.getElementById("g-pill").textContent=g.finished?"Manche terminée":"Tour de "+pName(activeSlot);
+  document.getElementById("g-pill").textContent=g.finished?"Manche terminÃ©e":"Tour de "+pName(activeSlot);
   renderSeats(g.finished?null:activeSlot,s=>{
     const cards=(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes";
-    const jet=(g.jetons&&g.jetons[s])?" · "+g.jetons[s]+" jetons":"";
+    const jet=(g.jetons&&g.jetons[s])?" Â· "+g.jetons[s]+" jetons":"";
     return cards+jet;
   });
-  // plateau des 5 cases
   const board=document.getElementById("g-trick");
   board.innerHTML=YELLOW_BOARD.map((b,i)=>{
     const amount=g.pot?g.pot[i]:b.stake;
-    return `<div class="trickslot"><div class="nm">${b.label}</div>${cardHTML(b.suit,b.rank,{mini:true})}<div class="ct" style="font-family:var(--disp);color:var(--accent);font-size:11px;margin-top:2px">${amount>0?amount+" 🪙":"pris"}</div></div>`;
+    return `<div class="trickslot"><div class="nm">${b.label}</div>${cardHTML(b.suit,b.rank,{mini:true})}<div class="ct" style="font-family:var(--disp);color:var(--accent);font-size:11px;margin-top:2px">${amount>0?amount+" ðª":"pris"}</div></div>`;
   }).join("");
   const claim=g.yellowClaim;
   let centerText="";
-  if(g.finished&&g.winner!==null)centerText=pName(g.winner)+" vide sa main et rafle les jetons ✦";
-  else if(claim)centerText=pName(claim.slot)+" prend "+claim.label+" (+"+claim.amount+" 🪙)";
+  if(g.finished&&g.winner!==null)centerText=pName(g.winner)+" vide sa main et rafle les jetons â¦";
+  else if(claim)centerText=pName(claim.slot)+" prend "+claim.label+" (+"+claim.amount+" ðª)";
   document.getElementById("g-center").textContent=centerText;
-  // suite en cours sur la table
   const pile=document.getElementById("g-pile");
   const played=g.played||[];
   const lastFew=played.slice(-6);
   pile.innerHTML=lastFew.length
     ? lastFew.map(p=>cardHTML(p.card.suit,p.card.rank,{mini:true})).join("")
-    : '<div class="waitbox" style="padding:10px 0">Aucune suite en cours — un 7 ou une carte libre pour démarrer</div>';
+    : '<div class="waitbox" style="padding:10px 0">Aucune suite en cours â un 7 ou une carte libre pour dÃ©marrer</div>';
   const ctl=document.getElementById("g-controls");
   const hand=document.getElementById("g-hand");
   const myHand=(g.hands&&g.hands[mySlot])||[];
@@ -1655,24 +1647,15 @@ function yellowRender(){
       msg("g-msg","Tu ne peux pas continuer la suite, pioche une carte.","");
     }else{
       ctl.innerHTML="";
-      msg("g-msg","À toi de jouer.","ok");
+      msg("g-msg","Ã toi de jouer.","ok");
     }
   }else{
     ctl.innerHTML="";
-    msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"…","");
+    msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"â¦","");
   }
 }
 
-
-// ================= TSURO =================
-// Plateau 6x6. Chaque case a 8 points de connexion (0-7, sens horaire) :
-// 0,1 = bord haut (gauche,droite) ; 2,3 = bord droit (haut,bas) ; 4,5 = bord bas (droite,gauche) ; 6,7 = bord gauche (bas,haut)
-// Une tuile relie ces 8 points par 4 segments (paires). Poser une tuile déplace tous les pions
-// dont le segment d'entrée correspond, en cascade jusqu'à ce que chacun sorte du plateau ou soit bloqué.
 const TSURO_SIZE=6;
-// Les 35 tuiles officielles du jeu Tsuro (pas une génération procédurale : ce sont les vraies
-// définitions du jeu physique). Points numérotés 0-7 dans l'ordre : 0,1=haut(g,d) 2,3=droite(h,b)
-// 4,5=bas(d,g) 6,7=gauche(b,h).
 const TSURO_TILES=[
   [[0,4],[1,5],[2,7],[3,6]],[[0,4],[1,5],[2,6],[3,7]],[[0,5],[1,4],[2,7],[3,6]],[[0,4],[1,3],[2,6],[5,7]],
   [[0,7],[1,2],[3,4],[5,6]],[[0,4],[1,2],[3,7],[5,6]],[[0,4],[1,2],[3,6],[5,7]],[[0,3],[1,6],[2,5],[4,7]],
@@ -1684,17 +1667,14 @@ const TSURO_TILES=[
   [[0,1],[2,5],[3,7],[4,6]],[[0,1],[2,5],[3,6],[4,7]],[[0,1],[2,4],[3,7],[5,6]],[[0,1],[2,4],[3,6],[5,7]],
   [[0,1],[2,3],[4,7],[5,6]],[[0,1],[2,3],[4,6],[5,7]],[[0,1],[2,3],[4,5],[6,7]]
 ];
-// Décalage de case et point d'entrée correspondant quand on sort par un bord donné.
-// sortie par le point p (0-7) -> case voisine (dx,dy) et point d'entrée dans cette case.
 const TSURO_EXIT={0:{dx:0,dy:-1,enter:5},1:{dx:0,dy:-1,enter:4},2:{dx:1,dy:0,enter:7},3:{dx:1,dy:0,enter:6},
   4:{dx:0,dy:1,enter:1},5:{dx:0,dy:1,enter:0},6:{dx:-1,dy:0,enter:3},7:{dx:-1,dy:0,enter:2}};
 const TSURO_START_SPOTS=(()=>{
-  // 4 côtés x 6 cases x 2 points par côté = 24 points de départ possibles autour du plateau
   const spots=[];
-  for(let x=0;x<TSURO_SIZE;x++){spots.push({x,y:0,point:0});spots.push({x,y:0,point:1})} // bord haut
-  for(let y=0;y<TSURO_SIZE;y++){spots.push({x:TSURO_SIZE-1,y,point:2});spots.push({x:TSURO_SIZE-1,y,point:3})} // droite
-  for(let x=TSURO_SIZE-1;x>=0;x--){spots.push({x,y:TSURO_SIZE-1,point:4});spots.push({x,y:TSURO_SIZE-1,point:5})} // bas
-  for(let y=TSURO_SIZE-1;y>=0;y--){spots.push({x:0,y,point:6});spots.push({x:0,y,point:7})} // gauche
+  for(let x=0;x<TSURO_SIZE;x++){spots.push({x,y:0,point:0});spots.push({x,y:0,point:1})}
+  for(let y=0;y<TSURO_SIZE;y++){spots.push({x:TSURO_SIZE-1,y,point:2});spots.push({x:TSURO_SIZE-1,y,point:3})}
+  for(let x=TSURO_SIZE-1;x>=0;x--){spots.push({x,y:TSURO_SIZE-1,point:4});spots.push({x,y:TSURO_SIZE-1,point:5})}
+  for(let y=TSURO_SIZE-1;y>=0;y--){spots.push({x:0,y,point:6});spots.push({x:0,y,point:7})}
   return spots;
 })();
 function tsuroTileFollow(tile,enterPoint){
@@ -1709,8 +1689,8 @@ function tsuroInit(order,seed){
   const HAND_SIZE=3;
   const hands={};order.forEach((s,i)=>hands[s]=deck.slice(i*HAND_SIZE,i*HAND_SIZE+HAND_SIZE));
   let drawPile=deck.slice(order.length*HAND_SIZE);
-  const board={}; // "x,y" -> tile index posée
-  const pawns={}; // slot -> {x,y,point,alive} ; rempli au fur et à mesure du placement choisi par chaque joueur
+  const board={};
+  const pawns={};
   return{order,hands,drawPile,board,pawns,turnIdx:0,placeIdx:0,phase:"placement",finished:false,resolving:false,winners:[]};
 }
 function tsuroTakenSpot(g,x,y,point){
@@ -1721,8 +1701,8 @@ function tsuroPlaceAction(obj){
   if(g.phase!=="placement")return;
   if(g.order[g.placeIdx]!==obj.slot)return;
   const spot=TSURO_START_SPOTS.find(s=>s.x===obj.x&&s.y===obj.y&&s.point===obj.point);
-  if(!spot)return; // pas un point de départ valide (doit être sur le bord du plateau)
-  if(tsuroTakenSpot(g,obj.x,obj.y,obj.point))return; // déjà pris par un autre joueur
+  if(!spot)return;
+  if(tsuroTakenSpot(g,obj.x,obj.y,obj.point))return;
   g.pawns[obj.slot]={x:obj.x,y:obj.y,point:obj.point,alive:true};
   g.placeIdx++;
   if(g.placeIdx>=g.order.length){
@@ -1732,10 +1712,6 @@ function tsuroPlaceAction(obj){
   pushState();
 }
 function tsuroBoardKey(x,y){return x+","+y}
-// Simule le mouvement en cascade de TOUS les pions actifs après la pose d'une tuile.
-// Retourne la liste des pions éliminés (sortis du plateau ou en collision) durant cette résolution.
-// Exécute UNE vague de mouvement (tous les pions avancent d'une tuile si possible), retourne
-// {moved, eliminated} pour permettre à l'appelant d'afficher chaque vague séparément avec une pause.
 function tsuroResolveStep(g){
   let moved=false;
   const eliminated=[];
@@ -1743,7 +1719,7 @@ function tsuroResolveStep(g){
     const p=g.pawns[s];
     if(!p.alive)return;
     const tileIdx=g.board[tsuroBoardKey(p.x,p.y)];
-    if(tileIdx===undefined)return; // pas encore de tuile sur cette case, le pion attend
+    if(tileIdx===undefined)return;
     const tile=TSURO_TILES[tileIdx];
     const exitPoint=tsuroTileFollow(tile,p.point);
     if(exitPoint===null)return;
@@ -1754,7 +1730,6 @@ function tsuroResolveStep(g){
     }
     p.x=nx;p.y=ny;p.point=dir.enter;moved=true;
   });
-  // détecte les collisions : deux pions ou plus sur la même case+point après cette vague
   const occ={};
   g.order.forEach(s=>{
     const p=g.pawns[s];if(!p.alive)return;
@@ -1766,8 +1741,6 @@ function tsuroResolveStep(g){
   });
   return{moved,eliminated};
 }
-// Version synchrone (résout toute la cascade d'un coup) : utilisée par les tests et comme filet
-// de sécurité, mais le vrai jeu utilise tsuroAnimateResolution pour l'affichage progressif.
 function tsuroResolveMoves(g){
   const allEliminated=[];
   let guard=0,step;
@@ -1775,9 +1748,6 @@ function tsuroResolveMoves(g){
   return allEliminated;
 }
 function tsuroNextTurn(g){
-  // avance le tour en sautant les pions morts ET les joueurs qui n'ont plus aucune tuile à poser
-  // (main vide + pioche épuisée pour eux) : sans ça, un joueur sans tuile bloquerait la partie
-  // indéfiniment en attendant une action qu'il ne peut physiquement pas envoyer.
   let guard=0;
   do{
     g.turnIdx=(g.turnIdx+1)%g.order.length;
@@ -1797,7 +1767,7 @@ function tsuroAction(obj){
   const p=g.pawns[obj.slot];
   if(!p||!p.alive)return;
   const key=tsuroBoardKey(p.x,p.y);
-  if(g.board[key]!==undefined)return; // case déjà occupée par une tuile
+  if(g.board[key]!==undefined)return;
   const tileIdx=hand[handIdx];
   g.board[key]=tileIdx;
   hand.splice(handIdx,1);
@@ -1806,8 +1776,6 @@ function tsuroAction(obj){
   pushState();
   tsuroAnimateStep(g,[]);
 }
-// Affiche la cascade de mouvement vague par vague, avec une pause entre chaque, au lieu de
-// résoudre tout d'un coup : on voit les pions glisser progressivement le long des tuiles posées.
 function tsuroAnimateStep(g,accEliminated){
   if(!gHost||gHost!==g)return;
   const{moved,eliminated}=tsuroResolveStep(g);
@@ -1835,11 +1803,10 @@ function finishTsuro(){
     delta[aliveSlots[0]]=100;
     g.order.forEach(s=>{if(s!==aliveSlots[0])delta[s]=0});
   }else if(aliveSlots.length>1){
-    // tous les survivants à égalité (plateau plein sans qu'il ne reste qu'un seul pion) se partagent la victoire
     aliveSlots.forEach(s=>delta[s]=Math.round(100/aliveSlots.length));
     g.order.forEach(s=>{if(!aliveSlots.includes(s))delta[s]=0});
   }else{
-    g.order.forEach(s=>delta[s]=0); // tout le monde éliminé en même temps (collision finale)
+    g.order.forEach(s=>delta[s]=0);
   }
   broadcastScoreAndFinish(g,delta,{aliveSlots});
 }
@@ -1850,16 +1817,13 @@ function tsuroCellHTML(tileIdx,size){
   const center=0.5;
   const paths=tile.map(([a,b])=>{
     const[x1,y1]=pos[a],[x2,y2]=pos[b];
-    // point de contrôle tiré vers le centre de la case (pas le milieu du segment, qui donnerait une ligne droite)
     const midx=(x1+x2)/2,midy=(y1+y2)/2;
     const cx=(midx+center)/2*size,cy=(midy+center)/2*size;
     return `<path d="M${(x1*size).toFixed(1)},${(y1*size).toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${(x2*size).toFixed(1)},${(y2*size).toFixed(1)}" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.9"/>`;
   }).join("");
   return `<div class="tsuro-cell filled" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg></div>`;
 }
-let tsuroSelectedTile=null; // état global, survit aux re-renders périodiques (contrairement à une variable locale à la fonction)
-// Position en % à l'intérieur d'une case pour chaque point d'entrée/sortie (0-7), utilisée pour
-// positionner précisément les pions sur le bord exact qu'ils occupent, pas au centre de la case.
+let tsuroSelectedTile=null;
 const TSURO_POINT_POS={0:[35,2],1:[65,2],2:[98,35],3:[98,65],4:[65,98],5:[35,98],6:[2,65],7:[2,35]};
 function tsuroRender(){
   const g=gView;
@@ -1874,18 +1838,18 @@ function tsuroRender(){
 
   document.getElementById("g-title").textContent="Trace ton chemin, ne sors pas du plateau";
   const activeSlot=g.order[g.turnIdx];
-  document.getElementById("g-pill").textContent=g.finished?"Partie terminée":"Tour de "+pName(activeSlot);
+  document.getElementById("g-pill").textContent=g.finished?"Partie terminÃ©e":"Tour de "+pName(activeSlot);
   renderSeats(g.finished?null:activeSlot,s=>{
     const p=g.pawns[s];
-    if(!p||!p.alive)return"éliminé";
+    if(!p||!p.alive)return"Ã©liminÃ©";
     return (g.hands&&g.hands[s]?g.hands[s].length:0)+" tuiles";
   });
   document.getElementById("g-trick").innerHTML="";
   let centerText="";
   if(g.lastEliminated&&g.lastEliminated.length){
-    centerText=g.lastEliminated.map(s=>pName(s)).join(", ")+(g.lastEliminated.length>1?" sont éliminés":" est éliminé");
+    centerText=g.lastEliminated.map(s=>pName(s)).join(", ")+(g.lastEliminated.length>1?" sont Ã©liminÃ©s":" est Ã©liminÃ©");
   }
-  if(g.finished)centerText=g.aliveSlots&&g.aliveSlots.length===1?pName(g.aliveSlots[0])+" gagne ✦":"Partie terminée";
+  if(g.finished)centerText=g.aliveSlots&&g.aliveSlots.length===1?pName(g.aliveSlots[0])+" gagne â¦":"Partie terminÃ©e";
   document.getElementById("g-center").textContent=centerText;
   let grid=`<div class="tsuro-board" style="grid-template-columns:repeat(${TSURO_SIZE},${cellSize}px)">`;
   for(let y=0;y<TSURO_SIZE;y++){
@@ -1920,7 +1884,7 @@ function tsuroRender(){
         tsuroSelectedTile=parseInt(el.dataset.i);
         hand.querySelectorAll(".tsuro-handtile").forEach(e=>e.classList.remove("selected"));
         el.classList.add("selected");
-        msg("g-msg","Tuile sélectionnée. Tape sur ta case sur le plateau pour la poser.","ok");
+        msg("g-msg","Tuile sÃ©lectionnÃ©e. Tape sur ta case sur le plateau pour la poser.","ok");
       };
     });
     boardEl.querySelectorAll(`[data-x="${myPawn.x}"][data-y="${myPawn.y}"]`).forEach(el=>{
@@ -1932,18 +1896,16 @@ function tsuroRender(){
         sendAction({type:"placeTile",handIdx:placedIdx});
       };
     });
-    if(tsuroSelectedTile===null)msg("g-msg","À toi de jouer : choisis une tuile.","ok");
+    if(tsuroSelectedTile===null)msg("g-msg","Ã toi de jouer : choisis une tuile.","ok");
   }else{
-    msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"…","");
+    msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"â¦","");
   }
 }
-// Phase de placement : chaque joueur choisit son propre point de départ sur le bord du plateau,
-// chacun son tour, avant que la partie ne commence vraiment.
 function tsuroRenderPlacement(g,boardEl,cellSize){
   const placingSlot=g.order[g.placeIdx];
-  document.getElementById("g-title").textContent="Choisis ton point de départ sur le bord";
-  document.getElementById("g-pill").textContent=g.placeIdx>=g.order.length?"Prêt":"Tour de "+pName(placingSlot);
-  renderSeats(placingSlot,s=>g.pawns[s]?"prêt":"en attente");
+  document.getElementById("g-title").textContent="Choisis ton point de dÃ©part sur le bord";
+  document.getElementById("g-pill").textContent=g.placeIdx>=g.order.length?"PrÃªt":"Tour de "+pName(placingSlot);
+  renderSeats(placingSlot,s=>g.pawns[s]?"prÃªt":"en attente");
   document.getElementById("g-trick").innerHTML="";
   document.getElementById("g-center").textContent="";
   const takenSpots=new Set(Object.values(g.pawns).map(p=>p.x+","+p.y+","+p.point));
@@ -1977,18 +1939,15 @@ function tsuroRenderPlacement(g,boardEl,cellSize){
     });
     msg("g-msg","Tape sur un point libre du bord pour placer ton pion.","ok");
   }else{
-    msg("g-msg",g.pawns[mySlot]?"En attente des autres joueurs…":"Tour de "+pName(placingSlot)+"…","");
+    msg("g-msg",g.pawns[mySlot]?"En attente des autres joueursâ¦":"Tour de "+pName(placingSlot)+"â¦","");
   }
 }
 
-
-// ================= FIN DE PARTIE COMMUNE =================
-let myAppliedDeltaFor=null; // clé de manche pour laquelle j'ai déjà appliqué mon delta, pour ne jamais l'appliquer deux fois
+let myAppliedDeltaFor=null;
 function applyMyFinalDelta(g){
   if(!g||!g.finalDelta||mySlot<0)return;
-  const key=g.gid+":"+g.room+":"+(g.round||0)+":"+(g.seq||0)+":final";
   const roundKey=g.gid+":"+g.room+":"+(g.round||0);
-  if(myAppliedDeltaFor===roundKey)return; // déjà appliqué pour cette manche
+  if(myAppliedDeltaFor===roundKey)return;
   const myGain=g.finalDelta[mySlot];
   if(myGain===undefined)return;
   myAppliedDeltaFor=roundKey;
@@ -1998,13 +1957,13 @@ function applyMyFinalDelta(g){
 function broadcastScoreAndFinish(g,delta,extra){
   g.finalDelta=delta;g.finalExtra=extra||{};
   pushState();
-  applyMyFinalDelta(g); // le chef s'applique aussi son propre delta via le même chemin que tout le monde
+  applyMyFinalDelta(g);
   cset("GAME",encGame(myRoom,PHASE.RESULTS,g.gid,g.round,Date.now()));
 }
 let confettiShownFor=null;
 function showResults(st){
   show("s-results");
-  const names={1:"Bataille",2:"Tarot allégé",3:"Blackjack",4:"Nain Jaune",5:"Tsuro"};
+  const names={1:"Bataille",2:"Tarot allÃ©gÃ©",3:"Blackjack",4:"Nain Jaune",5:"Tsuro"};
   const delta=(gView&&gView.finalDelta)||{};
   const l=roomPlayers().sort((a,b)=>b.score-a.score);
   const roundKey=st.gameId+":"+st.round+":"+st.epoch;
@@ -2022,13 +1981,13 @@ function showResults(st){
         <div class="reswrap ${iWon?"win":"lose"}">
           <div class="reshero-avatars">${winners.map(p=>avatarHTML(p,iWon?84:60)).join("")}</div>
           <h1 class="reshero-title">${iWon?"Tu gagnes cette manche !":winnerNames+" gagne cette manche"}</h1>
-          <p class="reshero-sub">${roundGains.map(r=>esc(r.p.name)+" +"+r.g).join(" · ")}</p>
+          <p class="reshero-sub">${roundGains.map(r=>esc(r.p.name)+" +"+r.g).join(" Â· ")}</p>
         </div>`;
     }else{
       hero.innerHTML=`
         <div class="eyebrow">// ${esc(names[st.gameId]||"partie")}</div>
         <div class="reswrap lose">
-          <h1 class="reshero-title">Manche terminée</h1>
+          <h1 class="reshero-title">Manche terminÃ©e</h1>
           <p class="reshero-sub">Personne ne marque de points cette fois.</p>
         </div>`;
     }
@@ -2067,11 +2026,10 @@ document.getElementById("b-back").onclick=()=>{
   cset("GAME",encGame(myRoom,PHASE.PICKER,0,lastGame?lastGame.round:0,Date.now()));
 };
 
-// ================= FAILOVER CHEF =================
 function checkFailover(){
   if(!myRoom||isHost||!lastGame)return;
   if(lastGame.phase!==PHASE.PLAY&&lastGame.phase!==PHASE.RESULTS)return;
-  if(Date.now()-lastHostBeatSeen<20000)return; // délai de grâce large pour éviter les fausses promotions sur simple ralentissement réseau
+  if(Date.now()-lastHostBeatSeen<20000)return;
   const online=onlinePlayers();
   if(!online.length)return;
   const minSlot=Math.min(...online.map(p=>p.__slot));
@@ -2084,37 +2042,30 @@ function promoteToHost(){
   cset("HOSTBEAT",encBeat(myRoom,Date.now(),mySlot));
   refreshLobby();refreshResults();
   if(lastGame.phase===PHASE.PLAY&&gView){
-    // reprend l'état depuis la dernière vue synchronisée reçue, sans redistribuer les cartes
     gHost=Object.assign({},gView);
     gHost.seq=(gHost.seq||0);
     pushState();
-    msg("g-msg","Tu es devenu chef de partie (ancien chef déconnecté).","ok");
+    msg("g-msg","Tu es devenu chef de partie (ancien chef dÃ©connectÃ©).","ok");
   }
 }
 
 window.addEventListener("beforeunload",()=>{
-  if(mySlot>=0&&ws&&ws.readyState===1)ws.send(JSON.stringify({method:"set",name:"☁ SLOT"+mySlot,value:encSlot(myRoom,isHost,false,myScore,myName)}));
+  if(mySlot>=0&&ws&&ws.readyState===1)ws.send(JSON.stringify({method:"set",name:"â SLOT"+mySlot,value:encSlot(myRoom,isHost,false,myScore,myName)}));
 });
 setInterval(()=>{refreshLobby();refreshResults()},1200);
 setInterval(()=>{renderGame()},5000);
 setInterval(()=>{if(isHost&&myRoom)cset("HOSTBEAT",encBeat(myRoom,Date.now(),mySlot))},2000);
-// Empêche une partie de rester bloquée indéfiniment si le joueur dont c'est le tour
-// a quitté ou perdu sa connexion : le chef joue un coup valide à sa place après un délai.
 function handlePlayerLeftDuringGame(slot){
   if(!isHost||!gHost||!lastGame||lastGame.phase!==PHASE.PLAY)return;
   const g=gHost;
   if(g.gid===GID.TSURO&&g.phase==="placement"){
-    if(g.pawns[slot])return; // il avait déjà placé son pion, rien à faire ici
+    if(g.pawns[slot])return;
     const idxInOrder=g.order.indexOf(slot);
     if(idxInOrder<0)return;
     const wasCurrentPlacer=g.order[g.placeIdx]===slot;
     g.order.splice(idxInOrder,1);
     delete g.hands[slot];
-    if(wasCurrentPlacer){
-      // placeIdx pointait sur le joueur retiré : il pointe maintenant déjà sur le suivant, rien à ajuster
-    }else if(idxInOrder<g.placeIdx){
-      g.placeIdx--; // un joueur avant lui dans l'ordre a été retiré, décale l'index
-    }
+    if(!wasCurrentPlacer&&idxInOrder<g.placeIdx)g.placeIdx--;
     if(g.placeIdx>=g.order.length&&g.order.length>0){g.phase="playing";g.turnIdx=0}
     pushState();
     return;
@@ -2138,13 +2089,8 @@ function handlePlayerLeftDuringGame(slot){
     if(g.hands[slot].length){g.drawPile=(g.drawPile||[]).concat(g.hands[slot]);g.hands[slot]=[]}
     return;
   }
-  if(g.gid===GID.TAROT&&g.hands&&g.hands[slot]){
-    // au tarot un joueur qui part laisse simplement sa main non jouée : elle ne compte pour personne,
-    // le jeu continue avec les autres via le mécanisme anti-blocage déjà en place pour son tour.
-    return;
-  }
+  if(g.gid===GID.TAROT&&g.hands&&g.hands[slot])return;
   if(g.gid===GID.WAR&&g.piles&&g.piles[slot]){
-    // en bataille, un joueur qui part avec des cartes est traité comme éliminé (perd la manche)
     g.alive=(g.alive||[]).filter(s=>s!==slot);
     return;
   }
@@ -2154,10 +2100,8 @@ function checkStuckTurn(){
   const g=gHost;
   const online=onlinePlayers();
   if(online.length<2){
-    // il ne reste plus assez de joueurs en ligne pour continuer : on arrête proprement plutôt que
-    // de laisser la partie se jouer automatiquement toute seule jusqu'à la fin
     executeStopGame();
-    msg("g-msg","Partie arrêtée : plus assez de joueurs en ligne.","err");
+    msg("g-msg","Partie arrÃªtÃ©e : plus assez de joueurs en ligne.","err");
     return;
   }
   let waitingSlots=[];
@@ -2169,7 +2113,7 @@ function checkStuckTurn(){
     if(!g.resolving&&!g.finished&&g.turnIdx<g.order.length)waitingSlots=[g.order[g.turnIdx]];
   }
   waitingSlots.forEach(slot=>{
-    if(slot===mySlot)return; // je suis le chef, si c'est mon tour ce n'est pas un blocage réseau
+    if(slot===mySlot)return;
     if(isOnline(slot))return;
     autoPlayForStuckSlot(slot);
   });
@@ -2185,7 +2129,7 @@ function autoPlayForStuckSlot(slot){
     const legal=tarotLegal(hand,leadKind,leadSuit);
     if(legal.length)tarotAction({slot,type:"play",cardIdx:legal[0]});
   }else if(g.gid===GID.BJ){
-    bjAction({slot,type:"stand"}); // par prudence, un joueur absent reste plutôt que de risquer un bust automatique
+    bjAction({slot,type:"stand"});
   }else if(g.gid===GID.YELLOW){
     const hand=g.hands[slot]||[];
     const legal=yellowCanPlay(hand,g.lastRank);
@@ -2202,11 +2146,8 @@ function autoPlayForStuckSlot(slot){
     }
   }
 }
-setInterval(checkStuckTurn,10000); // vérifie toutes les 10s ; isOnline() a son propre seuil de 60s avant de considérer un joueur hors ligne
+setInterval(checkStuckTurn,10000);
 setInterval(checkFailover,3000);
-// Le serveur cloud TurboWarp peut regrouper/perdre certaines mises à jour (documenté officiellement).
-// Le chef republie donc l'état de jeu courant toutes les 3s tant qu'une manche est active,
-// pour que quiconque ait raté le message initial finisse par recevoir un état à jour.
 setInterval(()=>{
   if(isHost&&gHost&&lastGame&&(lastGame.phase===PHASE.PLAY||lastGame.phase===PHASE.RESULTS)){
     cset("STATE",encState(myRoom,gHost.seq,gHost));
@@ -2214,7 +2155,6 @@ setInterval(()=>{
   }
 },3000);
 
-// Initialisation au chargement : pseudo mémorisé, préférences visuelles
 (function initOnLoad(){
   if(prefs.lastName)document.getElementById("i-name").value=prefs.lastName;
   applyCardSizePref();
