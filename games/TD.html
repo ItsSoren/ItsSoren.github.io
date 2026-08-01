@@ -1,10 +1,10 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — Overdrive</title>
+<title>Dark Rift TD — Touch Overdrive</title>
 <style>
 :root{--cyan:#61f4ff;--violet:#a970ff;--pink:#ff4aa2;--gold:#ffd166;--green:#51ffb0;--red:#ff5d73;--panel:rgba(10,13,28,.86);--line:rgba(128,221,255,.22);--text:#ecfaff;--muted:#8aa5ba}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -37,6 +37,73 @@ button{font:inherit}
 #placementHint{position:fixed;z-index:4;left:50%;bottom:82px;transform:translateX(-50%);padding:8px 12px;border-radius:999px;font-size:11px;color:var(--cyan);display:none}
 @media(max-width:900px){#topbar{left:8px;right:8px;transform:none;overflow-x:auto;justify-content:flex-start}.metric{min-width:76px;padding:7px 9px}.metric span{font-size:14px}.metric b{font-size:8px}#towerDock{top:142px;bottom:74px;width:214px;transform:translateX(calc(-100% - 24px));transition:.25s ease}#towerDock.open{transform:none}#mobileToggle{display:block}#abilityDock{left:8px;right:8px;bottom:8px;overflow-x:auto}.ability{min-width:112px;padding:9px 10px;font-size:11px}#inspector{top:142px;bottom:74px;max-height:none;width:min(286px,82vw)}.feature-row{grid-template-columns:1fr}.modal{padding:20px}#relicChoices{grid-template-columns:1fr;max-height:65vh;overflow:auto}}
 @media(max-width:560px){#topbar{top:7px}.metric{min-width:68px}.icon-btn{min-width:38px;width:38px}.action-btn.primary{min-width:92px}#towerDock,#inspector{top:128px}.logo{font-size:42px}#bossBar{top:126px;width:85vw}}
+
+/* ===== MOBILE FIRST TOUCH EDITION ===== */
+:root{--safe-top:env(safe-area-inset-top,0px);--safe-right:env(safe-area-inset-right,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px)}
+#mobileCamera,#mobilePlacement,#gestureCoach{display:none}
+#mobileCamera{position:fixed;z-index:11;right:max(9px,var(--safe-right));top:50%;transform:translateY(-50%);flex-direction:column;gap:7px}
+.touch-tool{width:48px;height:48px;border-radius:15px;font-size:20px;font-weight:1000;border:1px solid rgba(151,235,255,.28);color:#fff;background:linear-gradient(145deg,rgba(20,29,57,.94),rgba(7,10,25,.91));box-shadow:0 10px 28px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(15px);touch-action:manipulation}
+.touch-tool:active{transform:scale(.92);border-color:var(--cyan);box-shadow:0 0 22px rgba(97,244,255,.3)}
+#mobilePlacement{position:fixed;z-index:18;left:max(8px,var(--safe-left));right:max(8px,var(--safe-right));bottom:calc(72px + var(--safe-bottom));align-items:center;gap:8px;padding:8px;border-radius:18px;transform:translateY(150%);opacity:0;transition:.22s ease;pointer-events:none}
+#mobilePlacement.active{transform:none;opacity:1;pointer-events:auto}
+#mobilePlacementStatus{min-width:0;flex:1;padding:0 6px;font-size:11px;line-height:1.25;color:var(--muted)}
+#mobilePlacementStatus b{display:block;color:var(--cyan);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.placement-action{min-height:48px;border-radius:14px;padding:0 15px;font-weight:1000;border:1px solid rgba(255,255,255,.15);color:#fff;touch-action:manipulation}
+#mobilePlaceCancel{background:linear-gradient(145deg,rgba(255,77,108,.28),rgba(62,9,29,.5));border-color:rgba(255,93,115,.5)}
+#mobilePlaceConfirm{background:linear-gradient(135deg,#22b8ff,#765dff);border-color:#a6f5ff;box-shadow:0 0 20px rgba(64,190,255,.22)}
+#mobilePlaceConfirm:disabled{opacity:.38;filter:saturate(.45);box-shadow:none}
+#gestureCoach{position:fixed;z-index:45;left:50%;top:calc(122px + var(--safe-top));transform:translate(-50%,-16px);opacity:0;max-width:calc(100vw - 24px);padding:10px 14px;border-radius:999px;pointer-events:none;text-align:center;font-size:11px;font-weight:850;color:#e9fbff;transition:.3s ease}
+#gestureCoach.show{opacity:1;transform:translate(-50%,0)}
+#inspectorClose{position:sticky;z-index:3;top:-5px;float:right;width:42px;height:42px;margin:-4px -4px 4px 8px;border-radius:13px;border:1px solid rgba(255,255,255,.14);background:rgba(5,8,20,.9);color:#fff;font-size:21px;font-weight:1000;touch-action:manipulation}
+body.touch-edition #game{cursor:default}
+body.touch-edition button{touch-action:manipulation}
+body.touch-edition .tower-card,body.touch-edition .action-btn,body.touch-edition .icon-btn{user-select:none;-webkit-user-select:none}
+body.touch-edition .tower-card{scroll-snap-align:start}
+body.touch-edition #towerList{scroll-snap-type:y proximity}
+@media(max-width:900px),(pointer:coarse){
+  #mobileCamera,#mobilePlacement,#gestureCoach{display:flex}
+  #topbar{left:max(7px,var(--safe-left));right:max(7px,var(--safe-right));top:calc(6px + var(--safe-top));transform:none;max-width:none;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;padding:6px;border-radius:17px;overflow:visible}
+  #topbar .metric{grid-column:span 2;min-width:0;padding:6px 4px;text-align:center;border-radius:10px}
+  #topbar .metric b{font-size:7px;letter-spacing:.07em;white-space:nowrap}
+  #topbar .metric span{font-size:14px}
+  #waveBtn{grid-column:span 4;width:100%;height:42px;padding:7px 8px}
+  #speedBtn,#pauseBtn,#autoBtn,#soundBtn{grid-column:span 1;width:100%;min-width:0;height:42px;border-radius:11px}
+  #mobileToggle{display:block;top:auto;left:max(8px,var(--safe-left));bottom:calc(8px + var(--safe-bottom));width:98px;height:54px;border-radius:17px;font-size:12px;letter-spacing:.01em}
+  #towerDock{z-index:16;left:max(8px,var(--safe-left));right:max(8px,var(--safe-right));top:auto;bottom:calc(70px + var(--safe-bottom));width:auto;height:min(43vh,320px);padding:11px;border-radius:22px;transform:translateY(calc(100% + 90px));transition:.24s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain}
+  #towerDock.open{transform:none}
+  #towerDock .panel-title{position:sticky;z-index:3;top:-11px;margin:-11px -11px 9px;padding:13px 12px 10px;background:linear-gradient(180deg,rgba(11,15,32,.99),rgba(11,15,32,.9));border-radius:21px 21px 0 0}
+  #towerList{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .tower-card{min-height:91px;padding:9px;border-radius:15px}
+  .tower-card .ico{font-size:24px}.tower-card strong{font-size:11px}.tower-card small{font-size:8px;line-height:1.15}.tower-card em{font-size:9px}
+  #abilityDock{z-index:10;left:114px;right:max(8px,var(--safe-right));bottom:calc(8px + var(--safe-bottom));height:54px;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+  #abilityDock::-webkit-scrollbar{display:none}
+  .ability{min-width:106px;height:54px;padding:7px 9px;border-radius:16px;scroll-snap-align:start;font-size:10px}
+  .ability small{display:none}.ability strong{font-size:10px}
+  #inspector{z-index:17;left:max(8px,var(--safe-left));right:max(8px,var(--safe-right));top:auto;bottom:calc(70px + var(--safe-bottom));width:auto;max-height:min(62vh,520px);padding:13px;border-radius:22px;transform:translateY(calc(100% + 90px));transition:.24s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain}
+  #inspector.open{transform:none}
+  #toast{top:calc(116px + var(--safe-top));max-width:calc(100vw - 24px);text-align:center}
+  #bossBar{top:calc(118px + var(--safe-top));width:82vw}
+  #placementHint{display:none!important}
+  .mode-btn{min-height:42px;font-size:10px}.upgrade-btn{min-height:48px}.sell{min-height:48px}
+  .modal{width:min(680px,96vw);max-height:calc(100dvh - 20px);overflow:auto;padding:20px 16px;border-radius:24px}
+  .overlay{padding:10px;padding-top:calc(10px + var(--safe-top));padding-bottom:calc(10px + var(--safe-bottom))}
+  #relicChoices{grid-template-columns:1fr;max-height:none;overflow:visible}
+}
+@media(max-width:590px){
+  #towerList{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #towerDock{height:min(46vh,350px)}
+  .feature-row{grid-template-columns:1fr}.feature{padding:10px}.logo{font-size:39px}.subtitle{font-size:13px;margin:14px auto}
+  #mobileCamera{right:max(7px,var(--safe-right))}.touch-tool{width:45px;height:45px}
+  #mobilePlacementStatus{font-size:9px}#mobilePlacementStatus b{font-size:11px}.placement-action{padding:0 12px}
+}
+@media(max-height:520px) and (orientation:landscape){
+  #topbar{right:auto;width:min(460px,70vw);grid-template-columns:repeat(8,minmax(0,1fr))}
+  #towerDock{left:auto;width:min(62vw,560px);height:calc(100dvh - 82px)}
+  #inspector{left:auto;width:min(56vw,450px);max-height:calc(100dvh - 82px)}
+  #mobileCamera{top:55%}
+  #gestureCoach{top:112px}
+}
+
 </style>
 </head>
 <body>
@@ -63,11 +130,24 @@ button{font:inherit}
 <div id="toast" class="glass"></div>
 <div id="bossBar"><div class="boss-name" id="bossName">BOSS</div><div class="bar"><i id="bossFill"></i></div></div>
 <div id="placementHint" class="glass">Clique sur une zone libre • clic droit ou Échap pour annuler</div>
+
+<div id="mobileCamera" aria-label="Commandes de caméra">
+  <button id="touchZoomIn" class="touch-tool" aria-label="Zoomer">＋</button>
+  <button id="touchCenter" class="touch-tool" aria-label="Recentrer">⌾</button>
+  <button id="touchZoomOut" class="touch-tool" aria-label="Dézoomer">−</button>
+</div>
+<div id="mobilePlacement" class="glass" aria-live="polite">
+  <button id="mobilePlaceCancel" class="placement-action">✕</button>
+  <div id="mobilePlacementStatus"><b>Choisis un emplacement</b><span>Touche la carte, puis confirme.</span></div>
+  <button id="mobilePlaceConfirm" class="placement-action" disabled>✓ POSER</button>
+</div>
+<div id="gestureCoach" class="glass">☝️ Glisse pour déplacer • 🤏 pince pour zoomer • touche une tour pour l’améliorer</div>
+
 <div id="startOverlay" class="overlay">
 <div class="modal glass">
-<div class="logo">DARK RIFT<br>OVERDRIVE</div>
+<div class="logo">DARK RIFT<br>TOUCH OVERDRIVE</div>
 <p class="subtitle">Un tower defense néon entièrement autonome : place tes défenses, compose des synergies, choisis des reliques et détruis les boss qui émergent de la faille.</p>
-<div class="feature-row"><div class="feature"><b>12 défenses</b><small>Évolutions, ciblage et spécialisations.</small></div><div class="feature"><b>Boss & reliques</b><small>Une nouvelle décision stratégique toutes les 4 vagues.</small></div><div class="feature"><b>PC + mobile</b><small>Zoom, déplacement tactile et interface responsive.</small></div></div>
+<div class="feature-row"><div class="feature"><b>12 défenses</b><small>Évolutions, ciblage et spécialisations.</small></div><div class="feature"><b>Boss & reliques</b><small>Une nouvelle décision stratégique toutes les 4 vagues.</small></div><div class="feature"><b>Mobile First</b><small>Pinch-to-zoom, placement confirmé et commandes tactiles.</small></div></div>
 <button id="startBtn" class="action-btn primary" style="font-size:17px;padding:14px 26px">OUVRIR LA FAILLE</button>
 <p style="margin-top:14px;color:var(--muted);font-size:10px">Raccourcis : 1–9 tours • Espace vague • P pause • F/G/H pouvoirs • molette zoom</p>
 </div>
@@ -133,7 +213,71 @@ function drawPolyline(points){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo
 function distanceToPolyline(p,points){let best=Infinity;for(let i=0;i<points.length-1;i++){const a=points[i],b=points[i+1],vx=b.x-a.x,vy=b.y-a.y,wx=p.x-a.x,wy=p.y-a.y,t=clamp((wx*vx+wy*vy)/(vx*vx+vy*vy),0,1),x=a.x+vx*t,y=a.y+vy*t;best=Math.min(best,Math.hypot(p.x-x,p.y-y))}return best}
 function drawPortal(x,y,color,time){ctx.save();ctx.translate(x,y);ctx.rotate(time*.6);ctx.shadowBlur=26;ctx.shadowColor=color;for(let i=0;i<3;i++){ctx.strokeStyle=color;ctx.globalAlpha=.7-i*.16;ctx.lineWidth=5-i;ctx.beginPath();ctx.arc(0,0,22+i*9,0,Math.PI*1.45);ctx.stroke();ctx.rotate(1.9)}ctx.globalAlpha=1;ctx.fillStyle='#02030a';ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.fill();ctx.restore()}
 function roundRect(c,x,y,w,h,r){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r):(c.rect(x,y,w,h))}
-const game=new Game();let last=performance.now();
+
+function initMobileEdition(g){
+  const coarse=()=>matchMedia('(pointer:coarse)').matches||innerWidth<=900;
+  if(coarse())document.body.classList.add('touch-edition');
+  const dock=$('#towerDock'),toggle=$('#mobileToggle'),placement=$('#mobilePlacement'),placeStatus=$('#mobilePlacementStatus'),confirmBtn=$('#mobilePlaceConfirm');
+  const active=new Map();let gesture=null,single=null,preview={active:false,x:0,y:0,valid:false},lastTap={time:0,x:0,y:0};
+  const haptic=(pattern=10)=>{try{navigator.vibrate?.(pattern)}catch(_){}};
+  const clampCamera=()=>{const margin=110/g.cam.zoom;g.cam.x=clamp(g.cam.x,-margin,WORLD.w+margin);g.cam.y=clamp(g.cam.y,-margin,WORLD.h+margin)};
+  const setToggleLabel=()=>{toggle.textContent=dock.classList.contains('open')?'✕ FERMER':'🏗 TOURS'};
+  const closeSheets=(except='')=>{if(except!=='tower')dock.classList.remove('open');if(except!=='inspector'&&g.selected){g.selected=null;g.renderInspector()}setToggleLabel()};
+  const setPreview=(x,y)=>{preview={active:true,x,y,valid:g.canPlace(x,y)};g.pointer.wx=x;g.pointer.wy=y;confirmBtn.disabled=!preview.valid;placeStatus.innerHTML=preview.valid?`<b>${g.placing?.icon||'🏗'} Emplacement prêt</b><span>Valide pour construire • coût ${Math.ceil((g.placing?.cost||0)*g.mods.cost)}</span>`:`<b style="color:var(--red)">Zone impossible</b><span>Éloigne-toi du chemin et des autres tours.</span>`;haptic(preview.valid?8:[8,35,8])};
+  const clearPreview=()=>{preview={active:false,x:0,y:0,valid:false};g.pointer.wx=-9999;g.pointer.wy=-9999;confirmBtn.disabled=true;placeStatus.innerHTML='<b>Choisis un emplacement</b><span>Touche la carte, puis confirme.</span>'};
+  const zoomAt=(sx,sy,factor)=>{const before=g.screenToWorld(sx,sy);g.cam.zoom=clamp(g.cam.zoom*factor,.42,2.35);g.cam.x=before.x-(sx-VW/2)/g.cam.zoom;g.cam.y=before.y-(sy-VH/2)/g.cam.zoom;clampCamera()};
+  const showCoach=()=>{const coach=$('#gestureCoach');coach.classList.add('show');clearTimeout(g.mobileCoachTimer);g.mobileCoachTimer=setTimeout(()=>coach.classList.remove('show'),5200)};
+
+  const originalBegin=g.beginPlacement.bind(g),originalCancel=g.cancelPlacement.bind(g),originalPlace=g.placeTower.bind(g),originalRender=g.renderInspector.bind(g),originalToggle=toggle.onclick;
+  g.beginPlacement=id=>{originalBegin(id);if(!g.placing)return;if(coarse()){clearPreview();placement.classList.add('active');dock.classList.remove('open');setToggleLabel();g.toast('Touche une zone, puis valide');showCoach()}};
+  g.cancelPlacement=()=>{originalCancel();clearPreview();placement.classList.remove('active')};
+  g.placeTower=(x,y)=>{const count=g.towers.length;originalPlace(x,y);if(g.towers.length>count){haptic(18);placement.classList.remove('active');clearPreview()}};
+  g.renderInspector=()=>{originalRender();if(!coarse())return;const panel=$('#inspector');if(g.selected){dock.classList.remove('open');setToggleLabel();if(!$('#inspectorClose')){const close=document.createElement('button');close.id='inspectorClose';close.textContent='×';close.setAttribute('aria-label','Fermer les améliorations');close.onclick=()=>{g.selected=null;g.renderInspector();haptic(7)};panel.prepend(close)}}};
+
+  toggle.onclick=()=>{if(g.placing)g.cancelPlacement();g.selected=null;g.renderInspector();dock.classList.toggle('open');setToggleLabel();haptic(7)};
+  setToggleLabel();
+  $('#mobilePlaceCancel').onclick=()=>{g.cancelPlacement();haptic(7)};
+  confirmBtn.onclick=()=>{if(g.placing&&preview.active&&preview.valid)g.placeTower(preview.x,preview.y);else haptic([10,35,10])};
+  $('#touchZoomIn').onclick=()=>{zoomAt(VW/2,VH/2,1.22);haptic(6)};
+  $('#touchZoomOut').onclick=()=>{zoomAt(VW/2,VH/2,.82);haptic(6)};
+  $('#touchCenter').onclick=()=>{g.cam.x=WORLD.w/2;g.cam.y=WORLD.h/2;g.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*.98,.46,1.4);if(preview.active){const p=g.screenToWorld(VW/2,VH/2);setPreview(p.x,p.y)}haptic(9)};
+
+  const originalStart=$('#startBtn').onclick;
+  $('#startBtn').onclick=e=>{originalStart?.(e);if(coarse())setTimeout(showCoach,250)};
+
+  g.pointerDown=e=>{
+    if(!coarse()){g.pointer.down=true;g.pointer.moved=false;g.pointer.x=e.clientX;g.pointer.y=e.clientY;const w=g.screenToWorld(e.clientX,e.clientY);g.pointer.wx=w.x;g.pointer.wy=w.y;g.dragOrigin={sx:e.clientX,sy:e.clientY,cx:g.cam.x,cy:g.cam.y};return}
+    e.preventDefault();canvas.setPointerCapture?.(e.pointerId);audio.unlock();
+    active.set(e.pointerId,{id:e.pointerId,x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,time:performance.now(),moved:false});
+    g.pointer.down=true;g.pointer.moved=false;g.pointer.x=e.clientX;g.pointer.y=e.clientY;
+    const w=g.screenToWorld(e.clientX,e.clientY);g.pointer.wx=w.x;g.pointer.wy=w.y;
+    if(active.size===1){single={id:e.pointerId,startX:e.clientX,startY:e.clientY,camX:g.cam.x,camY:g.cam.y,time:performance.now(),moved:false}}
+    if(active.size===2){const pts=[...active.values()],cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,d=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);gesture={distance:Math.max(10,d),zoom:g.cam.zoom,anchor:g.screenToWorld(cx,cy)};single=null;pts.forEach(p=>p.moved=true)}
+  };
+  g.pointerMove=e=>{
+    if(!coarse()){const w=g.screenToWorld(e.clientX,e.clientY);g.pointer.x=e.clientX;g.pointer.y=e.clientY;g.pointer.wx=w.x;g.pointer.wy=w.y;if(g.pointer.down&&g.dragOrigin&&Math.hypot(e.clientX-g.dragOrigin.sx,e.clientY-g.dragOrigin.sy)>7){g.pointer.moved=true;if(!g.placing){g.cam.x=g.dragOrigin.cx-(e.clientX-g.dragOrigin.sx)/g.cam.zoom;g.cam.y=g.dragOrigin.cy-(e.clientY-g.dragOrigin.sy)/g.cam.zoom}}return}
+    e.preventDefault();const p=active.get(e.pointerId);if(!p)return;p.x=e.clientX;p.y=e.clientY;
+    g.pointer.x=e.clientX;g.pointer.y=e.clientY;
+    if(active.size>=2&&gesture){const pts=[...active.values()].slice(0,2),cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,d=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);g.cam.zoom=clamp(gesture.zoom*d/gesture.distance,.42,2.35);g.cam.x=gesture.anchor.x-(cx-VW/2)/g.cam.zoom;g.cam.y=gesture.anchor.y-(cy-VH/2)/g.cam.zoom;pts.forEach(x=>x.moved=true);g.pointer.moved=true;clampCamera();return}
+    if(single&&single.id===e.pointerId){const dx=e.clientX-single.startX,dy=e.clientY-single.startY;if(Math.hypot(dx,dy)>8){single.moved=true;p.moved=true;g.pointer.moved=true;g.cam.x=single.camX-dx/g.cam.zoom;g.cam.y=single.camY-dy/g.cam.zoom;clampCamera()}}
+  };
+  g.pointerUp=e=>{
+    if(!coarse()){if(g.pointer.down&&!g.pointer.moved){const w=g.screenToWorld(e.clientX,e.clientY);g.handleWorldClick(w.x,w.y)}g.pointer.down=false;g.dragOrigin=null;return}
+    e.preventDefault();const p=active.get(e.pointerId);if(!p)return;const wasGesture=!!gesture||active.size>1;active.delete(e.pointerId);
+    if(active.size<2)gesture=null;
+    if(active.size===1){const r=[...active.values()][0];single={id:r.id,startX:r.x,startY:r.y,camX:g.cam.x,camY:g.cam.y,time:performance.now(),moved:true}}
+    else single=null;
+    if(!wasGesture&&!p.moved&&performance.now()-p.time<420){const w=g.screenToWorld(e.clientX,e.clientY),now=performance.now(),doubleTap=now-lastTap.time<310&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<28;lastTap={time:now,x:e.clientX,y:e.clientY};
+      if(g.placing){setPreview(w.x,w.y)}else if(doubleTap&&!g.towers.some(t=>Math.hypot(t.x-w.x,t.y-w.y)<32)){zoomAt(e.clientX,e.clientY,1.32);haptic(8)}else{g.handleWorldClick(w.x,w.y);if(g.selected){dock.classList.remove('open');setToggleLabel();haptic(8)}}
+    }
+    g.pointer.down=active.size>0;g.pointer.moved=false;
+  };
+
+  addEventListener('resize',()=>{if(coarse())document.body.classList.add('touch-edition');else document.body.classList.remove('touch-edition');clampCamera()});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){active.clear();gesture=null;single=null;g.pointer.down=false}});
+}
+
+const game=new Game();initMobileEdition(game);let last=performance.now();
 function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;game.update(dt);game.draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 </script>
 </body>
