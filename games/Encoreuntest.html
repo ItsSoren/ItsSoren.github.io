@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>TAPIS // party v2.1</title>
+<title>TAPIS // party v3.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -86,8 +86,8 @@ button:disabled{opacity:.35}
 .themeswatch b{position:relative;z-index:2;font-size:11px;letter-spacing:.4px}
 .themeswatch.active{border-color:var(--text);box-shadow:0 0 0 2px var(--accent),0 8px 20px #0004}
 .themeswatch span{position:absolute;top:8px;right:8px;width:14px;height:14px;border-radius:50%;border:2px solid #ffffffaa;box-shadow:0 2px 8px #0006}
-body.big-cards .handrow .card:not(.compact-force){width:86px;height:122px}
-body.big-cards .handrow.compact .card{width:58px;height:82px}
+body.big-cards .handrow .card:not(.compact-force){width:56px;height:80px}
+body.big-cards .handrow.compact .card{width:40px;height:58px}
 .publicroom{background:#0F211B;border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;animation:prowIn .3s ease-out}
 .publicroom .prname{font-weight:700;font-size:14px}
 .publicroom .prmeta{font-size:11px;color:var(--dim);margin-top:2px}
@@ -169,29 +169,29 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 @keyframes avatarPulse{0%,100%{box-shadow:0 0 0 3px var(--accent),0 0 0 0 #F2B70588}50%{box-shadow:0 0 0 3px var(--accent),0 0 0 9px #F2B70500}}
 .seatcard-anchor{position:absolute;left:50%;transform:translateX(-50%);z-index:2}
 .seatcard{display:flex;justify-content:center}
-.seatcard .card{width:30px;height:42px;border-radius:6px;box-shadow:0 2px 4px #0006}
-.seatcard .card .v{font-size:.72em}
-.seatcard .card .s{font-size:.6em;margin-top:0}
+.seatcard .card{width:20px;height:29px;border-radius:4px;box-shadow:0 2px 4px #0006}
+.seatcard .card .v{font-size:.58em}
+.seatcard .card .s{font-size:.5em;margin-top:0}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;color:#152A22;position:relative;flex-shrink:0;box-shadow:0 3px 6px #0005,0 0 0 2px #ffffff14}
 .avdot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--bg)}
 .avdot.on{background:var(--ok);box-shadow:0 0 4px var(--ok)}
-.pile{display:flex;justify-content:center;align-items:center;gap:14px;min-height:100px;margin:4px 0}
-.card{width:70px;height:100px;border-radius:12px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative;flex-shrink:0}
+.pile{display:flex;justify-content:center;align-items:center;gap:8px;min-height:60px;margin:3px 0}
+.card{width:40px;height:58px;border-radius:8px;background:#F5EFE0;color:#152A22;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--disp);font-weight:600;box-shadow:0 3px 0 #0002;position:relative;flex-shrink:0}
 .trickslot .card,.pile .card{animation:cardIn .25s ease-out}
 @keyframes cardIn{from{transform:translateY(-14px) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes trumpPulse{0%,100%{box-shadow:0 3px 0 #0002,0 0 0 2px var(--accent)}50%{box-shadow:0 3px 0 #0002,0 0 10px 3px var(--accent)}}
 .card.red{color:#C0392B}
-.card .v{font-size:1.4em}
-.card .s{font-size:1.1em;margin-top:2px}
+.card .v{font-size:1em}
+.card .s{font-size:.7em;margin-top:1px}
 .card.back{background:linear-gradient(135deg,var(--accent2),#B33A3A);color:transparent}
 .card.trump{animation:trumpPulse 1s ease-in-out infinite}
 .trickslot .card.trump,.pile .card.trump{animation:cardIn .25s ease-out,trumpPulse 1s ease-in-out infinite}
-.card.mini{width:52px;height:76px}
-.card.mini .v{font-size:1.05em}
-.handrow{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;margin-top:16px;max-width:460px;padding:4px 8px 10px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
-.handrow.compact .card{width:46px;height:66px}
-.handrow.compact .card .v{font-size:1em}
-.handrow.compact .card .s{font-size:.8em;margin-top:0}
+.card.mini{width:30px;height:44px}
+.card.mini .v{font-size:.78em}
+.handrow{display:flex;gap:4px;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;margin-top:10px;max-width:460px;padding:3px 6px 8px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.handrow.compact .card{width:28px;height:40px}
+.handrow.compact .card .v{font-size:.72em}
+.handrow.compact .card .s{font-size:.56em;margin-top:0}
 .handrow .card{scroll-snap-align:center}
 .tsuro-board{display:grid;gap:2px;background:var(--felt-edge);padding:4px;border-radius:8px;margin:0 auto}
 .tsuro-slot{position:relative}
@@ -209,39 +209,149 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 .handrow .card:active{transform:translateY(-6px)}
 .handrow .card.dis{opacity:.4;filter:grayscale(70%) brightness(.75);cursor:default;transform:translateY(6px);box-shadow:none;pointer-events:none}
 .handrow .card.dis:active{transform:none}
-.trickzone{display:flex;justify-content:center;gap:6px;min-height:64px;align-items:center;flex-wrap:wrap;max-width:90%}
+.trickzone{display:flex;justify-content:center;gap:4px;min-height:40px;align-items:center;flex-wrap:wrap;max-width:90%}
 .trickslot{display:flex;flex-direction:column;align-items:center;gap:2px}
 .trickslot .nm{font-size:8px;color:#F5EFE0cc;font-family:var(--disp)}
-.trickslot .card{width:44px;height:62px}
-.trickslot .card .v{font-size:1em}
-.trickslot .card .s{font-size:.8em}
+.trickslot .card{width:28px;height:40px}
+.trickslot .card .v{font-size:.72em}
+.trickslot .card .s{font-size:.55em}
 .centerlabel{font-family:var(--disp);font-size:10px;color:var(--accent);text-align:center;margin-top:2px;letter-spacing:.5px;min-height:14px}
 .waitbox{text-align:center;padding:30px 0;color:var(--dim);font-family:var(--disp);font-size:13px}
 
 /* Mise en page d&#233;di&#233;e &#224; Tsuro : le plateau agrandit r&#233;ellement son conteneur,
    les joueurs sont affich&#233;s au-dessus et ne recouvrent plus les cases. */
-#tableOval.tsuro-mode{aspect-ratio:auto;max-width:420px;margin:18px auto 4px;overflow:visible}
-#tableOval.tsuro-mode::before{display:none}
-#tableOval.tsuro-mode #tableFelt{position:relative;inset:auto;border-radius:22px;background:transparent;box-shadow:none;padding:0;overflow:visible;min-height:0}
-#tableOval.tsuro-mode #seats{display:none}
+#tableOval.tsuro-mode{
+  aspect-ratio:auto;
+  width:100%;
+  max-width:460px;
+  margin:18px auto 4px;
+  overflow:visible;
+  background:none!important;
+  box-shadow:none!important;
+}
+#tableOval.tsuro-mode::before,
+#tableOval.tsuro-mode::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+}
+#tableOval.tsuro-mode #tableFelt{
+  position:relative;
+  inset:auto;
+  width:100%;
+  min-height:0;
+  padding:0;
+  overflow:visible;
+  border-radius:0;
+  background:none!important;
+  box-shadow:none!important;
+}
+#tableOval.tsuro-mode #seats{display:none!important}
 #tableOval.tsuro-mode .pile{min-height:0;margin:0;width:100%;overflow:visible}
 #tableOval.tsuro-mode .trickzone{max-width:100%;width:100%;min-height:0}
-.tsuro-playerbar{display:flex;gap:7px;justify-content:center;align-items:stretch;flex-wrap:wrap;width:100%;margin:0 auto 10px}
-.tsuro-playerchip{display:flex;align-items:center;gap:7px;min-width:128px;max-width:190px;flex:1;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:7px 9px}
-.tsuro-playerchip.turn{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent)}
+
+/* Joueurs Tsuro séparés du plateau : 2 colonnes sur mobile, 4 sur écran large. */
+.tsuro-playerbar{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  width:100%;
+  margin:0 auto 16px;
+  padding:0 2px;
+}
+.tsuro-playerchip{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  width:100%;
+  max-width:none;
+  background:var(--panel);
+  border:2px solid var(--line);
+  border-radius:15px;
+  padding:9px 10px;
+}
+.tsuro-playerchip:last-child:nth-child(odd){
+  grid-column:1/-1;
+  width:calc(50% - 6px);
+  justify-self:center;
+}
+.tsuro-playerchip.turn{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent),0 8px 20px #0003;
+}
 .tsuro-playerchip.dead{opacity:.55}
 .tsuro-playerchip .tpname{font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tsuro-playerchip .tpmeta{font-family:var(--disp);font-size:9px;color:var(--dim);margin-top:1px}
-.tsuro-board{max-width:100%;overflow:hidden;box-shadow:0 14px 30px #0004,inset 0 0 0 1px #ffffff08}
+.tsuro-playerchip .tpmeta{font-family:var(--disp);font-size:9px;color:var(--dim);margin-top:2px}
+.tsuro-board{
+  max-width:100%;
+  overflow:hidden;
+  box-shadow:0 14px 30px #0004,inset 0 0 0 1px #ffffff08;
+}
+.tsuro-handtile{
+  border-radius:10px;
+  border-width:2px;
+}
 #tableOval.tsuro-mode + #g-controls{margin-top:8px}
 #s-game.tsuro-screen .wrap{margin-top:52px!important}
-#s-game.tsuro-screen #g-hand{overflow:visible;justify-content:center;flex-wrap:wrap;margin-top:14px}
+#s-game.tsuro-screen #g-hand{
+  overflow:visible;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:16px;
+}
 #s-game.tsuro-screen #g-msg{padding-bottom:8px}
+
+@media(min-width:600px){
+  .tsuro-playerbar{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tsuro-playerchip:last-child:nth-child(odd){
+    grid-column:auto;
+    width:100%;
+  }
+}
 @media(max-width:380px){
   .scr{padding-left:12px;padding-right:12px}
-  .tsuro-playerchip{min-width:112px;padding:6px 7px}
+  .tsuro-playerbar{gap:9px;margin-bottom:13px}
+  .tsuro-playerchip{padding:7px 8px;gap:7px}
   #s-game.tsuro-screen .wrap{margin-top:38px}
 }
+
+
+/* ================= CHAT DE SALON ================= */
+#chatFab{position:fixed;right:16px;bottom:calc(84px + var(--safe-bottom));z-index:72;width:48px;height:48px;min-height:0;padding:0;border-radius:50%;display:none;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--accent2),var(--accent));color:#10231E;border:2px solid #ffffff66;box-shadow:0 10px 26px #0008,0 0 0 5px color-mix(in srgb,var(--accent2) 12%,transparent);font-size:21px}
+#chatFab:active{transform:scale(.92)}
+#chatFab.ping{animation:chatPing .55s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes chatPing{0%{transform:scale(1)}45%{transform:scale(1.16) rotate(-7deg)}100%{transform:scale(1)}}
+#chatBadge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:12px;background:var(--bad);color:#fff;border:2px solid var(--bg);font-family:var(--disp);font-size:10px;line-height:16px;text-align:center;display:none}
+#chatOverlay{position:fixed;inset:0;z-index:96;display:none;pointer-events:none}
+#chatOverlay.open{display:block}
+#chatScrim{position:absolute;inset:0;background:linear-gradient(to top,#0008,transparent 58%);pointer-events:auto}
+#chatPanel{position:absolute;left:12px;right:12px;bottom:calc(74px + var(--safe-bottom));margin:auto;width:auto;max-width:460px;max-height:min(62vh,520px);background:color-mix(in srgb,var(--panel) 96%,transparent);border:2px solid var(--line);border-radius:22px;box-shadow:0 22px 60px #000b;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:flex;flex-direction:column;overflow:hidden;pointer-events:auto;animation:chatUp .22s cubic-bezier(.2,.85,.25,1)}
+@keyframes chatUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.chat-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px 11px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--accent2) 10%,transparent),transparent)}
+.chat-title{font-family:var(--disp);font-size:14px;font-weight:700}
+.chat-sub{font-size:9px;color:var(--dim);margin-top:1px}
+.chat-close{width:34px;height:34px;min-height:0;padding:0;border-radius:50%;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:18px}
+#chatMessages{min-height:150px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.chat-empty{margin:auto;text-align:center;color:var(--dim);font-size:12px;padding:24px 12px;line-height:1.5}
+.chat-line{display:flex;align-items:flex-end;gap:7px;max-width:88%;animation:chatMsgIn .18s ease-out}
+.chat-line.mine{align-self:flex-end;flex-direction:row-reverse}
+@keyframes chatMsgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.chat-miniavatar{width:28px;height:28px;flex:0 0 28px;border-radius:50%;overflow:hidden;box-shadow:0 2px 6px #0007}
+.chat-bubble{background:var(--panel2);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:8px 10px;min-width:56px;box-shadow:0 4px 12px #0002}
+.chat-line.mine .chat-bubble{background:color-mix(in srgb,var(--accent2) 18%,var(--panel2));border-color:color-mix(in srgb,var(--accent2) 58%,var(--line));border-radius:14px 14px 4px 14px}
+.chat-meta{display:flex;align-items:center;gap:7px;margin-bottom:2px;font-size:8px;color:var(--dim)}
+.chat-meta b{font-size:9px;color:var(--text);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-text{font-size:12px;line-height:1.35;overflow-wrap:anywhere;white-space:pre-wrap}
+#chatQuick{display:flex;gap:6px;padding:8px 12px 0;overflow-x:auto}
+.chat-react{width:38px;height:34px;min-height:0;padding:0;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:18px;flex:0 0 auto}
+#chatComposer{display:flex;gap:7px;padding:10px 12px 12px;align-items:center}
+#i-chat{height:42px;min-width:0;padding:9px 12px;font-size:13px;border-radius:13px;background:var(--panel2)}
+#b-chat-send{width:44px;height:42px;min-height:0;flex:0 0 44px;padding:0;border-radius:13px;font-size:18px}
+#chatDisabled{display:none;padding:18px;text-align:center;color:var(--dim);font-size:12px;border-top:1px solid var(--line)}
+@media(min-width:700px){#chatFab{bottom:22px}#chatPanel{bottom:22px}}
 
 #menuOverlay{position:fixed;inset:0;z-index:100;background:#0009;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease-out}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -277,6 +387,35 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
     <div id="menuBody"></div>
     <button class="o" id="b-menu-close" style="margin-top:18px">Fermer</button>
   </div>
+</div>
+
+
+
+<button id="chatFab" aria-label="Ouvrir le chat" title="Chat du salon">
+  <span aria-hidden="true">&#128172;</span><span id="chatBadge">0</span>
+</button>
+<div id="chatOverlay" aria-hidden="true">
+  <div id="chatScrim"></div>
+  <section id="chatPanel" role="dialog" aria-modal="true" aria-label="Chat du salon">
+    <div class="chat-head">
+      <div><div class="chat-title">Chat du salon</div><div class="chat-sub" id="chatState">Messages temporaires</div></div>
+      <button class="chat-close" id="b-chat-close" aria-label="Fermer">&#215;</button>
+    </div>
+    <div id="chatMessages"></div>
+    <div id="chatQuick">
+      <button class="chat-react" data-chat-reaction="&#128075;" aria-label="Salut">&#128075;</button>
+      <button class="chat-react" data-chat-reaction="&#128293;" aria-label="Feu">&#128293;</button>
+      <button class="chat-react" data-chat-reaction="&#128514;" aria-label="Rire">&#128514;</button>
+      <button class="chat-react" data-chat-reaction="&#128077;" aria-label="Pouce">&#128077;</button>
+      <button class="chat-react" data-chat-reaction="&#128561;" aria-label="Surpris">&#128561;</button>
+      <button class="chat-react" data-chat-reaction="&#128128;" aria-label="Cr&#226;ne">&#128128;</button>
+    </div>
+    <form id="chatComposer" autocomplete="off">
+      <input type="text" id="i-chat" maxlength="120" placeholder="Ton message&#8230;" aria-label="Message">
+      <button class="p" id="b-chat-send" type="submit" aria-label="Envoyer">&#10148;</button>
+    </form>
+    <div id="chatDisabled">Le chat a &#233;t&#233; d&#233;sactiv&#233; par le chef de partie.</div>
+  </section>
 </div>
 
 <section class="scr active" id="s-name">
@@ -400,12 +539,9 @@ body.big-cards .handrow.compact .card{width:58px;height:82px}
 
 <script>
 'use strict';
-const APP_VERSION='2.1.0';
-/* Version corrig\u00E9e :
-   - les salons r\u00E9cents ne restent plus 7 jours ;
-   - l'annuaire public poss\u00E8de un vrai bouton Actualiser ;
-   - l'\u00E9cran de navigation ignore les GAME des autres salons ;
-   - les h\u00F4tes r\u00E9pondent \u00E0 PUBLICPING pour republier les salons publics actifs. */
+const APP_VERSION='3.0.0';
+/* Version 3 : chat de salon activable, cartes compactes, avatars enrichis,
+   en plus des corrections de reconnexion, d'annuaire public et d'encodage. */
 const CFG = {PROJECT_ID:"soren-lab.github.io/nebula-party", SLOTS:4};
 const PAD=(n,d)=>String(Math.max(0,Math.min(Math.trunc(n),10**d-1))).padStart(d,"0");
 function checksum2(s){let sum=0;for(let i=0;i<s.length;i++)sum+=s.charCodeAt(i);return PAD(sum%100,2)}
@@ -469,6 +605,8 @@ const THEMES=[
 ];
 function encTheme(room,themeIdx){return PAD(room,4)+PAD(themeIdx,1)}
 function decTheme(v){if(!v||v.length<5)return null;return{room:parseInt(v.slice(0,4)),themeIdx:parseInt(v[4])}}
+function encChatCfg(room,enabled,epoch){return PAD(room,4)+(enabled?"1":"0")+PAD(epoch%1e10,10)}
+function decChatCfg(v){if(!v||v.length<15)return null;return{room:parseInt(v.slice(0,4)),enabled:v[4]==="1",epoch:parseInt(v.slice(5,15))}}
 function applyTheme(theme,broadcast){
   if(!theme)return;
   document.body.setAttribute("data-theme",theme.id==="emerald"?"":theme.id);
@@ -510,6 +648,10 @@ let isPublicRoom=false;
 let publicRooms={};
 let publicListPoll=null;
 let browseRefreshPoll=null;
+let chatEnabled=true,chatOpen=false,chatUnread=0,chatLocalSeq=0,chatCfgEpoch=0;
+const chatStreams={};
+const chatKnownIds=new Set();
+let myChatMessages=[];
 
 const PREFS_KEY="tapis_prefs_v1";
 const RECENT_ROOM_TTL=30*60*1000;
@@ -552,6 +694,124 @@ function playTone(freq,dur){
 function sfxCardPlay(){playTone(520,0.12)}
 function sfxMyTurn(){playTone(760,0.15);vibrate(30)}
 function sfxWin(){playTone(880,0.1);setTimeout(()=>playTone(1100,0.2),110);vibrate([30,40,30])}
+
+function cleanChatText(raw){return String(raw||"").replace(/[\u0000-\u001F\u007F]/g," ").replace(/\s+/g," ").trim().slice(0,120)}
+function normalizeChatMessages(list){
+  if(!Array.isArray(list))return[];
+  return list.map(m=>({
+    id:String(m&&m.id||"").slice(0,40),
+    ts:Number(m&&m.ts)||0,
+    name:String(m&&m.name||"Joueur").slice(0,12),
+    text:cleanChatText(m&&m.text),
+    clientId:String(m&&m.clientId||"").slice(0,12)
+  })).filter(m=>m.id&&m.ts&&m.text).slice(-6);
+}
+function mergedChatMessages(){
+  const all=[];
+  Object.entries(chatStreams).forEach(([slot,list])=>normalizeChatMessages(list).forEach(m=>all.push({...m,slot:parseInt(slot)})));
+  const unique=new Map();
+  all.forEach(m=>unique.set(m.id,m));
+  return [...unique.values()].sort((a,b)=>a.ts-b.ts||a.id.localeCompare(b.id)).slice(-28);
+}
+function ingestChatStream(slot,obj,quiet){
+  if(!obj||obj.clientId===undefined)return;
+  const incoming=normalizeChatMessages(obj.messages);
+  const oldIds=new Set((chatStreams[slot]||[]).map(m=>m.id));
+  chatStreams[slot]=incoming;
+  let fresh=0;
+  incoming.forEach(m=>{
+    const isNew=!oldIds.has(m.id)&&!chatKnownIds.has(m.id);
+    chatKnownIds.add(m.id);
+    if(isNew&&slot!==mySlot&&m.ts>=joinedAt-1200)fresh++;
+  });
+  if(fresh&&!quiet&&!chatOpen&&chatEnabled){
+    chatUnread=Math.min(99,chatUnread+fresh);
+    const fab=document.getElementById("chatFab");
+    fab.classList.remove("ping");void fab.offsetWidth;fab.classList.add("ping");
+    playTone(680,0.08);vibrate(15);
+  }
+  updateChatUI();renderChat();
+}
+function initChatRoom(room){
+  chatOpen=false;chatUnread=0;chatLocalSeq=0;chatCfgEpoch=0;chatEnabled=true;
+  myChatMessages=[];chatKnownIds.clear();Object.keys(chatStreams).forEach(k=>delete chatStreams[k]);
+  const cfg=decChatCfg(cvars.CHATCFG);
+  if(cfg&&cfg.room===room){chatEnabled=cfg.enabled;chatCfgEpoch=cfg.epoch}
+  for(let i=0;i<CFG.SLOTS;i++){
+    const d=decState(cvars["CHAT"+i]);
+    if(!d||d.room!==room||!d.obj)continue;
+    ingestChatStream(i,d.obj,true);
+    if(i===mySlot&&String(d.obj.clientId||"")===clientId)myChatMessages=normalizeChatMessages(d.obj.messages);
+  }
+  closeChat(true);updateChatUI();renderChat();
+}
+function resetChatState(){
+  chatOpen=false;chatUnread=0;chatEnabled=true;myChatMessages=[];chatKnownIds.clear();
+  Object.keys(chatStreams).forEach(k=>delete chatStreams[k]);
+  closeChat(true);updateChatUI();
+}
+function updateChatUI(){
+  const fab=document.getElementById("chatFab"),badge=document.getElementById("chatBadge");
+  const available=mySlot>=0&&myRoom>0&&chatEnabled;
+  fab.style.display=available?"flex":"none";
+  badge.textContent=chatUnread>99?"99+":String(chatUnread);
+  badge.style.display=chatUnread>0?"block":"none";
+  const state=document.getElementById("chatState");
+  if(state)state.textContent=chatEnabled?"Messages temporaires du salon":"Désactivé par le chef";
+  const composer=document.getElementById("chatComposer"),quick=document.getElementById("chatQuick"),disabled=document.getElementById("chatDisabled");
+  if(composer)composer.style.display=chatEnabled?"flex":"none";
+  if(quick)quick.style.display=chatEnabled?"flex":"none";
+  if(disabled)disabled.style.display=chatEnabled?"none":"block";
+  if(!available&&chatOpen)closeChat(true);
+}
+function setChatEnabled(enabled,broadcast){
+  chatEnabled=!!enabled;chatCfgEpoch=Date.now()%1e10;
+  if(!chatEnabled)closeChat(true);
+  if(broadcast&&isHost&&myRoom)cset("CHATCFG",encChatCfg(myRoom,chatEnabled,Date.now()));
+  updateChatUI();renderMenu();
+}
+function publishChatStream(){
+  if(mySlot<0||!myRoom)return;
+  chatLocalSeq=(chatLocalSeq+1)%10000;
+  const obj={clientId,messages:myChatMessages};
+  chatStreams[mySlot]=myChatMessages.slice();
+  cset("CHAT"+mySlot,encState(myRoom,chatLocalSeq,obj));
+  renderChat();
+}
+function sendChatMessage(raw){
+  if(!chatEnabled||mySlot<0||!myRoom)return;
+  const text=cleanChatText(raw);if(!text)return;
+  const now=Date.now();
+  const item={id:clientId+String(now)+String(chatLocalSeq%10),ts:now,name:myName,text,clientId};
+  myChatMessages=[...myChatMessages,item].slice(-6);chatKnownIds.add(item.id);
+  publishChatStream();
+  const input=document.getElementById("i-chat");if(input)input.value="";
+  requestAnimationFrame(()=>{const box=document.getElementById("chatMessages");if(box)box.scrollTop=box.scrollHeight});
+}
+function chatClock(ts){try{return new Date(ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}catch(_){return""}}
+function renderChat(){
+  const box=document.getElementById("chatMessages");if(!box)return;
+  const messages=mergedChatMessages();
+  if(!messages.length){box.innerHTML='<div class="chat-empty">Aucun message pour le moment.<br>Envoie un petit &#171; salut &#187; ou une r&#233;action.</div>';return}
+  box.innerHTML=messages.map(m=>{
+    const mine=m.slot===mySlot||m.clientId===clientId;
+    return `<div class="chat-line${mine?" mine":""}"><div class="chat-miniavatar">${identiconSVG(m.name,28)}</div><div class="chat-bubble"><div class="chat-meta"><b>${esc(m.name)}${mine?" (toi)":""}</b><span>${chatClock(m.ts)}</span></div><div class="chat-text">${esc(m.text)}</div></div></div>`;
+  }).join("");
+  if(chatOpen)requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight});
+}
+function openChat(){
+  if(!chatEnabled||mySlot<0)return;
+  chatOpen=true;chatUnread=0;mergedChatMessages().forEach(m=>chatKnownIds.add(m.id));
+  const overlay=document.getElementById("chatOverlay");overlay.classList.add("open");overlay.style.display="block";overlay.setAttribute("aria-hidden","false");
+  updateChatUI();renderChat();
+  setTimeout(()=>{const input=document.getElementById("i-chat");if(input)input.focus({preventScroll:true})},180);
+}
+function closeChat(silent){
+  chatOpen=false;
+  const overlay=document.getElementById("chatOverlay");if(!overlay)return;
+  overlay.classList.remove("open");overlay.style.display="none";overlay.setAttribute("aria-hidden","true");
+  if(!silent)updateChatUI();
+}
 
 function connect(cb){
   if(ws&&(ws.readyState===0||ws.readyState===1)){
@@ -628,6 +888,17 @@ function onVar(name,val){
     if(isHost&&currentVote)checkVoteResolved();
     return;
   }
+  if(name==="CHATCFG"){
+    const d=decChatCfg(val);if(!d||d.room!==myRoom)return;
+    chatCfgEpoch=d.epoch;chatEnabled=d.enabled;
+    if(!chatEnabled)closeChat(true);
+    updateChatUI();renderMenu();return;
+  }
+  if(/^CHAT\d$/.test(name)){
+    const slot=parseInt(name.slice(4));
+    const d=decState(val);if(!d||d.room!==myRoom||!d.obj)return;
+    ingestChatStream(slot,d.obj,false);return;
+  }
   if(name==="PUBLICPING"){
     if(isHost&&isPublicRoom&&myRoom){
       publicRooms[String(myRoom)]={
@@ -663,7 +934,7 @@ function pruneStaleRooms(){
   });
 }
 
-function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="s-join")renderRecentRooms()}
+function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="s-join")renderRecentRooms();updateChatUI()}
 function renderRecentRooms(){
   const el=document.getElementById("recentRooms");if(!el)return;
   const now=Date.now();
@@ -731,6 +1002,7 @@ function claim(room,host){
   Object.keys(players).forEach(k=>{if(parseInt(k)!==mySlot&&players[k].room===room&&players[k].clientId===clientId)delete players[k]});
   cset("SLOT"+mySlot,encSlot(myRoom,isHost,true,myScore,myName,clientId));
   players[mySlot]={room:myRoom,isHost,present:true,score:myScore,name:myName,clientId,lastSeen:Date.now()};
+  initChatRoom(room);
   return true;
 }
 
@@ -749,6 +1021,7 @@ document.getElementById("b-create").onclick=()=>{
       if(wantsPublic)publicRoomName=publicName||("Salon de "+myName);
       enterLobby(room);
       cset("GAME",encGame(room,0,0,0,Date.now()));
+      setChatEnabled(true,true);
       if(wantsPublic)publishRoom(room,publicRoomName);
     }});
 };
@@ -841,6 +1114,7 @@ function enterLobby(room){
   msg("m-join","");show("s-lobby");refreshLobby();
   rememberRoom(room,isHost?(publicRoomName||null):null);
   clearInterval(lobbyPoll);
+  updateChatUI();
   lobbyPoll=setInterval(()=>{if(mySlot>=0)cset("SLOT"+mySlot,encSlot(myRoom,isHost,true,myScore,myName,clientId))},4000);
 }
 function proposeKick(slot){
@@ -921,6 +1195,7 @@ function leaveRoom(){
   document.getElementById("barroom").textContent="";
   clearGameScreen();
   Object.keys(players).forEach(k=>delete players[k]);
+  resetChatState();
   show("s-join");
 }
 function kicked(){
@@ -928,12 +1203,20 @@ function kicked(){
   mySlot=-1;isHost=false;myRoom=0;gHost=null;gView=null;currentVote=null;
   document.getElementById("barroom").textContent="";
   clearGameScreen();
+  resetChatState();
   show("s-join");msg("m-join","Tu as \u00E9t\u00E9 exclu du salon par le chef.","err");
 }
 
 document.getElementById("b-menu").onclick=()=>{menuOpen=true;renderMenu();document.getElementById("menuOverlay").style.display="flex"};
 document.getElementById("b-menu-close").onclick=()=>{menuOpen=false;document.getElementById("menuOverlay").style.display="none"};
 document.getElementById("menuOverlay").onclick=(e)=>{if(e.target.id==="menuOverlay"){menuOpen=false;document.getElementById("menuOverlay").style.display="none"}};
+
+document.getElementById("chatFab").onclick=openChat;
+document.getElementById("b-chat-close").onclick=()=>closeChat(false);
+document.getElementById("chatScrim").onclick=()=>closeChat(false);
+document.getElementById("chatComposer").onsubmit=e=>{e.preventDefault();sendChatMessage(document.getElementById("i-chat").value)};
+document.querySelectorAll("[data-chat-reaction]").forEach(b=>b.onclick=()=>sendChatMessage(b.dataset.chatReaction));
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&chatOpen)closeChat(false)});
 
 function renderMenu(){
   if(!menuOpen)return;
@@ -953,6 +1236,12 @@ function renderMenu(){
     const currentTheme=THEMES.find(t=>t.id===currentThemeId)||THEMES[0];
     html+=`<div class="eyebrow" style="font-size:9px">Th\u00E8me de la table</div>`;
     html+=`<div class="togglerow"><div><div class="togglelabel">${currentTheme.label}</div><div class="togglesub">Seul le chef peut changer le th\u00E8me</div></div><span class="themeswatch" style="background:linear-gradient(135deg,${currentTheme.swatch[1]},${currentTheme.swatch[0]});pointer-events:none"><b>${currentTheme.label}</b><span style="background:${currentTheme.swatch[2]}"></span></span></div>`;
+  }
+  html+=`<div class="eyebrow" style="font-size:9px;margin-top:10px">Communication</div>`;
+  if(isHost){
+    html+=`<div class="togglerow"><div><div class="togglelabel">Chat du salon</div><div class="togglesub">Active ou coupe les messages pour toute la table</div></div><button id="menu-chat-toggle" class="toggle" aria-pressed="${chatEnabled}">\u200b<span class="knob"></span></button></div>`;
+  }else{
+    html+=`<div class="menurow"><span>Chat du salon</span><span class="tag${chatEnabled?"":" off"}">${chatEnabled?"ACTIF":"COUPÉ"}</span></div>`;
   }
   html+=`<div class="eyebrow" style="font-size:9px;margin-top:6px">Confort</div>`;
   html+=`<div class="togglerow"><div><div class="togglelabel">Vibrations</div></div><button id="menu-vib-toggle" class="toggle" aria-pressed="${prefs.vibrate}">\u200b<span class="knob"></span></button></div>`;
@@ -980,6 +1269,8 @@ function renderMenu(){
     else{isPublicRoom=true;publishRoom(myRoom,publicRoomName||("Salon de "+myName))}
     renderMenu();
   };
+  const chatToggle=document.getElementById("menu-chat-toggle");
+  if(chatToggle)chatToggle.onclick=()=>setChatEnabled(!chatEnabled,true);
   document.getElementById("menu-vib-toggle").onclick=()=>{setPref("vibrate",!prefs.vibrate);renderMenu()};
   document.getElementById("menu-sound-toggle").onclick=()=>{setPref("sound",!prefs.sound);renderMenu()};
   document.getElementById("menu-cards-toggle").onclick=()=>{setPref("bigCards",!prefs.bigCards);applyCardSizePref();renderMenu()};
@@ -1113,39 +1404,58 @@ function deck52(seed){const d=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)d.pus
 function war52Value(rank){return rank===1?14:rank}
 
 function pName(slot){if(slot===mySlot)return myName;return players[slot]?players[slot].name:("J"+slot)}
-function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0}return h}
+function hashStr(s){
+  let h=2166136261>>>0;
+  const str=String(s||"?").trim().toLocaleLowerCase("fr");
+  for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}
+  h^=h>>>16;h=Math.imul(h,0x7feb352d);h^=h>>>15;h=Math.imul(h,0x846ca68b);h^=h>>>16;
+  return h>>>0;
+}
+let avatarRenderId=0;
 function identiconSVG(name,size){
   const h=hashStr(name||"?");
-  const rnd=mulberry32(h);
-  const hue=h%360;
-  const hue2=(hue+40+Math.floor(rnd()*60))%360;
-  const bg1=`hsl(${hue},55%,24%)`,bg2=`hsl(${hue2},55%,13%)`;
-  const fg1=`hsl(${hue},75%,62%)`,fg2=`hsl(${hue2},80%,68%)`;
-  const gid="g"+h;
-  const cx=size/2,cy=size/2;
-  const shapeCount=3+Math.floor(rnd()*3);
-  const shapeTypes=["circle","triangle","diamond"];
-  let shapes="";
-  for(let i=0;i<shapeCount;i++){
-    const type=shapeTypes[Math.floor(rnd()*shapeTypes.length)];
-    const angle=rnd()*Math.PI*2,dist=rnd()*size*0.28;
-    const x=cx+Math.cos(angle)*dist,y=cy+Math.sin(angle)*dist;
-    const s=size*(0.14+rnd()*0.22);
-    const color=i%2===0?fg1:fg2;
-    const opacity=(0.55+rnd()*0.4).toFixed(2);
-    if(type==="circle"){
-      shapes+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${s.toFixed(1)}" fill="${color}" opacity="${opacity}"/>`;
-    }else if(type==="diamond"){
-      shapes+=`<rect x="${(x-s/2).toFixed(1)}" y="${(y-s/2).toFixed(1)}" width="${s.toFixed(1)}" height="${s.toFixed(1)}" fill="${color}" opacity="${opacity}" transform="rotate(45 ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
-    }else{
-      const p1=`${x.toFixed(1)},${(y-s).toFixed(1)}`,p2=`${(x-s*0.87).toFixed(1)},${(y+s*0.5).toFixed(1)}`,p3=`${(x+s*0.87).toFixed(1)},${(y+s*0.5).toFixed(1)}`;
-      shapes+=`<polygon points="${p1} ${p2} ${p3}" fill="${color}" opacity="${opacity}"/>`;
-    }
+  const rnd=mulberry32(h||1);
+  const uid="av"+(h>>>0).toString(36)+"_"+(++avatarRenderId);
+  const hue=Math.floor(rnd()*360),hue2=(hue+65+Math.floor(rnd()*170))%360,hue3=(hue2+70+Math.floor(rnd()*100))%360;
+  const bg1=`hsl(${hue},72%,18%)`,bg2=`hsl(${hue2},78%,10%)`;
+  const hot=`hsl(${hue2},92%,64%)`,hot2=`hsl(${hue3},94%,68%)`,ink=`hsl(${(hue+190)%360},75%,8%)`;
+  const archetype=h%8,eyeStyle=(h>>>4)%5,accessory=(h>>>8)%6;
+  let aura="",body="",face="",extra="";
+  const rays=8+(h%5);
+  for(let i=0;i<rays;i++){
+    const a=i*360/rays+(rnd()*10-5),len=7+rnd()*8,w=2+rnd()*2;
+    aura+=`<rect x="${50-w/2}" y="${4-len/2}" width="${w.toFixed(1)}" height="${len.toFixed(1)}" rx="2" fill="${i%2?hot:hot2}" opacity="${(.18+rnd()*.24).toFixed(2)}" transform="rotate(${a.toFixed(1)} 50 50)"/>`;
   }
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="border-radius:50%;display:block">
-    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bg1}"/><stop offset="100%" stop-color="${bg2}"/></linearGradient></defs>
-    <rect width="${size}" height="${size}" fill="url(#${gid})"/>${shapes}
-  </svg>`;
+  const bodies=[
+    `<path d="M21 61 Q13 38 31 22 Q49 5 70 22 Q89 38 79 63 Q69 88 49 89 Q29 88 21 61Z" fill="url(#${uid}b)"/>`,
+    `<polygon points="50,10 82,31 75,72 50,92 23,73 17,32" fill="url(#${uid}b)"/>`,
+    `<rect x="18" y="18" width="64" height="68" rx="22" fill="url(#${uid}b)"/>`,
+    `<path d="M50 8 C73 25 85 39 79 63 C73 87 27 87 21 63 C15 40 31 28 50 8Z" fill="url(#${uid}b)"/>`,
+    `<path d="M20 70 C13 51 23 24 42 22 C50 8 72 16 74 32 C92 43 82 76 65 80 C49 94 28 86 20 70Z" fill="url(#${uid}b)"/>`,
+    `<path d="M50 9 L83 37 L71 84 L29 84 L17 37Z" fill="url(#${uid}b)"/>`,
+    `<path d="M13 56 Q18 18 50 18 Q82 18 87 56 Q82 87 50 90 Q18 87 13 56Z" fill="url(#${uid}b)"/>`,
+    `<g><polygon points="50,8 69,38 89,48 67,62 59,91 42,68 13,61 34,42" fill="url(#${uid}b)"/><polygon points="50,20 61,44 76,50 59,58 53,77 43,61 25,57 40,47" fill="${hot2}" opacity=".45"/></g>`
+  ];
+  body=bodies[archetype];
+  if(accessory===0)extra=`<path d="M27 29 L18 8 L40 23 M73 29 L82 8 L60 23" fill="${hot}" stroke="${hot2}" stroke-width="4" stroke-linejoin="round"/>`;
+  else if(accessory===1)extra=`<path d="M29 24 L34 8 L48 21 L62 7 L72 25Z" fill="${hot}" stroke="${hot2}" stroke-width="3" stroke-linejoin="round"/>`;
+  else if(accessory===2)extra=`<ellipse cx="50" cy="17" rx="25" ry="8" fill="none" stroke="${hot2}" stroke-width="5" opacity=".9"/>`;
+  else if(accessory===3)extra=`<path d="M48 18 L60 3 L58 22 L74 15 L61 32" fill="${hot}" stroke="${hot2}" stroke-width="2"/>`;
+  else if(accessory===4)extra=`<path d="M29 28 L18 20 L25 38 M71 28 L82 20 L75 38" fill="none" stroke="${hot2}" stroke-width="6" stroke-linecap="round"/>`;
+  else extra=`<path d="M50 19 V7 M50 7 L43 2 M50 7 L57 2" stroke="${hot2}" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="7" r="5" fill="${hot}"/>`;
+  if(eyeStyle===0)face=`<circle cx="37" cy="49" r="7" fill="#fff"/><circle cx="63" cy="49" r="7" fill="#fff"/><circle cx="39" cy="50" r="3" fill="${ink}"/><circle cx="61" cy="50" r="3" fill="${ink}"/>`;
+  else if(eyeStyle===1)face=`<path d="M28 48 Q37 39 46 48 Q37 55 28 48 M54 48 Q63 39 72 48 Q63 55 54 48" fill="${hot2}" stroke="#fff" stroke-width="2"/>`;
+  else if(eyeStyle===2)face=`<rect x="25" y="42" width="50" height="15" rx="7" fill="${ink}" stroke="${hot2}" stroke-width="3"/><rect x="32" y="47" width="36" height="4" rx="2" fill="${hot}"/>`;
+  else if(eyeStyle===3)face=`<circle cx="50" cy="49" r="13" fill="#fff" stroke="${hot2}" stroke-width="3"/><circle cx="50" cy="49" r="6" fill="${ink}"/><circle cx="53" cy="46" r="2" fill="#fff"/>`;
+  else face=`<path d="M27 46 L45 51 L28 57 M73 46 L55 51 L72 57" fill="none" stroke="${hot2}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const mouthStyles=[
+    `<path d="M38 68 Q50 78 62 68" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`,
+    `<path d="M39 69 L47 75 L53 66 L61 72" fill="none" stroke="${hot2}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+    `<rect x="38" y="66" width="24" height="9" rx="4" fill="${ink}"/><path d="M43 66 V75 M50 66 V75 M57 66 V75" stroke="#fff" stroke-width="2"/>`,
+    `<circle cx="50" cy="70" r="6" fill="${ink}" stroke="${hot2}" stroke-width="2"/>`
+  ];
+  face+=mouthStyles[(h>>>13)%mouthStyles.length];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="border-radius:50%;display:block;overflow:hidden" aria-hidden="true"><defs><radialGradient id="${uid}bg" cx="32%" cy="25%" r="85%"><stop offset="0%" stop-color="${bg1}"/><stop offset="100%" stop-color="${bg2}"/></radialGradient><linearGradient id="${uid}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${hot2}"/><stop offset="55%" stop-color="${hot}"/><stop offset="100%" stop-color="${bg1}"/></linearGradient><filter id="${uid}g"><feGaussianBlur stdDeviation="2.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="100" height="100" fill="url(#${uid}bg)"/><g filter="url(#${uid}g)">${aura}</g><circle cx="50" cy="51" r="42" fill="none" stroke="${hot2}" stroke-width="2" opacity=".35"/>${extra}<g filter="url(#${uid}g)">${body}</g>${face}<path d="M24 79 Q50 92 76 79" fill="none" stroke="#fff" stroke-width="2" opacity=".18"/></svg>`;
 }
 function avatarHTML(p,size){
   size=size||34;
@@ -1911,7 +2221,7 @@ function renderTsuroPlayers(g,activeSlot){
     const count=g.hands&&g.hands[slot]?g.hands[slot].length:0;
     const player=roomPlayers().find(x=>x.__slot===slot)||{name:pName(slot),__slot:slot,__me:slot===mySlot};
     const meta=!p?"placement":(alive?count+" tuiles":"\u00E9limin\u00E9");
-    return `<div class="tsuro-playerchip${slot===activeSlot?" turn":""}${alive?"":" dead"}">${avatarHTML(player,30)}<div style="min-width:0"><div class="tpname">${esc(player.name)}${slot===mySlot?" (toi)":""}</div><div class="tpmeta">${meta}</div></div></div>`;
+    return `<div class="tsuro-playerchip${slot===activeSlot?" turn":""}${alive?"":" dead"}">${avatarHTML(player,36)}<div style="min-width:0"><div class="tpname">${esc(player.name)}${slot===mySlot?" (toi)":""}</div><div class="tpmeta">${meta}</div></div></div>`;
   }).join("");
   el.innerHTML=`<div class="tsuro-playerbar">${list}</div>`;
 }
@@ -1921,7 +2231,7 @@ function tsuroRender(){
   document.getElementById("s-game").classList.add("tsuro-screen");
   document.getElementById("g-eyebrow").textContent="// tsuro";
   const boardEl=document.getElementById("g-pile");
-  const cellSize=Math.floor(Math.min(340,window.innerWidth-80)/TSURO_SIZE);
+  const cellSize=Math.floor(Math.min(372,window.innerWidth-44)/TSURO_SIZE);
 
   if(g.phase==="placement"){
     tsuroRenderPlacement(g,boardEl,cellSize);
@@ -1963,7 +2273,7 @@ function tsuroRender(){
   hand.innerHTML=myHand.map((tileIdx,i)=>{
     const dis=!isMyTurn;
     const sel=tsuroSelectedTile===i?" selected":"";
-    return `<div class="tsuro-handtile${dis?" dis":""}${sel}" data-i="${i}">${tsuroCellHTML(tileIdx,52)}</div>`;
+    return `<div class="tsuro-handtile${dis?" dis":""}${sel}" data-i="${i}">${tsuroCellHTML(tileIdx,58)}</div>`;
   }).join("");
   if(isMyTurn){
     hand.querySelectorAll(".tsuro-handtile").forEach(el=>{
@@ -2234,6 +2544,7 @@ function autoPlayForStuckSlot(slot){
 }
 setInterval(checkStuckTurn,10000);
 setInterval(checkFailover,3000);
+setInterval(()=>{if(mySlot>=0&&myRoom&&chatEnabled&&myChatMessages.length)cset("CHAT"+mySlot,encState(myRoom,chatLocalSeq,{clientId,messages:myChatMessages}))},8000);
 setInterval(()=>{
   if(isHost&&gHost&&lastGame&&(lastGame.phase===PHASE.PLAY||lastGame.phase===PHASE.RESULTS)){
     cset("STATE",encState(myRoom,gHost.seq,gHost));
@@ -2244,6 +2555,7 @@ setInterval(()=>{
 (function initOnLoad(){
   if(prefs.lastName)document.getElementById("i-name").value=prefs.lastName;
   applyCardSizePref();
+  updateChatUI();
 })();
 
 </script>
