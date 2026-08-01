@@ -73,7 +73,7 @@ button,input{font:inherit}
 </div>
 <div id="toast"></div>
 <script>
-const CFG={PROJECT_ID:"YOUR_PROJECT_ID",CLOUD_HOST:"wss://clouddata.turbowarp.org",TILE:20,MOVE_MS:80,POS_MS:260,SNAPSHOT_MS:12000,SLOTS:29,BANKS:95,BANK_MOVES:48000,CHUNK:32,MINI_CELL:16,MINI_RADIUS:2048,PLAYER_TTL:15000,CLAIM_WAIT:520,RECONNECT_MS:2500,DPR_MAX:2};
+const CFG={PROJECT_ID:`${location.hostname||"pixeltrail.local"}${location.pathname||"/"}`.replace(/[^a-zA-Z0-9._\/-]/g,"_"),CLOUD_HOST:"wss://clouddata.turbowarp.org",TILE:20,MOVE_MS:80,POS_MS:260,SNAPSHOT_MS:12000,SLOTS:29,BANKS:95,BANK_MOVES:48000,CHUNK:32,MINI_CELL:16,MINI_RADIUS:2048,PLAYER_TTL:15000,CLAIM_WAIT:520,RECONNECT_MS:2500,DPR_MAX:2};
 const $=id=>document.getElementById(id);
 const PAD=(n,d)=>Math.max(0,Math.min(Number(n)||0,10**d-1)).toFixed(0).padStart(d,"0");
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -648,7 +648,6 @@ function handleCanvasPointer(e){
   if(Math.abs(rx)>Math.abs(ry)){dx=rx>0?1:-1;dy=0}else{dx=0;dy=ry>0?1:-1}
 }
 $("pb").addEventListener("click",()=>{
-  if(CFG.PROJECT_ID==="YOUR_PROJECT_ID"){setStatus("Remplace YOUR_PROJECT_ID dans le fichier");return}
   const raw=($("ni").value.trim()||"Player").replace(/[<>]/g,"").slice(0,12);
   myToken=sessionNumber("pixeltrail_token",9);myName=`${raw}#${String(myToken).slice(-3)}`;myColor=colorFromToken(myToken);cloudUser=`player${sessionNumber("pixeltrail_cloud_user",7)}`;localStorage.setItem("pixeltrail_name",raw);$("pb").disabled=true;setStatus("Connexion...");cloudConnect();
 });
