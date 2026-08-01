@@ -2,801 +2,665 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>PixelTrail</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#111;color:#eee;font-family:monospace;overflow:hidden;user-select:none}
-#cv{display:block;image-rendering:pixelated}
-#hud{position:fixed;top:8px;right:8px;background:#0009;border:1px solid #333;border-radius:6px;padding:8px 12px;font-size:11px;min-width:140px}
-#hud h3{font-size:10px;color:#888;margin-bottom:6px;letter-spacing:1px}
-.hr{display:flex;justify-content:space-between;gap:12px;margin:2px 0}
-.hv{color:#4cf}
-#sc{position:fixed;bottom:8px;right:8px;background:#0009;border:1px solid #333;border-radius:6px;padding:8px 12px;font-size:11px;min-width:140px}
-#sc h3{font-size:10px;color:#888;margin-bottom:6px;letter-spacing:1px}
-.sr{display:flex;justify-content:space-between;gap:8px;margin:2px 0;align-items:center}
-.sd{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
-#mc{position:fixed;bottom:8px;left:8px;border-radius:50%;border:2px solid #333;background:#0009}
-#lb{position:fixed;inset:0;background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:10}
-#lb h1{font-size:2em;letter-spacing:4px;color:#4cf}
-#lb input{background:#1a1a1a;border:1px solid #444;color:#eee;padding:8px 14px;font-family:monospace;font-size:14px;border-radius:4px;width:200px;text-align:center;outline:none}
-#lb input:focus{border-color:#4cf}
-#lb button{background:#4cf;color:#111;border:none;padding:8px 24px;font-family:monospace;font-size:14px;border-radius:4px;cursor:pointer;font-weight:bold;letter-spacing:1px}
-#lb button:hover{background:#7df}
-#st{font-size:11px;color:#888;height:14px}
-/* indicateur de direction tactile */
-#tap-hint{position:fixed;pointer-events:none;border-radius:50%;width:54px;height:54px;border:2px solid #4cf6;background:#4cf1;display:none;transform:translate(-50%,-50%);transition:opacity 0.25s;}
-@media(pointer:coarse){#tap-hint{display:block;opacity:0;}}
-
-/* ━━ CHAT GLOBAL ━━ */
-#chat-wrap{position:fixed;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:flex-start;gap:0;z-index:20;}
-#chat-toggle{background:#0009;border:1px solid #333;border-radius:0 6px 6px 0;padding:10px 5px;font-size:10px;color:#888;cursor:pointer;letter-spacing:1px;user-select:none;display:flex;flex-direction:column;align-items:center;gap:4px;writing-mode:vertical-rl;white-space:nowrap;order:2;}
-#chat-toggle:hover{color:#4cf;}
-#chat-panel{display:flex;flex-direction:column;width:210px;transition:transform .25s ease,opacity .25s ease;transform-origin:left center;order:1;}
-#chat-panel.hidden{transform:translateX(-220px);opacity:0;pointer-events:none;position:absolute;}
-#chat-panel.visible{transform:translateX(0);opacity:1;}
-#chat-body{background:#0009;border:1px solid #333;border-radius:6px 0 0 6px;display:flex;flex-direction:column;overflow:hidden;}
-#chat-msgs{flex:1;overflow-y:auto;padding:6px 8px;font-size:10px;line-height:1.5;display:flex;flex-direction:column;gap:2px;min-height:0;max-height:200px;}
-#chat-msgs::-webkit-scrollbar{width:3px;}
-#chat-msgs::-webkit-scrollbar-thumb{background:#333;}
-.chat-msg{word-break:break-word;animation:msgIn .15s ease;}
-@keyframes msgIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:none;}}
-#chat-input-row{display:flex;border-top:1px solid #222;padding:5px 6px;gap:5px;}
-#chat-in{flex:1;background:#1a1a1a;border:1px solid #333;border-radius:3px;color:#eee;font-family:monospace;font-size:10px;padding:3px 6px;outline:none;}
-#chat-in:focus{border-color:#4cf;}
-#chat-send{background:#4cf;color:#111;border:none;border-radius:3px;padding:3px 8px;font-family:monospace;font-size:10px;cursor:pointer;font-weight:bold;}
-#chat-send:hover{background:#7df;}
+:root{--bg:#0b0d10;--panel:#10151bd9;--line:#26313d;--text:#eaf3ff;--dim:#7f91a5;--accent:#51d7ff;--danger:#ff6577}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;user-select:none;touch-action:none}
+button,input{font:inherit}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
+.panel{background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 30px #0007;backdrop-filter:blur(8px)}
+#lb{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#12202a,#080a0d 65%);z-index:20;padding:20px}
+#card{width:min(360px,100%);padding:28px;border-radius:18px;text-align:center}
+#card h1{font-size:clamp(26px,8vw,42px);letter-spacing:5px;color:var(--accent);text-shadow:0 0 25px #51d7ff55}
+#card p{font-size:11px;color:var(--dim);line-height:1.6;margin:10px 0 20px}
+#ni{width:100%;border:1px solid #344352;background:#0a0e13;color:var(--text);padding:12px 14px;border-radius:10px;text-align:center;outline:none;font-size:15px}
+#ni:focus{border-color:var(--accent);box-shadow:0 0 0 3px #51d7ff18}
+#pb{width:100%;margin-top:10px;border:0;background:var(--accent);color:#051016;padding:12px 16px;border-radius:10px;font-weight:900;letter-spacing:2px;cursor:pointer}
+#pb:disabled{opacity:.45;cursor:default}
+#st{height:18px;margin-top:12px;font-size:11px;color:var(--dim)}
+#hud{position:fixed;top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right));width:174px;padding:10px 12px;border-radius:11px;z-index:5;font-size:11px;pointer-events:none}
+.title{font-size:9px;color:var(--dim);letter-spacing:2px;margin-bottom:7px}
+.hr{display:flex;justify-content:space-between;gap:12px;margin:3px 0}
+.hv{color:var(--accent);font-weight:800;overflow:hidden;text-overflow:ellipsis}
+#net.ok{color:#6fffb0}
+#net.wait{color:#ffd369}
+#net.bad{color:var(--danger)}
+#sc{position:fixed;right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));width:174px;padding:10px 12px;border-radius:11px;z-index:5;font-size:10px;pointer-events:none}
+.sr{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:4px 0;min-width:0}
+.sn{display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sd{width:7px;height:7px;border-radius:2px;flex:0 0 auto}
+#mc{position:fixed;left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));width:126px;height:126px;border-radius:50%;border:1px solid var(--line);background:#05080bcf;box-shadow:0 8px 30px #0007;z-index:5;image-rendering:pixelated;pointer-events:none}
+#coords{position:fixed;left:max(8px,env(safe-area-inset-left));bottom:140px;color:#91a6ba;font-size:9px;background:#06090cb8;border:1px solid #1c2731;border-radius:6px;padding:4px 7px;z-index:5;pointer-events:none}
+#pad{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:142px;height:112px;display:none;z-index:7}
+.pd{position:absolute;width:46px;height:46px;border:1px solid #3b4e60;background:#101820d9;color:#bdeeff;border-radius:13px;font-size:18px;font-weight:900;box-shadow:0 4px 14px #0007;touch-action:none}
+.pd.active{background:#51d7ff33;border-color:var(--accent);transform:scale(.94)}
+#pu{left:48px;top:0}#pl{left:0;top:48px}#pr{right:0;top:48px}#pd{left:48px;top:48px}
+#toast{position:fixed;left:50%;top:max(12px,env(safe-area-inset-top));transform:translate(-50%,-20px);background:#090d12e8;border:1px solid #314150;border-radius:9px;padding:8px 12px;font-size:10px;color:#bdd0df;opacity:0;transition:.2s;pointer-events:none;z-index:30}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(pointer:coarse),(max-width:700px){#pad{display:block}#sc{display:none}#hud{width:154px;font-size:10px}#mc{width:108px;height:108px}#coords{bottom:122px}}
+@media(max-height:520px){#pad{transform:translateX(-50%) scale(.82);transform-origin:bottom center}#mc{width:90px;height:90px}#coords{bottom:102px}}
 </style>
 </head>
 <body>
-
 <div id="lb">
-  <h1>PIXEL TRAIL</h1>
-  <input id="ni" placeholder="Pseudo" maxlength="12">
-  <button id="pb">JOUER</button>
-  <div id="st">En attente...</div>
-</div>
-
-<canvas id="cv"></canvas>
-
-<div id="hud">
-  <h3>STATS</h3>
-  <div class="hr"><span>Score</span><span class="hv" id="hs">0</span></div>
-  <div class="hr"><span>Tiles</span><span class="hv" id="ht">0</span></div>
-  <div class="hr"><span>Joueurs</span><span class="hv" id="hp">1</span></div>
-</div>
-
-<div id="sc">
-  <h3>CLASSEMENT</h3>
-  <div id="sl"></div>
-</div>
-
-<canvas id="mc" width="110" height="110"></canvas>
-
-<div id="tap-hint"></div>
-
-<!-- CHAT GLOBAL -->
-<div id="chat-wrap">
-  <div id="chat-panel" class="visible">
-    <div id="chat-body">
-      <div id="chat-msgs"></div>
-      <div id="chat-input-row">
-        <input id="chat-in" placeholder="Message..." maxlength="60">
-        <button id="chat-send">▶</button>
-      </div>
-    </div>
+  <div id="card" class="panel">
+    <h1>PIXELTRAIL</h1>
+    <p>Une grille sans bord. Chaque passage renforce la couleur de la case.</p>
+    <input id="ni" placeholder="Pseudo" maxlength="12" autocomplete="nickname">
+    <button id="pb">JOUER</button>
+    <div id="st">PrÃªt</div>
   </div>
-  <div id="chat-toggle">💬 <span id="chat-arrow">◀</span></div>
 </div>
-
+<canvas id="cv"></canvas>
+<div id="hud" class="panel">
+  <div class="title">ÃTAT</div>
+  <div class="hr"><span>Score</span><span class="hv" id="hs">0</span></div>
+  <div class="hr"><span>Cases</span><span class="hv" id="ht">0</span></div>
+  <div class="hr"><span>Joueurs</span><span class="hv" id="hp">0</span></div>
+  <div class="hr"><span>Banques</span><span class="hv" id="hb">0</span></div>
+  <div class="hr"><span>RÃ©seau</span><span class="hv wait" id="net">hors ligne</span></div>
+</div>
+<div id="sc" class="panel"><div class="title">CLASSEMENT</div><div id="sl"></div></div>
+<canvas id="mc"></canvas>
+<div id="coords">x 0 Â· y 0</div>
+<div id="pad">
+  <button class="pd" id="pu" data-x="0" data-y="-1">â²</button>
+  <button class="pd" id="pl" data-x="-1" data-y="0">â</button>
+  <button class="pd" id="pr" data-x="1" data-y="0">â¶</button>
+  <button class="pd" id="pd" data-x="0" data-y="1">â¼</button>
+</div>
+<div id="toast"></div>
 <script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONFIG
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const CFG = {
-  PROJECT_ID: "YOUR_PROJECT_ID", // <- remplacer
-  TILE:  20,   // px par tuile
-  MOVE:  80,   // ms entre deplacements
-  SEG:   120,  // tuiles par segment cloud (plus grand = moins de segments a cycler)
-  SLOTS: 29,   // joueurs max simultanes
-  MAP_W: 200,  // largeur carte (tuiles)
-  MAP_H: 200,  // hauteur carte (tuiles)
-};
-
-// Derive une couleur stable depuis le tag #xxx du pseudo
-// => meme tag = meme couleur, independamment du slot
-function colorFromTag(name){
-  // Extraire le nombre apres #
-  const m = name.match(/#(\d+)$/);
-  const seed = m ? parseInt(m[1]) : 0;
-  // Hue derive du seed, saturation et luminosite fixes pour rester lisible
-  const hue = (seed * 137.508) % 360; // golden angle = distribution uniforme
-  return `hsl(${hue|0},80%,60%)`;
-}
-
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ENCODAGE 100% NUMERIQUE (obligatoire TurboWarp)
-//
-// Variable position  P{slot} :
-//   XXXYYYSSSSSSSSS
-//   XXX     = x     (3 chiffres, 000-999)
-//   YYY     = y     (3 chiffres, 000-999)
-//   SSSSSSSSS = score (9 chiffres)
-//
-// Variable trail  T{slot} :
-//   IIIICCCXXXYYYY[d...]
-//   IIII    = index segment (4 chiffres)
-//   CCC     = nb tuiles dans segment (3 chiffres)
-//   XXX YYY = coord absolue de la 1ere tuile (anchor)
-//   d       = deltas suivants : 1=R 2=L 3=D 4=U (1 chiffre chacun)
-//   => ~80 tuiles = ~110 chars, tres en dessous de la limite 100000
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-const PAD = (n,d) => String(Math.max(0,Math.min(n,Math.pow(10,d)-1))|0).padStart(d,"0");
-
-// Format P{slot} : XXXYYYSSSSSSSSSNOM
-// XXX=x(3) YYY=y(3) SSSSSSSSS=score(9) puis nom encodé ASCII 3 digits/char
-function encodePosMsg(x,y,sc,name) {
-  let enc = PAD(x,3)+PAD(y,3)+PAD(sc,9);
-  for(let i=0;i<Math.min((name||"").length,16);i++) enc+=PAD(name.charCodeAt(i),3);
-  return enc;
-}
-function decodePosMsg(v) {
-  if(!v||v.length<15) return null;
-  const x=parseInt(v.slice(0,3)), y=parseInt(v.slice(3,6)), sc=parseInt(v.slice(6,15));
-  if(isNaN(x)||isNaN(y)) return null;
-  let name="";
-  for(let i=15;i+2<v.length;i+=3){
-    const code=parseInt(v.slice(i,i+3));
-    if(code>=32&&code<127) name+=String.fromCharCode(code);
-  }
-  return {x, y, score:sc||0, name:name||null};
-}
-
-// Deltas : 1=droite 2=gauche 3=bas 4=haut
-const DXDY = {1:[1,0],2:[-1,0],3:[0,1],4:[0,-1]};
-
-function encodeTrailSeg(segIdx, tiles) {
-  if(!tiles.length) return "";
-  let s = PAD(segIdx,4)+PAD(tiles.length,3)+PAD(tiles[0].x,3)+PAD(tiles[0].y,3);
-  for(let i=1;i<tiles.length;i++){
-    const ddx=tiles[i].x-tiles[i-1].x, ddy=tiles[i].y-tiles[i-1].y;
-    if(ddx===1 &&ddy===0) s+="1";
-    else if(ddx===-1&&ddy===0) s+="2";
-    else if(ddx===0 &&ddy===1) s+="3";
-    else if(ddx===0 &&ddy===-1) s+="4";
-    else s+="0"; // non adjacent (ne devrait pas arriver)
-  }
-  return s;
-}
-
-function decodeTrailSeg(v) {
-  if(!v||v.length<13) return null;
-  const segIdx=parseInt(v.slice(0,4));
-  const count=parseInt(v.slice(4,7));
-  const ax=parseInt(v.slice(7,10));
-  const ay=parseInt(v.slice(10,13));
-  if(isNaN(segIdx)||isNaN(count)||isNaN(ax)||isNaN(ay)) return null;
-  const tiles=[{x:ax,y:ay}];
-  for(let i=13;i<v.length&&tiles.length<count;i++){
-    const d=parseInt(v[i]);
-    const dir=DXDY[d];
-    if(!dir) continue;
-    const last=tiles[tiles.length-1];
-    tiles.push({x:last.x+dir[0],y:last.y+dir[1]});
-  }
-  return {segIdx,tiles};
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ENCODAGE CHAT
-// Variable MSG{slot} :
-//   TTTTT + chars ASCII 3 digits chacun
-//   TTTTT = timestamp mod 99999 (anti-doublon)
-// Variable N{slot} : pseudo encodé ASCII 3 digits
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function encodeChatMsg(text){
-  const ts=PAD(Date.now()%99999,5);
-  let enc=ts;
-  for(let i=0;i<Math.min(text.length,60);i++) enc+=PAD(text.charCodeAt(i),3);
-  return enc;
-}
-function decodeChatMsg(v){
-  if(!v||v.length<8) return null;
-  let text="";
-  for(let i=5;i+2<v.length;i+=3){
-    const code=parseInt(v.slice(i,i+3));
-    if(code>=32&&code<127) text+=String.fromCharCode(code);
-  }
-  return text||null;
-}
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let mySlot=-1, myName="", myColor="#4cf";
-let px=Math.floor(CFG.MAP_W/2), py=Math.floor(CFG.MAP_H/2);
-let myTrail=[];    // [{x,y}] toutes mes tuiles (local)
-let slideIdx=0;    // index de rotation pour broadcastTrailSeg
-let score=0;
-let dx=0, dy=0;
-let running=false;
-
-// Interpolation smooth : position visuelle flottante de la camera
-let camRx = Math.floor(CFG.MAP_W/2) * CFG.TILE; // camera X courant (px)
-let camRy = Math.floor(CFG.MAP_H/2) * CFG.TILE; // camera Y courant (px)
-const LERP = 0.14; // facteur d'interpolation (plus petit = plus smooth/lent)
-
-const players={};   // players[slot]={x,y,score,name,color,lastSeen}
-
-// trailSegs[slot] = Map<segIdx, {tiles:[{x,y}], ts:Date.now()}>
-// On REMPLACE le segment a l'index recu, jamais append
-const trailSegs={};
-
-// TTL d'un segment : combien de ms avant qu'on le considere "expiré"
-// = (totalSegs / 2 segs par tick) * MOVE * marge de securite x1.8
-// Pour 2000 tiles / 120 seg = ~17 segs => cycle = ~17/2 * 150 = ~1275ms => TTL 2300ms
-const SEG_TTL = () => Math.max(2500, Math.ceil(myTrail.length / CFG.SEG) * CFG.MOVE * 1.0);
-
-// PERF FIX : cache du trail reconstitue par slot
-// Invalide uniquement quand un nouveau segment arrive
-// => evite sort()+flatMap() a chaque frame (source du lag constant)
-const trailCache={};  // trailCache[slot] = [{x,y}] | null
-
-function invalidateTrailCache(slot){ trailCache[slot]=null; }
-
-// Purge periodique des segments trop vieux (joueur deconnecte ou trail reduit)
-setInterval(()=>{
-  const now=Date.now();
-  for(const slot in trailSegs){
-    const m=trailSegs[slot];
-    let changed=false;
-    for(const [idx,seg] of m){
-      if(now - seg.ts > 8000){ m.delete(idx); changed=true; } // 8s = joueur inactif
-    }
-    if(changed) invalidateTrailCache(parseInt(slot));
-  }
-},2000);
-
-function getRemoteTrail(slot){
-  if(trailCache[slot]) return trailCache[slot];
-  const m=trailSegs[slot];
-  if(!m||m.size===0) return (trailCache[slot]=[]);
-  const sorted=[...m.keys()].sort((a,b)=>a-b);
-  const out=[];
-  for(const k of sorted) for(const t of m.get(k).tiles) out.push(t);
-  trailCache[slot]=out;
+const CFG={PROJECT_ID:"YOUR_PROJECT_ID",CLOUD_HOST:"wss://clouddata.turbowarp.org",TILE:20,MOVE_MS:80,POS_MS:260,SNAPSHOT_MS:12000,SLOTS:29,BANKS:95,BANK_MOVES:48000,CHUNK:32,MINI_CELL:16,MINI_RADIUS:2048,PLAYER_TTL:15000,CLAIM_WAIT:520,RECONNECT_MS:2500,DPR_MAX:2};
+const $=id=>document.getElementById(id);
+const PAD=(n,d)=>Math.max(0,Math.min(Number(n)||0,10**d-1)).toFixed(0).padStart(d,"0");
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const zz=n=>n>=0?n*2:-n*2-1;
+const unzz=n=>n%2===0?n/2:-(n+1)/2;
+const encCoord=n=>PAD(zz(Math.trunc(n)),12);
+const decCoord=s=>unzz(Number(s));
+const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+const DIR_CODE={"1,0":0,"-1,0":1,"0,1":2,"0,-1":3};
+const encoder=new TextEncoder();
+const decoder=new TextDecoder();
+function encodeText(text,maxBytes=48){
+  let bytes=encoder.encode(text);
+  if(bytes.length>maxBytes)bytes=bytes.slice(0,maxBytes);
+  let out=PAD(bytes.length,2);
+  for(const b of bytes)out+=PAD(b,3);
   return out;
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CLOUD WEBSOCKET
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let ws=null;
+function decodeText(value,offset){
+  const len=Number(value.slice(offset,offset+2));
+  offset+=2;
+  const bytes=new Uint8Array(len);
+  for(let i=0;i<len;i++)bytes[i]=Number(value.slice(offset+i*3,offset+i*3+3));
+  return {text:decoder.decode(bytes),offset:offset+len*3};
+}
+function packDirs(dirs){
+  let out="";
+  for(let i=0;i<dirs.length;i+=16){
+    let n=0n;
+    for(let j=0;j<16;j++)n=(n<<2n)|BigInt(dirs[i+j]??0);
+    out+=n.toString().padStart(10,"0");
+  }
+  return out;
+}
+function dirAt(payload,index){
+  const group=Math.floor(index/16);
+  const inner=index%16;
+  const part=payload.slice(group*10,group*10+10);
+  if(part.length<10)return 0;
+  return Number((BigInt(part)>>BigInt((15-inner)*2))&3n);
+}
+function unpackDirs(payload,count){
+  const out=new Array(count);
+  for(let i=0;i<count;i++)out[i]=dirAt(payload,i);
+  return out;
+}
+function colorFromToken(token){
+  const hue=(Number(token)%1000000*137.508)%360;
+  return {css:`hsl(${hue|0} 82% 62%)`,rgb:hslToRgb(hue/360,.82,.62)};
+}
+function hslToRgb(h,s,l){
+  const f=n=>{const k=(n+h*12)%12;return l-s*Math.min(l,1-l)*Math.max(-1,Math.min(k-3,9-k,1));};
+  return [(f(0)*255)|0,(f(8)*255)|0,(f(4)*255)|0];
+}
+function alphaForCount(n){return Math.min(.92,.16+Math.log2(n+1)*.17)}
+function floorDiv(a,b){return Math.floor(a/b)}
+function mod(a,b){return ((a%b)+b)%b}
+class TrailChunk{
+  constructor(cx,cy,rgb){
+    this.cx=cx;this.cy=cy;this.rgb=rgb;this.counts=new Uint32Array(CFG.CHUNK*CFG.CHUNK);this.used=[];this.pos=new Int32Array(CFG.CHUNK*CFG.CHUNK);this.pos.fill(-1);this.canvas=document.createElement("canvas");this.canvas.width=CFG.CHUNK;this.canvas.height=CFG.CHUNK;this.ctx=this.canvas.getContext("2d",{alpha:true});this.ctx.imageSmoothingEnabled=false;
+  }
+  paint(index){
+    const x=index%CFG.CHUNK,y=(index/CFG.CHUNK)|0,n=this.counts[index];
+    this.ctx.clearRect(x,y,1,1);
+    if(n){const a=alphaForCount(n);this.ctx.fillStyle=`rgba(${this.rgb[0]},${this.rgb[1]},${this.rgb[2]},${a})`;this.ctx.fillRect(x,y,1,1)}
+  }
+  add(index){
+    if(this.counts[index]===0){this.pos[index]=this.used.length;this.used.push(index)}
+    this.counts[index]++;
+    this.paint(index);
+    return this.counts[index]===1;
+  }
+  remove(index){
+    if(this.counts[index]===0)return false;
+    this.counts[index]--;
+    if(this.counts[index]===0){
+      const p=this.pos[index],last=this.used.pop();
+      if(p<this.used.length){this.used[p]=last;this.pos[last]=p}
+      this.pos[index]=-1;
+    }
+    this.paint(index);
+    return this.counts[index]===0;
+  }
+  recolor(rgb){this.rgb=rgb;for(const index of this.used)this.paint(index)}
+}
+class TrailStore{
+  constructor(color){this.color=color.css;this.rgb=color.rgb;this.chunks=new Map();this.coarse=new Map();this.unique=0;this.visits=0}
+  key(cx,cy){return `${cx},${cy}`}
+  getChunk(cx,cy,create=false){
+    const k=this.key(cx,cy);
+    let c=this.chunks.get(k);
+    if(!c&&create){c=new TrailChunk(cx,cy,this.rgb);this.chunks.set(k,c)}
+    return c;
+  }
+  add(x,y){
+    const cx=floorDiv(x,CFG.CHUNK),cy=floorDiv(y,CFG.CHUNK),lx=mod(x,CFG.CHUNK),ly=mod(y,CFG.CHUNK),c=this.getChunk(cx,cy,true),first=c.add(ly*CFG.CHUNK+lx);
+    if(first)this.unique++;
+    this.visits++;
+    const mx=floorDiv(x,CFG.MINI_CELL),my=floorDiv(y,CFG.MINI_CELL),mk=this.key(mx,my);
+    this.coarse.set(mk,(this.coarse.get(mk)||0)+1);
+  }
+  remove(x,y){
+    const cx=floorDiv(x,CFG.CHUNK),cy=floorDiv(y,CFG.CHUNK),c=this.getChunk(cx,cy,false);
+    if(!c)return;
+    const index=mod(y,CFG.CHUNK)*CFG.CHUNK+mod(x,CFG.CHUNK),gone=c.remove(index);
+    if(gone)this.unique--;
+    if(this.visits>0)this.visits--;
+    if(c.used.length===0)this.chunks.delete(this.key(cx,cy));
+    const mx=floorDiv(x,CFG.MINI_CELL),my=floorDiv(y,CFG.MINI_CELL),mk=this.key(mx,my),v=(this.coarse.get(mk)||0)-1;
+    if(v>0)this.coarse.set(mk,v);else this.coarse.delete(mk);
+  }
+  addPath(path){for(let i=0;i<path.length;i+=2)this.add(path[i],path[i+1])}
+  removePath(path){if(!path)return;for(let i=0;i<path.length;i+=2)this.remove(path[i],path[i+1])}
+  clear(){this.chunks.clear();this.coarse.clear();this.unique=0;this.visits=0}
+  recolor(color){this.color=color.css;this.rgb=color.rgb;for(const c of this.chunks.values())c.recolor(this.rgb)}
+  draw(ctx,vx0,vy0,vx1,vy1,cx,cy,tile){
+    const c0x=floorDiv(vx0,CFG.CHUNK),c1x=floorDiv(vx1,CFG.CHUNK),c0y=floorDiv(vy0,CFG.CHUNK),c1y=floorDiv(vy1,CFG.CHUNK),size=CFG.CHUNK*tile;
+    for(let yy=c0y;yy<=c1y;yy++)for(let xx=c0x;xx<=c1x;xx++){
+      const c=this.getChunk(xx,yy,false);
+      if(c)ctx.drawImage(c.canvas,xx*size-cx,yy*size-cy,size,size);
+    }
+  }
+}
+function buildPath(startX,startY,payload,from,to,paintStart){
+  const count=(paintStart&&from===0?1:0)+Math.max(0,to-from),data=new Int32Array(count*2);
+  let p=0,x=startX,y=startY;
+  for(let i=0;i<from;i++){const d=DIRS[dirAt(payload,i)];x+=d[0];y+=d[1]}
+  if(paintStart&&from===0){data[p++]=x;data[p++]=y}
+  for(let i=from;i<to;i++){const d=DIRS[dirAt(payload,i)];x+=d[0];y+=d[1];data[p++]=x;data[p++]=y}
+  return {data,endX:x,endY:y};
+}
+function buildLivePath(startX,startY,payload,count){return buildPath(startX,startY,payload,0,count,false).data}
+function encodeBank(slot,token,seq,revision,paintStart,startX,startY,dirs){
+  return "2"+PAD(slot,2)+PAD(token,9)+PAD(seq,4)+PAD(revision,6)+(paintStart?"1":"0")+encCoord(startX)+encCoord(startY)+PAD(dirs.length,5)+packDirs(dirs);
+}
+function decodeBank(value){
+  if(!value||value==="0"||value.length<52||value[0]!=="2")return null;
+  const slot=Number(value.slice(1,3)),token=Number(value.slice(3,12)),seq=Number(value.slice(12,16)),revision=Number(value.slice(16,22)),paintStart=value[22]==="1",startX=decCoord(value.slice(23,35)),startY=decCoord(value.slice(35,47)),count=Number(value.slice(47,52)),payload=value.slice(52);
+  if(slot<0||slot>=CFG.SLOTS||!token||count<0||count>CFG.BANK_MOVES||payload.length<Math.ceil(count/16)*10)return null;
+  return {slot,token,seq,revision,paintStart,startX,startY,count,payload};
+}
+function encodePlayer(token,ts,x,y,score,bankId,bankSeq,snapCount,tailStartX,tailStartY,tailDirs,name){
+  return "1"+PAD(token,9)+PAD(ts,10)+encCoord(x)+encCoord(y)+PAD(score,12)+PAD(bankId,2)+PAD(bankSeq,4)+PAD(snapCount,5)+encCoord(tailStartX)+encCoord(tailStartY)+PAD(tailDirs.length,3)+packDirs(tailDirs)+encodeText(name);
+}
+function decodePlayer(value){
+  if(!value||value==="0"||value.length<96||value[0]!=="1")return null;
+  const token=Number(value.slice(1,10)),ts=Number(value.slice(10,20)),x=decCoord(value.slice(20,32)),y=decCoord(value.slice(32,44)),score=Number(value.slice(44,56)),bankId=Number(value.slice(56,58)),bankSeq=Number(value.slice(58,62)),snapCount=Number(value.slice(62,67)),tailStartX=decCoord(value.slice(67,79)),tailStartY=decCoord(value.slice(79,91)),tailCount=Number(value.slice(91,94)),tailDigits=Math.ceil(tailCount/16)*10,tailPayload=value.slice(94,94+tailDigits),nameData=decodeText(value,94+tailDigits);
+  if(!token||bankId>99||tailCount>999||tailPayload.length<tailDigits)return null;
+  return {token,ts,x,y,score,bankId,bankSeq,snapCount,tailStartX,tailStartY,tailCount,tailPayload,name:nameData.text||"Player"};
+}
+let mySlot=-1,myToken=0,myName="",myColor=null,myStore=null,px=0,py=0,score=0,dx=0,dy=0,running=false,claiming=false,started=false;
+let currentBankId=99,currentBankSeq=0,currentBankRevision=0,currentBankStartX=0,currentBankStartY=0,currentBankPaintStart=true,currentDirs=[],snapCount=0,tailStartX=0,tailStartY=0,tailDirs=[],ownedBanks=[];
+let camX=0,camY=0,lastMoveAt=0,lastPosAt=0,lastSnapshotAt=0,lastScoreboardAt=0,lastMiniAt=0,lastCleanupAt=0;
+const players={};
+const bankRecords=Array.from({length:CFG.BANKS},()=>null);
 const cvars={};
-
+let ws=null,cloudUser="",connected=false,reconnectTimer=0,toastTimer=0,allocatingBank=false;
+function sessionNumber(key,digits){
+  let v=sessionStorage.getItem(key);
+  if(!v||!/^[0-9]+$/.test(v)){v=String(Math.floor(10**(digits-1)+Math.random()*9*10**(digits-1)));sessionStorage.setItem(key,v)}
+  return Number(v);
+}
+function setStatus(text){$("st").textContent=text}
+function setNet(text,state){const n=$("net");n.textContent=text;n.className=`hv ${state}`}
+function toast(text){const e=$("toast");e.textContent=text;e.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove("show"),1800)}
+function activePlayerData(slot){const d=decodePlayer(cvars[`P${slot}`]);return d&&Date.now()/1000-d.ts<CFG.PLAYER_TTL/1000?d:null}
+function countActive(){let n=running?1:0;for(const k in players)if(players[k].active)n++;return n}
 function cloudConnect(){
-  // "player" + 2-7 chiffres aleatoires => pas de verif Scratch = connexion rapide
-  const user="player"+Math.floor(10+Math.random()*9999990);
-  ws=new WebSocket("wss://clouddata.turbowarp.org");
+  clearTimeout(reconnectTimer);
+  if(ws&&(ws.readyState===0||ws.readyState===1))return;
+  setNet("connexion","wait");
+  ws=new WebSocket(CFG.CLOUD_HOST);
   ws.onopen=()=>{
-    ws.send(JSON.stringify({method:"handshake",project_id:CFG.PROJECT_ID,user}));
-    setStatus("Connecte");
+    connected=true;
+    ws.send(JSON.stringify({method:"handshake",project_id:String(CFG.PROJECT_ID),user:cloudUser}));
+    setNet("en ligne","ok");
+    setStatus("Synchronisation...");
+    setTimeout(async()=>{
+      if(!connected)return;
+      if(!started){started=true;await bootstrapGame()}
+      else if(running){syncCurrentBank(true);broadcastPlayer()}
+    },850);
   };
   ws.onmessage=e=>{
-    // Plusieurs messages separes par \n possible
-    for(const line of e.data.split("\n")){
-      if(!line.trim()) continue;
+    for(const line of String(e.data).split("\n")){
+      if(!line.trim())continue;
       try{
         const d=JSON.parse(line);
-        if(d.method==="set"){
-          const name=d.name.replace(/^[☁] /,"").replace(/^☁ /,"");
-          cvars[name]=String(d.value);
-          onCloudVar(name,String(d.value));
-        }
-      }catch(_){}
+        if(d.method!=="set")continue;
+        const name=String(d.name).replace(/^(â |:cloud: )/,""),value=String(d.value);
+        cvars[name]=value;
+        onCloud(name,value);
+      }catch(_){ }
     }
   };
   ws.onclose=e=>{
-    setStatus("Deconnecte ("+e.code+")... reconnexion");
-    setTimeout(cloudConnect,3000);
+    connected=false;
+    setNet(`coupÃ© ${e.code||""}`,"bad");
+    if($("pb").disabled)reconnectTimer=setTimeout(cloudConnect,CFG.RECONNECT_MS);
   };
-  ws.onerror=()=>setStatus("Erreur WebSocket");
+  ws.onerror=()=>setNet("erreur","bad");
 }
-
-function cloudSet(name,val){
-  // Securite : ne jamais envoyer une valeur contenant autre chose que chiffres
-  const safeVal=String(val).replace(/[^0-9]/g,"");
-  if(!ws||ws.readyState!==1||!safeVal) return;
-  ws.send(JSON.stringify({method:"set",name:"☁ "+name,value:safeVal}));
+function cloudSet(name,value){
+  const v=String(value);
+  if(!/^\d+(?:\.\d+)?$/.test(v)||v.length>100000)return false;
+  cvars[name]=v;
+  if(!ws||ws.readyState!==1)return false;
+  ws.send(JSON.stringify({method:"set",name:`â ${name}`,value:v}));
+  return true;
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// RECEPTION CLOUD
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function onCloudVar(name,val){
-  // Position : P0 a P28
-  if(/^P\d{1,2}$/.test(name)){
-    const slot=parseInt(name.slice(1));
-    if(slot>=CFG.SLOTS||slot===mySlot) return;
-    if(!val||val==="0"){
-      delete players[slot];
-      document.getElementById("hp").textContent=Object.keys(players).length+1;
-      updateSB();
-      return;
-    }
-    const d=decodePosMsg(val);
-    if(!d) return;
-    // Couleur derivee du tag #xxx contenu dans le nom
-    const color = d.name ? colorFromTag(d.name) : colorFromTag("#"+(slot*137));
-    if(!players[slot]) players[slot]={color, name:d.name||("J"+slot)};
-    else {
-      if(d.name) { players[slot].name=d.name; players[slot].color=colorFromTag(d.name); }
-    }
-    Object.assign(players[slot],{x:d.x,y:d.y,score:d.score,lastSeen:Date.now()});
-    document.getElementById("hp").textContent=Object.keys(players).length+1;
-    updateSB();
+function onCloud(name,value){
+  let m=name.match(/^P(\d{1,2})$/);
+  if(m){handlePlayerVar(Number(m[1]),value);return}
+  m=name.match(/^D(\d{1,2})$/);
+  if(m){handleBankVar(Number(m[1]),value)}
+}
+function makeRemote(slot,data){
+  const color=colorFromToken(data.token),p={slot,token:data.token,name:data.name,color,store:new TrailStore(color),x:data.x,y:data.y,rx:data.x,ry:data.y,score:data.score,bankId:data.bankId,bankSeq:data.bankSeq,snapCount:data.snapCount,tailStartX:data.tailStartX,tailStartY:data.tailStartY,tailCount:data.tailCount,tailPayload:data.tailPayload,livePath:null,lastSeen:Date.now(),active:true};
+  players[slot]=p;
+  hydratePlayerBanks(slot);
+  refreshLive(p);
+  return p;
+}
+function handlePlayerVar(slot,value){
+  if(slot<0||slot>=CFG.SLOTS)return;
+  if(value==="0"){
+    if(slot===mySlot&&!claiming)return;
+    if(players[slot])delete players[slot];
+    updateCounts();
     return;
   }
-  // Trail : T0 a T28
-  if(/^T\d{1,2}$/.test(name)){
-    const slot=parseInt(name.slice(1));
-    if(slot>=CFG.SLOTS||slot===mySlot) return;
-    if(!val||val==="0") return;
-    const r=decodeTrailSeg(val);
-    if(!r) return;
-    if(!trailSegs[slot]) trailSegs[slot]=new Map();
-    trailSegs[slot].set(r.segIdx,{tiles:r.tiles, ts:Date.now()});
-    invalidateTrailCache(slot);
-    const maxSegs=Math.ceil(3000/CFG.SEG);
-    if(trailSegs[slot].size>maxSegs+2){
-      const keys=[...trailSegs[slot].keys()].sort((a,b)=>a-b);
-      while(trailSegs[slot].size>maxSegs) trailSegs[slot].delete(keys.shift());
+  const data=decodePlayer(value);
+  if(!data)return;
+  if(slot!==mySlot&&Date.now()/1000-data.ts>CFG.PLAYER_TTL/1000){if(players[slot])delete players[slot];return;}
+  if(slot===mySlot){
+    if(data.token===myToken)return;
+    if(!claiming&&running){
+      if(data.token<myToken){toast("Conflit de slot, dÃ©placement...");void reacquireSlot()}
+      else setTimeout(broadcastPlayer,80+Math.random()*180);
+    }
+    return;
+  }
+  let p=players[slot];
+  if(!p||p.token!==data.token){
+    if(p)delete players[slot];
+    p=makeRemote(slot,data);
+  }else{
+    removeLive(p);
+    p.name=data.name;p.x=data.x;p.y=data.y;p.score=data.score;p.bankId=data.bankId;p.bankSeq=data.bankSeq;p.snapCount=data.snapCount;p.tailStartX=data.tailStartX;p.tailStartY=data.tailStartY;p.tailCount=data.tailCount;p.tailPayload=data.tailPayload;p.lastSeen=Date.now();p.active=true;
+    refreshLive(p);
+  }
+  updateCounts();
+}
+function handleBankVar(id,value){
+  if(id<0||id>=CFG.BANKS)return;
+  const old=bankRecords[id];
+  if(value==="0"){
+    bankRecords[id]=null;
+    if(old&&old.appliedSlot>=0&&players[old.appliedSlot])rebuildPlayer(old.appliedSlot);
+    if(id===currentBankId&&running&&!claiming)void allocateNextBank();
+    return;
+  }
+  const parsed=decodeBank(value);
+  if(!parsed)return;
+  if(parsed.token===myToken&&parsed.slot===mySlot)return;
+  if(id===currentBankId&&running&&parsed.token!==myToken){
+    if(parsed.token<myToken){currentBankId=99;void allocateNextBank()}else setTimeout(()=>syncCurrentBank(true),100+Math.random()*200);
+  }
+  if(old&&old.parsed.token===parsed.token&&old.parsed.slot===parsed.slot&&old.parsed.seq===parsed.seq&&parsed.count>=old.appliedCount){
+    old.parsed=parsed;
+    applyBankRecord(id,old);
+    return;
+  }
+  const affected=old?old.appliedSlot:-1;
+  bankRecords[id]={parsed,appliedCount:0,endX:parsed.startX,endY:parsed.startY,appliedSlot:-1,startApplied:false};
+  if(affected>=0&&players[affected])rebuildPlayer(affected);
+  applyBankRecord(id,bankRecords[id]);
+}
+function applyBankRecord(id,rec){
+  const b=rec.parsed,p=players[b.slot];
+  if(!p||p.token!==b.token)return;
+  removeLive(p);
+  if(rec.appliedSlot!==b.slot){rec.appliedSlot=b.slot;rec.appliedCount=0;rec.endX=b.startX;rec.endY=b.startY;rec.startApplied=false}
+  if(b.count<rec.appliedCount){rebuildPlayer(b.slot);return}
+  if(b.count>rec.appliedCount||!rec.startApplied&&b.paintStart){
+    const useStart=!rec.startApplied&&b.paintStart;
+    const path=buildPath(b.startX,b.startY,b.payload,rec.appliedCount,b.count,useStart);
+    p.store.addPath(path.data);
+    rec.endX=path.endX;rec.endY=path.endY;rec.appliedCount=b.count;if(useStart)rec.startApplied=true;
+  }
+  refreshLive(p);
+}
+function hydratePlayerBanks(slot){
+  const p=players[slot];
+  if(!p)return;
+  const ids=[];
+  for(let i=0;i<bankRecords.length;i++){const r=bankRecords[i];if(r&&r.parsed.slot===slot&&r.parsed.token===p.token)ids.push(i)}
+  ids.sort((a,b)=>bankRecords[a].parsed.seq-bankRecords[b].parsed.seq);
+  for(const id of ids)applyBankRecord(id,bankRecords[id]);
+}
+function rebuildPlayer(slot){
+  const p=players[slot];
+  if(!p)return;
+  p.store.clear();p.livePath=null;
+  for(const r of bankRecords)if(r&&r.appliedSlot===slot){r.appliedSlot=-1;r.appliedCount=0;r.endX=r.parsed.startX;r.endY=r.parsed.startY;r.startApplied=false}
+  hydratePlayerBanks(slot);
+  refreshLive(p);
+}
+function removeLive(p){if(p&&p.livePath){p.store.removePath(p.livePath);p.livePath=null}}
+function refreshLive(p){
+  if(!p||!p.tailCount||p.bankId>=CFG.BANKS)return;
+  const rec=bankRecords[p.bankId];
+  if(!rec||rec.parsed.token!==p.token||rec.parsed.slot!==p.slot||rec.parsed.seq!==p.bankSeq||rec.parsed.count!==p.snapCount)return;
+  p.livePath=buildLivePath(p.tailStartX,p.tailStartY,p.tailPayload,p.tailCount);
+  p.store.addPath(p.livePath);
+}
+function parseAllBanks(){
+  for(let i=0;i<CFG.BANKS;i++){
+    const value=cvars[`D${i}`];
+    if(!value||value==="0"||bankRecords[i])continue;
+    handleBankVar(i,value);
+  }
+}
+function ownBankGroups(){
+  const groups=new Map();
+  for(let i=0;i<CFG.BANKS;i++){
+    const value=cvars[`D${i}`],b=decodeBank(value);
+    if(!b||b.token!==myToken)continue;
+    if(!groups.has(b.slot))groups.set(b.slot,[]);
+    groups.get(b.slot).push({id:i,b});
+  }
+  return groups;
+}
+function slotFree(slot){
+  const value=cvars[`P${slot}`];
+  if(!value||value==="0")return true;
+  const p=decodePlayer(value);
+  if(!p)return true;
+  return Date.now()/1000-p.ts>CFG.PLAYER_TTL/1000;
+}
+function findRestoreGroup(){
+  let best=null;
+  for(const [slot,items] of ownBankGroups()){
+    const p=decodePlayer(cvars[`P${slot}`]);
+    if(p&&p.token!==myToken&&!slotFree(slot))continue;
+    const total=items.reduce((n,x)=>n+x.b.count,0);
+    if(!best||total>best.total)best={slot,items,total};
+  }
+  return best;
+}
+function restoreLocal(group){
+  mySlot=group.slot;myStore=new TrailStore(myColor);score=0;ownedBanks=[];
+  group.items.sort((a,b)=>a.b.seq-b.b.seq);
+  let last=null;
+  for(const item of group.items){
+    const {id,b}=item,path=buildPath(b.startX,b.startY,b.payload,0,b.count,b.paintStart);
+    myStore.addPath(path.data);score+=b.count;ownedBanks.push(id);last={id,b,path};
+  }
+  if(last){
+    currentBankId=last.id;currentBankSeq=last.b.seq;currentBankRevision=last.b.revision;currentBankStartX=last.b.startX;currentBankStartY=last.b.startY;currentBankPaintStart=last.b.paintStart;currentDirs=unpackDirs(last.b.payload,last.b.count);snapCount=last.b.count;tailDirs=[];px=last.path.endX;py=last.path.endY;tailStartX=px;tailStartY=py;
+  }
+  if(!last){px=randomSpawn();py=randomSpawn();myStore.add(px,py);score=0}
+}
+function randomSpawn(){return Math.floor(Math.random()*1001)-500}
+async function claimSlot(preferred=-1){
+  claiming=true;
+  const candidates=[];
+  if(preferred>=0)candidates.push(preferred);
+  const rest=Array.from({length:CFG.SLOTS},(_,i)=>i).filter(i=>i!==preferred).sort(()=>Math.random()-.5);
+  candidates.push(...rest);
+  for(const slot of candidates){
+    const present=decodePlayer(cvars[`P${slot}`]);
+    if(present&&present.token!==myToken&&!slotFree(slot))continue;
+    mySlot=slot;
+    broadcastPlayer();
+    await sleep(CFG.CLAIM_WAIT);
+    let check=decodePlayer(cvars[`P${slot}`]);
+    if(check&&check.token!==myToken&&myToken<check.token){broadcastPlayer();await sleep(CFG.CLAIM_WAIT);check=decodePlayer(cvars[`P${slot}`])}
+    if(check&&check.token===myToken){claiming=false;return true}
+  }
+  mySlot=-1;claiming=false;return false;
+}
+async function reacquireSlot(){
+  if(claiming)return;
+  claiming=true;
+  const old=mySlot;
+  mySlot=-1;
+  const ok=await claimSlot(-1);
+  if(!ok){running=false;toast("Aucun slot disponible");return}
+  for(const id of ownedBanks){const r=decodeBank(cvars[`D${id}`]);if(r&&r.token===myToken){r.slot=mySlot;cloudSet(`D${id}`,encodeBank(mySlot,myToken,r.seq,r.revision,r.paintStart,r.startX,r.startY,unpackDirs(r.payload,r.count)))}}
+  if(old>=0&&old!==mySlot)cloudSet(`P${old}`,"0");
+  broadcastPlayer();
+}
+function bankOwnerActive(bank){
+  const p=decodePlayer(cvars[`P${bank.slot}`]);
+  return !!(p&&p.token===bank.token&&Date.now()/1000-p.ts<CFG.PLAYER_TTL/1000);
+}
+function bankAvailable(id){
+  const value=cvars[`D${id}`];
+  if(!value||value==="0")return true;
+  const b=decodeBank(value);
+  return !b||!bankOwnerActive(b);
+}
+async function claimBank(seq,startX,startY,paintStart){
+  const ids=Array.from({length:CFG.BANKS},(_,i)=>i).sort(()=>Math.random()-.5);
+  const active=Math.max(1,countActive()+(running?0:1)),reserve=Math.max(0,CFG.SLOTS-active),freeNow=ids.filter(bankAvailable).length;
+  if(freeNow<=reserve)return -1;
+  for(const id of ids){
+    if(!bankAvailable(id))continue;
+    const value=encodeBank(mySlot,myToken,seq,1,paintStart,startX,startY,[]);
+    cloudSet(`D${id}`,value);
+    await sleep(CFG.CLAIM_WAIT);
+    let check=decodeBank(cvars[`D${id}`]);
+    if(check&&check.token!==myToken&&myToken<check.token){cloudSet(`D${id}`,value);await sleep(CFG.CLAIM_WAIT);check=decodeBank(cvars[`D${id}`])}
+    if(check&&check.token===myToken&&check.slot===mySlot&&check.seq===seq){
+      if(!ownedBanks.includes(id))ownedBanks.push(id);
+      return id;
     }
   }
-  // Chat : MSG0 a MSG28
-  if(/^MSG\d{1,2}$/.test(name)){
-    const slot=parseInt(name.slice(3));
-    if(slot>=CFG.SLOTS||slot===mySlot) return;
-    if(!val||val==="0") return;
-    const text=decodeChatMsg(val);
-    if(!text) return;
-    const p=players[slot];
-    const pname=p?p.name:("J"+slot);
-    const color=p?p.color:colorFromTag("#"+(slot*137));
-    pushChatMsg(pname,color,text);
-  }
+  return -1;
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// BROADCAST
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function broadcastPos(){
-  if(mySlot<0) return;
-  cloudSet("P"+mySlot, encodePosMsg(px,py,score,myName));
+async function allocateNextBank(){
+  if(claiming||allocatingBank||mySlot<0)return false;
+  allocatingBank=true;
+  const id=await claimBank(currentBankSeq+1,px,py,false);
+  if(id<0){toast("Stockage cloud saturÃ©");dx=0;dy=0;allocatingBank=false;return false}
+  currentBankId=id;currentBankSeq++;currentBankRevision=1;currentBankStartX=px;currentBankStartY=py;currentBankPaintStart=false;currentDirs=[];snapCount=0;tailStartX=px;tailStartY=py;tailDirs=[];lastSnapshotAt=performance.now();broadcastPlayer();allocatingBank=false;return true;
 }
-
-function broadcastTrailSeg(){
-  if(mySlot<0||myTrail.length===0) return;
-  const totalSegs=Math.ceil(myTrail.length/CFG.SEG);
-  if(totalSegs===0) return;
-
-  const PROX=50; // distance manhattan max pour considerer "proche"
-
-  // Trouve le segment le plus proche du joueur parmi tous les segments
-  let closestSeg=-1, closestDist=Infinity;
-  for(let i=0;i<totalSegs;i++){
-    const start=i*CFG.SEG, end=Math.min(start+CFG.SEG,myTrail.length)-1;
-    for(const idx of [start,end]){
-      const t=myTrail[idx];
-      if(!t) continue;
-      const d=Math.abs(t.x-px)+Math.abs(t.y-py);
-      if(d<closestDist){closestDist=d;closestSeg=i;}
-    }
-  }
-
-  // Tick 1 : toujours envoyer le segment le plus proche si dans la zone
-  if(closestSeg>=0 && closestDist<PROX){
-    const chunk=myTrail.slice(closestSeg*CFG.SEG,(closestSeg+1)*CFG.SEG);
-    cloudSet("T"+mySlot, encodeTrailSeg(closestSeg,chunk));
-  }
-
-  // Tick 2 : round-robin sur tous les segments (coverage complet)
-  const segIdx=slideIdx%totalSegs;
-  slideIdx=(slideIdx+1)%totalSegs;
-  const chunk=myTrail.slice(segIdx*CFG.SEG,(segIdx+1)*CFG.SEG);
-  cloudSet("T"+mySlot, encodeTrailSeg(segIdx,chunk));
+function syncCurrentBank(force=false){
+  if(!running||!connected||mySlot<0||currentBankId>=CFG.BANKS)return;
+  const now=performance.now();
+  if(!force&&now-lastSnapshotAt<CFG.SNAPSHOT_MS)return;
+  currentBankRevision=(currentBankRevision+1)%1000000;
+  cloudSet(`D${currentBankId}`,encodeBank(mySlot,myToken,currentBankSeq,currentBankRevision,currentBankPaintStart,currentBankStartX,currentBankStartY,currentDirs));
+  snapCount=currentDirs.length;tailStartX=px;tailStartY=py;tailDirs=[];lastSnapshotAt=now;
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// GAMEPLAY
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function startGame(){
-  running=true;
-  myTrail.push({x:px,y:py});
-
-  setInterval(()=>{
-    if(!running) return;
-    // Mouvement
-    if(dx||dy){
-      const nx=px+dx, ny=py+dy;
-      if(nx>=0&&nx<CFG.MAP_W&&ny>=0&&ny<CFG.MAP_H){
-        px=nx; py=ny;
-        myTrail.push({x:px,y:py});
-        score++;
-        document.getElementById("hs").textContent=score;
-        document.getElementById("ht").textContent=myTrail.length;
-      }
-    }
-    // NE PAS supprimer les joueurs inactifs ici :
-    // la deconnexion se fait uniquement a la fermeture de fenetre (beforeunload)
-    // => les joueurs AFK restent visibles avec leur trail intact
-    broadcastPos();
-    broadcastTrailSeg();
-    updateSB();
-  }, CFG.MOVE);
-
-  requestAnimationFrame(render);
+function broadcastPlayer(){
+  if(mySlot<0)return;
+  const bank=currentBankId<CFG.BANKS?currentBankId:99;
+  cloudSet(`P${mySlot}`,encodePlayer(myToken,Math.floor(Date.now()/1000),px,py,score,bank,currentBankSeq,snapCount,tailStartX,tailStartY,tailDirs,myName));
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// RENDU
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const cv=document.getElementById("cv");
-const ctx=cv.getContext("2d");
-const mc=document.getElementById("mc");
-const mctx=mc.getContext("2d");
-const T=CFG.TILE;
-
-function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
-resize(); window.addEventListener("resize",resize);
-
-// Camera interpolee (smooth) - valeurs brutes utilisees directement dans render
-function render(){
-  if(!running){requestAnimationFrame(render);return;}
-
-  // Camera smooth
-  camRx += (px*T - camRx) * LERP;
-  camRy += (py*T - camRy) * LERP;
-
-  const cx=camRx-cv.width/2, cy=camRy-cv.height/2;
-  // Viewport en tuiles (avec marge)
-  const vx0=Math.floor(cx/T)-1, vy0=Math.floor(cy/T)-1;
-  const vx1=vx0+Math.ceil(cv.width/T)+2, vy1=vy0+Math.ceil(cv.height/T)+2;
-
-  ctx.clearRect(0,0,cv.width,cv.height);
-
-  // Grille
-  ctx.strokeStyle="#ffffff07";ctx.lineWidth=1;
-  const ox=(-cx)%T, oy=(-cy)%T;
-  for(let x=ox;x<cv.width;x+=T){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke();}
-  for(let y=oy;y<cv.height;y+=T){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cv.width,y);ctx.stroke();}
-
-  // Helper : dessine un tableau de tiles [{x,y}] avec une seule couleur (batching)
-  function drawTrailBatch(tiles, color, alpha){
-    ctx.globalAlpha=alpha;
-    ctx.fillStyle=color;
-    for(const t of tiles){
-      if(t.x<vx0||t.x>vx1||t.y<vy0||t.y>vy1) continue; // culling
-      ctx.fillRect(t.x*T-cx+1, t.y*T-cy+1, T-2, T-2);
-    }
-  }
-
-  // Trails distants (1 batch par joueur = 1 fillStyle)
-  for(const s in players){
-    drawTrailBatch(getRemoteTrail(parseInt(s)), players[s].color, 0.45);
-  }
-
-  // Mon trail
-  drawTrailBatch(myTrail, myColor, 0.6);
-
-  ctx.globalAlpha=1;
-
-  // Joueurs distants
-  ctx.textAlign="center";ctx.font="9px monospace";
-  for(const s in players){
-    const p=players[s];
-    const sx=p.x*T-cx+T/2, sy=p.y*T-cy+T/2;
-    ctx.fillStyle=p.color;
-    ctx.beginPath();ctx.arc(sx,sy,T/2-1,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle="#fff";
-    ctx.globalAlpha=1;
-    ctx.fillText(p.name||"?",sx,sy-T/2-3);
-  }
-
-  // Mon joueur
-  const snapX=cv.width/2+(px*T-camRx)+T/2, snapY=cv.height/2+(py*T-camRy)+T/2;
-  ctx.fillStyle=myColor;
-  ctx.globalAlpha=1;
-  ctx.beginPath();ctx.arc(snapX,snapY,T/2-1,0,Math.PI*2);ctx.fill();
-  if(dx||dy){
-    ctx.strokeStyle=myColor;ctx.lineWidth=2;ctx.globalAlpha=0.3;
-    ctx.beginPath();ctx.arc(snapX,snapY,T,0,Math.PI*2);ctx.stroke();
-    ctx.globalAlpha=1;
-  }
-
-  drawMinimap();
-  requestAnimationFrame(render);
+async function bootstrapGame(){
+  parseAllBanks();
+  const restore=findRestoreGroup();
+  if(restore)restoreLocal(restore);else{px=randomSpawn();py=randomSpawn();myStore=new TrailStore(myColor);myStore.add(px,py);score=0;currentBankSeq=0;currentBankStartX=px;currentBankStartY=py;currentBankPaintStart=true;currentDirs=[];snapCount=0;tailStartX=px;tailStartY=py;tailDirs=[];ownedBanks=[]}
+  const ok=await claimSlot(restore?restore.slot:-1);
+  if(!ok){setStatus("Salon complet");$("pb").disabled=false;started=false;return}
+  if(!restore||currentBankId>=CFG.BANKS){
+    currentBankId=await claimBank(0,px,py,true);
+    if(currentBankId<0){setStatus("Aucune banque libre");cloudSet(`P${mySlot}`,"0");$("pb").disabled=false;started=false;return}
+    currentBankSeq=0;currentBankRevision=1;
+  }else if(currentDirs.length>=CFG.BANK_MOVES){await allocateNextBank()}
+  running=true;camX=px*CFG.TILE;camY=py*CFG.TILE;lastMoveAt=performance.now();lastPosAt=0;lastSnapshotAt=0;
+  $("lb").style.display="none";
+  syncCurrentBank(true);broadcastPlayer();updateCounts();updateHud();requestAnimationFrame(loop);
 }
-
-function drawMinimap(){
-  const W=110,R=W/2;
-  mctx.clearRect(0,0,W,W);
-  mctx.save();
-  mctx.beginPath();mctx.arc(R,R,R-1,0,Math.PI*2);mctx.clip();
-  mctx.fillStyle="#000a";mctx.fillRect(0,0,W,W);
-
-  const sc=W/Math.max(CFG.MAP_W,CFG.MAP_H);
-
-  // Dessiner les trails via ImageData (beaucoup plus rapide que des fillRect)
-  const imgData=mctx.createImageData(W,W);
-  const d=imgData.data;
-
-  function paintTile(tx,ty,hexColor,alpha){
-    const mx=((tx-px)*sc+R)|0, my=((ty-py)*sc+R)|0;
-    if(mx<0||mx>=W||my<0||my>=W) return;
-    const off=(my*W+mx)*4;
-    // Parse couleur hex -> rgb (cache simple)
-    const rgb=hexToRgb(hexColor);
-    d[off]=rgb[0]; d[off+1]=rgb[1]; d[off+2]=rgb[2]; d[off+3]=(alpha*255)|0;
-  }
-
-  for(const t of myTrail) paintTile(t.x,t.y,myColor,0.7);
-  for(const s in players){
-    const trail=getRemoteTrail(parseInt(s));
-    for(const t of trail) paintTile(t.x,t.y,players[s].color,0.5);
-  }
-  mctx.putImageData(imgData,0,0);
-
-  // Points joueurs par dessus
-  for(const s in players){
-    const mx=((players[s].x-px)*sc+R), my=((players[s].y-py)*sc+R);
-    mctx.fillStyle=players[s].color;mctx.beginPath();mctx.arc(mx,my,3,0,Math.PI*2);mctx.fill();
-  }
-  mctx.fillStyle=myColor;mctx.beginPath();mctx.arc(R,R,4,0,Math.PI*2);mctx.fill();
-  mctx.restore();
+function addMove(mx,my){
+  const code=DIR_CODE[`${mx},${my}`];
+  if(code===undefined)return;
+  px+=mx;py+=my;score++;currentDirs.push(code);tailDirs.push(code);myStore.add(px,py);
+  if(tailDirs.length>=900)syncCurrentBank(true);
+  if(currentDirs.length>=CFG.BANK_MOVES){syncCurrentBank(true);void allocateNextBank()}
 }
-
-// Cache de parsing hex -> [r,g,b]
-const _hexCache={};
-function hexToRgb(hex){
-  if(_hexCache[hex]) return _hexCache[hex];
-  // Supporte hsl(...) aussi
-  if(hex.startsWith("hsl")){
-    // Convertir HSL -> RGB
-    const m=hex.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
-    if(m){
-      const h=parseInt(m[1])/360,s=parseInt(m[2])/100,l=parseInt(m[3])/100;
-      const q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q;
-      const hue2rgb=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};
-      return _hexCache[hex]=[(hue2rgb(p,q,h+1/3)*255)|0,(hue2rgb(p,q,h)*255)|0,(hue2rgb(p,q,h-1/3)*255)|0];
-    }
+function cleanupPlayers(){
+  const now=Date.now();
+  for(const key of Object.keys(players)){
+    const p=players[key];
+    if(now-p.lastSeen>CFG.PLAYER_TTL){p.active=false;delete players[key]}
   }
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return _hexCache[hex]=[r,g,b];
+  updateCounts();
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// SCOREBOARD
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function updateSB(){
-  const list=[{name:myName,score,color:myColor}];
-  for(const s in players) list.push({name:players[s].name,score:players[s].score||0,color:players[s].color});
+function updateCounts(){$("hp").textContent=countActive();$("hb").textContent=ownedBanks.length}
+function updateHud(){
+  $("hs").textContent=score.toLocaleString("fr-FR");$("ht").textContent=myStore?myStore.unique.toLocaleString("fr-FR"):"0";$("coords").textContent=`x ${px.toLocaleString("fr-FR")} Â· y ${py.toLocaleString("fr-FR")}`;
+}
+function updateScoreboard(){
+  const list=[{name:myName,score,color:myColor.css}];
+  for(const p of Object.values(players))list.push({name:p.name,score:p.score||0,color:p.color.css});
   list.sort((a,b)=>b.score-a.score);
-  document.getElementById("sl").innerHTML=list.slice(0,6).map(p=>
-    `<div class="sr"><span><span class="sd" style="background:${p.color}"></span>${p.name}</span><span>${p.score}</span></div>`
-  ).join("");
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// COMMANDE ADMIN CACHEE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function adminNuke(){
-  if(!ws||ws.readyState!==1) return;
-
-  // Flash rouge a l'ecran
-  const flash=document.createElement("div");
-  flash.style.cssText="position:fixed;inset:0;background:#f003;z-index:999;pointer-events:none;transition:opacity 0.8s";
-  document.body.appendChild(flash);
-  setTimeout(()=>{flash.style.opacity="0";},50);
-  setTimeout(()=>{flash.remove();},900);
-
-  // Kick tous les slots (P0-P7 = "0", T0-T7 = "0")
-  for(let i=0;i<CFG.SLOTS;i++){
-    if(i===mySlot) continue; // ne pas se kicker soi-meme
-    ws.send(JSON.stringify({method:"set",name:"☁ P"+i,value:"0"}));
-    ws.send(JSON.stringify({method:"set",name:"☁ T"+i,value:"0"}));
-  }
-
-  // Reset local : vider les joueurs et trails distants
-  for(const s in players) delete players[s];
-  for(const s in trailSegs) delete trailSegs[s];
-  for(const s in trailCache) delete trailCache[s];
-
-  // Reset son propre trail aussi
-  myTrail=[{x:px,y:py}];
-  score=0;
-  slideIdx=0;
-  document.getElementById("hs").textContent=0;
-  document.getElementById("ht").textContent=1;
-  document.getElementById("hp").textContent=1;
-  updateSB();
-
-  console.log("%c[ADMIN] NUKE executed — all players kicked, trails reset","color:#f44;font-weight:bold");
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONTROLES
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const KEYS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1],
-            a:[-1,0],d:[1,0],w:[0,-1],s:[0,1],q:[-1,0],z:[0,-1]};
-document.addEventListener("keydown",e=>{
-  // ━━ COMMANDE CACHEE : CTRL+ALT+S = kick all + reset trails ━━
-  if(e.ctrlKey && e.altKey && e.key==="s"){
-    e.preventDefault();
-    adminNuke();
-    return;
-  }
-  if(!running) return;
-  const d=KEYS[e.key];
-  if(d){dx=d[0];dy=d[1];e.preventDefault();}
-});
-document.addEventListener("keyup",e=>{
-  const d=KEYS[e.key];
-  if(d&&d[0]===dx&&d[1]===dy){dx=0;dy=0;}
-});
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONTROLES TACTILES — tap directionnel
-// Le joueur est toujours au centre de l'ecran.
-// On calcule l'angle entre le centre et le doigt
-// et on en deduit la direction (haut/bas/gauche/droite).
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const tapHint=document.getElementById("tap-hint");
-let tapHintTimer=null;
-
-function showTapHint(cx,cy){
-  tapHint.style.left=cx+"px";
-  tapHint.style.top=cy+"px";
-  tapHint.style.opacity="1";
-  clearTimeout(tapHintTimer);
-  tapHintTimer=setTimeout(()=>{tapHint.style.opacity="0";},300);
-}
-
-cv.addEventListener("touchstart",e=>{
-  if(!running) return;
-  e.preventDefault();
-  handleTap(e.touches[0]);
-},{passive:false});
-
-cv.addEventListener("touchmove",e=>{
-  if(!running) return;
-  e.preventDefault();
-  handleTap(e.touches[0]);
-},{passive:false});
-
-cv.addEventListener("touchend",e=>{
-  e.preventDefault();
-  dx=0; dy=0; // stop quand le doigt se leve
-},{passive:false});
-
-cv.addEventListener("touchcancel",()=>{ dx=0; dy=0; },{passive:true});
-
-function handleTap(touch){
-  // Centre de l'ecran = position visuelle du joueur
-  const screenCx = cv.width  / 2;
-  const screenCy = cv.height / 2;
-  const relX = touch.clientX - screenCx;
-  const relY = touch.clientY - screenCy;
-
-  // Deadzone : si le doigt est trop pres du centre, on ignore
-  if(Math.abs(relX) < 12 && Math.abs(relY) < 12) return;
-
-  // Direction : on prend l'axe dominant (plus grand delta)
-  if(Math.abs(relX) > Math.abs(relY)){
-    dx = relX > 0 ? 1 : -1;
-    dy = 0;
-  } else {
-    dx = 0;
-    dy = relY > 0 ? 1 : -1;
-  }
-
-  showTapHint(touch.clientX, touch.clientY);
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CHAT GLOBAL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const chatMsgs=document.getElementById("chat-msgs");
-const chatIn=document.getElementById("chat-in");
-const chatPanel=document.getElementById("chat-panel");
-const chatArrow=document.getElementById("chat-arrow");
-let chatVisible=true;
-
-document.getElementById("chat-toggle").addEventListener("click",()=>{
-  chatVisible=!chatVisible;
-  chatPanel.className=chatVisible?"visible":"hidden";
-  chatArrow.textContent=chatVisible?"◀":"▶";
-});
-
-// Empeche les touches de jeu quand on tape dans le chat
-chatIn.addEventListener("keydown",e=>e.stopPropagation());
-chatIn.addEventListener("keyup",e=>e.stopPropagation());
-
-function pushChatMsg(name,color,text,isMine=false){
-  const div=document.createElement("div");
-  div.className="chat-msg";
-  // format : pseudo#id : "message"
-  const escaped=text.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  div.innerHTML=`<span style="color:${color};font-weight:bold">${name}</span><span style="color:#555"> : </span><span style="color:#ddd">${escaped}</span>`;
-  chatMsgs.appendChild(div);
-  // Garder max 60 messages
-  while(chatMsgs.children.length>60) chatMsgs.removeChild(chatMsgs.firstChild);
-  chatMsgs.scrollTop=chatMsgs.scrollHeight;
-  // Ouvrir le chat si ferme et nouveau message entrant
-  if(!isMine&&!chatVisible){
-    chatVisible=true;
-    chatPanel.className="visible";
-    chatArrow.textContent="◀";
+  const root=$("sl");root.textContent="";
+  for(const p of list.slice(0,7)){
+    const row=document.createElement("div"),name=document.createElement("span"),dot=document.createElement("span"),scoreEl=document.createElement("span");
+    row.className="sr";name.className="sn";dot.className="sd";dot.style.background=p.color;name.append(dot,document.createTextNode(p.name));scoreEl.textContent=p.score.toLocaleString("fr-FR");row.append(name,scoreEl);root.append(row);
   }
 }
-
-function sendChatMsg(){
-  const text=chatIn.value.trim();
-  if(!text||mySlot<0||!ws||ws.readyState!==1) return;
-  chatIn.value="";
-  const enc=encodeChatMsg(text);
-  ws.send(JSON.stringify({method:"set",name:"☁ MSG"+mySlot,value:enc}));
-  // Afficher son propre message immediatement
-  pushChatMsg(myName,myColor,text,true);
+const cv=$("cv"),ctx=cv.getContext("2d",{alpha:false}),mc=$("mc"),mctx=mc.getContext("2d");
+let viewW=innerWidth,viewH=innerHeight,dpr=1;
+function resize(){
+  dpr=Math.min(devicePixelRatio||1,CFG.DPR_MAX);viewW=innerWidth;viewH=innerHeight;cv.width=Math.round(viewW*dpr);cv.height=Math.round(viewH*dpr);cv.style.width=`${viewW}px`;cv.style.height=`${viewH}px`;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;
+  const size=parseFloat(getComputedStyle(mc).width);mc.width=Math.round(size*dpr);mc.height=Math.round(size*dpr);mctx.setTransform(dpr,0,0,dpr,0,0);mctx.imageSmoothingEnabled=false;
 }
-
-document.getElementById("chat-send").addEventListener("click",sendChatMsg);
-chatIn.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); sendChatMsg(); }});
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// DECONNEXION PROPRE (fermeture fenetre uniquement)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// On efface le slot cloud quand la fenetre se ferme
-// => les autres joueurs voient la disparition en ~10s (timeout lastSeen)
-window.addEventListener("beforeunload",()=>{
-  if(mySlot>=0&&ws&&ws.readyState===1){
-    // Envoyer "0" = slot libre
-    ws.send(JSON.stringify({method:"set",name:"☁ P"+mySlot,value:"0"}));
-    ws.send(JSON.stringify({method:"set",name:"☁ T"+mySlot,value:"0"}));
-    ws.send(JSON.stringify({method:"set",name:"☁ MSG"+mySlot,value:"0"}));
+addEventListener("resize",resize,{passive:true});resize();
+function drawWorld(){
+  camX+=(px*CFG.TILE-camX)*.17;camY+=(py*CFG.TILE-camY)*.17;
+  const left=camX-viewW/2,top=camY-viewH/2,vx0=Math.floor(left/CFG.TILE)-1,vy0=Math.floor(top/CFG.TILE)-1,vx1=Math.ceil((left+viewW)/CFG.TILE)+1,vy1=Math.ceil((top+viewH)/CFG.TILE)+1;
+  ctx.fillStyle="#0b0d10";ctx.fillRect(0,0,viewW,viewH);
+  for(const p of Object.values(players))p.store.draw(ctx,vx0,vy0,vx1,vy1,left,top,CFG.TILE);
+  if(myStore)myStore.draw(ctx,vx0,vy0,vx1,vy1,left,top,CFG.TILE);
+  ctx.beginPath();
+  const ox=mod(-left,CFG.TILE),oy=mod(-top,CFG.TILE);
+  for(let x=ox;x<viewW;x+=CFG.TILE){ctx.moveTo(x,0);ctx.lineTo(x,viewH)}
+  for(let y=oy;y<viewH;y+=CFG.TILE){ctx.moveTo(0,y);ctx.lineTo(viewW,y)}
+  ctx.strokeStyle="#ffffff0d";ctx.lineWidth=1;ctx.stroke();
+  ctx.font="10px ui-monospace,monospace";ctx.textAlign="center";ctx.textBaseline="bottom";
+  for(const p of Object.values(players)){
+    p.rx+=(p.x-p.rx)*.28;p.ry+=(p.y-p.ry)*.28;
+    const sx=p.rx*CFG.TILE-left+CFG.TILE/2,sy=p.ry*CFG.TILE-top+CFG.TILE/2;
+    if(sx<-40||sx>viewW+40||sy<-40||sy>viewH+40)continue;
+    ctx.fillStyle=p.color.css;ctx.fillRect(sx-CFG.TILE*.38,sy-CFG.TILE*.38,CFG.TILE*.76,CFG.TILE*.76);ctx.fillStyle="#eaf3ff";ctx.fillText(p.name,sx,sy-CFG.TILE*.58);
   }
-});
-function setStatus(msg){document.getElementById("st").textContent=msg;}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// LOBBY
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-document.getElementById("pb").addEventListener("click",()=>{
-  const raw=(document.getElementById("ni").value.trim()||"Player").slice(0,12);
-  // Tag #xxx aleatoire => 2 joueurs meme pseudo ne se confondent pas
-  const tag="#"+String(Math.floor(100+Math.random()*900));
-  myName=raw+tag;
-  myColor=colorFromTag(myName);
-  setStatus("Connexion...");
-  cloudConnect();
-  const trySlot=()=>{
-    if(!ws||ws.readyState!==1){setTimeout(trySlot,200);return;}
-    // Cherche un slot libre (var P{n} absente ou vide)
-    mySlot=-1;
-    for(let i=0;i<CFG.SLOTS;i++){
-      if(!cvars["P"+i]||cvars["P"+i]==="0"){mySlot=i;break;}
+  const sx=px*CFG.TILE-left+CFG.TILE/2,sy=py*CFG.TILE-top+CFG.TILE/2;
+  ctx.fillStyle=myColor.css;ctx.fillRect(sx-CFG.TILE*.42,sy-CFG.TILE*.42,CFG.TILE*.84,CFG.TILE*.84);
+  if(dx||dy){ctx.strokeStyle=myColor.css;ctx.globalAlpha=.35;ctx.lineWidth=2;ctx.strokeRect(sx-CFG.TILE*.62,sy-CFG.TILE*.62,CFG.TILE*1.24,CFG.TILE*1.24);ctx.globalAlpha=1}
+}
+function drawMinimap(){
+  const size=parseFloat(getComputedStyle(mc).width),r=size/2,scale=size/(CFG.MINI_RADIUS*2);
+  mctx.clearRect(0,0,size,size);mctx.save();mctx.beginPath();mctx.arc(r,r,r-1,0,Math.PI*2);mctx.clip();mctx.fillStyle="#05080c";mctx.fillRect(0,0,size,size);
+  const sx=(-500-px)*scale+r,sy=(-500-py)*scale+r,sw=1000*scale;
+  mctx.strokeStyle="#51d7ff22";mctx.lineWidth=1;mctx.strokeRect(sx,sy,sw,sw);
+  const drawStore=(store,color)=>{
+    mctx.fillStyle=color;
+    for(const [key,count] of store.coarse){
+      const q=key.indexOf(","),mx=Number(key.slice(0,q))*CFG.MINI_CELL+CFG.MINI_CELL/2,my=Number(key.slice(q+1))*CFG.MINI_CELL+CFG.MINI_CELL/2,x=(mx-px)*scale+r,y=(my-py)*scale+r;
+      if(x<0||x>=size||y<0||y>=size)continue;
+      const s=clamp(1+Math.log2(count+1)*.35,1,3);mctx.globalAlpha=clamp(.25+Math.log2(count+1)*.09,.25,.8);mctx.fillRect(x-s/2,y-s/2,s,s);
     }
-    if(mySlot<0) mySlot=Math.floor(Math.random()*CFG.SLOTS);
-    document.getElementById("lb").style.display="none";
-    startGame();
   };
-  setTimeout(trySlot,1200);
+  for(const p of Object.values(players))drawStore(p.store,p.color.css);
+  if(myStore)drawStore(myStore,myColor.css);
+  mctx.globalAlpha=1;
+  for(const p of Object.values(players)){const x=(p.x-px)*scale+r,y=(p.y-py)*scale+r;if(x>=0&&x<size&&y>=0&&y<size){mctx.fillStyle=p.color.css;mctx.fillRect(x-2,y-2,4,4)}}
+  mctx.fillStyle=myColor.css;mctx.fillRect(r-3,r-3,6,6);mctx.strokeStyle="#ffffff44";mctx.beginPath();mctx.arc(r,r,r-1,0,Math.PI*2);mctx.stroke();mctx.restore();
+}
+function loop(now){
+  if(!running)return;
+  if(now-lastMoveAt>=CFG.MOVE_MS){
+    const steps=Math.min(3,Math.floor((now-lastMoveAt)/CFG.MOVE_MS));lastMoveAt+=steps*CFG.MOVE_MS;
+    for(let i=0;i<steps;i++)if((dx||dy)&&currentDirs.length<CFG.BANK_MOVES)addMove(dx,dy);
+  }
+  if(now-lastPosAt>=CFG.POS_MS){lastPosAt=now;broadcastPlayer()}
+  syncCurrentBank(false);
+  if(now-lastCleanupAt>2000){lastCleanupAt=now;cleanupPlayers()}
+  if(now-lastScoreboardAt>500){lastScoreboardAt=now;updateHud();updateScoreboard()}
+  drawWorld();
+  if(now-lastMiniAt>160){lastMiniAt=now;drawMinimap()}
+  requestAnimationFrame(loop);
+}
+const KEYMAP={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1],a:[-1,0],d:[1,0],w:[0,-1],s:[0,1],q:[-1,0],z:[0,-1]};
+addEventListener("keydown",e=>{if(!running)return;const d=KEYMAP[e.key];if(d){dx=d[0];dy=d[1];e.preventDefault()}},{passive:false});
+addEventListener("keyup",e=>{const d=KEYMAP[e.key];if(d&&dx===d[0]&&dy===d[1]){dx=0;dy=0}},{passive:false});
+function setPadDirection(button,on){
+  const x=Number(button.dataset.x),y=Number(button.dataset.y);
+  if(on){dx=x;dy=y;button.classList.add("active")}else{button.classList.remove("active");if(dx===x&&dy===y){dx=0;dy=0}}
+}
+for(const b of document.querySelectorAll(".pd")){
+  b.addEventListener("pointerdown",e=>{e.preventDefault();b.setPointerCapture(e.pointerId);setPadDirection(b,true)});
+  b.addEventListener("pointerup",e=>{e.preventDefault();setPadDirection(b,false)});
+  b.addEventListener("pointercancel",()=>setPadDirection(b,false));
+}
+let canvasPointer=-1;
+cv.addEventListener("pointerdown",e=>{
+  if(!running||e.pointerType==="mouse")return;
+  canvasPointer=e.pointerId;cv.setPointerCapture(e.pointerId);handleCanvasPointer(e);e.preventDefault();
+},{passive:false});
+cv.addEventListener("pointermove",e=>{if(e.pointerId===canvasPointer){handleCanvasPointer(e);e.preventDefault()}},{passive:false});
+cv.addEventListener("pointerup",e=>{if(e.pointerId===canvasPointer){canvasPointer=-1;dx=0;dy=0;e.preventDefault()}},{passive:false});
+cv.addEventListener("pointercancel",()=>{canvasPointer=-1;dx=0;dy=0});
+function handleCanvasPointer(e){
+  const rx=e.clientX-viewW/2,ry=e.clientY-viewH/2;
+  if(Math.abs(rx)<18&&Math.abs(ry)<18){dx=0;dy=0;return}
+  if(Math.abs(rx)>Math.abs(ry)){dx=rx>0?1:-1;dy=0}else{dx=0;dy=ry>0?1:-1}
+}
+$("pb").addEventListener("click",()=>{
+  if(CFG.PROJECT_ID==="YOUR_PROJECT_ID"){setStatus("Remplace YOUR_PROJECT_ID dans le fichier");return}
+  const raw=($("ni").value.trim()||"Player").replace(/[<>]/g,"").slice(0,12);
+  myToken=sessionNumber("pixeltrail_token",9);myName=`${raw}#${String(myToken).slice(-3)}`;myColor=colorFromToken(myToken);cloudUser=`player${sessionNumber("pixeltrail_cloud_user",7)}`;localStorage.setItem("pixeltrail_name",raw);$("pb").disabled=true;setStatus("Connexion...");cloudConnect();
 });
-document.getElementById("ni").addEventListener("keydown",e=>{
-  if(e.key==="Enter") document.getElementById("pb").click();
-});
+$("ni").value=localStorage.getItem("pixeltrail_name")||"";
+$("ni").addEventListener("keydown",e=>{if(e.key==="Enter")$("pb").click()});
+function flushOnExit(){
+  if(mySlot<0||!ws||ws.readyState!==1)return;
+  if(currentBankId<CFG.BANKS)ws.send(JSON.stringify({method:"set",name:`â D${currentBankId}`,value:encodeBank(mySlot,myToken,currentBankSeq,currentBankRevision+1,currentBankPaintStart,currentBankStartX,currentBankStartY,currentDirs)}));
+  ws.send(JSON.stringify({method:"set",name:`â P${mySlot}`,value:"0"}));
+}
+addEventListener("pagehide",flushOnExit);
+addEventListener("beforeunload",flushOnExit);
 </script>
 </body>
 </html>
