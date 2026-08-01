@@ -23,7 +23,7 @@ button:disabled{opacity:.34;cursor:not-allowed;transform:none!important;box-shad
 .primary{background:linear-gradient(135deg,#2bbcff,#765cff);border-color:#a7f5ff;color:#fff;box-shadow:0 0 28px rgba(72,178,255,.26)}
 #topbar{position:fixed;z-index:10;left:50%;top:calc(10px + var(--safe-top));transform:translateX(-50%);display:flex;align-items:center;gap:7px;padding:7px;border-radius:18px;max-width:calc(100vw - 20px)}
 .metric{min-width:83px;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05)}
-.metric b{display:block;font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.metric span{display:block;font-size:16px;font-weight:950;white-space:nowrap;text-shadow:0 0 14px currentColor}.money span{color:var(--gold)}.life span{color:var(--green)}.wave span{color:var(--cyan)}.energy span{color:var(--violet)}
+.metric b{display:block;font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.metric span{display:block;font-size:16px;font-weight:950;white-space:nowrap;text-shadow:0 0 14px currentColor}.metric small{display:block;margin-top:1px;font-size:7px;color:var(--muted);white-space:nowrap}.money span{color:var(--gold)}.life span{color:var(--green)}.wave span{color:var(--cyan)}.energy span{color:var(--violet)}.icon-btn.word{font-size:8px;letter-spacing:.035em}
 .icon-btn{width:40px;height:40px;flex:0 0 40px;border-radius:12px;font-weight:950}.action{padding:10px 13px;border-radius:12px;font-weight:950;white-space:nowrap}
 #statusRibbon{position:fixed;z-index:7;top:calc(74px + var(--safe-top));left:50%;transform:translateX(-50%);display:flex;gap:7px;max-width:calc(100vw - 24px);pointer-events:none}
 .status-chip{padding:6px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.04em;background:rgba(5,9,22,.75);border:1px solid rgba(255,255,255,.12);box-shadow:0 8px 20px rgba(0,0,0,.25);white-space:nowrap}.status-chip.anomaly{color:var(--pink);border-color:rgba(255,78,155,.35)}.status-chip.mode{color:var(--cyan)}.status-chip.synergy{color:var(--gold)}
@@ -55,7 +55,7 @@ button:disabled{opacity:.34;cursor:not-allowed;transform:none!important;box-shad
 @media(max-width:1120px){#abilityDock{max-width:calc(100vw - 330px)}#inspector{width:292px}}
 @media(max-width:900px){
   #topbar{left:calc(7px + var(--safe-left));right:calc(7px + var(--safe-right));top:calc(7px + var(--safe-top));transform:none;max-width:none;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;padding:6px;border-radius:17px}
-  .metric{min-width:0;padding:6px 7px;grid-column:span 2}.metric b{font-size:7px}.metric span{font-size:13px}.action.primary{grid-column:span 2;padding:8px 5px;font-size:10px}.icon-btn{width:100%;height:36px;min-width:0;flex:auto}
+  .metric{min-width:0;padding:6px 7px;grid-column:span 2}.metric b{font-size:7px}.metric span{font-size:13px}.metric small{font-size:6px;overflow:hidden;text-overflow:ellipsis}.action.primary{grid-column:span 2;padding:8px 5px;font-size:10px}.icon-btn{width:100%;height:36px;min-width:0;flex:auto}.icon-btn.word{font-size:7px}
   #statusRibbon{top:calc(112px + var(--safe-top));width:calc(100vw - 20px);overflow:hidden;justify-content:center}.status-chip{padding:5px 7px;font-size:8px}
   #towerDock{z-index:18;left:calc(7px + var(--safe-left));right:calc(7px + var(--safe-right));top:auto;bottom:calc(68px + var(--safe-bottom));width:auto;height:min(47vh,390px);padding:10px;border-radius:22px;transform:translateY(calc(100% + 90px));transition:.24s cubic-bezier(.2,.8,.2,1)}#towerDock.open{transform:none}
   #towerDock .panel-title{position:sticky;top:-10px;z-index:3;margin:-10px -10px 7px;padding:12px 11px 8px;background:linear-gradient(180deg,rgba(9,13,29,.99),rgba(9,13,29,.91));border-radius:21px 21px 0 0}
@@ -269,15 +269,15 @@ button:disabled{opacity:.34;cursor:not-allowed;transform:none!important;box-shad
 <div id="topbar" class="glass">
   <div class="metric money"><b>Crédits</b><span id="money">0</span></div>
   <div class="metric life"><b>Noyau</b><span id="lives">0/0</span></div>
-  <div class="metric wave"><b>Vague</b><span id="wave">0</span></div>
-  <div class="metric energy"><b>Énergie</b><span id="energy">0</span></div>
-  <button id="waveBtn" class="action primary">▶ LANCER</button>
-  <button id="speedBtn" class="icon-btn" title="Vitesse">×1</button>
-  <button id="pauseBtn" class="icon-btn" title="Pause">Ⅱ</button>
-  <button id="autoBtn" class="icon-btn" title="Vagues automatiques">A</button>
-  <button id="roadmapBtn" class="icon-btn" title="Progression et déblocages">⌁</button>
-  <button id="wikiBtn" class="icon-btn" title="Wiki">?</button>
-  <button id="settingsBtn" class="icon-btn" title="Personnalisation">⚙</button>
+  <div class="metric wave"><b>Vague</b><span id="wave">0</span><small id="waveState">prête</small></div>
+  <div class="metric energy"><b>Énergie</b><span id="energy">0/100</span><small id="energyRate">+4/s • pouvoirs</small></div>
+  <button id="waveBtn" class="action primary" title="Lancer ou superposer une vague">▶ LANCER</button>
+  <button id="speedBtn" class="icon-btn" title="Vitesse du jeu">×1</button>
+  <button id="pauseBtn" class="icon-btn" title="Pause / reprise">Ⅱ</button>
+  <button id="autoBtn" class="icon-btn word" title="Lancement automatique">AUTO</button>
+  <button id="roadmapBtn" class="icon-btn word" title="Rangs et déblocages">RANG</button>
+  <button id="wikiBtn" class="icon-btn word" title="Aide et wiki de l’interface">AIDE</button>
+  <button id="settingsBtn" class="icon-btn" title="Options visuelles">⚙</button>
 </div>
 <div id="statusRibbon"></div>
 <button id="mobileToggle" class="icon-btn glass">☰ TOURS</button>
@@ -457,10 +457,10 @@ const THEMES = {
     prism: { name: 'Prisme synthétique', bg1: '#241934', bg2: '#071528', bg3: '#03040b', grid: 'rgba(120,220,255,.08)', path: '#4d5f8e', pathGlow: '#ff4e9b', accent: '#ffd166', dust: '#ffffff' }
 };
 const MAPS = {
-    rift: { name: 'Faille Centrale', icon: '🌀', theme: 'neon', desc: 'Long trajet sinueux, idéal pour apprendre.', path: [[-90, 530], [150, 530], [150, 185], [430, 185], [430, 800], [720, 800], [720, 355], [1020, 355], [1020, 835], [1320, 835], [1320, 225], [1620, 225], [1620, 530], [1890, 530]] },
-    glacier: { name: 'Laboratoire Cryo', icon: '❄', theme: 'frost', desc: 'Deux grands couloirs et plusieurs longues lignes.', path: [[-90, 190], [270, 190], [270, 470], [610, 470], [610, 150], [970, 150], [970, 720], [1290, 720], [1290, 420], [1630, 420], [1630, 850], [1890, 850]] },
-    forge: { name: 'Forge Oméga', icon: '🔥', theme: 'ember', desc: 'Virages serrés favorisant zones et mines.', path: [[-90, 820], [190, 820], [190, 610], [470, 610], [470, 850], [750, 850], [750, 520], [1030, 520], [1030, 760], [1320, 760], [1320, 420], [1080, 420], [1080, 180], [1500, 180], [1500, 530], [1890, 530]] },
-    garden: { name: 'Jardin Mutagène', icon: '🧬', theme: 'bio', desc: 'Boucles larges et positions de soutien centrales.', path: [[-90, 520], [180, 520], [180, 210], [520, 210], [520, 470], [850, 470], [850, 810], [1190, 810], [1190, 540], [1510, 540], [1510, 210], [1720, 210], [1720, 740], [1890, 740]] }
+    rift: { name: 'Faille Centrale', icon: '🌀', theme: 'neon', desc: 'Route organique en S, longues lignes et doubles zones de virage.', path: [[-40, 545], [115, 535], [245, 360], [190, 155], [470, 120], [650, 310], [535, 555], [710, 835], [980, 885], [1140, 665], [990, 430], [1170, 205], [1450, 165], [1680, 360], [1530, 625], [1740, 855], [1840, 705]] },
+    glacier: { name: 'Laboratoire Cryo', icon: '❄', theme: 'frost', desc: 'Serpentin gelé avec diagonales, goulets et longues fenêtres de tir.', path: [[-40, 205], [230, 165], [390, 350], [285, 565], [560, 720], [760, 535], [650, 285], [900, 120], [1160, 220], [1080, 500], [1280, 745], [1510, 650], [1435, 355], [1690, 245], [1840, 455]] },
+    forge: { name: 'Forge Oméga', icon: '🔥', theme: 'ember', desc: 'Spirale brisée aux virages serrés, parfaite pour mines et artillerie.', path: [[-40, 835], [215, 820], [330, 620], [195, 430], [430, 210], [720, 245], [840, 500], [680, 735], [925, 900], [1200, 820], [1300, 585], [1150, 390], [1320, 165], [1600, 185], [1710, 430], [1585, 690], [1840, 735]] },
+    garden: { name: 'Jardin Mutagène', icon: '🧬', theme: 'bio', desc: 'Grande courbe biomécanique et poches centrales pour les soutiens.', path: [[-40, 520], [185, 535], [330, 320], [565, 175], [790, 315], [715, 570], [900, 815], [1175, 860], [1325, 640], [1190, 425], [1380, 195], [1635, 250], [1715, 520], [1580, 755], [1840, 820]] }
 };
 const ANOMALIES = [
     { id: 'none', name: 'Aucune anomalie', icon: '—', desc: 'Vague standard.', hp: 1, speed: 1, armor: 0, reward: 1 },
@@ -616,8 +616,27 @@ function pointSegmentDistance(px, py, ax, ay, bx, by) { const dx = bx - ax, dy =
     return Math.hypot(px - ax, py - ay); const t = clamp(((px - ax) * dx + (py - ay) * dy) / l, 0, 1), x = ax + t * dx, y = ay + t * dy; return Math.hypot(px - x, py - y); }
 function haptic(pattern = 10) { if (settings.haptics && navigator.vibrate)
     navigator.vibrate(pattern); }
+function roundedRoute(points, radius = 62, steps = 5) {
+    if (!points || points.length < 3) return points || [];
+    const src = points.map(([x, y]) => ({ x, y })), out = [src[0]];
+    for (let i = 1; i < src.length - 1; i++) {
+        const a = src[i - 1], b = src[i], c = src[i + 1];
+        const l1 = Math.hypot(b.x - a.x, b.y - a.y) || 1, l2 = Math.hypot(c.x - b.x, c.y - b.y) || 1;
+        const r = Math.min(radius, l1 * .28, l2 * .28);
+        const p1 = { x: b.x - (b.x - a.x) / l1 * r, y: b.y - (b.y - a.y) / l1 * r };
+        const p2 = { x: b.x + (c.x - b.x) / l2 * r, y: b.y + (c.y - b.y) / l2 * r };
+        out.push(p1);
+        for (let j = 1; j <= steps; j++) {
+            const t = j / (steps + 1), u = 1 - t;
+            out.push({ x: u * u * p1.x + 2 * u * t * b.x + t * t * p2.x, y: u * u * p1.y + 2 * u * t * b.y + t * t * p2.y });
+        }
+        out.push(p2);
+    }
+    out.push(src.at(-1));
+    return out;
+}
 class PathModel {
-    constructor(points) { this.points = points.map(([x, y]) => ({ x, y })); this.lengths = []; this.cumulative = [0]; this.total = 0; for (let i = 0; i < this.points.length - 1; i++) {
+    constructor(points) { this.points = points.map(p => Array.isArray(p) ? ({ x: p[0], y: p[1] }) : ({ x: p.x, y: p.y })); this.lengths = []; this.cumulative = [0]; this.total = 0; for (let i = 0; i < this.points.length - 1; i++) {
         const l = dist(this.points[i], this.points[i + 1]);
         this.lengths.push(l);
         this.total += l;
@@ -780,7 +799,7 @@ class Mine {
     } ctx.closePath(); ctx.fill(); ctx.globalAlpha = p; ctx.stroke(); ctx.restore(); }
 }
 class Enemy {
-    constructor(game, type, wave, opts = {}) { this.game = game; this.type = type; this.def = ENEMIES[type] || ENEMIES.grunt; this.wave = wave; this.distance = opts.distance ?? 0; this.boss = opts.boss || null; this.dead = false; this.reached = false; this.slowFactor = 1; this.slowUntil = 0; this.stunUntil = 0; this.burn = 0; this.burnUntil = 0; this.poison = 0; this.poisonUntil = 0; this.lastHit = -99; this.skillTimer = opts.skillTimer || 6; this.phaseTimer = rand(2, 5); this.healTimer = 1; this.splitDone = false; this.cloakUntil = 0; this.flash = 0; this.rotation = rand(0, TAU); this.elite = opts.elite || false; const mode = game.mode, anom = game.anomaly || ANOMALIES[0], scale = 1 + wave * .105 + Math.pow(wave, 1.22) * .018; let hp = (opts.hp || this.def.hp) * scale * mode.hp * anom.hp * (this.elite ? 1.75 : 1), speed = (opts.speed || this.def.speed) * mode.speed * anom.speed, reward = (opts.reward || this.def.reward) * (1 + wave * .035) * mode.reward * anom.reward * (this.elite ? 1.55 : 1); this.armor = clamp((opts.armor ?? this.def.armor ?? 0) + anom.armor + (this.elite ? .06 : 0), 0, .68); this.maxHp = hp; this.hp = hp; this.speed = speed; this.reward = reward; this.maxShield = (opts.shield ?? this.def.shield ?? 0) * scale + hp * (anom.shield || 0); this.shield = this.maxShield; this.regen = (opts.regen ?? this.def.regen ?? 0) * (1 + wave * .04) + (anom.regen || 0); this.size = (opts.size || this.def.size) * (this.elite ? 1.16 : 1); this.damageToBase = this.boss ? 3 : this.type === 'carrier' ? 2 : 1; if (this.boss) {
+    constructor(game, type, wave, opts = {}) { this.game = game; this.type = type; this.def = ENEMIES[type] || ENEMIES.grunt; this.wave = wave; this.distance = opts.distance ?? 0; this.boss = opts.boss || null; this.dead = false; this.reached = false; this.slowFactor = 1; this.slowUntil = 0; this.stunUntil = 0; this.burn = 0; this.burnUntil = 0; this.poison = 0; this.poisonUntil = 0; this.lastHit = -99; this.skillTimer = opts.skillTimer || 6; this.phaseTimer = rand(2, 5); this.healTimer = 1; this.splitDone = false; this.cloakUntil = 0; this.flash = 0; this.rotation = rand(0, TAU); this.elite = opts.elite || false; this.anomaly = opts.anomaly || game.anomaly || ANOMALIES[0]; const mode = game.mode, anom = this.anomaly, scale = 1 + wave * .105 + Math.pow(wave, 1.22) * .018; let hp = (opts.hp || this.def.hp) * scale * mode.hp * anom.hp * (this.elite ? 1.75 : 1), speed = (opts.speed || this.def.speed) * mode.speed * anom.speed, reward = (opts.reward || this.def.reward) * (1 + wave * .035) * mode.reward * anom.reward * (this.elite ? 1.55 : 1); this.armor = clamp((opts.armor ?? this.def.armor ?? 0) + anom.armor + (this.elite ? .06 : 0), 0, .68); this.maxHp = hp; this.hp = hp; this.speed = speed; this.reward = reward; this.maxShield = (opts.shield ?? this.def.shield ?? 0) * scale + hp * (anom.shield || 0); this.shield = this.maxShield; this.regen = (opts.regen ?? this.def.regen ?? 0) * (1 + wave * .04) + (anom.regen || 0); this.size = (opts.size || this.def.size) * (this.elite ? 1.16 : 1); this.damageToBase = this.boss ? 3 : this.type === 'carrier' ? 2 : 1; if (this.boss) {
         const b = this.boss;
         this.maxHp = b.hp * (1 + wave * .12) * mode.hp;
         this.hp = this.maxHp;
@@ -833,9 +852,9 @@ class Enemy {
             this.game.money += this.boss ? 18 : 3;
     } if (this.def.split && !this.splitDone)
         for (let i = 0; i < 3; i++)
-            this.game.spawnAt('swarm', this.distance - rand(0, 22), { hp: this.maxHp * .16 }); if (this.def.spawnOnDeath)
+            this.game.spawnAt('swarm', this.distance - rand(0, 22), { hp: this.maxHp * .16, wave: this.wave, anomaly: this.anomaly }); if (this.def.spawnOnDeath)
         for (let i = 0; i < 6; i++)
-            this.game.spawnAt('swarm', this.distance - rand(0, 38), { hp: this.maxHp * .055 }); this.game.burst(this.x, this.y, this.boss ? this.boss.color : this.def.color, this.boss ? 38 : 12, this.boss ? 260 : 130, this.boss ? 'boss' : 'spark'); this.game.decals.push({ x: this.x, y: this.y, r: this.size * 1.3, color: this.boss ? this.boss.color : this.def.color, life: 9, max: 9 }); if (this.boss) {
+            this.game.spawnAt('swarm', this.distance - rand(0, 38), { hp: this.maxHp * .055, wave: this.wave, anomaly: this.anomaly }); this.game.burst(this.x, this.y, this.boss ? this.boss.color : this.def.color, this.boss ? 38 : 12, this.boss ? 260 : 130, this.boss ? 'boss' : 'spark'); this.game.decals.push({ x: this.x, y: this.y, r: this.size * 1.3, color: this.boss ? this.boss.color : this.def.color, life: 9, max: 9 }); if (this.boss) {
         this.game.addShake(14);
         this.game.flash = .32;
         audio.impact('boss');
@@ -860,7 +879,7 @@ class Enemy {
     }
     else if (b.skill === 'brood') {
         for (let i = 0; i < 8; i++)
-            g.spawnAt(i % 3 ? 'swarm' : 'runner', this.distance - rand(25, 100), { hp: this.maxHp * .025 });
+            g.spawnAt(i % 3 ? 'swarm' : 'runner', this.distance - rand(25, 100), { hp: this.maxHp * .025, wave: this.wave, anomaly: this.anomaly });
         g.toast('La Reine libère sa nuée');
     }
     else if (b.skill === 'timeskip') {
@@ -1235,7 +1254,7 @@ class Tower {
 }
 class Game {
     constructor() { this.profile = loadProfile(); this.playerRank = rankForXp(this.profile.xp); this.modeId = requiredModeRank(this.profile.lastMode) <= this.playerRank ? this.profile.lastMode : 'classic'; this.mapId = requiredMapRank(this.profile.lastMap) <= this.playerRank ? this.profile.lastMap : 'rift'; this.category = 'kinetic'; this.wikiTab = 'start'; this.activePointers = new Map(); this.lastTap = 0; this.pendingAfterUnlock = null; this.bindStaticUI(); this.buildStartChoices(); this.buildWikiTabs(); this.applySettingsUI(); this.updateProfileUI(); this.reset(); }
-    reset() { this.mode = MODES[this.modeId]; this.map = MAPS[this.mapId]; this.path = new PathModel(this.map.path); this.money = this.mode.money; this.maxLives = this.mode.lives; this.lives = this.maxLives; this.wave = 0; this.energy = 110; this.maxEnergy = 110; this.energyRegen = 4; this.enemies = []; this.towers = []; this.projectiles = []; this.particles = []; this.texts = []; this.beams = []; this.areas = []; this.mines = []; this.decals = []; this.spawnQueue = []; this.spawnTimer = 0; this.waveActive = false; this.selected = null; this.placing = null; this.preview = null; this.started = false; this.paused = true; this.auto = false; this.speed = 1; this.time = 0; this.combo = 0; this.comboUntil = 0; this.shake = 0; this.flash = 0; this.overdriveUntil = 0; this.enemyHasteUntil = 0; this.whiteoutUntil = 0; this.emberUntil = 0; this.anomaly = ANOMALIES[0]; this.mods = { damage: 1, range: 1, rate: 1, crit: 0, interest: 0, sell: .68, cost: 1, status: 1, boss: 1, splash: 1 }; this.relics = []; this.runKills = 0; this.categoryCounts = { kinetic: 0, artillery: 0, elemental: 0, control: 0, bio: 0 }; this.best = +(storageGet('darkRiftCodexBest_' + this.modeId, '0') || 0); this.cam = { x: WORLD.w / 2, y: WORLD.h / 2, zoom: clamp(Math.min(VW / WORLD.w, VH / WORLD.h) * .96, .42, 1.45) }; this.pointer = { sx: VW / 2, sy: VH / 2, wx: WORLD.w / 2, wy: WORLD.h / 2 }; this.tiles = this.makeTiles(); this.stars = Array.from({ length: 220 }, () => ({ x: Math.random() * WORLD.w, y: Math.random() * WORLD.h, r: rand(.4, 1.9), a: rand(.16, .82), s: rand(.2, 1.2) })); this.environment = this.makeEnvironment(); this.renderCategories(); this.renderTowerList(); this.updateUI(true); }
+    reset() { this.mode = MODES[this.modeId]; this.map = MAPS[this.mapId]; const varied = this.map.path.map((p, i, a) => i === 0 || i === a.length - 1 ? p : [p[0] + rand(-18, 18), p[1] + rand(-18, 18)]); this.path = new PathModel(roundedRoute(varied, 66, 5)); this.money = this.mode.money; this.maxLives = this.mode.lives; this.lives = this.maxLives; this.wave = 0; this.energy = 100; this.maxEnergy = 100; this.energyRegen = 4; this.enemies = []; this.towers = []; this.projectiles = []; this.particles = []; this.texts = []; this.beams = []; this.areas = []; this.mines = []; this.decals = []; this.spawnQueue = []; this.spawnTimer = 0; this.waveActive = false; this.waveLedger = []; this.maxWaveStack = 3; this.portalFxTimer = 0; this.selected = null; this.placing = null; this.preview = null; this.started = false; this.paused = true; this.auto = false; this.speed = 1; this.time = 0; this.combo = 0; this.comboUntil = 0; this.shake = 0; this.flash = 0; this.overdriveUntil = 0; this.enemyHasteUntil = 0; this.whiteoutUntil = 0; this.emberUntil = 0; this.anomaly = ANOMALIES[0]; this.mods = { damage: 1, range: 1, rate: 1, crit: 0, interest: 0, sell: .68, cost: 1, status: 1, boss: 1, splash: 1 }; this.relics = []; this.runKills = 0; this.categoryCounts = { kinetic: 0, artillery: 0, elemental: 0, control: 0, bio: 0 }; this.best = +(storageGet('darkRiftCodexBest_' + this.modeId, '0') || 0); this.cam = { x: WORLD.w / 2, y: WORLD.h / 2, zoom: clamp(Math.min(VW / WORLD.w, VH / WORLD.h) * .96, .42, 1.45) }; this.pointer = { sx: VW / 2, sy: VH / 2, wx: WORLD.w / 2, wy: WORLD.h / 2 }; this.tiles = this.makeTiles(); this.stars = Array.from({ length: 220 }, () => ({ x: Math.random() * WORLD.w, y: Math.random() * WORLD.h, r: rand(.4, 1.9), a: rand(.16, .82), s: rand(.2, 1.2) })); this.environment = this.makeEnvironment(); this.renderCategories(); this.renderTowerList(); this.updateUI(true); }
     makeTiles() { const out = [], types = [['power', '#ff4e9b'], ['range', '#66f4ff'], ['rate', '#aa76ff'], ['credit', '#ffd166']]; for (let n = 0; n < 700 && out.length < 22; n++) {
         const x = rand(80, WORLD.w - 80), y = rand(70, WORLD.h - 70);
         if (this.path.distanceTo(x, y) > 85 && out.every(t => Math.hypot(t.x - x, t.y - y) > 76)) {
@@ -1259,7 +1278,7 @@ class Game {
         $('#rankMini').onclick = () => this.openRoadmap();
         $('#startRoadmapBtn').onclick = () => this.openRoadmap();
         $('#unlockContinue').onclick = () => this.continueAfterUnlock();
-        $('#wikiBtn').onclick = () => this.openWiki('start');
+        $('#wikiBtn').onclick = () => this.openWiki('ui');
         $('#settingsBtn').onclick = () => $('#settingsOverlay').classList.remove('hidden');
         $('#mobileToggle').onclick = () => { $('#towerDock').classList.toggle('open'); $('#inspector').classList.remove('open'); };
         $$('[data-ability]').forEach(b => b.onclick = () => this.useAbility(b.dataset.ability));
@@ -1308,7 +1327,7 @@ class Game {
             b.classList.add('active');
         mp.appendChild(b);
     } }
-    buildWikiTabs() { const tabs = { start: 'Démarrage', roadmap: 'Progression', towers: 'Tours', enemies: 'Ennemis', bosses: 'Boss', modes: 'Modes', effects: 'Effets & synergies' }; const box = $('#wikiTabs'); box.innerHTML = ''; for (const [id, n] of Object.entries(tabs)) {
+    buildWikiTabs() { const tabs = { start: 'Démarrage', ui: 'Interface', roadmap: 'Progression', towers: 'Tours', enemies: 'Ennemis', bosses: 'Boss', modes: 'Modes', effects: 'Effets & synergies' }; const box = $('#wikiTabs'); box.innerHTML = ''; for (const [id, n] of Object.entries(tabs)) {
         const b = document.createElement('button');
         b.className = 'wiki-tab';
         b.textContent = n;
@@ -1386,14 +1405,13 @@ class Game {
         }).join('');
         $('#roadmapOverlay').classList.remove('hidden');
     }
-    awardResearch() {
+    awardResearch(waves = [this.wave]) {
         const before = this.playerRank;
-        const bossWave = this.wave % this.mode.bossEvery === 0;
         const modeBonus = { discovery: .8, classic: 1, extreme: 1.42, bossrush: 1.3, chaos: 1.25, endless: 1.15 }[this.modeId] || 1;
-        const gain = Math.round((14 + this.wave * 2.5 + (bossWave ? 32 : 0)) * modeBonus);
+        const gain = waves.reduce((sum, w) => sum + Math.round((14 + w * 2.5 + (w % this.mode.bossEvery === 0 ? 32 : 0)) * modeBonus), 0);
         this.profile.xp += gain;
-        this.profile.completedWaves++;
-        this.profile.bestWave = Math.max(this.profile.bestWave, this.wave);
+        this.profile.completedWaves += waves.length;
+        this.profile.bestWave = Math.max(this.profile.bestWave, ...waves);
         this.profile.totalKills += this.runKills;
         this.runKills = 0;
         saveProfile(this.profile);
@@ -1436,7 +1454,9 @@ class Game {
         $$('.wiki-tab').forEach(b => b.classList.toggle('active', b.dataset.id === this.wikiTab));
         let html = '';
         if (this.wikiTab === 'start')
-            html = `<div class="wiki-section"><h3>Objectif</h3><p>Empêche les ennemis d’atteindre le noyau vert. Construis hors du chemin, améliore les tourelles et choisis une relique à intervalles réguliers. Une partie Classique est gagnée après la vague ${MODES.classic.victory}. Chaque vague terminée rapporte de la recherche permanente qui débloque progressivement l’arsenal, les cartes et les modes avancés.</p></div><div class="wiki-section"><h3>Contrôles mobile</h3><ul><li>Glisse avec un doigt pour déplacer la carte.</li><li>Pince avec deux doigts pour zoomer autour de tes doigts.</li><li>Choisis une tour, touche une zone libre, puis valide avec le bouton POSER.</li><li>Touche une tourelle construite pour ouvrir sa fiche d’amélioration.</li></ul></div><div class="wiki-section"><h3>Contrôles ordinateur</h3><ul><li>Clic gauche : construire ou sélectionner.</li><li>Clic-glissé : déplacer la caméra. Molette : zoom.</li><li>Espace : lancer une vague. P : pause. Échap : annuler un placement.</li><li>Touches 1 à 5 : changer de catégorie de tours.</li></ul></div><div class="wiki-section"><h3>Conseil de départ</h3><p>Commence avec Pulse ou Canon, ajoute ensuite un Cœur Cryo sur un long passage puis une tour spécialisée contre les unités qui te posent problème. Les champs de contrôle deviennent très puissants lorsqu’ils couvrent plusieurs virages.</p></div>`;
+            html = `<div class="wiki-section"><h3>Objectif et sens du parcours</h3><p>La <b>faille rose</b> est l’unique portail d’arrivée des ennemis. À l’autre extrémité se trouve désormais une vraie <b>base-noyau verte</b> : si un ennemi l’atteint, le Noyau perd des PV. Construis hors du chemin, améliore les tourelles et protège la base jusqu’à la vague de victoire.</p></div><div class="wiki-section"><h3>Appel anticipé des vagues</h3><p>Tu peux superposer jusqu’à <b>3 vagues</b>. Appuyer de nouveau sur LANCER pendant un combat ajoute la vague suivante à l’assaut. C’est plus dangereux, mais chaque vague supplémentaire encore engagée augmente la prime de risque lorsque le terrain est entièrement nettoyé.</p></div><div class="wiki-section"><h3>Contrôles mobile</h3><ul><li>Glisse avec un doigt pour déplacer la carte.</li><li>Pince avec deux doigts pour zoomer autour de tes doigts.</li><li>Choisis une tour, touche une zone libre, puis valide avec POSER.</li><li>Touche une tourelle construite pour ouvrir sa fiche d’amélioration.</li><li>Les boutons ＋, ⌾ et − servent au zoom et au recentrage.</li></ul></div><div class="wiki-section"><h3>Contrôles ordinateur</h3><ul><li>Clic gauche : construire ou sélectionner.</li><li>Clic-glissé : déplacer la caméra. Molette : zoom.</li><li>Espace : lancer ou ajouter une vague. P : pause. Échap : annuler.</li><li>Touches 1 à 5 : changer de catégorie de tours.</li></ul></div><div class="wiki-section"><h3>Conseil de départ</h3><p>Commence avec Pulse ou Canon, ajoute un Cœur Cryo sur une courbe couvrant plusieurs portions, puis spécialise ton arsenal selon les résistances rencontrées.</p></div>`;
+        if (this.wikiTab === 'ui')
+            html = `<div class="wiki-section"><h3>Les quatre compteurs</h3><ul><li><b>Crédits :</b> monnaie utilisée pour construire et améliorer.</li><li><b>Noyau :</b> vie actuelle / vie maximale de ta base.</li><li><b>Vague :</b> dernière vague appelée. Le petit texte indique combien d’assauts sont encore engagés.</li><li><b>Énergie :</b> réserve actuelle / maximum. Elle commence à 100/100, régénère à ${this.energyRegen.toFixed(0)}/s et alimente les quatre pouvoirs du bas. Certaines reliques augmentent le maximum.</li></ul></div><div class="wiki-section"><h3>Boutons du haut</h3><ul><li><b>LANCER / + VAGUE :</b> démarre une vague ou en superpose une autre, jusqu’à 3.</li><li><b>×1, ×2, ×3 :</b> vitesse de simulation.</li><li><b>Ⅱ / ▶ :</b> pause et reprise.</li><li><b>AUTO :</b> lance automatiquement une nouvelle vague après nettoyage complet.</li><li><b>RANG :</b> feuille de route, XP et déblocages permanents.</li><li><b>AIDE :</b> ouvre ce wiki.</li><li><b>⚙ :</b> qualité, thème, nombres de dégâts, vibrations et secousses.</li></ul></div><div class="wiki-section"><h3>Pouvoirs et coût en énergie</h3><ul><li><b>⚡ Overdrive — 50 :</b> accélère toutes les tourelles pendant 9 secondes.</li><li><b>💥 Bombe — 65 :</b> frappe la concentration ennemie la plus dense.</li><li><b>❄ Nova — 55 :</b> gèle temporairement tous les ennemis présents.</li><li><b>✚ Réparer — 45 :</b> rend 4 PV au Noyau, sans dépasser son maximum.</li></ul><p>Les pouvoirs grisés manquent d’énergie ou n’ont aucune cible valide.</p></div><div class="wiki-section"><h3>Barre inférieure</h3><p><b>TOURS</b> ouvre l’arsenal. Les pouvoirs se font défiler horizontalement au doigt. Une tourelle sélectionnée ouvre une fiche avec statistiques, ciblage, améliorations et revente.</p></div>`;
         if (this.wikiTab === 'roadmap') {
             const current = this.playerRank;
             html = `<div class="wiki-section"><h3>Progression permanente</h3><p>Tu gagnes de la recherche après chaque vague. Les boss et les modes difficiles accélèrent la progression. Les tours sont débloquées par groupes cohérents afin que chaque nouveau rang apporte de nouvelles stratégies sans rendre les anciennes obsolètes.</p></div><div class="codex-grid">${ROADMAP.map(r => `<div class="codex-card" style="--card-color:${r.rank <= current ? '#55ffb3' : '#aa76ff'}"><div class="codex-head"><div class="codex-icon">${r.rank <= current ? '✓' : '🔒'}</div><div><h4>Rang ${r.rank} • ${r.title}</h4><div class="cat">${r.rank === 1 ? 'Départ' : r.xp + ' XP'}</div></div></div><p>${r.description}</p><div class="codex-stats">${r.towers.map(id => { const t = TOWERS.find(x => x.id === id); return `<span>${t.icon} ${t.name}</span>`; }).join('')}${r.modes.map(id => `<span>${MODES[id].icon} ${MODES[id].name}</span>`).join('')}${r.maps.map(id => `<span>${MAPS[id].icon} ${MAPS[id].name}</span>`).join('')}</div></div>`).join('')}</div>`;
@@ -1560,54 +1580,97 @@ class Game {
     recalcAll() { for (const k of Object.keys(this.categoryCounts))
         this.categoryCounts[k] = this.towers.filter(t => t.def.category === k).length; for (const t of this.towers)
         t.recalc(); }
-    startWave() { if (!this.started || this.paused || this.waveActive)
-        return; this.wave++; this.waveActive = true; this.combo = 0; this.chooseAnomaly(); this.buildWave(); this.spawnTimer = .2; audio.impact('ability'); this.toast(`Vague ${this.wave} • ${this.anomaly.name}`); this.updateUI(true); }
-    chooseAnomaly() { const every = this.mode.anomalyEvery || 0; if (every && this.wave % every === 0)
-        this.anomaly = pick(ANOMALIES.slice(1));
-    else if (this.wave > 8 && this.wave % 4 === 0 && Math.random() < .35)
-        this.anomaly = pick(ANOMALIES.slice(1));
-    else
-        this.anomaly = ANOMALIES[0]; }
-    buildWave() { const bossWave = this.wave % this.mode.bossEvery === 0, countBase = this.mode.bossRush ? 5 : 10 + this.wave * 2.8, count = Math.max(2, Math.round(countBase * (this.anomaly.count || 1))); const pool = ['grunt', 'runner']; if (this.wave >= 2)
-        pool.push('swarm'); if (this.wave >= 3)
-        pool.push('tank'); if (this.wave >= 4)
-        pool.push('shield'); if (this.wave >= 5)
-        pool.push('regen'); if (this.wave >= 6)
-        pool.push('splitter'); if (this.wave >= 7)
-        pool.push('phase'); if (this.wave >= 8)
-        pool.push('healer'); if (this.wave >= 9)
-        pool.push('berserker'); if (this.wave >= 10)
-        pool.push('cloaked'); if (this.wave >= 12)
-        pool.push('carrier'); this.spawnQueue = []; for (let i = 0; i < count; i++) {
-        let type = pick(pool);
-        if (i < Math.min(5, count) && this.wave < 5)
-            type = i % 2 ? 'grunt' : 'runner';
-        this.spawnQueue.push({ type, elite: this.anomaly.id === 'elite' || (this.wave > 12 && Math.random() < .07) });
-    } if (bossWave) {
-        const boss = BOSSES[(Math.floor(this.wave / this.mode.bossEvery) - 1) % BOSSES.length];
-        this.spawnQueue.splice(Math.floor(this.spawnQueue.length * .56), 0, { type: boss.base, boss });
-        this.showBossIntro(boss);
-    } }
-    spawnEnemy(item) { this.enemies.push(new Enemy(this, item.type, this.wave, { boss: item.boss, elite: item.elite })); }
-    spawnAt(type, distance, extra = {}) { const e = new Enemy(this, type, this.wave, { distance, ...extra }); this.enemies.push(e); return e; }
-    showBossIntro(b) { $('#bossSigil').textContent = b.sigil; $('#bossSigil').style.color = b.color; $('#bossIntroName').textContent = b.name; $('#bossIntroName').style.color = b.color; $('#bossIntroText').textContent = b.subtitle; const o = $('#bossIntro'); o.classList.remove('hidden'); requestAnimationFrame(() => o.classList.add('show')); setTimeout(() => { o.classList.remove('show'); setTimeout(() => o.classList.add('hidden'), 350); }, 2100); audio.impact('boss'); this.addShake(8); }
-    finishWave() { this.waveActive = false; const base = 60 + this.wave * 7, interest = Math.floor(this.money * this.mods.interest); this.money += base + interest; this.energy = Math.min(this.maxEnergy, this.energy + 28); const research = this.awardResearch(); this.toast(`Vague sécurisée • +${base}${interest ? ' + ' + interest + ' intérêt' : ''} • +${research.gain} recherche`); if (this.mode.victory && !this.mode.endless && this.wave >= this.mode.victory) {
-        this.profile.victories++;
-        saveProfile(this.profile);
-        this.updateProfileUI();
-        this.paused = true;
-        $('#victoryText').textContent = `Tu as terminé ${this.mode.name} sur ${this.map.name} à la vague ${this.wave}. Recherche totale : ${this.profile.xp} XP, rang ${this.playerRank}.`;
-        $('#victoryOverlay').classList.remove('hidden');
-        return;
-    } const continueRewards = () => { if (this.wave % this.mode.relicEvery === 0)
-        this.offerRelic();
-    else if (this.auto)
-        setTimeout(() => this.startWave(), 900); this.updateUI(true); }; if (research.rankUp) {
-        this.pendingAfterUnlock = continueRewards;
-        this.showRankUnlock(research.before, research.after);
+    startWave() {
+        if (!this.started || this.paused) return;
+        if (this.waveLedger.length >= this.maxWaveStack) {
+            this.toast(`Pression maximale : ${this.maxWaveStack} vagues simultanées`);
+            return;
+        }
+        this.wave++;
+        this.waveActive = true;
+        this.combo = 0;
+        const anomaly = this.chooseAnomaly(this.wave);
+        const batch = this.buildWave(this.wave, anomaly);
+        this.spawnQueue.push(...batch);
+        this.waveLedger.push({ wave: this.wave, anomaly, boss: this.wave % this.mode.bossEvery === 0 });
+        this.spawnTimer = Math.min(this.spawnTimer || .2, .2);
+        audio.impact('ability');
+        const stacked = this.waveLedger.length > 1 ? ` • ${this.waveLedger.length}/${this.maxWaveStack} engagées` : '';
+        this.toast(`Vague ${this.wave} • ${anomaly.name}${stacked}`);
+        this.updateUI(true);
     }
-    else
-        continueRewards(); }
+    chooseAnomaly(waveNumber = this.wave) {
+        const every = this.mode.anomalyEvery || 0;
+        let anomaly;
+        if (every && waveNumber % every === 0) anomaly = pick(ANOMALIES.slice(1));
+        else if (waveNumber > 8 && waveNumber % 4 === 0 && Math.random() < .35) anomaly = pick(ANOMALIES.slice(1));
+        else anomaly = ANOMALIES[0];
+        this.anomaly = anomaly;
+        return anomaly;
+    }
+    buildWave(waveNumber = this.wave, anomaly = this.anomaly) {
+        const bossWave = waveNumber % this.mode.bossEvery === 0;
+        const countBase = this.mode.bossRush ? 5 : 10 + waveNumber * 2.8;
+        const count = Math.max(2, Math.round(countBase * (anomaly.count || 1)));
+        const pool = ['grunt', 'runner'];
+        if (waveNumber >= 2) pool.push('swarm');
+        if (waveNumber >= 3) pool.push('tank');
+        if (waveNumber >= 4) pool.push('shield');
+        if (waveNumber >= 5) pool.push('regen');
+        if (waveNumber >= 6) pool.push('splitter');
+        if (waveNumber >= 7) pool.push('phase');
+        if (waveNumber >= 8) pool.push('healer');
+        if (waveNumber >= 9) pool.push('berserker');
+        if (waveNumber >= 10) pool.push('cloaked');
+        if (waveNumber >= 12) pool.push('carrier');
+        const queue = [];
+        for (let i = 0; i < count; i++) {
+            let type = pick(pool);
+            if (i < Math.min(5, count) && waveNumber < 5) type = i % 2 ? 'grunt' : 'runner';
+            queue.push({ type, wave: waveNumber, anomaly, elite: anomaly.id === 'elite' || (waveNumber > 12 && Math.random() < .07) });
+        }
+        if (bossWave) {
+            const boss = BOSSES[(Math.floor(waveNumber / this.mode.bossEvery) - 1) % BOSSES.length];
+            queue.splice(Math.floor(queue.length * .56), 0, { type: boss.base, wave: waveNumber, anomaly, boss });
+            this.showBossIntro(boss);
+        }
+        return queue;
+    }
+    spawnEnemy(item) { this.enemies.push(new Enemy(this, item.type, item.wave ?? this.wave, { boss: item.boss, elite: item.elite, anomaly: item.anomaly })); }
+    spawnAt(type, distance, extra = {}) { const wave = extra.wave ?? this.wave, anomaly = extra.anomaly ?? this.anomaly; const e = new Enemy(this, type, wave, { distance, ...extra, anomaly }); this.enemies.push(e); return e; }
+    showBossIntro(b) { $('#bossSigil').textContent = b.sigil; $('#bossSigil').style.color = b.color; $('#bossIntroName').textContent = b.name; $('#bossIntroName').style.color = b.color; $('#bossIntroText').textContent = b.subtitle; const o = $('#bossIntro'); o.classList.remove('hidden'); requestAnimationFrame(() => o.classList.add('show')); setTimeout(() => { o.classList.remove('show'); setTimeout(() => o.classList.add('hidden'), 350); }, 2100); audio.impact('boss'); this.addShake(8); }
+    finishWave() {
+        const cleared = this.waveLedger.splice(0);
+        this.waveActive = false;
+        if (!cleared.length) return;
+        const waves = cleared.map(x => x.wave), base = waves.reduce((sum, w) => sum + 60 + w * 7, 0);
+        const riskBonus = cleared.length > 1 ? Math.floor(base * .09 * (cleared.length - 1)) : 0;
+        const interest = Math.floor(this.money * this.mods.interest);
+        this.money += base + riskBonus + interest;
+        this.energy = Math.min(this.maxEnergy, this.energy + 24 * cleared.length);
+        const research = this.awardResearch(waves);
+        const stackText = cleared.length > 1 ? `${cleared.length} vagues sécurisées` : `Vague ${waves[0]} sécurisée`;
+        this.toast(`${stackText} • +${base + riskBonus}${riskBonus ? ' prime incluse' : ''}${interest ? ' + ' + interest + ' intérêt' : ''} • +${research.gain} recherche`);
+        if (this.mode.victory && !this.mode.endless && this.wave >= this.mode.victory) {
+            this.profile.victories++;
+            saveProfile(this.profile);
+            this.updateProfileUI();
+            this.paused = true;
+            $('#victoryText').textContent = `Tu as terminé ${this.mode.name} sur ${this.map.name} à la vague ${this.wave}. Recherche totale : ${this.profile.xp} XP, rang ${this.playerRank}.`;
+            $('#victoryOverlay').classList.remove('hidden');
+            return;
+        }
+        const continueRewards = () => {
+            const relicDue = waves.some(w => w % this.mode.relicEvery === 0);
+            if (relicDue) this.offerRelic();
+            else if (this.auto) setTimeout(() => this.startWave(), 900);
+            this.updateUI(true);
+        };
+        if (research.rankUp) {
+            this.pendingAfterUnlock = continueRewards;
+            this.showRankUnlock(research.before, research.after);
+        } else continueRewards();
+    }
     offerRelic() { this.paused = true; const remaining = RELICS.filter(r => !this.relics.includes(r.id)), source = remaining.length >= 3 ? remaining : RELICS, choices = [...source].sort(() => Math.random() - .5).slice(0, 3), box = $('#relicChoices'); box.innerHTML = ''; for (const r of choices) {
         const b = document.createElement('button');
         b.className = 'choice-card relic-card';
@@ -1671,7 +1734,7 @@ class Game {
         this.particles.push(new Particle(x, y, color, { shape: type === 'explosion' && Math.random() < .35 ? 'smoke' : type === 'line' ? 'line' : 'dot', life: type === 'explosion' ? rand(.5, 1) : rand(.3, .7), size: type === 'explosion' ? rand(2, 7) : rand(1.5, 4), speed: rand(speed * .3, speed), gravity: type === 'explosion' ? rand(-15, 55) : 20 })); }
     ring(x, y, color, radius, life = .5) { this.areas.push({ x, y, color, radius, life, max: life, update(dt) { this.life -= dt; return this.life > 0; }, draw() { const p = 1 - this.life / this.max; ctx.save(); ctx.globalAlpha = (1 - p) * .7; ctx.strokeStyle = this.color; ctx.lineWidth = 4 * (1 - p) + 1; ctx.shadowBlur = 16; ctx.shadowColor = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius * p, 0, TAU); ctx.stroke(); ctx.restore(); } }); }
     update(dt) { if (!this.started || this.paused)
-        return; dt *= this.speed; this.time += dt; this.energy = Math.min(this.maxEnergy, this.energy + (this.energyRegen + (this.categoryCounts.control >= 3 ? 1 : 0)) * dt); if (this.comboUntil < this.time)
+        return; dt *= this.speed; this.time += dt; this.emitPortalParticles(dt); this.energy = Math.min(this.maxEnergy, this.energy + (this.energyRegen + (this.categoryCounts.control >= 3 ? 1 : 0)) * dt); if (this.comboUntil < this.time)
         this.combo = 0; if (this.spawnQueue.length) {
         this.spawnTimer -= dt;
         if (this.spawnTimer <= 0) {
@@ -1692,7 +1755,17 @@ class Game {
         el.innerHTML = '';
         return;
     } el.classList.add('open'); el.style.setProperty('--tower-color', t.def.color); const total = t.up.power + t.up.range + t.up.rate, evo = total >= 8 && !t.evolution ? `<div class="section"><div class="section-title">Évolution finale</div><button class="upgrade-btn" data-evo="alpha"><span><b>ALPHA</b><small>Dégâts +42 %, portée +12 %</small></span><strong>${Math.ceil(t.def.cost * 1.75)}</strong></button><button class="upgrade-btn" data-evo="omega"><span><b>OMEGA</b><small>Cadence +51 %, critique +8 %</small></span><strong>${Math.ceil(t.def.cost * 1.75)}</strong></button></div>` : ''; el.innerHTML = `<button class="icon-btn close-inspector">✕</button><div class="inspector-head"><div class="tower-badge">${t.def.icon}</div><div><h2>${t.def.name}</h2><p>${CATEGORIES[t.def.category].name} • ${t.def.desc}${t.tile ? ` • tuile ${t.tile.type}` : ''}</p></div></div><div class="mechanic-box"><b>Comment elle fonctionne :</b> ${t.def.mechanic}<br><b>Forte contre :</b> ${t.def.strong} • <b>Faible contre :</b> ${t.def.weak}</div><div class="stat-grid"><div class="statbox"><label>Dégâts</label><b>${Math.round(t.stats.dmg)}</b></div><div class="statbox"><label>Portée</label><b>${Math.round(t.stats.range * t.buff.range)}</b></div><div class="statbox"><label>Cadence</label><b>${t.def.kind === 'cryo' || t.def.kind === 'chrono' || t.def.kind === 'gravity' ? 'Zone' : (1 / t.stats.rate).toFixed(1) + '/s'}</b></div><div class="statbox"><label>Éliminations</label><b>${t.kills}</b></div></div><div class="section"><div class="section-title">Améliorations</div>${['power', 'range', 'rate'].map(br => { const n = { power: 'Puissance', range: 'Optique', rate: 'Accélérateur' }, s = { power: 'Dégâts et effet', range: 'Rayon ou portée', rate: 'Cadence ou pulsation' }, c = t.upgradeCost(br); return `<button class="upgrade-btn" data-up="${br}" ${t.up[br] >= 5 || this.money < c ? 'disabled' : ''}><span><b>${n[br]} • Niv. ${t.up[br]}/5</b><small>${s[br]}</small></span><strong>${t.up[br] >= 5 ? 'MAX' : c}</strong></button>`; }).join('')}</div><div class="section"><div class="section-title">Priorité de ciblage</div><div class="target-row">${[['first', 'Premier'], ['last', 'Dernier'], ['strong', 'Fort'], ['weak', 'Faible']].map(([id, n]) => `<button class="target-btn ${t.targetMode === id ? 'active' : ''}" data-target="${id}">${n}</button>`).join('')}</div></div>${evo}<button class="action sell" id="sellTower">Vendre • ${Math.floor(t.totalSpent * this.mods.sell)} crédits</button><button class="action" id="wikiTower" style="width:100%;margin-top:6px">Voir toutes les tours dans le wiki</button>`; el.querySelector('.close-inspector').onclick = () => { this.selected = null; this.renderInspector(); }; el.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { t.upgrade(b.dataset.up); this.renderInspector(); this.updateUI(true); }); el.querySelectorAll('[data-target]').forEach(b => b.onclick = () => { t.targetMode = b.dataset.target; this.renderInspector(); }); el.querySelectorAll('[data-evo]').forEach(b => b.onclick = () => { t.evolve(b.dataset.evo); this.renderInspector(); this.updateUI(true); }); $('#sellTower').onclick = () => { this.money += Math.floor(t.totalSpent * this.mods.sell); this.towers = this.towers.filter(x => x !== t); this.selected = null; this.recalcAll(); this.renderInspector(); this.burst(t.x, t.y, t.def.color, 16, 130, 'spark'); this.updateUI(true); }; $('#wikiTower').onclick = () => this.openWiki('towers'); }
-    updateUI(force = false) { $('#money').textContent = Math.floor(this.money); $('#lives').textContent = `${Math.max(0, this.lives)}/${this.maxLives}`; $('#wave').textContent = this.wave; $('#energy').textContent = Math.floor(this.energy); $('#speedBtn').textContent = '×' + this.speed; $('#pauseBtn').textContent = this.paused ? '▶' : 'Ⅱ'; $('#autoBtn').style.borderColor = this.auto ? '#66f4ff' : ''; $('#waveBtn').disabled = this.waveActive || !this.started || this.paused; const costs = { overdrive: 50, riftbomb: 65, cryo: 55, repair: 45 }; $$('[data-ability]').forEach(b => b.disabled = this.energy < costs[b.dataset.ability] || !this.started); const ribbon = $('#statusRibbon'), synergies = Object.entries(this.categoryCounts).filter(([, n]) => n >= 3).map(([id]) => CATEGORIES[id].name); ribbon.innerHTML = `<div class="status-chip mode">R${this.playerRank} • ${this.mode.icon} ${this.mode.name}</div><div class="status-chip anomaly">${this.anomaly.icon} ${this.anomaly.name}</div>${synergies.length ? `<div class="status-chip synergy">✦ ${synergies.join(' + ')}</div>` : ''}${this.combo > 1 ? `<div class="status-chip synergy">COMBO ×${this.combo}</div>` : ''}`; const boss = this.enemies.find(e => e.boss && !e.dead); if (boss) {
+    emitPortalParticles(dt) {
+        const rate = settings.quality === 'high' ? 24 : settings.quality === 'medium' ? 13 : 6;
+        this.portalFxTimer += dt * rate;
+        const s = this.path.pointAt(72);
+        while (this.portalFxTimer >= 1) {
+            this.portalFxTimer--;
+            const a = rand(-1.05, 1.05), speed = rand(45, 150);
+            this.particles.push(new Particle(s.x + rand(-8, 8), s.y + rand(-18, 18), Math.random() < .35 ? '#66f4ff' : '#ff4e9b', { life: rand(.55, 1.05), size: rand(1.4, 3.8), angle: a, speed, gravity: rand(-12, 12), drag: .95, shape: Math.random() < .35 ? 'line' : 'dot' }));
+        }
+    }
+    updateUI(force = false) { $('#money').textContent = Math.floor(this.money); $('#lives').textContent = `${Math.max(0, this.lives)}/${this.maxLives}`; $('#wave').textContent = this.wave; $('#waveState').textContent = this.waveLedger.length ? `${this.waveLedger.length}/${this.maxWaveStack} engagée${this.waveLedger.length > 1 ? 's' : ''}` : 'terrain libre'; $('#energy').textContent = `${Math.floor(this.energy)}/${this.maxEnergy}`; $('#energyRate').textContent = `+${this.energyRegen + (this.categoryCounts.control >= 3 ? 1 : 0)}/s • pouvoirs`; $('#speedBtn').textContent = '×' + this.speed; $('#pauseBtn').textContent = this.paused ? '▶' : 'Ⅱ'; $('#autoBtn').style.borderColor = this.auto ? '#66f4ff' : ''; $('#autoBtn').style.boxShadow = this.auto ? '0 0 16px rgba(102,244,255,.3)' : ''; const stackFull = this.waveLedger.length >= this.maxWaveStack; $('#waveBtn').disabled = !this.started || this.paused || stackFull; $('#waveBtn').textContent = stackFull ? `MAX ${this.maxWaveStack}/${this.maxWaveStack}` : this.waveLedger.length ? `＋ VAGUE ${this.waveLedger.length}/${this.maxWaveStack}` : '▶ LANCER'; const costs = { overdrive: 50, riftbomb: 65, cryo: 55, repair: 45 }; $$('[data-ability]').forEach(b => b.disabled = this.energy < costs[b.dataset.ability] || !this.started); const ribbon = $('#statusRibbon'), synergies = Object.entries(this.categoryCounts).filter(([, n]) => n >= 3).map(([id]) => CATEGORIES[id].name); ribbon.innerHTML = `<div class="status-chip mode">R${this.playerRank} • ${this.mode.icon} ${this.mode.name}</div><div class="status-chip anomaly">${this.anomaly.icon} ${this.anomaly.name}</div>${this.waveLedger.length > 1 ? `<div class="status-chip synergy">⚠ PRESSION ×${this.waveLedger.length}</div>` : ''}${synergies.length ? `<div class="status-chip synergy">✦ ${synergies.join(' + ')}</div>` : ''}${this.combo > 1 ? `<div class="status-chip synergy">COMBO ×${this.combo}</div>` : ''}`; const boss = this.enemies.find(e => e.boss && !e.dead); if (boss) {
         $('#bossBar').style.display = 'block';
         $('#bossName').textContent = boss.boss.name;
         $('#bossName').style.color = boss.boss.color;
@@ -1780,7 +1853,7 @@ class Game {
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.r * (1 + (1 - d.life / d.max) * .5), 0, TAU);
         ctx.fill();
-    } ctx.globalAlpha = 1; const s = this.path.points[0], b = this.path.points.at(-1); this.drawPortal(s.x + 80, s.y, '#ff4e9b', 1); this.drawPortal(b.x - 85, b.y, '#55ffb3', -1); this.areas.forEach(a => a.draw()); this.mines.forEach(m => m.draw()); this.towers.forEach(t => t.draw()); this.enemies.forEach(e => e.draw()); this.projectiles.forEach(p => p.draw()); this.beams.forEach(b => b.draw()); this.particles.forEach(p => p.draw()); this.texts.forEach(t => t.draw()); if (this.placing) {
+    } ctx.globalAlpha = 1; const s = this.path.points[0], b = this.path.points.at(-1); this.drawPortal(s.x + 80, s.y, '#ff4e9b', 1); this.drawCoreBase(b.x - 78, b.y); this.areas.forEach(a => a.draw()); this.mines.forEach(m => m.draw()); this.towers.forEach(t => t.draw()); this.enemies.forEach(e => e.draw()); this.projectiles.forEach(p => p.draw()); this.beams.forEach(b => b.draw()); this.particles.forEach(p => p.draw()); this.texts.forEach(t => t.draw()); if (this.placing) {
         const p = this.preview || { x: this.pointer.wx, y: this.pointer.wy }, ok = this.canPlace(p.x, p.y), col = ok ? this.placing.color : '#ff5c74';
         ctx.save();
         ctx.globalAlpha = .13;
@@ -1804,12 +1877,46 @@ class Game {
         ctx.restore();
     } }
     drawPath() { ctx.beginPath(); this.path.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); }
-    drawPortal(x, y, color, dir) { ctx.save(); ctx.translate(x, y); ctx.rotate(this.time * dir); ctx.strokeStyle = color; ctx.shadowBlur = 24; ctx.shadowColor = color; for (let i = 0; i < 3; i++) {
-        ctx.lineWidth = 3 - i * .6;
+    drawPortal(x, y, color, dir) {
+        ctx.save();
+        ctx.translate(x, y);
+        const pulse = 1 + Math.sin(this.time * 4.2) * .07;
+        ctx.scale(pulse, pulse);
+        const glow = ctx.createRadialGradient(0, 0, 3, 0, 0, 56);
+        glow.addColorStop(0, '#02030a'); glow.addColorStop(.28, '#08031a'); glow.addColorStop(.58, color + '70'); glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(0, 0, 58, 0, TAU); ctx.fill();
+        ctx.shadowBlur = 30; ctx.shadowColor = color; ctx.strokeStyle = color;
+        for (let i = 0; i < 5; i++) {
+            const rot = this.time * dir * (1.2 + i * .13) + i * 1.17;
+            ctx.lineWidth = Math.max(1, 4 - i * .55);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 17 + i * 7, 12 + i * 5, rot, .25, Math.PI * 1.78);
+            ctx.stroke();
+        }
+        for (let i = 0; i < 18; i++) {
+            const a = i / 18 * TAU + this.time * dir * (1.8 + i % 3 * .18), r = 28 + (i % 4) * 7 + Math.sin(this.time * 5 + i) * 3;
+            ctx.globalAlpha = .35 + .65 * ((Math.sin(this.time * 7 + i * 2.1) + 1) / 2);
+            ctx.fillStyle = i % 4 === 0 ? '#66f4ff' : color;
+            ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r * .72, 1.3 + i % 3, 0, TAU); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#010208'; ctx.beginPath(); ctx.arc(0, 0, 15, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = '900 8px system-ui'; ctx.textAlign = 'center'; ctx.fillText('FAILLE', 0, 70);
+        ctx.restore();
+    }
+    drawCoreBase(x, y) {
+        ctx.save(); ctx.translate(x, y);
+        const p = .72 + .28 * Math.sin(this.time * 3.2), col = this.lives <= this.maxLives * .3 ? '#ff5c74' : '#55ffb3';
+        ctx.shadowBlur = 28; ctx.shadowColor = col; ctx.strokeStyle = col; ctx.fillStyle = 'rgba(5,20,24,.94)'; ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(0, 0, 18 + i * 9, i * .7, Math.PI * 1.65 + i * .7);
-        ctx.stroke();
-    } ctx.fillStyle = '#02040b'; ctx.beginPath(); ctx.arc(0, 0, 15, 0, TAU); ctx.fill(); ctx.restore(); }
+        for (let i = 0; i < 6; i++) { const a = i / 6 * TAU - Math.PI / 6, r = 32; i ? ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r) : ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.rotate(-this.time * .55); ctx.globalAlpha = .35 + p * .4; ctx.setLineDash([5, 8]); ctx.beginPath(); ctx.arc(0, 0, 43, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.rotate(this.time * .55);
+        ctx.globalAlpha = 1; const core = ctx.createRadialGradient(-5, -6, 2, 0, 0, 19); core.addColorStop(0, '#fff'); core.addColorStop(.22, col); core.addColorStop(1, 'transparent'); ctx.fillStyle = core; ctx.beginPath(); ctx.arc(0, 0, 20, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.font = '1000 16px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('⬡', 0, 1);
+        ctx.font = '900 8px system-ui'; ctx.fillText('BASE', 0, 59);
+        ctx.restore();
+    }
 }
 const game = new Game();
 let last = performance.now();
