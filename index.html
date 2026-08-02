@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sören's Games</title>
 
-  <!-- Theme applied before paint — no flash -->
+  <!-- Thème appliqué avant l'affichage pour éviter un flash -->
   <script>
     const THEMES = ['acid','blood','ice','amber','violet'];
-    document.documentElement.setAttribute('data-theme',
-      THEMES[Math.floor(Math.random() * THEMES.length)]);
+    document.documentElement.setAttribute(
+      'data-theme',
+      THEMES[Math.floor(Math.random() * THEMES.length)]
+    );
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,264 +19,557 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=DM+Mono:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Raleway:wght@400;700;800&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
-    /* ============================================================
-       THEMES — pour ajouter un thème : copier un bloc [data-theme]
-       et changer les variables
-    ============================================================ */
     :root {
-      /* ACID — défaut */
-      --bg:#0b0b0f; --surface:#111118; --surface2:#18181f;
-      --border:rgba(255,255,255,.07); --border-hover:rgba(255,255,255,.15);
-      --text:#e8e8f0; --muted:#6b6b7e;
-      --accent:#c8f032; --accent-bg:rgba(200,240,50,.1);
-      --font-body:'DM Mono',monospace; --font-title:'Syne',sans-serif;
+      --bg:#0b0b0f;
+      --surface:#111118;
+      --surface2:#18181f;
+      --border:rgba(255,255,255,.07);
+      --border-hover:rgba(255,255,255,.15);
+      --text:#e8e8f0;
+      --muted:#6b6b7e;
+      --accent:#c8f032;
+      --accent-bg:rgba(200,240,50,.1);
+      --font-body:'DM Mono',monospace;
+      --font-title:'Syne',sans-serif;
+      --max-w:1100px;
     }
+
     [data-theme="blood"] {
-      --bg:#0d0608; --surface:#140a0c; --surface2:#1e1014;
-      --border:rgba(255,255,255,.06); --border-hover:rgba(255,80,80,.2);
-      --text:#f0dde0; --muted:#7a5860;
-      --accent:#ff2244; --accent-bg:rgba(255,34,68,.1);
-      --font-body:'Space Mono',monospace; --font-title:'Bebas Neue',sans-serif;
+      --bg:#0d0608;
+      --surface:#140a0c;
+      --surface2:#1e1014;
+      --border:rgba(255,255,255,.06);
+      --border-hover:rgba(255,80,80,.2);
+      --text:#f0dde0;
+      --muted:#7a5860;
+      --accent:#ff2244;
+      --accent-bg:rgba(255,34,68,.1);
+      --font-body:'Space Mono',monospace;
+      --font-title:'Bebas Neue',sans-serif;
     }
+
     [data-theme="ice"] {
-      --bg:#edf1f7; --surface:#fff; --surface2:#e4eaf4;
-      --border:rgba(0,0,0,.09); --border-hover:rgba(0,80,255,.2);
-      --text:#0f1828; --muted:#6878a8;
-      --accent:#0055ee; --accent-bg:rgba(0,85,238,.08);
-      --font-body:'IBM Plex Mono',monospace; --font-title:'Syne',sans-serif;
+      --bg:#edf1f7;
+      --surface:#fff;
+      --surface2:#e4eaf4;
+      --border:rgba(0,0,0,.09);
+      --border-hover:rgba(0,80,255,.2);
+      --text:#0f1828;
+      --muted:#6878a8;
+      --accent:#0055ee;
+      --accent-bg:rgba(0,85,238,.08);
+      --font-body:'IBM Plex Mono',monospace;
+      --font-title:'Syne',sans-serif;
     }
+
     [data-theme="amber"] {
-      --bg:#0c0a05; --surface:#131009; --surface2:#1c1910;
-      --border:rgba(255,255,255,.06); --border-hover:rgba(255,170,0,.2);
-      --text:#f2e8cc; --muted:#7a6e50;
-      --accent:#ffaa00; --accent-bg:rgba(255,170,0,.1);
-      --font-body:'Courier Prime',monospace; --font-title:'Syne',sans-serif;
+      --bg:#0c0a05;
+      --surface:#131009;
+      --surface2:#1c1910;
+      --border:rgba(255,255,255,.06);
+      --border-hover:rgba(255,170,0,.2);
+      --text:#f2e8cc;
+      --muted:#7a6e50;
+      --accent:#ffaa00;
+      --accent-bg:rgba(255,170,0,.1);
+      --font-body:'Courier Prime',monospace;
+      --font-title:'Syne',sans-serif;
     }
+
     [data-theme="violet"] {
-      --bg:#07060f; --surface:#0e0c1a; --surface2:#161324;
-      --border:rgba(255,255,255,.07); --border-hover:rgba(180,120,255,.2);
-      --text:#e4ddf8; --muted:#6a5d88;
-      --accent:#b87aff; --accent-bg:rgba(184,122,255,.1);
-      --font-body:'JetBrains Mono',monospace; --font-title:'Raleway',sans-serif;
+      --bg:#07060f;
+      --surface:#0e0c1a;
+      --surface2:#161324;
+      --border:rgba(255,255,255,.07);
+      --border-hover:rgba(180,120,255,.2);
+      --text:#e4ddf8;
+      --muted:#6a5d88;
+      --accent:#b87aff;
+      --accent-bg:rgba(184,122,255,.1);
+      --font-body:'JetBrains Mono',monospace;
+      --font-title:'Raleway',sans-serif;
     }
 
-    /* ============================================================
-       RESET & BASE
-    ============================================================ */
-    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-    html { scroll-behavior:smooth }
+    *,*::before,*::after {
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html {
+      scroll-behavior:smooth;
+    }
+
     body {
-      background:var(--bg); color:var(--text);
+      background:var(--bg);
+      color:var(--text);
       font-family:var(--font-body);
-      min-height:100vh; overflow-x:hidden;
-    }
-    /* scanlines */
-    body::before {
-      content:''; position:fixed; inset:0; pointer-events:none; z-index:200;
-      background:repeating-linear-gradient(0deg,transparent,transparent 2px,
-        rgba(0,0,0,.022) 2px,rgba(0,0,0,.022) 4px);
+      min-height:100vh;
+      overflow-x:hidden;
     }
 
-    /* ============================================================
-       HEADER
-    ============================================================ */
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:200;
+      background:repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.022) 2px,
+        rgba(0,0,0,.022) 4px
+      );
+    }
+
     header {
-      max-width:var(--max-w,1100px); margin:0 auto;
+      max-width:var(--max-w);
+      margin:0 auto;
       padding:clamp(40px,8vw,90px) clamp(16px,4vw,48px) clamp(32px,5vw,64px);
     }
+
     .header-top {
-      display:flex; align-items:center; justify-content:space-between;
-      flex-wrap:wrap; gap:12px; margin-bottom:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:18px;
     }
+
     .header-label {
-      font-size:clamp(10px,1.2vw,12px); letter-spacing:.2em;
-      color:var(--accent); text-transform:uppercase;
+      font-size:clamp(10px,1.2vw,12px);
+      letter-spacing:.2em;
+      color:var(--accent);
+      text-transform:uppercase;
     }
-    /* petit badge thème + raccourci */
+
     .theme-badge {
-      display:flex; align-items:center; gap:8px;
-      font-size:10px; letter-spacing:.15em; text-transform:uppercase;
-      color:var(--muted); border:1px solid var(--border);
-      padding:5px 12px; border-radius:2px; user-select:none;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:10px;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:5px 12px;
+      border-radius:2px;
+      user-select:none;
       white-space:nowrap;
     }
-    .theme-badge b { color:var(--accent); font-weight:500 }
-    .theme-dot {
-      width:5px; height:5px; border-radius:50%;
-      background:var(--accent); flex-shrink:0;
+
+    .theme-badge b {
+      color:var(--accent);
+      font-weight:500;
     }
+
+    .theme-dot {
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:var(--accent);
+      flex-shrink:0;
+    }
+
     h1 {
       font-family:var(--font-title);
       font-size:clamp(2.6rem,9vw,6.5rem);
-      font-weight:800; line-height:.95; letter-spacing:-.03em;
+      font-weight:800;
+      line-height:.95;
+      letter-spacing:-.03em;
       color:var(--text);
     }
-    [data-theme="blood"] h1 { letter-spacing:.02em }
-    h1 span { display:block; color:var(--accent) }
-    .header-sub {
-      margin-top:20px; font-size:clamp(11px,1.3vw,13px);
-      color:var(--muted); letter-spacing:.06em;
-    }
-    .header-line { width:44px; height:1px; background:var(--accent); margin-top:32px }
 
-    /* ============================================================
-       GRILLE — responsive automatique
-       - mobile  < 540px  → 1 colonne
-       - tablette 540-900 → 2 colonnes
-       - desktop  900+    → 3 colonnes (auto-fill)
-       - TV       1600+   → 4 colonnes (via --cols)
-    ============================================================ */
+    [data-theme="blood"] h1 {
+      letter-spacing:.02em;
+    }
+
+    h1 span {
+      display:block;
+      color:var(--accent);
+    }
+
+    .header-sub {
+      margin-top:20px;
+      font-size:clamp(11px,1.3vw,13px);
+      color:var(--muted);
+      letter-spacing:.06em;
+    }
+
+    .header-line {
+      width:44px;
+      height:1px;
+      background:var(--accent);
+      margin-top:32px;
+    }
+
+    .projects-wrap {
+      max-width:var(--max-w);
+      margin:0 auto;
+      padding:0 clamp(0px,3vw,40px) clamp(60px,8vw,100px);
+    }
+
+    .project-section + .project-section {
+      margin-top:clamp(38px,6vw,70px);
+    }
+
+    .section-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      padding:0 2px 14px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:14px;
+    }
+
+    .section-kicker {
+      display:block;
+      margin-bottom:7px;
+      color:var(--accent);
+      font-size:9px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+    }
+
+    .section-title {
+      font-family:var(--font-title);
+      font-size:clamp(1.45rem,4vw,2.25rem);
+      line-height:1;
+      letter-spacing:-.02em;
+    }
+
+    .section-desc {
+      max-width:500px;
+      margin-top:9px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.6;
+    }
+
+    .section-count {
+      flex-shrink:0;
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
     .grid {
       --cols:3;
-      max-width:var(--max-w,1100px); margin:0 auto;
-      padding:0 clamp(0px,3vw,40px) clamp(60px,8vw,100px);
       display:grid;
-      grid-template-columns:repeat(var(--cols),1fr);
+      grid-template-columns:repeat(var(--cols),minmax(0,1fr));
       gap:1px;
       background:var(--border);
       border:1px solid var(--border);
     }
-    @media(max-width:900px)  { .grid { --cols:2 } }
-    @media(max-width:540px)  { .grid { --cols:1; padding:0 0 60px } }
-    @media(min-width:1600px) { .grid { --cols:4; --max-w:1500px } }
-    @media(min-width:1600px) { header { --max-w:1500px } }
 
-    /* ============================================================
-       CARD
-    ============================================================ */
-    .card {
-      background:var(--surface); padding:clamp(20px,3vw,32px) clamp(16px,2.5vw,28px);
-      position:relative; overflow:hidden;
-      display:flex; flex-direction:column; gap:14px;
-      transition:background .2s;
+    @media(max-width:900px) {
+      .grid {
+        --cols:2;
+      }
     }
-    /* barre accent en haut */
+
+    @media(max-width:540px) {
+      .projects-wrap {
+        padding-left:0;
+        padding-right:0;
+      }
+
+      .section-head {
+        margin-left:16px;
+        margin-right:16px;
+      }
+
+      .grid {
+        --cols:1;
+        border-left:0;
+        border-right:0;
+      }
+    }
+
+    @media(min-width:1600px) {
+      :root {
+        --max-w:1500px;
+      }
+
+      .grid {
+        --cols:4;
+      }
+    }
+
+    .card {
+      background:var(--surface);
+      padding:clamp(20px,3vw,32px) clamp(16px,2.5vw,28px);
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-height:340px;
+      transition:background .2s, transform .2s;
+    }
+
     .card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:2px;
       background:var(--card-color,var(--accent));
-      transform:scaleX(0); transform-origin:left;
+      transform:scaleX(0);
+      transform-origin:left;
       transition:transform .3s ease;
     }
-    .card:hover { background:var(--surface2) }
-    .card:hover::before { transform:scaleX(1) }
 
-    /* featured occupe 2 colonnes (réduit à 1 sur mobile) */
-    .card-featured { grid-column:span 2 }
-    .card-featured .card-title { font-size:clamp(1.4rem,3vw,2.1rem) }
-    @media(max-width:540px) { .card-featured { grid-column:span 1 } }
+    .card:hover {
+      background:var(--surface2);
+    }
+
+    .card:hover::before {
+      transform:scaleX(1);
+    }
+
+    .card-featured {
+      grid-column:span 2;
+    }
+
+    .card-featured .card-title {
+      font-size:clamp(1.4rem,3vw,2.1rem);
+    }
+
+    @media(max-width:540px) {
+      .card-featured {
+        grid-column:span 1;
+      }
+    }
 
     .card-index {
-      font-size:10px; letter-spacing:.15em;
-      color:var(--muted); font-weight:300;
+      font-size:10px;
+      letter-spacing:.15em;
+      color:var(--muted);
+      font-weight:300;
     }
+
     .card-title {
       font-family:var(--font-title);
       font-size:clamp(1.1rem,2vw,1.4rem);
-      font-weight:700; letter-spacing:-.01em; line-height:1.1;
+      font-weight:700;
+      letter-spacing:-.01em;
+      line-height:1.1;
     }
-    [data-theme="blood"] .card-title { letter-spacing:.04em }
 
-    /* STATUS BADGES */
+    [data-theme="blood"] .card-title {
+      letter-spacing:.04em;
+    }
+
     .badge {
-      display:inline-flex; align-items:center; gap:6px;
-      font-size:10px; letter-spacing:.12em; text-transform:uppercase;
-      padding:4px 10px; border-radius:2px; font-weight:500; width:fit-content;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      width:fit-content;
+      padding:4px 10px;
+      border-radius:2px;
+      font-size:10px;
+      font-weight:500;
+      letter-spacing:.12em;
+      text-transform:uppercase;
     }
-    .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor }
-    .badge-beta      { background:var(--accent-bg); color:var(--accent) }
-    .badge-broken    { background:rgba(255,50,50,.1); color:#ff5555 }
-    .badge-paused    { background:rgba(255,180,0,.1); color:#ffb700 }
-    .badge-abandoned { background:rgba(120,120,140,.13); color:#7a7a9a }
 
-    .card-desc { font-size:clamp(11.5px,1.2vw,13px); color:var(--muted); line-height:1.75; font-weight:300; flex:1 }
+    .badge::before {
+      content:'';
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:currentColor;
+    }
 
-    /* TAGS */
-    .card-tags { display:flex; flex-wrap:wrap; gap:6px }
+    .badge-beta {
+      background:var(--accent-bg);
+      color:var(--accent);
+    }
+
+    .badge-broken {
+      background:rgba(255,50,50,.1);
+      color:#ff5555;
+    }
+
+    .badge-paused {
+      background:rgba(255,180,0,.1);
+      color:#ffb700;
+    }
+
+    .badge-abandoned {
+      background:rgba(120,120,140,.13);
+      color:#7a7a9a;
+    }
+
+    .card-desc {
+      color:var(--muted);
+      font-size:clamp(11.5px,1.2vw,13px);
+      font-weight:300;
+      line-height:1.75;
+      flex:1;
+    }
+
+    .card-tags {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+
     .tag {
-      font-size:12px; letter-spacing:.06em; color:var(--muted);
-      border:1px solid var(--border); padding:4px 11px; border-radius:2px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      padding:4px 11px;
+      border-radius:2px;
+      font-size:12px;
+      letter-spacing:.06em;
     }
 
-    /* BOUTON — séparateur au-dessus */
     .card-link-wrap {
       margin-top:auto;
       padding-top:18px;
       border-top:1px solid var(--border);
     }
+
     .card-link {
-      display:inline-flex; align-items:center; gap:10px;
-      font-size:11px; letter-spacing:.14em; text-transform:uppercase;
-      font-weight:600; text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
       padding:11px 20px;
       border-radius:2px;
-      /* fond plein couleur de la carte */
+      position:relative;
+      overflow:hidden;
       background:var(--card-color,var(--accent));
-      /* texte foncé sur fond clair, clair sur fond foncé — géré par mix-blend */
       color:var(--btn-text,#000);
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:.14em;
+      text-decoration:none;
+      text-transform:uppercase;
       transition:opacity .18s, gap .2s, transform .18s;
-      position:relative; overflow:hidden;
     }
-    /* thème ICE : les couleurs vives restent lisibles en noir */
-    /* pour les cartes avec couleur claire on garde le noir automatiquement */
+
     .card-link::after {
-      content:''; position:absolute; inset:0;
+      content:'';
+      position:absolute;
+      inset:0;
       background:rgba(255,255,255,.12);
-      opacity:0; transition:opacity .18s;
+      opacity:0;
+      transition:opacity .18s;
     }
-    .card-link:hover { gap:16px; transform:translateY(-1px) }
-    .card-link:hover::after { opacity:1 }
-    .card-link:active { transform:translateY(0); opacity:.85 }
-    .card-link svg { width:12px; height:12px; flex-shrink:0 }
 
-    /* ============================================================
-       TOAST "THEME SWITCHER"
-    ============================================================ */
+    .card-link:hover {
+      gap:16px;
+      transform:translateY(-1px);
+    }
+
+    .card-link:hover::after {
+      opacity:1;
+    }
+
+    .card-link:active {
+      transform:translateY(0);
+      opacity:.85;
+    }
+
+    .card-link svg {
+      width:12px;
+      height:12px;
+      flex-shrink:0;
+    }
+
     #toast {
-      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(16px);
-      background:var(--surface2); border:1px solid var(--border);
-      color:var(--text); font-family:var(--font-body);
-      font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-      padding:10px 20px; border-radius:2px;
-      opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
-      white-space:nowrap; z-index:999;
+      position:fixed;
+      bottom:28px;
+      left:50%;
+      transform:translateX(-50%) translateY(16px);
+      z-index:999;
+      pointer-events:none;
+      white-space:nowrap;
+      background:var(--surface2);
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:10px 20px;
+      border-radius:2px;
+      opacity:0;
+      font-family:var(--font-body);
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      transition:opacity .25s, transform .25s;
     }
-    #toast.show { opacity:1; transform:translateX(-50%) translateY(0) }
-    #toast b { color:var(--accent); font-weight:500 }
 
-    /* ============================================================
-       FOOTER
-    ============================================================ */
+    #toast.show {
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    #toast b {
+      color:var(--accent);
+      font-weight:500;
+    }
+
     footer {
+      max-width:var(--max-w);
+      margin:0 auto;
       border-top:1px solid var(--border);
       padding:clamp(16px,3vw,28px) clamp(16px,4vw,40px);
-      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
-      max-width:var(--max-w,1100px); margin:0 auto;
-      font-size:11px; color:var(--muted); letter-spacing:.08em;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:12px;
+      color:var(--muted);
+      font-size:11px;
+      letter-spacing:.08em;
     }
-    .footer-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .footer-dot {
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--accent);
+      animation:pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:.3; }
+    }
   </style>
 </head>
-<body>
 
+<body>
   <header>
     <div class="header-top">
       <p class="header-label">// Sören — Projets interactifs</p>
+
       <div class="theme-badge">
         <span class="theme-dot"></span>
         Thème&nbsp;<b id="theme-label">—</b>
         <span style="opacity:.45">· Ctrl+Alt+S</span>
       </div>
     </div>
+
     <h1>SÖREN'S<span>GAMES</span></h1>
-    <p class="header-sub">Projets Scratch &amp; IA · En développement permanent</p>
+
+    <p class="header-sub">
+      Projets Scratch, HTML &amp; IA · En développement permanent
+    </p>
+
     <div class="header-line"></div>
   </header>
 
-  <main class="grid" id="grid"></main>
+  <main class="projects-wrap" id="projects"></main>
 
   <footer>
-    <span>© 2025 Sören — Tous droits réservés</span>
+    <span>© 2026 Sören — Tous droits réservés</span>
+
     <div style="display:flex;align-items:center;gap:8px">
       <div class="footer-dot"></div>
       <span>Projets actifs</span>
@@ -284,176 +579,304 @@
   <div id="toast"></div>
 
   <script>
-  /* ============================================================
-     PROJETS — pour ajouter un projet, copier un objet { ... }
-     dans le tableau et modifier les champs. C'est tout !
-  ============================================================ */
-  const PROJECTS = [
-    {
-      featured: true,             // true = occupe 2 colonnes
-      index: '001',
-      title: 'CESTUS',
-      status: 'beta',             // 'beta' | 'broken' | 'paused' | 'abandoned'
-      statusLabel: 'New Beta',
-      desc: 'Tower defense néon intense. Tu es au centre du chaos — construis, optimise, résiste à des vagues d\'ennemis de plus en plus violentes. Le projet le plus ambitieux à ce jour.',
-      tags: ['TowerDefense','IA Made','Neon','Survival','3k+ Prompt Words'],
-      link: 'games/CESTUS/index.html',
-      linkLabel: 'Jouer maintenant',
-      color: 'var(--accent)',     // couleur de l'accent de la carte
-    },
-    {
-      index: '002',
-      title: 'Neon Defense',
-      status: 'beta',
-      statusLabel: 'Beta',
-      desc: 'Tower defense style neon réalisé avec IA. Amélioré au fil du temps, première version publique.',
-      tags: ['TowerDefense','IA Made','1.5k+ Prompts'],
-      link: 'games/TD.html',
-      linkLabel: 'Tester',
-      color: '#33aaff',
-    },
-    {
-      index: '003',
-      title: 'FluidEntities',
-      status: 'beta',
-      statusLabel: 'Beta',
-      desc: 'Tu contrôles des cercles bleus, tu dois battre les rouges. Simple, satisfaisant, neon. Fait sur Scratch.',
-      tags: ['Scratch','Satisfying','Neon'],
-      link: 'games/Clones.html',
-      linkLabel: 'Tester',
-      color: '#aa55ff',
-    },
-    {
-      index: '004',
-      title: 'SN@KE',
-      status: 'broken',
-      statusLabel: 'Non fonctionnel',
-      desc: 'Le classique revisité sur Scratch. Contre la montre, leaderboard local, couleurs vives. En attente de fix.',
-      tags: ['Solo','Contre la montre','Leaderboard','Scratch'],
-      link: 'games/SN@KE.html',
-      linkLabel: 'Voir quand même',
-      color: '#ff5533',
-    },
-    {
-      index: '005',
-      title: 'Project Coming Soon',
-      status: 'paused',
-      statusLabel: 'En pause',
-      desc: 'Combats de vaisseaux dans une galaxie infinie. Personnalisation, mode solo, ambitions énormes. Suspendu pour l\'instant.',
-      tags: ['Solo','Spaceships','Galaxy','Scratch'],
-      link: 'games/Project coming soon.html',
-      linkLabel: 'Pré-Alpha',
-      color: '#ffb700',
-    },
-    {
-      index: '006',
-      title: 'Cloud Test',
-      status: 'paused',
-      statusLabel: 'Server Testing',
-      desc: 'Test de variables cloud en ligne via TurboWarp. Synchronisation de données en temps réel entre fenêtres. Base technique pour de futurs projets multijoueurs.',
-      tags: ['Cloud Vars','TurboWarp','Online','Server Test','Réseau'],
-      link: 'games/test.html',
-      linkLabel: 'Tester',
-      color: '#6b6b7e',
-    },
-    
-    {
-      index: '007',
-      title: 'Cloud Test',
-      status: 'paused',
-      statusLabel: 'Server Testing',
-      desc: 'Test de variables cloud en ligne via TurboWarp. Synchronisation de données en temps réel entre fenêtres. Base technique pour de futurs projets multijoueurs.',
-      tags: ['Cloud Vars','TurboWarp','Online','Server Test','Réseau'],
-      link: 'games/Encoreuntest.html',
-      linkLabel: 'Tester',
-      color: '#6b6b7e',
-    },
-    /* ── TEMPLATE — décommenter, copier-coller, modifier ──
-    {
-      index: '007',
-      title: 'Mon Nouveau Jeu',
-      status: 'beta',            // beta | broken | paused | abandoned
-      statusLabel: 'New Beta',
-      desc: 'Description de ton jeu ici.',
-      tags: ['Tag1','Tag2','Tag3'],
-      link: 'games/mon-jeu.html',
-      linkLabel: 'Jouer',
-      color: '#ff55aa',          // couleur de la barre et du lien
-    },
-    ── */
-  ];
+    const CATEGORIES = [
+      {
+        id: 'games',
+        kicker: 'Sélection principale',
+        title: 'Games',
+        desc: 'Les jeux et expériences suffisamment avancés pour être présentés comme de vrais projets.'
+      },
+      {
+        id: 'tests',
+        kicker: 'Archives & prototypes',
+        title: 'Test Files',
+        desc: 'Anciens essais, prototypes techniques et versions conservées pour les tests.'
+      }
+    ];
 
-  /* ── Contraste auto : texte noir ou blanc selon luminosité du fond ── */
-  function btnTextColor(hex) {
-    if (!hex || hex.startsWith('var')) return '#000';
-    const c = hex.replace('#','');
-    const r = parseInt(c.slice(0,2),16), g = parseInt(c.slice(2,4),16), b = parseInt(c.slice(4,6),16);
-    return (0.299*r + 0.587*g + 0.114*b) / 255 > 0.55 ? '#000' : '#fff';
-  }
+    const PROJECTS = [
+      {
+        category: 'games',
+        featured: true,
+        index: '001',
+        title: 'CESTUS',
+        status: 'beta',
+        statusLabel: 'New Beta',
+        desc: 'Tower defense néon intense. Tu es au centre du chaos — construis, optimise et résiste à des vagues d’ennemis de plus en plus violentes. Le projet le plus ambitieux à ce jour.',
+        tags: ['Tower Defense','IA Made','Neon','Survival','3k+ Prompt Words'],
+        link: 'games/CESTUS/index.html',
+        linkLabel: 'Jouer maintenant',
+        color: 'var(--accent)'
+      },
+      {
+        category: 'games',
+        index: '002',
+        title: 'Neon Defense',
+        status: 'beta',
+        statusLabel: 'Beta',
+        desc: 'Tower defense au style néon réalisé avec IA. Une première version publique améliorée au fil des mises à jour.',
+        tags: ['Tower Defense','IA Made','1.5k+ Prompts'],
+        link: 'games/TD.html',
+        linkLabel: 'Tester',
+        color: '#33aaff'
+      },
+      {
+        category: 'games',
+        index: '003',
+        title: 'FluidEntities',
+        status: 'beta',
+        statusLabel: 'Beta',
+        desc: 'Tu contrôles des cercles bleus et tu dois battre les rouges. Une expérience simple, satisfaisante et néon créée sur Scratch.',
+        tags: ['Scratch','Satisfying','Neon'],
+        link: 'games/Clones.html',
+        linkLabel: 'Tester',
+        color: '#aa55ff'
+      },
+      {
+        category: 'games',
+        index: '004',
+        title: 'SN@KE',
+        status: 'broken',
+        statusLabel: 'Non fonctionnel',
+        desc: 'Le classique revisité sur Scratch avec contre-la-montre, classement local et couleurs vives. Le projet reste accessible en attendant une correction.',
+        tags: ['Solo','Contre-la-montre','Leaderboard','Scratch'],
+        link: 'games/SN@KE.html',
+        linkLabel: 'Voir quand même',
+        color: '#ff5533'
+      },
+      {
+        category: 'games',
+        index: '005',
+        title: 'Project Coming Soon',
+        status: 'paused',
+        statusLabel: 'En pause',
+        desc: 'Combats de vaisseaux dans une galaxie infinie, personnalisation et mode solo. Un projet très ambitieux actuellement suspendu.',
+        tags: ['Solo','Spaceships','Galaxy','Scratch'],
+        link: 'games/Project%20coming%20soon.html',
+        linkLabel: 'Pré-Alpha',
+        color: '#ffb700'
+      },
+      {
+        category: 'games',
+        index: '006',
+        title: 'Pixel Trail',
+        status: 'beta',
+        statusLabel: 'Online Beta',
+        desc: 'Jeu multijoueur rapide sur une grille infinie. Déplace ton pixel, laisse une trace, traverse les bords de la carte et affronte les autres joueurs grâce aux variables cloud TurboWarp.',
+        tags: ['Multijoueur','Cloud Vars','TurboWarp','Pixel','Online'],
+        link: 'games/test.html',
+        linkLabel: 'Jouer',
+        color: '#45d6c8'
+      },
+      {
+        category: 'games',
+        index: '007',
+        title: 'Party Games',
+        status: 'beta',
+        statusLabel: 'Multiplayer Beta',
+        desc: 'Une salle de jeux multijoueur avec salons, chat et plusieurs mini-jeux jouables entre amis depuis mobile ou ordinateur.',
+        tags: ['Party Game','Multijoueur','Salons','Chat','TurboWarp'],
+        link: 'games/Encoreuntest.html',
+        linkLabel: 'Créer un salon',
+        color: '#ff6b9d'
+      },
+      {
+        category: 'tests',
+        index: 'T-001',
+        title: 'Algo Test Mouse',
+        status: 'paused',
+        statusLabel: 'Test technique',
+        desc: 'Prototype conservé pour tester des comportements liés à la souris, aux déplacements et aux interactions avant intégration dans un jeu complet.',
+        tags: ['Prototype','Mouse','Algorithm','HTML'],
+        link: 'games/AlgoTestMouse.html',
+        linkLabel: 'Ouvrir le test',
+        color: '#8a95a8'
+      },
+      {
+        category: 'tests',
+        index: 'T-002',
+        title: 'SN@KE Old',
+        status: 'abandoned',
+        statusLabel: 'Archive',
+        desc: 'Ancienne version de SN@KE gardée comme archive pour comparer les mécaniques et récupérer d’anciens éléments du projet.',
+        tags: ['Archive','Old Version','Scratch','Snake'],
+        link: 'games/SN@KEold.html',
+        linkLabel: 'Voir l’archive',
+        color: '#74748a'
+      }
+    ];
 
-  /* ── Rendu des cartes ── */
-  const ARROW = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg>`;
+    const ARROW = `
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M1 6h10M6 1l5 5-5 5"/>
+      </svg>
+    `;
 
-  function render() {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = PROJECTS.map(p => {
-      const tags = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
-      const btnTxt = btnTextColor(p.color);
-      return `
-        <div class="card${p.featured ? ' card-featured' : ''}" style="--card-color:${p.color}">
-          <span class="card-index">${p.index}${p.featured ? ' — FEATURED' : ''}</span>
-          <div class="card-title">${p.title}</div>
-          <span class="badge badge-${p.status}">${p.statusLabel}</span>
-          <p class="card-desc">${p.desc}</p>
-          <div class="card-tags">${tags}</div>
-          <div class="card-link-wrap">
-            <a href="${p.link}" class="card-link" style="--btn-text:${btnTxt}">${p.linkLabel} ${ARROW}</a>
-          </div>
-        </div>`;
-    }).join('');
-  }
-
-  /* ── Thèmes ── */
-  const THEME_NAMES = { acid:'ACID', blood:'BLOOD', ice:'ICE', amber:'AMBER', violet:'VIOLET' };
-  let themeIndex = THEMES.indexOf(document.documentElement.getAttribute('data-theme'));
-
-  function setTheme(name) {
-    document.documentElement.setAttribute('data-theme', name);
-    document.getElementById('theme-label').textContent = THEME_NAMES[name];
-  }
-
-  function showToast(name) {
-    const t = document.getElementById('toast');
-    t.innerHTML = `Thème <b>${THEME_NAMES[name]}</b>`;
-    t.classList.add('show');
-    clearTimeout(t._hide);
-    t._hide = setTimeout(() => t.classList.remove('show'), 1400);
-  }
-
-  /* ── Ctrl+Alt+S : cycle les thèmes avec délai 1s ── */
-  let cycling = false;
-  let cycleTimer = null;
-
-  function cycleNext() {
-    themeIndex = (themeIndex + 1) % THEMES.length;
-    const name = THEMES[themeIndex];
-    setTheme(name);
-    showToast(name);
-  }
-
-  document.addEventListener('keydown', e => {
-    if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      if (cycling) return; // déjà en cours, on attend
-      cycling = true;
-      cycleNext();
-      cycleTimer = setTimeout(() => { cycling = false; }, 1000);
+    function escapeHTML(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
     }
-  });
 
-  /* ── Init ── */
-  render();
-  setTheme(THEMES[themeIndex]);
+    function btnTextColor(color) {
+      if (!color || color.startsWith('var')) {
+        return '#000';
+      }
+
+      const hex = color.replace('#','');
+
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+        return '#000';
+      }
+
+      const r = parseInt(hex.slice(0,2),16);
+      const g = parseInt(hex.slice(2,4),16);
+      const b = parseInt(hex.slice(4,6),16);
+      const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+      return brightness > 0.55 ? '#000' : '#fff';
+    }
+
+    function renderCard(project) {
+      const tags = project.tags
+        .map(tag => `<span class="tag">${escapeHTML(tag)}</span>`)
+        .join('');
+
+      const buttonText = btnTextColor(project.color);
+
+      return `
+        <article
+          class="card${project.featured ? ' card-featured' : ''}"
+          style="--card-color:${project.color}"
+        >
+          <span class="card-index">
+            ${escapeHTML(project.index)}
+            ${project.featured ? ' — FEATURED' : ''}
+          </span>
+
+          <h3 class="card-title">${escapeHTML(project.title)}</h3>
+
+          <span class="badge badge-${escapeHTML(project.status)}">
+            ${escapeHTML(project.statusLabel)}
+          </span>
+
+          <p class="card-desc">${escapeHTML(project.desc)}</p>
+
+          <div class="card-tags">${tags}</div>
+
+          <div class="card-link-wrap">
+            <a
+              href="${escapeHTML(project.link)}"
+              class="card-link"
+              style="--btn-text:${buttonText}"
+            >
+              ${escapeHTML(project.linkLabel)}
+              ${ARROW}
+            </a>
+          </div>
+        </article>
+      `;
+    }
+
+    function render() {
+      const root = document.getElementById('projects');
+
+      root.innerHTML = CATEGORIES.map(category => {
+        const projects = PROJECTS.filter(
+          project => project.category === category.id
+        );
+
+        return `
+          <section class="project-section" aria-labelledby="section-${category.id}">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">${escapeHTML(category.kicker)}</span>
+                <h2 class="section-title" id="section-${category.id}">
+                  ${escapeHTML(category.title)}
+                </h2>
+                <p class="section-desc">${escapeHTML(category.desc)}</p>
+              </div>
+
+              <span class="section-count">
+                ${projects.length} fichier${projects.length > 1 ? 's' : ''}
+              </span>
+            </div>
+
+            <div class="grid">
+              ${projects.map(renderCard).join('')}
+            </div>
+          </section>
+        `;
+      }).join('');
+    }
+
+    const THEME_NAMES = {
+      acid:'ACID',
+      blood:'BLOOD',
+      ice:'ICE',
+      amber:'AMBER',
+      violet:'VIOLET'
+    };
+
+    let themeIndex = THEMES.indexOf(
+      document.documentElement.getAttribute('data-theme')
+    );
+
+    function setTheme(name) {
+      document.documentElement.setAttribute('data-theme', name);
+      document.getElementById('theme-label').textContent = THEME_NAMES[name];
+    }
+
+    function showToast(name) {
+      const toast = document.getElementById('toast');
+
+      toast.innerHTML = `Thème <b>${THEME_NAMES[name]}</b>`;
+      toast.classList.add('show');
+
+      clearTimeout(toast._hide);
+
+      toast._hide = setTimeout(
+        () => toast.classList.remove('show'),
+        1400
+      );
+    }
+
+    let cycling = false;
+
+    function cycleNext() {
+      themeIndex = (themeIndex + 1) % THEMES.length;
+      const name = THEMES[themeIndex];
+
+      setTheme(name);
+      showToast(name);
+    }
+
+    document.addEventListener('keydown', event => {
+      if (
+        event.ctrlKey &&
+        event.altKey &&
+        event.key.toLowerCase() === 's'
+      ) {
+        event.preventDefault();
+
+        if (cycling) {
+          return;
+        }
+
+        cycling = true;
+        cycleNext();
+
+        setTimeout(() => {
+          cycling = false;
+        }, 1000);
+      }
+    });
+
+    render();
+    setTheme(THEMES[themeIndex]);
   </script>
 </body>
 </html>
