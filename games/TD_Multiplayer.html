@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — V18 Multiplayer</title>
+<title>Dark Rift TD — V19 Multiplayer</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#aa76ff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ffb3;--red:#ff5c74;
@@ -2473,6 +2473,438 @@ game.renderTowerList();
 
 
 
+<style id="v18-clean-map-style">
+/* V18.1 — plateformes plus discrètes, sans anneaux pointillés fantômes */
+body.v18-clean-map #game{touch-action:none}
+</style>
+
+<script id="v18-clean-map-patch">
+(()=>{
+  'use strict';
+  document.body.classList.add('v18-clean-map');
+
+  function stablePathFor(gameInstance){
+    const raw = gameInstance.map.path.map(point => Array.isArray(point) ? [point[0], point[1]] : [point.x, point.y]);
+    return new PathModel(roundedRoute(raw, 66, 5));
+  }
+
+  /* Une seule route par partie : plus de trajet BETA invisible qui remplace ALPHA. */
+  Game.prototype.buildRouteVariants = function(){
+    return [stablePathFor(this)];
+  };
+
+  /* Décor propre : suppression totale des morceaux de vieille route en pointillés. */
+  Game.prototype.makeEnvironment = function(){
+    const items = [];
+    for(let i=0;i<105;i++){
+      const x = rand(-WORLD.w*.22, WORLD.w*1.22);
+      const y = rand(-WORLD.h*.22, WORLD.h*1.22);
+      const cx = clamp(x,0,WORLD.w), cy = clamp(y,0,WORLD.h);
+      if(this.path.distanceTo(cx,cy) < 88) continue;
+      const crystal = Math.random() < .58;
+      items.push({
+        x, y,
+        r: crystal ? rand(4,15) : rand(5,18),
+        rot: rand(0,TAU),
+        type: crystal ? 'crystal' : 'vent'
+      });
+    }
+    return items;
+  };
+
+  /* Moins de zones, mieux espacées et toujours réellement à côté de la route. */
+  Game.prototype.makeTiles = function(){
+    const out = [];
+    const types = ['power','range','rate','relay','recovery','power','range','rate'];
+    const path = this.path;
+    const start = Math.max(80, this.entryDistance + 75);
+    const end = Math.max(start + 180, this.baseDistance - 80);
+
+    const place = (type,index,isRock=false)=>{
+      for(let attempt=0;attempt<90;attempt++){
+        const ratio = (index + .72) / (types.length + .45);
+        const pd = clamp(lerp(start,end,ratio) + rand(-48,48), start, end);
+        const p = path.pointAt(pd);
+        const side = ((index + attempt) % 2 === 0) ? -1 : 1;
+        const offset = isRock ? rand(105,142) : rand(91,116);
+        const x = p.x + Math.cos(p.angle + Math.PI/2) * offset * side;
+        const y = p.y + Math.sin(p.angle + Math.PI/2) * offset * side;
+        if(x<72 || x>WORLD.w-72 || y<72 || y>WORLD.h-72) continue;
+        if(path.distanceTo(x,y)<76) continue;
+        if(out.some(t=>Math.hypot(t.x-x,t.y-y)<(isRock?118:108))) continue;
+        if(isRock){
+          out.push({x,y,type:'rock',radius:rand(24,39),rot:rand(0,TAU),phase:0,blocker:true});
+        }else{
+          const tile={x,y,type,level:1,color:RESONANCE_TYPES[type].color,phase:rand(0,TAU),surge:Math.round(rand(10,60))};
+          if(type==='recovery') tile.discount=Math.random()<.30?.60:.15;
+          out.push(tile);
+        }
+        return true;
+      }
+      return false;
+    };
+
+    types.forEach((type,index)=>place(type,index,false));
+    place('rock',1,true);
+    place('rock',5,true);
+    place('rock',7,true);
+    return out;
+  };
+
+  /* Plateformes lisibles : petit socle plein, aucune orbite pointillée, aucun gros halo. */
+  Game.prototype.drawResonancePlatforms = function(){
+    for(const tile of this.tiles){
+      if(tile.type==='rock'){
+        ctx.save();
+        ctx.translate(tile.x,tile.y);
+        ctx.rotate(tile.rot || 0);
+        ctx.fillStyle='rgba(42,52,69,.94)';
+        ctx.strokeStyle='rgba(168,190,220,.24)';
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        for(let i=0;i<7;i++){
+          const a=i/7*TAU;
+          const r=tile.radius*(.84+Math.sin(i*2.17+(tile.rot||0))*.12);
+          i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+        }
+        ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+        continue;
+      }
+      const def=RESONANCE_TYPES[tile.type];
+      if(!def) continue;
+      const occupied=Boolean(this.platformTower(tile));
+      const level=tile.level||1;
+      const radius=23+level*1.8;
+      ctx.save();
+      ctx.translate(tile.x,tile.y);
+      ctx.globalAlpha=occupied?.62:.86;
+      ctx.fillStyle='rgba(5,10,22,.94)';
+      ctx.strokeStyle=def.color;
+      ctx.lineWidth=1.7+level*.25;
+      ctx.shadowBlur=occupied?7:11;
+      ctx.shadowColor=def.color;
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const a=i/6*TAU-Math.PI/6;
+        i?ctx.lineTo(Math.cos(a)*radius,Math.sin(a)*radius):ctx.moveTo(Math.cos(a)*radius,Math.sin(a)*radius);
+      }
+      ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.globalAlpha=occupied?.45:.20;
+      ctx.fillStyle=def.color;
+      ctx.beginPath();ctx.arc(0,0,11+level,0,TAU);ctx.fill();
+      ctx.globalAlpha=occupied?.62:.95;
+      ctx.fillStyle=def.color;
+      ctx.font='900 17px system-ui';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(def.icon,0,1);
+      ctx.globalAlpha=.48;
+      ctx.strokeStyle=def.color;
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(0,0,radius+5,0,TAU);ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  /* Le reset reconstruit immédiatement la carte avec les nouvelles règles. */
+  game.reset();
+  game.buildStartChoices();
+  game.updateProfileUI();
+  game.renderTowerList();
+  game.renderEnergyLab();
+  game.updateUI(true);
+})();
+</script>
+
+
+
+<style id="v19-evolution-style">
+/* ===== DARK RIFT TD V19 — ORGANIC FRONT ===== */
+body.v19-evolution #game{touch-action:none}
+body.v19-inspecting #firstWaveCountdown{filter:saturate(.65);opacity:.38;pointer-events:none}
+
+/* Capacités : durée et fonction lisibles au premier coup d’œil. */
+body.v19-evolution .ability-btn{min-width:154px}
+body.v19-evolution .ability-btn b{line-height:1.15}
+body.v19-evolution .ability-btn small{line-height:1.25}
+body.v19-evolution .ability-btn.v19-active{border-color:rgba(85,255,179,.68);box-shadow:0 0 22px rgba(85,255,179,.16);background:linear-gradient(145deg,rgba(85,255,179,.12),rgba(255,255,255,.025))}
+
+/* Inspecteur V19 : plus compact, plus stable, moins de blocs empilés. */
+#inspector.v19-inspector{padding:12px!important;overflow:auto!important}
+#inspector.v19-inspector .close-inspector{position:absolute!important;float:none!important;top:8px!important;right:8px!important;z-index:5;width:36px!important;height:36px!important;min-width:36px!important;margin:0!important;background:rgba(7,11,25,.94)}
+.v19-head{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:2px 42px 10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.v19-head .tower-badge{width:46px;height:46px;flex:none;font-size:24px}
+.v19-head h2{font-size:16px;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v19-head p{margin-top:4px;font-size:8px;color:var(--muted);line-height:1.3}
+.v19-role{display:inline-flex;margin-top:5px;padding:3px 7px;border-radius:999px;border:1px solid color-mix(in srgb,var(--tower-color) 38%,transparent);color:var(--tower-color);font-size:7px;font-weight:950;letter-spacing:.12em}
+.v19-architecture{padding:6px 8px;border-radius:10px;border:1px solid rgba(255,209,102,.25);background:rgba(255,209,102,.06);color:var(--gold);font-size:9px;font-weight:950;white-space:nowrap}
+.v19-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:9px 0}
+.v19-stat{min-width:0;padding:7px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.v19-stat label{display:block;font-size:6.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v19-stat b{display:block;margin-top:2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v19-platform{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;margin:7px 0;border-radius:11px;background:color-mix(in srgb,var(--platform-color,#8ba6ba) 8%,rgba(255,255,255,.025));border:1px solid color-mix(in srgb,var(--platform-color,#8ba6ba) 28%,transparent)}
+.v19-platform-main{min-width:0}.v19-platform-main b{display:block;font-size:9px;color:var(--platform-color,#dff8ff)}.v19-platform-main small{display:block;margin-top:2px;color:var(--muted);font-size:7.5px;line-height:1.25}
+.v19-platform button{flex:0 0 auto;padding:7px 8px;border-radius:9px;font-size:7.5px;font-weight:950;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff}
+.v19-details{margin:7px 0;border:1px solid rgba(255,255,255,.07);border-radius:11px;background:rgba(255,255,255,.025);overflow:hidden}
+.v19-details summary{padding:8px 10px;cursor:pointer;color:#dff8ff;font-size:8px;font-weight:900;list-style:none}.v19-details summary::-webkit-details-marker{display:none}
+.v19-details .mechanic-box{margin:0!important;border:0!important;border-top:1px solid rgba(255,255,255,.07)!important;border-radius:0!important;padding:9px!important;font-size:8.5px!important}
+.v19-section{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
+.v19-section-title{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;color:var(--muted);font-size:7px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}
+.v19-upgrades{display:grid;grid-template-columns:1fr;gap:5px}
+.v19-upgrade{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 9px;border-radius:10px;text-align:left;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035);color:#fff}
+.v19-upgrade b{font-size:9px}.v19-upgrade small{display:block;margin-top:2px;color:var(--muted);font-size:7px}.v19-upgrade strong{font-size:8px;color:var(--gold);white-space:nowrap}.v19-upgrade .energy-cost{color:var(--violet)}
+.v19-targets{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.v19-targets .target-btn{padding:7px 2px}
+.v19-actions{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}.v19-actions .sell{margin:0}.v19-actions .action{padding:9px 10px;font-size:9px}
+
+@media(max-width:900px){
+  body.v19-inspecting #firstWaveCountdown{display:none!important}
+  #inspector.v19-inspector{max-height:min(58vh,510px)!important;bottom:calc(68px + var(--safe-bottom))!important}
+  .v19-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .v19-stat{padding:6px}.v19-stat b{font-size:11px}
+  .v19-head h2{font-size:15px}
+}
+@media(max-width:520px){
+  .v19-head{grid-template-columns:42px minmax(0,1fr) auto;gap:8px}.v19-head .tower-badge{width:42px;height:42px}
+  .v19-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v19-platform{align-items:flex-start}.v19-platform button{padding:7px 6px}
+}
+</style>
+
+
+<script id="v19-evolution-script">
+(()=>{
+  'use strict';
+  if(window.__DARK_RIFT_V19__) return;
+  window.__DARK_RIFT_V19__ = true;
+  document.body.classList.add('v19-evolution');
+
+  const V19_ROLE={pulse:'ANTI-NUÉE',gatling:'SATURATION',sniper:'PRÉCISION',rail:'PERFORATION',cannon:'ZONE',mortar:'SIÈGE',rockets:'SALVE',mine:'PIÈGES',cryo:'GEL',inferno:'BRÛLURE',tesla:'CHAÎNE',solar:'RAYON',gravity:'ASPIRATION',chrono:'TEMPS',beacon:'SOUTIEN',disrupt:'BOUCLIERS',spore:'TOXIQUE',leech:'ÉCONOMIE',portal:'RETOUR',drone:'ESSAIM',sonic:'ONDE',bulwark:'BLOCAGE'};
+  const V19_SHORT={overdrive:'⚡ Overdrive 12s',riftbomb:'💥 Bombe R175',cryo:'❄ Nova 3·5·10s',repair:'✚ Répare +30%'};
+  const V19_ABILITY={
+    overdrive:{cost:70,cooldown:35,duration:12,name:'⚡ Overdrive',desc:'Toutes tes tours accélérées pendant 12 s'},
+    riftbomb:{cost:75,cooldown:28,duration:0,name:'💥 Bombe',desc:'Impact ciblé massif • rayon 175'},
+    cryo:{cost:85,cooldown:42,duration:3,name:'❄ Onde Nova',desc:'Onde 3 s • gel 5 s • ralentissement 10 s'},
+    repair:{cost:65,cooldown:38,duration:0,name:'✚ Réparation',desc:'Restaure 30 % des PV maximum'}
+  };
+  for(const [id,data] of Object.entries(V19_ABILITY)) Object.assign(ABILITIES[id],data);
+
+  function v19Seed(){
+    try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]>>>0}catch{return (Date.now()^Math.floor(Math.random()*0xffffffff))>>>0}
+  }
+  function v19Rng(seed){let a=(seed>>>0)||0x6d2b79f5;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+  function v19Hash(text){let h=2166136261>>>0;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+  function v19GeneratePath(seed,mapId,w=WORLD.w,h=WORLD.h){
+    const rng=v19Rng((seed^v19Hash(mapId))>>>0),count=12+Math.floor(rng()*5),marginX=145,marginY=150;
+    const centre=h*(.43+rng()*.14),ampBase={rift:.28,glacier:.22,forge:.31,garden:.27}[mapId]||.26;
+    const amp=h*ampBase,phase=rng()*TAU,freq1=.82+rng()*.72,freq2=1.55+rng()*.9;
+    const points=[];let previous=clamp(centre+(rng()-.5)*amp*.35,marginY,h-marginY);
+    for(let i=0;i<count;i++){
+      const t=i/(count-1),x=lerp(marginX,w-marginX,t);
+      let y=centre+Math.sin(t*TAU*freq1+phase)*amp*.56+Math.sin(t*TAU*freq2-phase*.7)*amp*.23+(rng()-.5)*amp*.35;
+      if(i===0||i===count-1)y=centre+(rng()-.5)*amp*.75;
+      y=clamp(y,marginY,h-marginY);
+      if(i>0&&i<count-1)y=clamp(y,previous-h*.19,previous+h*.19);
+      previous=y;points.push([x,y]);
+    }
+    return new PathModel(roundedRoute(points,82,7));
+  }
+  window.__V19_GENERATE_PATH__=v19GeneratePath;
+  window.__V19_RNG__=v19Rng;
+  window.__V19_HASH__=v19Hash;
+
+  Game.prototype.buildRouteVariants=function(){
+    const seed=this.v19SeedValue??v19Seed();
+    this.v19SeedValue=seed;
+    this.v19GeneratedPath=v19GeneratePath(seed,this.mapId||'rift');
+    return [this.v19GeneratedPath];
+  };
+
+  Game.prototype.makeTiles=function(){
+    const out=[],path=this.path,rng=v19Rng(((this.v19SeedValue||1)^0x51f15e5d)>>>0);
+    const platformTypes=['power','range','rate','relay','recovery','power','range','rate','relay','recovery'];
+    const start=Math.max(90,this.entryDistance+80),end=Math.max(start+250,this.baseDistance-90);
+    const placeNear=(type,index,rock=false)=>{
+      for(let tries=0;tries<150;tries++){
+        const ratio=clamp((index+.45+rng()*.45)/(rock?11.2:platformTypes.length+.3),.04,.96);
+        const pd=lerp(start,end,ratio)+(rng()-.5)*(rock?180:115),p=path.pointAt(clamp(pd,start,end));
+        const side=rng()<.5?-1:1,offset=rock?105+rng()*105:90+rng()*55;
+        const x=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y=p.y+Math.sin(p.angle+Math.PI/2)*offset*side;
+        if(x<75||x>WORLD.w-75||y<75||y>WORLD.h-75)continue;
+        if(path.distanceTo(x,y)<(rock?78:72))continue;
+        if(out.some(t=>Math.hypot(t.x-x,t.y-y)<(rock?92:105)))continue;
+        if(rock)out.push({x,y,type:'rock',radius:24+rng()*25,rot:rng()*TAU,phase:rng()*TAU,blocker:true});
+        else{const tile={x,y,type,level:1,color:RESONANCE_TYPES[type].color,phase:rng()*TAU,surge:Math.round(10+rng()*50)};if(type==='recovery')tile.discount=rng()<.28?.60:.15;out.push(tile)}
+        return true;
+      }
+      return false;
+    };
+    platformTypes.forEach((type,i)=>placeNear(type,i,false));
+    for(let i=0;i<10;i++)placeNear('rock',i,true);
+    return out;
+  };
+
+  Game.prototype.makeEnvironment=function(){
+    const rng=v19Rng(((this.v19SeedValue||1)^0xa17e2b31)>>>0),items=[];
+    for(let i=0;i<190;i++){
+      const x=-WORLD.w*.35+rng()*WORLD.w*1.7,y=-WORLD.h*.35+rng()*WORLD.h*1.7;
+      const cx=clamp(x,0,WORLD.w),cy=clamp(y,0,WORLD.h);if(this.path.distanceTo(cx,cy)<82)continue;
+      const roll=rng();items.push({x,y,r:roll<.58?4+rng()*13:5+rng()*20,rot:rng()*TAU,type:roll<.58?'crystal':'vent'});
+    }
+    return items;
+  };
+
+  Game.prototype.drawResonancePlatforms=function(){
+    for(const tile of this.tiles){
+      if(tile.type==='rock'){
+        ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);ctx.fillStyle='rgba(43,53,70,.96)';ctx.strokeStyle='rgba(174,198,226,.28)';ctx.lineWidth=1.5;ctx.shadowBlur=8;ctx.shadowColor='rgba(120,150,190,.18)';ctx.beginPath();
+        for(let i=0;i<8;i++){const a=i/8*TAU,r=tile.radius*(.82+Math.sin(i*2.23+(tile.rot||0))*.13);i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();continue;
+      }
+      const def=RESONANCE_TYPES[tile.type];if(!def)continue;const occupied=Boolean(this.platformTower(tile)),level=tile.level||1,pulse=.5+.5*Math.sin(this.time*1.7+tile.phase),outer=34+level*2;
+      ctx.save();ctx.translate(tile.x,tile.y);ctx.globalAlpha=occupied?.5:.92;ctx.shadowBlur=occupied?8:13;ctx.shadowColor=def.color;
+      ctx.fillStyle='rgba(4,9,21,.94)';ctx.strokeStyle=def.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,outer,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;ctx.globalAlpha=.12+.06*pulse;ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,outer-5,0,TAU);ctx.fill();
+      ctx.globalAlpha=.18;ctx.strokeStyle=def.color;ctx.lineWidth=1.2;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6,r=25+level;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.stroke();
+      ctx.globalAlpha=occupied?.62:1;ctx.fillStyle=def.color;ctx.font='1000 21px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(def.icon,0,.5);
+      for(let i=0;i<3;i++){ctx.globalAlpha=i<level?.9:.16;ctx.beginPath();ctx.arc(-7+i*7,outer-8,1.8,0,TAU);ctx.fill()}
+      ctx.restore();
+    }
+  };
+
+  const v19PreviousReset=Game.prototype.reset;
+  Game.prototype.reset=function(){
+    const multiSetup=Boolean(window.__DRIFT_V19_MULTI_SETUP__);
+    WORLD.w=multiSetup?3400:2400;WORLD.h=multiSetup?1900:1450;
+    this.v19SeedValue=v19Seed();
+    v19PreviousReset.call(this);
+    this.path=this.routeVariants?.[0]||this.v19GeneratedPath||v19GeneratePath(this.v19SeedValue,this.mapId||'rift');
+    this.currentSpawnPath=this.path;this.entryDistance=34;this.baseDistance=Math.max(this.entryDistance+200,this.path.total-34);
+    this.maxWaveStack=2;this.tiles=this.makeTiles();this.environment=this.makeEnvironment();
+    this.stars=Array.from({length:Math.round(WORLD.w*WORLD.h/9000)},()=>({x:rand(-WORLD.w*.3,WORLD.w*1.3),y:rand(-WORLD.h*.3,WORLD.h*1.3),r:rand(.4,1.8),a:rand(.14,.75),s:rand(.2,1.15)}));
+    this.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.06,multiSetup?.20:.27,multiSetup?.9:1.2)};
+    this.v19Nova=null;this.v19NovaSerial=0;
+  };
+
+  Game.prototype.centerCamera=function(){this.cam.x=WORLD.w/2;this.cam.y=WORLD.h/2;this.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.06,this.multi?.enabled?.20:.27,this.multi?.enabled?.9:1.2)};
+  Game.prototype.zoomAt=function(sx,sy,factor){const before=this.screenToWorld(sx,sy);this.cam.zoom=clamp(this.cam.zoom*factor,this.multi?.enabled?.18:.24,2.4);const after=this.screenToWorld(sx,sy);this.cam.x+=before.x-after.x;this.cam.y+=before.y-after.y;this.clampCamera()};
+  Game.prototype.clampCamera=function(){const extraX=Math.max(300,VW/this.cam.zoom*.56),extraY=Math.max(260,VH/this.cam.zoom*.56);this.cam.x=clamp(this.cam.x,-extraX,WORLD.w+extraX);this.cam.y=clamp(this.cam.y,-extraY,WORLD.h+extraY)};
+
+  Game.prototype.earlyWaveDifficulty=function(wave){if(wave===1)return .42;if(wave===2)return .49;if(wave===3)return .57;if(wave===4)return .67;if(wave===5)return .76;if(wave===6)return .9;return 1};
+  const v19PreviousInterval=Game.prototype.waveIntervalFor;
+  Game.prototype.waveIntervalFor=function(nextWave=this.wave+1){const early=[0,36,34,32,34,42,31];if(nextWave<early.length)return early[nextWave];return Math.max(15,v19PreviousInterval.call(this,nextWave)+1.5)};
+  const v19PreviousBuildWave=Game.prototype.buildWave;
+  Game.prototype.buildWave=function(waveNumber=this.wave,anomaly=this.anomaly){
+    let batch=v19PreviousBuildWave.call(this,waveNumber,anomaly);
+    if(waveNumber<=6){
+      const bossItems=batch.filter(x=>x.boss),regular=batch.filter(x=>!x.boss),limits=[0,6,7,8,9,8,11],kept=regular.slice(0,limits[waveNumber]||13).map(x=>({...x,elite:false}));
+      if(bossItems.length){const first=bossItems[0],b=first.boss;first.boss={...b,hp:Math.round(b.hp*.60),shield:Math.round(b.shield*.48),armor:Math.max(.08,b.armor-.08),reward:b.reward};kept.splice(Math.floor(kept.length*.66),0,first)}
+      batch=kept;
+    }
+    return batch;
+  };
+  const v19PreviousStartWave=Game.prototype.startWave;
+  Game.prototype.startWave=function(){
+    if(this.wave<5&&this.waveActive&&(this.spawnQueue.length||this.enemies.some(e=>!e.dead))){this.waveCountdown=4;return false}
+    return v19PreviousStartWave.call(this);
+  };
+
+  function v19EnemyOffset(enemy){
+    if(enemy.v19LaneOffset==null){let seed=v19Hash(`${enemy.netId||''}|${enemy.type}|${enemy.wave}|${enemy.rotation}`),rng=v19Rng(seed);enemy.v19LaneOffset=(rng()-.5)*(enemy.boss?12:enemy.type==='tank'||enemy.type==='carrier'?22:30);enemy.v19Sway=rng()*TAU}
+    return enemy.v19LaneOffset+Math.sin(enemy.game.time*.9+enemy.v19Sway)*2.4;
+  }
+  Object.defineProperty(Enemy.prototype,'x',{configurable:true,get(){const path=this.pathRef||this.game.path,p=path.pointAt(this.distance),o=v19EnemyOffset(this);return p.x+Math.cos(p.angle+Math.PI/2)*o}});
+  Object.defineProperty(Enemy.prototype,'y',{configurable:true,get(){const path=this.pathRef||this.game.path,p=path.pointAt(this.distance),o=v19EnemyOffset(this);return p.y+Math.sin(p.angle+Math.PI/2)*o}});
+
+  Game.prototype.v19LaunchNova=function(side=null,origin=null){
+    const path=this.multi?.enabled&&side!=null?this.multi.paths[side]:this.path;
+    const p=origin||path.pointAt(this.multi?.enabled?path.total:this.baseDistance);
+    this.v19Nova={elapsed:0,duration:3,x:p.x,y:p.y,maxRadius:Math.hypot(WORLD.w,WORLD.h)*1.08,hit:new WeakSet(),side,serial:++this.v19NovaSerial};
+    this.whiteoutUntil=this.time+3.5;this.toast('Onde Nova • propagation 3 s • gel 5 s');
+  };
+  Game.prototype.v19UpdateEffects=function(dt,applyGameplay=true){
+    const nova=this.v19Nova;if(!nova)return;nova.elapsed+=dt;const radius=nova.maxRadius*clamp(nova.elapsed/nova.duration,0,1);
+    if(applyGameplay){for(const e of this.enemies){if(e.dead||nova.hit.has(e))continue;const d=Math.hypot(e.x-nova.x,e.y-nova.y);if(d<=radius+34){nova.hit.add(e);e.stunUntil=Math.max(e.stunUntil,this.time+5);e.applySlow(.45,15);this.burst(e.x,e.y,'#b9f7ff',5,65,'spark')}}}
+    if(nova.elapsed>nova.duration+.45)this.v19Nova=null;
+  };
+
+  const v19PreviousUseAbility=Game.prototype.useAbility;
+  Game.prototype.useAbility=function(id){
+    if(this.multi?.enabled)return v19PreviousUseAbility.call(this,id);
+    if(id==='riftbomb')return v19PreviousUseAbility.call(this,id);
+    if(!this.started||this.paused)return;const a=ABILITIES[id],remain=this.abilityRemaining(id);if(remain>0){this.toast(`${a.name} • encore ${Math.ceil(remain)} s`);return}if(this.energy<a.cost){this.toast(`${a.name} demande ${a.cost} énergie`);return}
+    if(id==='cryo'&&!this.enemies.length){this.toast('Aucun ennemi à figer');return}
+    this.energy-=a.cost;this.abilityReadyAt[id]=this.time+a.cooldown;
+    if(id==='overdrive'){this.overdriveUntil=this.time+a.duration;for(const t of this.towers)t.overdriveUntil=this.time+a.duration;this.toast(`Overdrive actif pendant ${a.duration} secondes`)}
+    else if(id==='cryo')this.v19LaunchNova();
+    else if(id==='repair'){const heal=Math.max(1,Math.ceil(this.maxLives*.30));this.lives=Math.min(this.maxLives,this.lives+heal);this.toast(`Réparation : +${heal} PV (${Math.round(heal/this.maxLives*100)} %)`) }
+    haptic([18,30,18]);this.updateUI(true);
+  };
+
+  const v19PreviousUpdate=Game.prototype.update;
+  Game.prototype.update=function(dt){v19PreviousUpdate.call(this,dt);if(this.started&&!this.paused)this.v19UpdateEffects(dt*this.speed,true)};
+
+  const v19PreviousDrawWorld=Game.prototype.drawWorld;
+  Game.prototype.drawWorld=function(th){
+    const left=this.cam.x-VW/(2*this.cam.zoom)-120,right=this.cam.x+VW/(2*this.cam.zoom)+120,top=this.cam.y-VH/(2*this.cam.zoom)-120,bottom=this.cam.y+VH/(2*this.cam.zoom)+120,step=42;
+    ctx.save();ctx.globalAlpha=.42;ctx.strokeStyle=th.grid;ctx.lineWidth=1/this.cam.zoom;
+    for(let x=Math.floor(left/step)*step;x<=right;x+=step){ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);ctx.stroke()}
+    for(let y=Math.floor(top/step)*step;y<=bottom;y+=step){ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke()}ctx.restore();
+    v19PreviousDrawWorld.call(this,th);
+    const nova=this.v19Nova;if(nova){const p=clamp(nova.elapsed/nova.duration,0,1),r=nova.maxRadius*p;ctx.save();ctx.globalAlpha=.12*(1-p*.55);ctx.fillStyle='#aeeeff';ctx.beginPath();ctx.arc(nova.x,nova.y,r,0,TAU);ctx.fill();ctx.globalAlpha=.92*(1-p*.25);ctx.strokeStyle='#dffcff';ctx.shadowBlur=28;ctx.shadowColor='#66f4ff';ctx.lineWidth=10*(1-p)+3;ctx.beginPath();ctx.arc(nova.x,nova.y,r,0,TAU);ctx.stroke();ctx.globalAlpha=.45;ctx.lineWidth=2;ctx.beginPath();ctx.arc(nova.x,nova.y,Math.max(0,r-22),0,TAU);ctx.stroke();ctx.restore()}
+  };
+
+  function v19PlatformInfo(tile){
+    if(!tile)return{title:'Terrain neutre',text:'Aucun bonus de résonance',color:'#8ba6ba'};const def=RESONANCE_TYPES[tile.type],surge=tile.surge||0;
+    const text={power:`+${surge}% dégâts`,range:`+${surge}% portée`,rate:`cadence renforcée`,relay:`recharge d’énergie`,recovery:`-${Math.round((tile.discount||.15)*100)}% coûts`}[tile.type]||`${surge}% résonance`;
+    return{title:`${def?.icon||'○'} ${def?.name||tile.type} • N${tile.level||1}`,text,color:def?.color||'#8ba6ba'};
+  }
+  Game.prototype.renderInspector=function(){
+    const el=$('#inspector'),t=this.selected;document.body.classList.toggle('v19-inspecting',Boolean(t));
+    if(!t){el.classList.remove('open','v19-inspector');el.innerHTML='';return}
+    el.classList.add('open','v19-inspector');el.style.setProperty('--tower-color',t.def.color);
+    const mk=t.mk===2?'MK2':'MK1',allMax=t.allBranchesMax(),mk2=t.mk2Cost(),evo=t.evolutionCost(),tile=v19PlatformInfo(t.tile),platformCost=t.tile?this.platformUpgradeCost(t.tile):null,zone=(MAP_COMBAT[this.mapId]?.mult||{})[t.def.damageType]??1;
+    const branchName={power:'Puissance',range:'Optique',rate:'Cadence'},branchDesc={power:'Dégâts et effets',range:'Portée et rayon',rate:'Vitesse de tir'};
+    const upgrades=['power','range','rate'].map(br=>{const c=t.upgradeCost(br),max=t.up[br]>=5,disabled=max||this.money<c.money||this.energy<c.energy;return`<button class="v19-upgrade" data-up="${br}" ${disabled?'disabled':''}><span><b>${branchName[br]} • ${t.up[br]}/5</b><small>${branchDesc[br]}</small></span><strong>${max?'MAX':`${c.money}¤ <span class="energy-cost">+ ${c.energy}ϟ</span>`}</strong></button>`}).join('');
+    const convert=t.mk===1&&allMax?`<button class="v19-upgrade" data-mk2 ${this.money<mk2.money||this.energy<mk2.energy?'disabled':''}><span><b>Conversion MK2</b><small>Ouvre 15 niveaux avancés</small></span><strong>${mk2.money}¤ <span class="energy-cost">+ ${mk2.energy}ϟ</span></strong></button>`:'';
+    const specialization=t.mk===2&&allMax&&!t.evolution?`<div class="v19-upgrades"><button class="v19-upgrade" data-evo="alpha" ${this.money<evo.money||this.energy<evo.energy?'disabled':''}><span><b>ALPHA</b><small>Puissance et portée</small></span><strong>${evo.money}¤ + ${evo.energy}ϟ</strong></button><button class="v19-upgrade" data-evo="omega" ${this.money<evo.money||this.energy<evo.energy?'disabled':''}><span><b>OMEGA</b><small>Cadence et critique</small></span><strong>${evo.money}¤ + ${evo.energy}ϟ</strong></button></div>`:'';
+    const platformButton=platformCost?`<button id="upgradeResonance" ${this.money<platformCost.money||this.energy<platformCost.energy?'disabled':''}>N${t.tile.level||1} → N${(t.tile.level||1)+1}<br>${platformCost.money}¤ + ${platformCost.energy}ϟ</button>`:'';
+    const sellValue=Math.floor(t.totalSpent*(this.towerSellRatio?this.towerSellRatio(t):this.mods.sell));
+    el.innerHTML=`<button class="icon-btn close-inspector">✕</button><div class="v19-head"><div class="tower-badge">${t.def.icon}</div><div><h2>${t.def.name}</h2><p class="inspector-owner-line">${CATEGORIES[t.def.category].name} • ${DAMAGE_NAMES[t.def.damageType]}</p><span class="v19-role">${V19_ROLE[t.def.id]||t.def.kind.toUpperCase()}</span></div><div class="v19-architecture">${mk}${t.evolution?' • '+t.evolution.toUpperCase():''}</div></div>
+    <div class="v19-stats"><div class="v19-stat"><label>Dégâts</label><b>${Math.round(t.stats.dmg)}</b></div><div class="v19-stat"><label>Portée</label><b>${Math.round(t.stats.range*t.buff.range)}</b></div><div class="v19-stat"><label>Cadence</label><b>${['cryo','chrono','gravity'].includes(t.def.kind)?'ZONE':(1/t.stats.rate).toFixed(1)+'/s'}</b></div><div class="v19-stat"><label>Élim.</label><b>${t.kills}</b></div></div>
+    <div class="v19-platform" style="--platform-color:${tile.color}"><div class="v19-platform-main"><b>${tile.title}</b><small>${tile.text} • carte ×${zone.toFixed(2)}</small></div>${platformButton}</div>
+    <details class="v19-details"><summary>Fonctionnement, forces et faiblesses ▾</summary><div class="mechanic-box"><b>Fonctionnement :</b> ${t.def.mechanic}<br><b>Forte contre :</b> ${t.def.strong}<br><b>Faible contre :</b> ${t.def.weak}</div></details>
+    <div class="v19-section"><div class="v19-section-title"><span>Améliorations ${mk}</span><span>${Math.floor(this.money)}¤ • ${Math.floor(this.energy)}ϟ</span></div><div class="v19-upgrades">${upgrades}${convert}</div></div>
+    ${specialization?`<div class="v19-section"><div class="v19-section-title"><span>Spécialisation finale</span></div>${specialization}</div>`:''}
+    <div class="v19-section"><div class="v19-section-title"><span>Priorité</span></div><div class="v19-targets">${[['first','Premier'],['last','Dernier'],['strong','Fort'],['weak','Faible']].map(([id,n])=>`<button class="target-btn ${t.targetMode===id?'active':''}" data-target="${id}">${n}</button>`).join('')}</div></div>
+    <div class="v19-actions"><button class="action sell" id="sellTower">Vendre • ${sellValue}¤</button><button class="action" id="wikiTower">WIKI</button></div>`;
+    el.querySelector('.close-inspector').onclick=()=>{this.selected=null;this.renderInspector()};
+    el.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{t.upgrade(b.dataset.up);this.renderInspector();this.updateUI(true)});
+    el.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>{t.targetMode=b.dataset.target;this.renderInspector()});
+    el.querySelector('[data-mk2]')?.addEventListener('click',()=>{t.promoteMk2();this.renderInspector();this.updateUI(true)});
+    el.querySelectorAll('[data-evo]').forEach(b=>b.onclick=()=>{t.evolve(b.dataset.evo);this.renderInspector();this.updateUI(true)});
+    el.querySelector('#upgradeResonance')?.addEventListener('click',()=>{this.upgradePlatform(t.tile);this.renderInspector()});
+    el.querySelector('#sellTower').onclick=()=>{this.money+=sellValue;this.towers=this.towers.filter(x=>x!==t);this.selected=null;this.recalcAll();this.renderInspector();this.burst(t.x,t.y,t.def.color,16,130,'spark');this.updateUI(true)};
+    el.querySelector('#wikiTower').onclick=()=>this.openWiki('effects');
+  };
+
+  const v19PreviousUpdateUI=Game.prototype.updateUI;
+  Game.prototype.updateUI=function(force=false){
+    v19PreviousUpdateUI.call(this,force);
+    document.querySelectorAll('.v17-route-chip').forEach(node=>node.remove());
+    for(const b of $$('[data-ability]')){const id=b.dataset.ability,a=ABILITIES[id],remain=this.abilityRemaining(id),active=id==='overdrive'&&this.time<this.overdriveUntil,nova=id==='cryo'&&this.v19Nova; b.classList.toggle('v19-active',Boolean(active||nova));
+      if(active){const left=Math.max(0,Math.ceil(this.overdriveUntil-this.time));b.querySelector('b').textContent=`${a.name} • ACTIF ${left}s`;b.querySelector('small').textContent='Cadence globale renforcée'}
+      else if(nova){b.querySelector('b').textContent=`${a.name} • ONDE ${(Math.max(0,3-this.v19Nova.elapsed)).toFixed(1)}s`;b.querySelector('small').textContent='Gel 5 s puis ralentissement 10 s'}
+      else if(remain<=0){b.querySelector('b').textContent=`${V19_SHORT[id]||a.name} • ${a.cost}`;b.querySelector('small').textContent=`${a.desc} • recharge ${a.cooldown} s`}
+    }
+  };
+
+  const button=document.getElementById('startMultiBtn');if(button)button.textContent='⚔ MULTIJOUEUR V19';
+  const subtitle=document.querySelector('#startOverlay .subtitle');if(subtitle)subtitle.textContent='V19 Organic Front — routes procédurales, hordes vivantes, plateformes retravaillées et capacités tactiques refondues.';
+  document.title='Dark Rift TD — V19 Solo';
+  game.reset();game.buildStartChoices();game.updateProfileUI();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
+})();
+</script>
+
+
 <style id="v18-multi-style">
 :root{--p1:#55ffb3;--p2:#aa76ff;--self:#55c7ff;--rival:#ff5c74}
 #startOverlay .modal{width:min(1060px,97vw)}
@@ -2489,7 +2921,7 @@ game.renderTowerList();
 (()=>{
 'use strict';
 const CLOUD_URL='wss://clouddata.turbowarp.org';
-const PROJECT_BASE='itssoren.github.io/games/TD-Multiplayer-v18';
+const PROJECT_BASE='itssoren.github.io/games/TD-Multiplayer-v19';
 const LOBBY_PROJECT=PROJECT_BASE+'/lobby';
 const LOBBY_SLOTS=16;
 const PLAYER_COLORS=['#55ffb3','#aa76ff'];
@@ -2499,8 +2931,8 @@ const ENEMY_IDS=Object.keys(ENEMIES);
 const BOSS_INDEX=new Map(BOSSES.map((b,i)=>[b.id,i]));
 const EVO_CODE={null:0,alpha:1,omega:2};
 const EVO_NAMES=[null,'alpha','omega'];
-const mp={active:false,isHost:false,role:null,localSide:0,code:null,meta:null,host:null,guest:null,tag:'coop',lobby:null,room:null,lobbySlot:null,lobbyTimer:null,roomTimer:null,stateTimer:null,commandSeq:0,lastCommandSeq:0,commandHistory:[],stateSeq:0,lastStateSeq:0,stateSlot:0,roomStarted:false,result:null,spectator:false,pseudo:'Pilote',id:localStorage.getItem('darkRiftMultiId')||randomDigits(4),rank:rankForXp(loadProfile().xp),status:'hors ligne'};
-localStorage.setItem('darkRiftMultiId',mp.id);
+const SESSION_ID=(()=>{try{let id=sessionStorage.getItem('darkRiftMultiSessionId');if(!id){id=String(Math.floor(10000+Math.random()*90000));sessionStorage.setItem('darkRiftMultiSessionId',id)}return id}catch{return String(Math.floor(10000+Math.random()*90000))}})();
+const mp={active:false,isHost:false,role:null,localSide:0,code:null,meta:null,host:null,guest:null,tag:'coop',lobby:null,room:null,lobbySlot:null,lobbyTimer:null,roomTimer:null,stateTimer:null,commandSeq:Math.floor(Math.random()*900000)+100000,lastCommandSeq:0,commandHistory:[],stateSeq:0,lastStateSeq:0,stateSlot:0,roomStarted:false,result:null,spectator:false,pseudo:'Pilote',id:SESSION_ID,rank:rankForXp(loadProfile().xp),status:'hors ligne'};
 function randomDigits(n){let s='';for(let i=0;i<n;i++)s+=Math.floor(Math.random()*10);return s}
 function roomCode(){return String(Math.floor(100000+Math.random()*900000))}
 function now(){return Date.now()}
@@ -2524,7 +2956,7 @@ function syncGlobalsFromLocal(){const p=currentPlayer();if(!p)return;game.money=
 function saveGlobalsToPlayer(side=mp.localSide){const p=game.multi?.players?.[side];if(!p)return;p.money=game.money;p.energy=game.energy;p.maxEnergy=game.maxEnergy;p.energyRegen=game.energyRegen;p.energyTech={...game.energyTech};p.lives=game.lives;p.maxLives=game.maxLives}
 function populateMultiMenu(){
  const overlay=$('#startOverlay');
- overlay.querySelector('.modal').innerHTML=`<div class="logo">DARK RIFT ONLINE</div><p class="subtitle">V18 Multiplayer — le moteur complet du solo avec deux fronts indépendants, deux économies et des tourelles possédées par chaque pilote.</p><div id="mpProfileView" class="mp-grid"><div class="mp-card"><h3>Identité du pilote</h3><div class="mp-field"><label>Pseudo</label><input id="mpPseudo" maxlength="16" value="${localStorage.getItem('darkRiftMultiPseudo')||'Pilote'}"></div><div class="mp-field"><label>Intention de jeu</label><select id="mpIntent"><option value="coop">COOP — entraide et transfert</option><option value="duel">DUEL — premier noyau détruit</option></select></div><div class="mp-identity"><b id="mpIdentity"></b><br>Rang solo <strong id="mpRank"></strong> • les tours débloquées restent liées à ce rang.</div><div class="mp-row" style="margin-top:11px"><button id="mpOnline" class="action primary">JOUER EN LIGNE</button><button id="mpReturnSolo" class="action">RETOUR SOLO</button></div></div><div class="mp-card"><h3>Règles rapides</h3><p style="font-size:10px;color:var(--muted);line-height:1.6">Deux portails génèrent exactement les mêmes ennemis sur deux routes séparées. Chaque base porte le pseudo de son propriétaire. Les crédits d’une élimination reviennent au propriétaire de la tourelle. Les joueurs peuvent construire sur les deux fronts, mais ne modifient que leurs propres tours.</p><p style="font-size:10px;color:var(--muted);line-height:1.6;margin-top:8px"><b style="color:var(--green)">COOP :</b> si un pilote tombe, ses tours et ressources sont transférées au survivant.<br><b style="color:var(--pink)">DUEL :</b> la première base détruite désigne le vainqueur.</p></div></div><div id="mpLobbyView" class="mp-hidden"><div class="modal-head"><div><div class="panel-title">Salons publics et privés</div><h2>Nexus multijoueur</h2></div><div class="mp-status"><i id="mpCloudDot" class="mp-dot"></i><span id="mpCloudStatus">Connexion…</span></div></div><div class="mp-grid"><div class="mp-card"><h3>Créer un salon</h3><div class="mp-field"><label>Tag informatif</label><select id="mpCreateTag"><option value="coop">COOP</option><option value="duel">DUEL</option></select></div><div class="mp-field"><label>Carte</label><select id="mpMapSelect"></select></div><div class="mp-field"><label>Difficulté</label><select id="mpModeSelect"></select></div><div class="mp-row"><button id="mpCreatePublic" class="action primary">PUBLIC</button><button id="mpCreatePrivate" class="action">PRIVÉ</button></div><div class="mp-field" style="margin-top:12px"><label>Rejoindre un salon privé</label><input id="mpPrivateCode" inputmode="numeric" maxlength="6" placeholder="000000"></div><button id="mpJoinPrivate" class="action" style="width:100%">REJOINDRE PAR CODE</button></div><div class="mp-card"><div class="modal-head"><h3 style="margin:0">Pilotes en attente</h3><button id="mpRefresh" class="action" style="padding:7px 9px">ACTUALISER</button></div><div id="mpServers" class="mp-servers"></div></div></div><button id="mpBackProfile" class="action" style="margin-top:12px">RETOUR</button></div><div id="mpRoomView" class="mp-hidden"><div class="panel-title">Salon Nexus</div><div id="mpRoomCode" class="mp-room-code">000000</div><div style="text-align:center"><span id="mpRoomTag" class="mp-tag coop">COOP</span> <span id="mpRoomPrivacy" class="mp-tag">PUBLIC</span></div><div class="mp-slots"><div class="mp-slot one"><b id="mpHostName">Hôte</b><small id="mpHostRank">Rang ?</small></div><div class="mp-slot two"><b id="mpGuestName">En attente…</b><small id="mpGuestRank">Partage le code</small></div></div><p id="mpRoomHint" class="subtitle" style="font-size:10px;margin:8px auto"></p><div class="mp-row"><button id="mpStartMatch" class="action primary">OUVRIR LES DEUX FAILLES</button><button id="mpLeaveRoom" class="action">QUITTER</button></div></div>`;
+ overlay.querySelector('.modal').innerHTML=`<div class="logo">DARK RIFT ONLINE</div><p class="subtitle">V19 Multiplayer — le moteur complet du solo avec deux fronts indépendants, deux économies et des tourelles possédées par chaque pilote.</p><div id="mpProfileView" class="mp-grid"><div class="mp-card"><h3>Identité du pilote</h3><div class="mp-field"><label>Pseudo</label><input id="mpPseudo" maxlength="16" value="${localStorage.getItem('darkRiftMultiPseudo')||'Pilote'}"></div><div class="mp-field"><label>Intention de jeu</label><select id="mpIntent"><option value="coop">COOP — entraide et transfert</option><option value="duel">DUEL — premier noyau détruit</option></select></div><div class="mp-identity"><b id="mpIdentity"></b><br>Rang solo <strong id="mpRank"></strong> • les tours débloquées restent liées à ce rang.</div><div class="mp-row" style="margin-top:11px"><button id="mpOnline" class="action primary">JOUER EN LIGNE</button><button id="mpReturnSolo" class="action">RETOUR SOLO</button></div></div><div class="mp-card"><h3>Règles rapides</h3><p style="font-size:10px;color:var(--muted);line-height:1.6">Deux portails génèrent exactement les mêmes ennemis sur deux routes séparées. Chaque base porte le pseudo de son propriétaire. Les crédits d’une élimination reviennent au propriétaire de la tourelle. Les joueurs peuvent construire sur les deux fronts, mais ne modifient que leurs propres tours.</p><p style="font-size:10px;color:var(--muted);line-height:1.6;margin-top:8px"><b style="color:var(--green)">COOP :</b> si un pilote tombe, ses tours et ressources sont transférées au survivant.<br><b style="color:var(--pink)">DUEL :</b> la première base détruite désigne le vainqueur.</p></div></div><div id="mpLobbyView" class="mp-hidden"><div class="modal-head"><div><div class="panel-title">Salons publics et privés</div><h2>Nexus multijoueur</h2></div><div class="mp-status"><i id="mpCloudDot" class="mp-dot"></i><span id="mpCloudStatus">Connexion…</span></div></div><div class="mp-grid"><div class="mp-card"><h3>Créer un salon</h3><div class="mp-field"><label>Tag informatif</label><select id="mpCreateTag"><option value="coop">COOP</option><option value="duel">DUEL</option></select></div><div class="mp-field"><label>Carte</label><select id="mpMapSelect"></select></div><div class="mp-field"><label>Difficulté</label><select id="mpModeSelect"></select></div><div class="mp-row"><button id="mpCreatePublic" class="action primary">PUBLIC</button><button id="mpCreatePrivate" class="action">PRIVÉ</button></div><div class="mp-field" style="margin-top:12px"><label>Rejoindre un salon privé</label><input id="mpPrivateCode" inputmode="numeric" maxlength="6" placeholder="000000"></div><button id="mpJoinPrivate" class="action" style="width:100%">REJOINDRE PAR CODE</button></div><div class="mp-card"><div class="modal-head"><h3 style="margin:0">Pilotes en attente</h3><button id="mpRefresh" class="action" style="padding:7px 9px">ACTUALISER</button></div><div id="mpServers" class="mp-servers"></div></div></div><button id="mpBackProfile" class="action" style="margin-top:12px">RETOUR</button></div><div id="mpRoomView" class="mp-hidden"><div class="panel-title">Salon Nexus</div><div id="mpRoomCode" class="mp-room-code">000000</div><div style="text-align:center"><span id="mpRoomTag" class="mp-tag coop">COOP</span> <span id="mpRoomPrivacy" class="mp-tag">PUBLIC</span></div><div class="mp-slots"><div class="mp-slot one"><b id="mpHostName">Hôte</b><small id="mpHostRank">Rang ?</small></div><div class="mp-slot two"><b id="mpGuestName">En attente…</b><small id="mpGuestRank">Partage le code</small></div></div><p id="mpRoomHint" class="subtitle" style="font-size:10px;margin:8px auto"></p><div class="mp-row"><button id="mpStartMatch" class="action primary">OUVRIR LES DEUX FAILLES</button><button id="mpLeaveRoom" class="action">QUITTER</button></div></div>`;
  $('#mpIntent').value=localStorage.getItem('darkRiftMultiIntent')||'coop';
  const maps=$('#mpMapSelect'),modes=$('#mpModeSelect');maps.innerHTML=Object.entries(MAPS).filter(([id])=>requiredMapRank(id)<=mp.rank).map(([id,v])=>`<option value="${id}">${v.icon} ${v.name}</option>`).join('');modes.innerHTML=Object.entries(MODES).filter(([id])=>requiredModeRank(id)<=mp.rank&&!vBossUnsupported(id)).map(([id,v])=>`<option value="${id}">${v.icon} ${v.name}</option>`).join('');
  updateIdentity();
@@ -2543,35 +2975,73 @@ function freeLobbySlot(){for(let i=0;i<LOBBY_SLOTS;i++){const r=mp.lobby?.get(`�
 function publishLobby(){if(!mp.isHost||mp.meta?.private||mp.roomStarted||!mp.lobby?.connected)return;if(mp.lobbySlot==null)mp.lobbySlot=freeLobbySlot();mp.lobby.set(`☁ l${mp.lobbySlot}`,{room:mp.code,pseudo:mp.host.pseudo,id:mp.host.id,rank:mp.host.rank,tag:mp.meta.tag,map:mp.meta.map,mode:mp.meta.mode,ts:now(),nonce:mp.meta.nonce})}
 function closeListing(){if(mp.lobbySlot!=null&&mp.lobby?.connected)mp.lobby.set(`☁ l${mp.lobbySlot}`,{closed:true,room:mp.code,ts:now()});clearInterval(mp.lobbyTimer);mp.lobbySlot=null}
 async function createRoom(priv){updateIdentity();await ensureLobby().catch(()=>{});leaveRoom(false);mp.isHost=true;mp.role='host';mp.localSide=0;mp.host=identity();mp.guest=null;mp.code=roomCode();mp.meta={room:mp.code,tag:$('#mpCreateTag').value,private:priv,map:$('#mpMapSelect').value||'rift',mode:$('#mpModeSelect').value||'classic',host:mp.host,guest:null,phase:'waiting',seed:Math.floor(Math.random()*1e9),nonce:randomDigits(6),ts:now()};await connectRoom();if(!priv){publishLobby();mp.lobbyTimer=setInterval(publishLobby,6000)}showRoom()}
-async function joinRoom(code,listing){updateIdentity();leaveRoom(false);mp.isHost=false;mp.role='guest';mp.localSide=1;mp.code=code;mp.host=listing?{pseudo:listing.pseudo,id:listing.id,rank:listing.rank}:null;mp.guest=identity();mp.meta=listing?{room:code,tag:listing.tag,private:false,map:listing.map,mode:listing.mode,host:mp.host,phase:'waiting'}:null;await connectRoom();showRoom();publishGuest()}
+async function joinRoom(code,listing){updateIdentity();leaveRoom(false);mp.isHost=false;mp.role='guest';mp.localSide=1;mp.code=code;mp.host=listing?{pseudo:listing.pseudo,id:listing.id,rank:listing.rank}:null;if(mp.host&&String(mp.host.id)===String(mp.id))mp.id=randomDigits(5);mp.guest=identity();mp.meta=listing?{room:code,tag:listing.tag,private:false,map:listing.map,mode:listing.mode,host:mp.host,phase:'waiting'}:null;await connectRoom();showRoom();publishGuest()}
 async function connectRoom(){mp.room?.close();mp.room=new CloudConnection(`${PROJECT_BASE}/room-${mp.code}`,'room',onRoomVariable);await mp.room.connect();clearInterval(mp.roomTimer);mp.roomTimer=setInterval(()=>mp.isHost?publishMeta():publishGuest(),3200);if(mp.isHost)publishMeta();else publishGuest();setCloudStatus('Salon synchronisé','ok')}
 function publishMeta(){if(!mp.isHost||!mp.room?.connected)return;mp.meta={...mp.meta,host:mp.host,guest:mp.guest,phase:mp.active?'playing':'waiting',ts:now()};mp.room.set('☁ meta',mp.meta)}
 function publishGuest(){if(mp.role==='guest'&&mp.room?.connected)mp.room.set('☁ guest',{...mp.guest,room:mp.code,ts:now()})}
-function onRoomVariable(name,value){const data=decodePayload(value);if(!data)return;if(name==='☁ meta'){mp.meta=data;mp.host=data.host||mp.host;mp.guest=data.guest||mp.guest;renderRoom();if(!mp.isHost&&data.phase==='playing'&&!mp.active)startMatch(false)}else if(name==='☁ guest'&&mp.isHost&&data.room===mp.code&&now()-data.ts<13000){mp.guest=data;mp.meta.guest=data;closeListing();publishMeta();renderRoom()}else if(name.startsWith('☁ c')&&mp.isHost&&mp.active){for(const packet of data.items||[]){if(packet.seq>mp.lastCommandSeq){mp.lastCommandSeq=packet.seq;applyCommand(1,packet.cmd)}}}else if(name.startsWith('☁ s')&&!mp.isHost&&mp.active&&data.seq>mp.lastStateSeq){mp.lastStateSeq=data.seq;applySnapshot(data.state)}}
+function onRoomVariable(name,value){const data=decodePayload(value);if(!data)return;if(name==='☁ meta'){mp.meta=data;mp.host=data.host||mp.host;if(!mp.isHost&&mp.host&&String(mp.host.id)===String(mp.id)){mp.id=randomDigits(5);mp.guest=identity();publishGuest()}mp.guest=data.guest||mp.guest;renderRoom();if(!mp.isHost&&data.phase==='playing'&&!mp.active)startMatch(false)}else if(name==='☁ guest'&&mp.isHost&&data.room===mp.code&&now()-data.ts<13000){mp.guest=data;mp.meta.guest=data;closeListing();publishMeta();renderRoom()}else if(name.startsWith('☁ c')&&mp.isHost&&mp.active){for(const packet of data.items||[]){if(packet.seq>mp.lastCommandSeq){mp.lastCommandSeq=packet.seq;applyCommand(1,packet.cmd)}}}else if(name.startsWith('☁ s')&&!mp.isHost&&mp.active&&data.seq>mp.lastStateSeq){mp.lastStateSeq=data.seq;applySnapshot(data.state)}}
 function renderRoom(){if(!$('#mpRoomCode'))return;$('#mpRoomCode').textContent=mp.code||'------';const tag=mp.meta?.tag||'coop';$('#mpRoomTag').className='mp-tag '+tag;$('#mpRoomTag').textContent=tag.toUpperCase();$('#mpRoomPrivacy').textContent=mp.meta?.private?'PRIVÉ':'PUBLIC';$('#mpHostName').textContent=displayName(mp.host);$('#mpHostRank').textContent=`Rang ${mp.host?.rank||'?'}`;$('#mpGuestName').textContent=displayName(mp.guest);$('#mpGuestRank').textContent=mp.guest?`Rang ${mp.guest.rank}`:'Le second pilote doit rejoindre';$('#mpStartMatch').style.display=mp.isHost?'':'none';$('#mpStartMatch').disabled=!(mp.isHost&&mp.guest);$('#mpRoomHint').textContent=mp.guest?'Les deux pilotes sont présents. L’hôte peut ouvrir les failles.':'Partage ce code ou attends un joueur public.'}
 function leaveRoom(show=true){closeListing();clearInterval(mp.roomTimer);clearInterval(mp.stateTimer);mp.room?.close();mp.room=null;mp.active=false;mp.roomStarted=false;mp.code=null;mp.meta=null;mp.host=null;mp.guest=null;mp.role=null;mp.result=null;if(show)showLobby()}
-function makeLane(basePath,lane){const xs=basePath.map(p=>p[0]),ys=basePath.map(p=>p[1]),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);const top=lane===0?105:745,bottom=lane===0?565:1215;return basePath.map(([x,y],i)=>{const nx=(x-minX)/(maxX-minX||1),ny=(y-minY)/(maxY-minY||1);const wave=Math.sin(nx*Math.PI*3+lane*.7)*45;return[80+nx*(WORLD.w-160),top+ny*(bottom-top)+wave]})}
-function buildMultiPaths(mapId){const raw=MAPS[mapId]?.path||MAPS.rift.path;return[0,1].map(lane=>new PathModel(roundedRoute(makeLane(raw,lane),72,5)))}
-function buildMultiTiles(paths){const all=[],types=['power','range','rate','relay','recovery'];for(let lane=0;lane<2;lane++){const path=paths[lane];for(let i=0;i<11;i++){const pd=path.total*(.09+i*.078);const p=path.pointAt(pd);const side=i%2?1:-1,offset=rand(82,115);all.push({x:p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y:p.y+Math.sin(p.angle+Math.PI/2)*offset*side,type:types[i%types.length],level:1,color:RESONANCE_TYPES[types[i%types.length]].color,phase:rand(0,TAU),surge:Math.round(rand(10,60)),lane})}}return all}
+function hashSeed(value){let h=2166136261>>>0;for(const ch of String(value)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function seededRandom(seed){let a=(seed>>>0)||0x6d2b79f5;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+function buildV19MultiLane(seed,lane,mapId){
+ const rng=window.__V19_RNG__(((seed>>>0)^window.__V19_HASH__(mapId)^Math.imul(lane+1,0x9e3779b1))>>>0);
+ const top=lane===0?135:1090,bottom=lane===0?810:1765,centre=(top+bottom)/2,amp=(bottom-top)*(.34+rng()*.12),count=13+Math.floor(rng()*4),phase=rng()*TAU,freq=.85+rng()*.7,points=[];
+ let prev=centre+(rng()-.5)*amp*.55;
+ for(let i=0;i<count;i++){
+   const t=i/(count-1),x=lerp(150,WORLD.w-150,t);let y=centre+Math.sin(t*TAU*freq+phase)*amp*.62+Math.sin(t*TAU*(1.7+rng()*.45)-phase)*amp*.18+(rng()-.5)*amp*.36;
+   if(i===0||i===count-1)y=centre+(rng()-.5)*amp*.72;y=clamp(y,top,bottom);if(i>0&&i<count-1)y=clamp(y,prev-155,prev+155);prev=y;points.push([x,y]);
+ }
+ return new PathModel(roundedRoute(points,84,7));
+}
+function buildMultiPaths(mapId){const seed=((Number(mp.meta?.seed)||1)^window.__V19_HASH__(mapId||'rift'))>>>0;return[buildV19MultiLane(seed,0,mapId),buildV19MultiLane(seed,1,mapId)]}
+function buildMultiTiles(paths){
+ const rng=window.__V19_RNG__(((Number(mp.meta?.seed)||1)^0x51f15e5d)>>>0),all=[],types=['power','range','rate','relay','recovery','power','range','rate','relay','recovery'];
+ for(let lane=0;lane<2;lane++){
+   const path=paths[lane];
+   const place=(type,index,rock=false)=>{for(let tries=0;tries<150;tries++){const pd=path.total*clamp((index+.4+rng()*.55)/(rock?10.6:types.length+.2),.05,.95),p=path.pointAt(pd),side=rng()<.5?-1:1,offset=rock?105+rng()*105:92+rng()*58,x=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y=p.y+Math.sin(p.angle+Math.PI/2)*offset*side;if(x<80||x>WORLD.w-80||y<80||y>WORLD.h-80)continue;if(paths.some(q=>q.distanceTo(x,y)<72))continue;if(all.some(t=>Math.hypot(t.x-x,t.y-y)<(rock?94:108)))continue;if(rock)all.push({x,y,type:'rock',radius:24+rng()*25,rot:rng()*TAU,phase:rng()*TAU,blocker:true,lane});else{const tile={x,y,type,level:1,color:RESONANCE_TYPES[type].color,phase:rng()*TAU,surge:Math.round(10+rng()*50),lane};if(type==='recovery')tile.discount=rng()<.28?.60:.15;all.push(tile)}return true}return false};
+   types.forEach((type,i)=>place(type,i,false));for(let i=0;i<9;i++)place('rock',i,true);
+ }
+ return all;
+}
+function buildMultiEnvironment(paths){const rng=window.__V19_RNG__(((Number(mp.meta?.seed)||1)^0xa17e2b31)>>>0),items=[];for(let i=0;i<260;i++){const x=-WORLD.w*.18+rng()*WORLD.w*1.36,y=-WORLD.h*.18+rng()*WORLD.h*1.36;if(Math.min(...paths.map(path=>path.distanceTo(clamp(x,0,WORLD.w),clamp(y,0,WORLD.h))))<82)continue;const crystal=rng()<.58;items.push({x,y,r:crystal?4+rng()*13:5+rng()*19,rot:rng()*TAU,type:crystal?'crystal':'vent'})}return items}
 function setupMatch(){
- WORLD.w=3600;WORLD.h=1320;game.modeId=mp.meta.mode||'classic';game.mapId=mp.meta.map||'rift';game.mode=MODES[game.modeId];game.map=MAPS[game.mapId];game.reset();
- game.mode=MODES[game.modeId];game.map=MAPS[game.mapId];game.multi={enabled:true,players:[makePlayer(mp.host,0),makePlayer(mp.guest,1)],paths:buildMultiPaths(game.mapId),localSide:mp.localSide,tag:mp.meta.tag||'coop',result:null};game.path=game.multi.paths[mp.localSide];game.entryDistance=0;game.baseDistance=game.path.total;game.money=game.multi.players[mp.localSide].money;game.energy=game.multi.players[mp.localSide].energy;game.maxEnergy=game.multi.players[mp.localSide].maxEnergy;game.energyRegen=game.multi.players[mp.localSide].energyRegen;game.energyTech={...game.multi.players[mp.localSide].energyTech};game.lives=game.multi.players[mp.localSide].lives;game.maxLives=game.multi.players[mp.localSide].maxLives;game.wave=0;game.waveActive=false;game.waveLedger=[];game.spawnQueue=[];game.spawnTimer=0;game.waveCountdown=45;game.speed=1;game.started=true;game.paused=false;game.auto=true;game.maxWaveStack=5;game.towers=[];game.enemies=[];game.projectiles=[];game.mines=[];game.areas=[];game.beams=[];game.particles=[];game.texts=[];game.decals=[];game.tiles=buildMultiTiles(game.multi.paths);game.stars=Array.from({length:520},()=>({x:Math.random()*WORLD.w,y:Math.random()*WORLD.h,r:rand(.4,1.9),a:rand(.14,.75),s:rand(.2,1.2)}));game.environment=game.makeEnvironment();game.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.05,.28,.9)};game.playerRank=mp.rank;game.category='kinetic';game.selected=null;game.placing=null;game.preview=null;game.renderCategories();game.renderTowerList();game.renderEnergyLab();syncGlobalsFromLocal();game.updateUI(true);$('#speedBtn').textContent='×1';$('#speedBtn').disabled=true;$('#multiHud').classList.add('show');$('#mpSpectator').classList.remove('show');$('#firstWaveCountdown span').textContent='Préparation multijoueur';$('#firstWaveCountdown small').textContent='45 secondes fixes • aucun skip';updateMultiHud()}
-function startMatch(host){mp.active=true;mp.roomStarted=true;mp.tag=mp.meta.tag||'coop';closeListing();$('#startOverlay').classList.add('hidden');setupMatch();if(host){mp.meta.phase='playing';publishMeta();clearInterval(mp.stateTimer);mp.stateTimer=setInterval(broadcastState,260)}setCloudStatus('Partie synchronisée','ok');game.toast(`${mp.tag.toUpperCase()} • deux fronts indépendants`)}
+ window.__DRIFT_V19_MULTI_SETUP__=true;WORLD.w=3400;WORLD.h=1900;
+ game.modeId=mp.meta.mode||'classic';game.mapId=mp.meta.map||'rift';game.mode=MODES[game.modeId];game.map=MAPS[game.mapId];game.reset();window.__DRIFT_V19_MULTI_SETUP__=false;WORLD.w=3400;WORLD.h=1900;
+ game.mode=MODES[game.modeId];game.map=MAPS[game.mapId];const paths=buildMultiPaths(game.mapId);
+ game.multi={enabled:true,players:[makePlayer(mp.host,0),makePlayer(mp.guest,1)],paths,localSide:mp.localSide,tag:mp.meta.tag||'coop',result:null};
+ game.path=paths[mp.localSide];game.entryDistance=0;game.baseDistance=game.path.total;game.wave=0;game.waveActive=false;game.waveLedger=[];game.spawnQueue=[];game.spawnTimer=0;game.waveCountdown=45;game.speed=1;game.started=true;game.paused=false;game.auto=true;game.maxWaveStack=2;
+ game.towers=[];game.enemies=[];game.projectiles=[];game.mines=[];game.areas=[];game.beams=[];game.particles=[];game.texts=[];game.decals=[];game.pendingBombs=[];game.blockades=[];game.v19Nova=null;
+ game.tiles=buildMultiTiles(paths);game.environment=buildMultiEnvironment(paths);game.stars=Array.from({length:470},(_,i)=>{const r=window.__V19_RNG__(((Number(mp.meta?.seed)||1)+i*977)>>>0);return{x:-WORLD.w*.15+r()*WORLD.w*1.3,y:-WORLD.h*.15+r()*WORLD.h*1.3,r:.4+r()*1.5,a:.14+r()*.62,s:.2+r()}});
+ game.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.04,.18,.86)};game.pointer={sx:VW/2,sy:VH/2,wx:game.cam.x,wy:game.cam.y};game.playerRank=mp.rank;game.category='kinetic';game.selected=null;game.placing=null;game.preview=null;
+ document.body.classList.add('multiplayer-running');syncGlobalsFromLocal();game.renderCategories();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);$('#speedBtn').textContent='×1';$('#speedBtn').disabled=true;$('#multiHud').classList.remove('show');$('#mpSpectator').classList.remove('show');const skip=$('#firstWaveSkip');if(skip){skip.disabled=true;skip.style.display='none'}updateMultiHud();positionMultiRibbon();
+}
+function startMatch(host){mp.active=true;mp.roomStarted=true;mp.tag=mp.meta.tag||'coop';closeListing();$('#startOverlay').classList.add('hidden');setupMatch();if(host){mp.meta.phase='playing';publishMeta();clearInterval(mp.stateTimer);mp.stateTimer=setInterval(broadcastState,480)}setCloudStatus('Partie synchronisée','ok');game.toast(`${mp.tag.toUpperCase()} • deux fronts indépendants`)}
 function sendCommand(cmd){if(!mp.active)return;if(mp.isHost)applyCommand(mp.localSide,cmd);else{const packet={seq:++mp.commandSeq,cmd};mp.commandHistory.push(packet);mp.commandHistory=mp.commandHistory.slice(-8);const slot=mp.commandSeq%4;mp.room?.set(`☁ c${slot}`,{items:mp.commandHistory,ts:now()})}}
 function withPlayerResources(side,fn){const p=game.multi.players[side],backup={money:game.money,energy:game.energy,maxEnergy:game.maxEnergy,energyRegen:game.energyRegen,energyTech:game.energyTech,lives:game.lives,maxLives:game.maxLives,rank:game.playerRank,path:game.path,base:game.baseDistance};game.money=p.money;game.energy=p.energy;game.maxEnergy=p.maxEnergy;game.energyRegen=p.energyRegen;game.energyTech={...p.energyTech};game.lives=p.lives;game.maxLives=p.maxLives;game.playerRank=p.rank;game.path=game.multi.paths[side];game.baseDistance=game.path.total;try{return fn(p)}finally{p.money=game.money;p.energy=game.energy;p.maxEnergy=game.maxEnergy;p.energyRegen=game.energyRegen;p.energyTech={...game.energyTech};p.lives=game.lives;p.maxLives=game.maxLives;game.money=backup.money;game.energy=backup.energy;game.maxEnergy=backup.maxEnergy;game.energyRegen=backup.energyRegen;game.energyTech=backup.energyTech;game.lives=backup.lives;game.maxLives=backup.maxLives;game.playerRank=backup.rank;game.path=backup.path;game.baseDistance=backup.base;syncGlobalsFromLocal()}}
 function nearestLane(x,y){const d0=game.multi.paths[0].distanceTo(x,y),d1=game.multi.paths[1].distanceTo(x,y);return d0<=d1?0:1}
 function buildTower(side,defId,x,y){const p=game.multi.players[side],def=TOWERS.find(t=>t.id===defId);if(!p?.alive||!def||requiredTowerRank(defId)>p.rank)return;const cost=Math.ceil(def.cost*game.mods.cost);if(p.money<cost||!game.canPlace(x,y))return;const tile=game.nearestPlatform?.(x,y)||game.tiles.find(t=>t.type!=='rock'&&Math.hypot(t.x-x,t.y-y)<42)||null;if(tile){if(game.platformTower?.(tile))return;x=tile.x;y=tile.y}p.money-=cost;const tower=new Tower(game,x,y,def,tile);tower.owner=side;tower.netId=`${side}-${now()}-${randomDigits(4)}`;tower.lane=nearestLane(x,y);tower.ownerColor=PLAYER_COLORS[side];game.towers.push(tower);game.recalcAll();game.burst(x,y,tower.ownerColor,18,130,'spark');syncGlobalsFromLocal();game.updateUI(true)}
 function findTower(id){return game.towers.find(t=>t.netId===id)}
-function applyCommand(side,cmd){if(!mp.isHost||!game.multi?.players[side]?.alive)return;if(cmd.type==='build')buildTower(side,cmd.defId,Number(cmd.x),Number(cmd.y));else if(cmd.type==='upgrade'){const t=findTower(cmd.id);if(t?.owner===side)withPlayerResources(side,()=>originalTowerUpgrade.call(t,cmd.branch))}else if(cmd.type==='mk2'){const t=findTower(cmd.id);if(t?.owner===side)withPlayerResources(side,()=>originalPromote.call(t))}else if(cmd.type==='evolve'){const t=findTower(cmd.id);if(t?.owner===side)withPlayerResources(side,()=>originalEvolve.call(t,cmd.evolution))}else if(cmd.type==='target'){const t=findTower(cmd.id);if(t?.owner===side)t.targetMode=cmd.mode}else if(cmd.type==='sell'){const t=findTower(cmd.id);if(t?.owner===side){const p=game.multi.players[side];p.money+=Math.floor(t.totalSpent*game.towerSellRatio(t));game.towers=game.towers.filter(x=>x!==t);game.recalcAll()}}else if(cmd.type==='energyTech')withPlayerResources(side,()=>originalUpgradeEnergy.call(game,cmd.id));else if(cmd.type==='ability')withPlayerResources(side,()=>useMultiAbility(side,cmd.id));syncGlobalsFromLocal();game.renderInspector();game.updateUI(true)}
-function useMultiAbility(side,id){const p=game.multi.players[side],a=ABILITIES[id],remain=Math.max(0,(p.abilityReadyAt?.[id]||0)-game.time);p.abilityReadyAt=p.abilityReadyAt||{overdrive:0,riftbomb:0,cryo:0,repair:0};if(!a||remain>0||p.energy<a.cost)return;p.energy-=a.cost;p.abilityReadyAt[id]=game.time+a.cooldown;if(id==='repair'){p.lives=Math.min(p.maxLives,p.lives+3);game.toast(`${displayName(p)} répare son noyau`)}else if(id==='overdrive'){for(const t of game.towers)if(t.owner===side)t.overdriveUntil=game.time+7}else if(id==='cryo'){for(const e of game.enemies)e.applySlow(.2,3.2)}else if(id==='riftbomb'){const target=game.densestEnemy();if(target){for(const e of game.enemies)if(Math.hypot(e.x-target.x,e.y-target.y)<175)e.hit(330+game.wave*18,null,'ability',true);game.burst(target.x,target.y,p.color,45,300,'explosion')}}p.energy=game.energy=Math.min(p.maxEnergy,p.energy)}
-function makeSnapshot(){const g=game,m=g.multi;return{w:g.wave,c:+g.waveCountdown.toFixed(2),t:+g.time.toFixed(2),a:g.anomaly?.id||'none',p:m.players.map(p=>[+p.money.toFixed(2),+p.energy.toFixed(2),p.maxEnergy,+p.energyRegen.toFixed(2),p.lives,p.maxLives,p.alive?1:0,p.kills,p.rank,p.energyTech.capacity||0,p.energyTech.regen||0,p.energyTech.recycle||0]),tw:g.towers.map(t=>[t.netId,t.owner,TYPE_INDEX.get(t.def.id),Math.round(t.x),Math.round(t.y),t.mk,t.up.power,t.up.range,t.up.rate,EVO_CODE[t.evolution]||0,t.kills,Math.round(t.totalSpent),t.totalEnergySpent,t.targetMode,t.tile?g.tiles.indexOf(t.tile):-1]),en:g.enemies.map(e=>[e.netId,e.lane,ENEMY_INDEX.get(e.type),+e.distance.toFixed(1),+e.hp.toFixed(1),+e.maxHp.toFixed(1),+e.shield.toFixed(1),e.maxShield?+e.maxShield.toFixed(1):0,e.boss?BOSS_INDEX.get(e.boss.id):-1,e.elite?1:0]),res:m.result||null}}
+function applyCommand(side,cmd){if(!mp.isHost||!game.multi?.players[side]?.alive)return;if(cmd.type==='build')buildTower(side,cmd.defId,Number(cmd.x),Number(cmd.y));else if(cmd.type==='upgrade'){const t=findTower(cmd.id);if(t?.owner===side)withPlayerResources(side,()=>originalTowerUpgrade.call(t,cmd.branch))}else if(cmd.type==='mk2'){const t=findTower(cmd.id);if(t?.owner===side)withPlayerResources(side,()=>originalPromote.call(t))}else if(cmd.type==='evolve'){const t=findTower(cmd.id);if(t?.owner===side)withPlayerResources(side,()=>originalEvolve.call(t,cmd.evolution))}else if(cmd.type==='target'){const t=findTower(cmd.id);if(t?.owner===side)t.targetMode=cmd.mode}else if(cmd.type==='sell'){const t=findTower(cmd.id);if(t?.owner===side){const p=game.multi.players[side];p.money+=Math.floor(t.totalSpent*game.towerSellRatio(t));game.towers=game.towers.filter(x=>x!==t);game.recalcAll()}}else if(cmd.type==='platform'){const tile=game.tiles[Number(cmd.tileIndex)];const tower=game.towers.find(t=>t.tile===tile);if(tile&&tower?.owner===side)withPlayerResources(side,()=>game.upgradePlatform(tile))}else if(cmd.type==='energyTech')withPlayerResources(side,()=>originalUpgradeEnergy.call(game,cmd.id));else if(cmd.type==='ability')withPlayerResources(side,()=>useMultiAbility(side,cmd.id));syncGlobalsFromLocal();game.renderInspector();game.updateUI(true)}
+function useMultiAbility(side,id){
+ const p=game.multi.players[side],a=ABILITIES[id];p.abilityReadyAt=p.abilityReadyAt||{overdrive:0,riftbomb:0,cryo:0,repair:0};const remain=Math.max(0,(p.abilityReadyAt[id]||0)-game.time);if(!a||remain>0||p.energy<a.cost)return;if(id==='cryo'&&!game.enemies.length)return;
+ p.energy-=a.cost;p.abilityReadyAt[id]=game.time+a.cooldown;
+ if(id==='repair'){const heal=Math.max(1,Math.ceil(p.maxLives*.30));p.lives=Math.min(p.maxLives,p.lives+heal);game.toast(`${displayName(p)} répare +${heal} PV`)}
+ else if(id==='overdrive'){for(const t of game.towers)if(t.owner===side)t.overdriveUntil=game.time+a.duration;game.toast(`${displayName(p)} active Overdrive ${a.duration}s`)}
+ else if(id==='cryo'){const path=game.multi.paths[side],origin=path.pointAt(path.total);game.v19LaunchNova(side,origin)}
+ else if(id==='riftbomb'){const candidates=game.enemies.filter(e=>e.lane===side&&!e.dead),target=candidates.length?candidates.reduce((best,e)=>{const score=candidates.filter(x=>Math.hypot(x.x-e.x,x.y-e.y)<190).length;return !best||score>best.score?{e,score}:best},null).e:game.densestEnemy();if(target){for(const e of game.enemies)if(Math.hypot(e.x-target.x,e.y-target.y)<185)e.hit(420+game.wave*20,null,'ability',true);game.burst(target.x,target.y,p.color,55,330,'explosion');game.ring(target.x,target.y,'#ffd166',185,.6)}}
+ p.energy=game.energy=Math.min(p.maxEnergy,p.energy);
+}
+function makeSnapshot(){const g=game,m=g.multi;return{w:g.wave,c:+g.waveCountdown.toFixed(2),t:+g.time.toFixed(2),a:g.anomaly?.id||'none',p:m.players.map(p=>[+p.money.toFixed(2),+p.energy.toFixed(2),p.maxEnergy,+p.energyRegen.toFixed(2),p.lives,p.maxLives,p.alive?1:0,p.kills,p.rank,p.energyTech.capacity||0,p.energyTech.regen||0,p.energyTech.recycle||0]),tw:g.towers.map(t=>[t.netId,t.owner,TYPE_INDEX.get(t.def.id),Math.round(t.x),Math.round(t.y),t.mk,t.up.power,t.up.range,t.up.rate,EVO_CODE[t.evolution]||0,t.kills,Math.round(t.totalSpent),t.totalEnergySpent,t.targetMode,t.tile?g.tiles.indexOf(t.tile):-1]),en:g.enemies.map(e=>[e.netId,e.lane,ENEMY_INDEX.get(e.type),+e.distance.toFixed(1),+e.hp.toFixed(1),+e.maxHp.toFixed(1),+e.shield.toFixed(1),e.maxShield?+e.maxShield.toFixed(1):0,e.boss?BOSS_INDEX.get(e.boss.id):-1,e.elite?1:0]),ti:g.tiles.map(t=>[t.level||1,t.surge||0,t.discount||0]),nv:g.v19Nova?[+g.v19Nova.elapsed.toFixed(2),g.v19Nova.duration,Math.round(g.v19Nova.x),Math.round(g.v19Nova.y),g.v19Nova.side??-1,g.v19Nova.serial||0]:null,res:m.result||null}}
 function broadcastState(){if(!mp.isHost||!mp.active||!mp.room?.connected)return;const state=makeSnapshot(),slot=mp.stateSlot++%2;mp.room.set(`☁ s${slot}`,{seq:++mp.stateSeq,state})}
-function applySnapshot(s){if(!s||!game.multi)return;game.wave=s.w;game.waveCountdown=s.c;game.time=Math.max(game.time,s.t-.25);game.anomaly=ANOMALIES.find(a=>a.id===s.a)||ANOMALIES[0];for(let i=0;i<2;i++){const a=s.p[i],p=game.multi.players[i];if(!a||!p)continue;[p.money,p.energy,p.maxEnergy,p.energyRegen,p.lives,p.maxLives]=a;p.alive=!!a[6];p.kills=a[7];p.rank=a[8];p.energyTech={capacity:a[9],regen:a[10],recycle:a[11]}}
+function applySnapshot(s){if(!s||!game.multi)return;game.wave=s.w;game.waveCountdown=s.c;game.time=Math.max(game.time,s.t-.25);game.anomaly=ANOMALIES.find(a=>a.id===s.a)||ANOMALIES[0];if(s.ti)for(let i=0;i<Math.min(s.ti.length,game.tiles.length);i++){game.tiles[i].level=s.ti[i][0]||1;game.tiles[i].surge=s.ti[i][1]||game.tiles[i].surge;game.tiles[i].discount=s.ti[i][2]||game.tiles[i].discount}if(s.nv){const serial=s.nv[5]||0;if(!game.v19Nova||game.v19Nova.serial!==serial)game.v19Nova={elapsed:s.nv[0],duration:s.nv[1],x:s.nv[2],y:s.nv[3],side:s.nv[4],serial,maxRadius:Math.hypot(WORLD.w,WORLD.h)*1.08,hit:new WeakSet()};else game.v19Nova.elapsed=Math.max(game.v19Nova.elapsed,s.nv[0])}else if(game.v19Nova&&game.v19Nova.elapsed>game.v19Nova.duration)game.v19Nova=null;for(let i=0;i<2;i++){const a=s.p[i],p=game.multi.players[i];if(!a||!p)continue;[p.money,p.energy,p.maxEnergy,p.energyRegen,p.lives,p.maxLives]=a;p.alive=!!a[6];p.kills=a[7];p.rank=a[8];p.energyTech={capacity:a[9],regen:a[10],recycle:a[11]}}
  const towerMap=new Map(game.towers.map(t=>[t.netId,t]));const nextT=[];for(const a of s.tw){let t=towerMap.get(a[0]);const def=TOWERS[a[2]];if(!t)t=new Tower(game,a[3],a[4],def,a[14]>=0?game.tiles[a[14]]:null);t.netId=a[0];t.owner=a[1];t.ownerColor=PLAYER_COLORS[t.owner];t.x=a[3];t.y=a[4];t.mk=a[5];t.up={power:a[6],range:a[7],rate:a[8]};t.evolution=EVO_NAMES[a[9]];t.kills=a[10];t.totalSpent=a[11];t.totalEnergySpent=a[12];t.targetMode=a[13];t.recalc();nextT.push(t)}game.towers=nextT;
  const enemyMap=new Map(game.enemies.map(e=>[e.netId,e]));const nextE=[];for(const a of s.en){let e=enemyMap.get(a[0]);const type=ENEMY_IDS[a[2]],boss=a[8]>=0?BOSSES[a[8]]:null;if(!e)e=new Enemy(game,type,game.wave,{boss,elite:!!a[9],anomaly:game.anomaly});e.netId=a[0];e.lane=a[1];e.pathRef=game.multi.paths[e.lane];e.targetDistance=a[3];if(e.distance==null||Math.abs(e.distance-a[3])>250)e.distance=a[3];e.hp=a[4];e.maxHp=a[5];e.shield=a[6];e.maxShield=a[7];e.boss=boss;e.elite=!!a[9];nextE.push(e)}game.enemies=nextE;game.multi.result=s.res;syncGlobalsFromLocal();updateSpectator();updateMultiHud();game.recalcAll();game.updateUI(true);if(s.res&&!mp.result)showResult(s.res)}
 function showResult(result){mp.result=result;const winner=result.winner,won=winner===mp.localSide;$('#mpResultLogo').textContent=won?'VICTOIRE':'DÉFAITE';$('#mpResultLogo').style.background=won?'linear-gradient(135deg,#fff,#55ffb3,#66f4ff)':'linear-gradient(135deg,#fff,#ff5c74,#ff4e9b)';$('#mpResultText').textContent=result.reason||`${displayName(game.multi.players[winner])} remporte la partie.`;$('#multiResultOverlay').classList.remove('hidden');game.paused=true}
 function updateSpectator(){const p=currentPlayer();mp.spectator=!!p&&!p.alive;$('#mpSpectator').classList.toggle('show',mp.spectator)}
-function updateMultiHud(){const players=game.multi?.players;if(!players)return;const me=players[mp.localSide],other=players[1-mp.localSide];$('#mpLocalHud').innerHTML=`<b style="color:var(--self)">${displayName(me)} • TOI</b><span>R${me.rank} • Base ${Math.max(0,me.lives)}/${me.maxLives} • ${Math.floor(me.money)}¤ • ${Math.floor(me.energy)}ϟ</span>`;$('#mpRivalHud').innerHTML=`<b style="color:var(--rival)">${displayName(other)}</b><span>R${other.rank} • Base ${Math.max(0,other.lives)}/${other.maxLives} • ${Math.floor(other.money)}¤ • ${Math.floor(other.energy)}ϟ</span>`;$('#mpModeHud').textContent=`${game.multi.tag.toUpperCase()} • VAGUE ${game.wave}`}
+function updateMultiHud(){const players=game.multi?.players;if(!players)return;const left=players[0],right=players[1],local=mp.localSide;
+ const line=(p,side)=>`<b style="color:${side===0?'#55ffb3':'#aa76ff'}">J${side+1} • ${displayName(p)}${side===local?' • TOI':''}</b><span>R${p.rank} • ♥${Math.max(0,p.lives)}/${p.maxLives} • ${Math.floor(p.money)}¤ • ${Math.floor(p.energy)}ϟ</span>`;
+ const l=$('#mpLocalHud'),r=$('#mpRivalHud');l.innerHTML=line(left,0);r.innerHTML=line(right,1);l.className='mp-player-hud '+(local===0?'local':'remote');r.className='mp-player-hud '+(local===1?'local':'remote');l.style.borderColor='#55ffb388';r.style.borderColor='#aa76ff88';$('#mpModeHud').textContent=game.wave===0?`${game.multi.tag.toUpperCase()} • ${Math.max(0,Math.ceil(game.waveCountdown))}s`:`${game.multi.tag.toUpperCase()} • V${game.wave}`}
 function handleBaseDeath(side){const m=game.multi,p=m.players[side];if(!p.alive)return;p.alive=false;p.lives=0;const survivor=1-side,other=m.players[survivor];if(m.tag==='coop'){if(other.alive){other.money+=p.money;other.energy=Math.min(other.maxEnergy,other.energy+p.energy);p.money=0;p.energy=0;for(const t of game.towers)if(t.owner===side){t.owner=survivor;t.ownerColor=PLAYER_COLORS[survivor]}game.toast(`${displayName(p)} tombe • transfert total à ${displayName(other)}`);updateSpectator()}else{m.result={winner:-1,reason:'Les deux noyaux ont été détruits.'};showResult(m.result)}}else{m.result={winner:survivor,reason:`${displayName(other)} tient encore son noyau tandis que ${displayName(p)} est tombé.`};showResult(m.result)}}
 const originalGameUpdate=Game.prototype.update,originalStartWave=Game.prototype.startWave,originalFinishWave=Game.prototype.finishWave,originalSpawnEnemy=Game.prototype.spawnEnemy,originalSpawnAt=Game.prototype.spawnAt,originalCanPlace=Game.prototype.canPlace,originalPlaceTower=Game.prototype.placeTower,originalTowerUpdate=Tower.prototype.update,originalTowerDraw=Tower.prototype.draw,originalTowerUpgrade=Tower.prototype.upgrade,originalPromote=Tower.prototype.promoteMk2,originalEvolve=Tower.prototype.evolve,originalRenderInspector=Game.prototype.renderInspector,originalUpgradeEnergy=Game.prototype.upgradeEnergyTech,originalUseAbility=Game.prototype.useAbility,originalUpdateUI=Game.prototype.updateUI,originalDrawWorld=Game.prototype.drawWorld,originalEnemyUpdate=Enemy.prototype.update,originalEnemyHit=Enemy.prototype.hit,originalEnemyDie=Enemy.prototype.die,originalFireLeech=Tower.prototype.fireLeech,originalEmitPortal=Game.prototype.emitPortalParticles,originalGameOver=Game.prototype.gameOver;
 Game.prototype.gameOver=function(){if(!this.multi?.enabled)return originalGameOver.call(this);handleBaseDeath(mp.localSide);this.started=true;this.paused=!!mp.result};
@@ -2581,7 +3051,7 @@ Enemy.prototype.die=function(tower){if(!this.game.multi?.enabled)return original
 Enemy.prototype.update=function(dt){if(!this.game.multi?.enabled)return originalEnemyUpdate.call(this,dt);const g=this.game,p=g.multi.players[this.lane],backup={l:g.lives,m:g.maxLives,b:g.baseDistance,path:g.path};g.lives=p.lives;g.maxLives=p.maxLives;g.path=this.pathRef||g.multi.paths[this.lane];g.baseDistance=g.path.total;g._spawnLane=this.lane;const result=originalEnemyUpdate.call(this,dt);p.lives=g.lives;g.lives=backup.l;g.maxLives=backup.m;g.baseDistance=backup.b;g.path=backup.path;g._spawnLane=null;if(p.lives<=0)handleBaseDeath(this.lane);syncGlobalsFromLocal();return result};
 Game.prototype.spawnEnemy=function(item){if(!this.multi?.enabled)return originalSpawnEnemy.call(this,item);const e=new Enemy(this,item.type,item.wave??this.wave,{boss:item.boss,elite:item.elite,anomaly:item.anomaly});e.lane=item.lane;e.pathRef=this.multi.paths[item.lane];e.distance=0;e.netId=item.netId||`e-${this.wave}-${item.lane}-${now()}-${randomDigits(4)}`;this.enemies.push(e)};
 Game.prototype.spawnAt=function(type,distance,extra={}){if(!this.multi?.enabled)return originalSpawnAt.call(this,type,distance,extra);const lane=extra.lane??this._spawnLane??0,e=new Enemy(this,type,extra.wave??this.wave,{distance,...extra,anomaly:extra.anomaly??this.anomaly});e.lane=lane;e.pathRef=this.multi.paths[lane];e.netId=`e-s-${now()}-${randomDigits(4)}`;this.enemies.push(e);return e};
-Game.prototype.startWave=function(){if(!this.multi?.enabled)return originalStartWave.call(this);if(!mp.isHost||!this.started||this.paused)return false;if(this.waveLedger.length>=this.maxWaveStack){this.waveCountdown=2;return false}this.wave++;this.waveActive=true;this.combo=0;const anomaly=this.chooseAnomaly(this.wave),source=this.buildWave(this.wave,anomaly),batch=[];for(const item of source){batch.push({...item,lane:0});batch.push({...item,lane:1})}this.spawnQueue.push(...batch);this.waveLedger.push({wave:this.wave,anomaly,boss:this.wave%this.mode.bossEvery===0});this.spawnTimer=.18;this.waveCountdown=this.waveIntervalFor(this.wave+1);this.toast(`Vague ${this.wave} • double déploiement`);this.updateUI(true);return true};
+Game.prototype.startWave=function(){if(!this.multi?.enabled)return originalStartWave.call(this);if(!mp.isHost||!this.started||this.paused)return false;if(this.wave<5&&this.waveActive&&(this.spawnQueue.length||this.enemies.some(e=>!e.dead))){this.waveCountdown=4;return false}if(this.waveLedger.length>=this.maxWaveStack){this.waveCountdown=3;return false}this.wave++;this.waveActive=true;this.combo=0;const anomaly=this.chooseAnomaly(this.wave),source=this.buildWave(this.wave,anomaly),batch=[];for(const item of source){batch.push({...item,lane:0});batch.push({...item,lane:1})}this.spawnQueue.push(...batch);this.waveLedger.push({wave:this.wave,anomaly,boss:this.wave%this.mode.bossEvery===0});this.spawnTimer=.18;this.waveCountdown=this.waveIntervalFor(this.wave+1);this.toast(`Vague ${this.wave} • double déploiement`);this.updateUI(true);return true};
 Game.prototype.finishWave=function(){if(!this.multi?.enabled)return originalFinishWave.call(this);const cleared=this.waveLedger.splice(0);this.waveActive=false;if(!cleared.length)return;const waves=cleared.map(x=>x.wave),raw=waves.reduce((s,w)=>s+42+w*4.2,0),income=Math.floor(raw*ECONOMY.waveIncome),energy=10*cleared.length;for(const p of this.multi.players)if(p.alive){p.money+=income;p.energy=Math.min(p.maxEnergy,p.energy+energy)}this.toast(`${cleared.length>1?cleared.length+' vagues':'Vague '+waves[0]} nettoyée • +${income}¤ chacun`);syncGlobalsFromLocal();this.updateUI(true)};
 Tower.prototype.update=function(dt){if(!this.game.multi?.enabled)return originalTowerUpdate.call(this,dt);const oldPath=this.game.path,oldBase=this.game.baseDistance;this.game.path=this.game.multi.paths[this.lane??nearestLane(this.x,this.y)];this.game.baseDistance=this.game.path.total;try{return originalTowerUpdate.call(this,dt)}finally{this.game.path=oldPath;this.game.baseDistance=oldBase}};
 Tower.prototype.draw=function(){if(!this.game.multi?.enabled)return originalTowerDraw.call(this);const old=this.def.color;this.def.color=this.ownerColor||PLAYER_COLORS[this.owner||0];try{originalTowerDraw.call(this);ctx.save();ctx.translate(this.x,this.y);ctx.fillStyle='rgba(4,8,18,.9)';ctx.strokeStyle=this.def.color;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-18,-39,36,10,5);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 7px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(`J${(this.owner??0)+1}`,0,-34);ctx.restore()}finally{this.def.color=old}};
@@ -2593,233 +3063,60 @@ Tower.prototype.promoteMk2=function(){if(!this.game.multi?.enabled)return origin
 Tower.prototype.evolve=function(evo){if(!this.game.multi?.enabled)return originalEvolve.call(this,evo);if(this.owner!==mp.localSide)return;if(!mp.isHost)return sendCommand({type:'evolve',id:this.netId,evolution:evo});withPlayerResources(this.owner,()=>originalEvolve.call(this,evo))};
 Game.prototype.upgradeEnergyTech=function(id){if(!this.multi?.enabled)return originalUpgradeEnergy.call(this,id);if(!mp.isHost)return sendCommand({type:'energyTech',id});withPlayerResources(mp.localSide,()=>originalUpgradeEnergy.call(this,id))};
 Game.prototype.useAbility=function(id){if(!this.multi?.enabled)return originalUseAbility.call(this,id);if(!mp.isHost)return sendCommand({type:'ability',id});withPlayerResources(mp.localSide,()=>useMultiAbility(mp.localSide,id))};
-Game.prototype.renderInspector=function(){originalRenderInspector.call(this);if(!this.multi?.enabled||!this.selected)return;const t=this.selected,own=t.owner===mp.localSide,el=$('#inspector');el.querySelector('.inspector-head p')?.insertAdjacentHTML('beforeend',`<br><b style="color:${t.ownerColor}">Propriétaire : ${displayName(this.multi.players[t.owner])}</b>`);if(!own){el.querySelectorAll('[data-up],[data-mk2],[data-evo],[data-target],#sellTower,#upgradeResonance').forEach(b=>b.disabled=true);el.querySelector('.mechanic-box')?.insertAdjacentHTML('beforeend','<br><b>Lecture seule :</b> seule la personne propriétaire peut modifier cette tourelle.')}else{el.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>{if(mp.isHost)t.targetMode=b.dataset.target;else sendCommand({type:'target',id:t.netId,mode:b.dataset.target});this.renderInspector()});const sell=$('#sellTower');if(sell)sell.onclick=()=>{if(mp.isHost)applyCommand(mp.localSide,{type:'sell',id:t.netId});else sendCommand({type:'sell',id:t.netId})}}};
-Game.prototype.update=function(dt){if(!this.multi?.enabled)return originalGameUpdate.call(this,dt);if(!mp.isHost){if(!this.started||this.paused)return;this.time+=dt;for(const e of this.enemies)e.distance=lerp(e.distance,e.targetDistance??e.distance,Math.min(1,dt*8));this.particles=this.particles.filter(p=>p.update(dt));this.texts=this.texts.filter(t=>t.update(dt));this.beams=this.beams.filter(b=>b.update(dt));this.uiTimer=(this.uiTimer||0)-dt;if(this.uiTimer<=0){this.updateUI();this.uiTimer=.12}return}const local=this.multi.players[mp.localSide];syncGlobalsFromLocal();originalGameUpdate.call(this,dt);saveGlobalsToPlayer(mp.localSide);for(let side=0;side<2;side++){if(side===mp.localSide)continue;const p=this.multi.players[side];if(p.alive)p.energy=Math.min(p.maxEnergy,p.energy+p.energyRegen*dt)}syncGlobalsFromLocal();updateMultiHud()};
+Game.prototype.renderInspector=function(){
+ originalRenderInspector.call(this);if(!this.multi?.enabled||!this.selected)return;const t=this.selected,own=t.owner===mp.localSide,el=$('#inspector'),owner=this.multi.players[t.owner];
+ el.querySelector('.inspector-owner-line')?.insertAdjacentHTML('beforeend',`<br><b style="color:${t.ownerColor}">Propriétaire : ${displayName(owner)}</b>`);
+ const platform=el.querySelector('#upgradeResonance');
+ if(!own){el.querySelectorAll('[data-up],[data-mk2],[data-evo],[data-target],#sellTower,#upgradeResonance').forEach(b=>b.disabled=true);el.querySelector('.mechanic-box')?.insertAdjacentHTML('beforeend','<br><b>Lecture seule :</b> cette tourelle appartient à l’autre pilote.');return}
+ el.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>{if(mp.isHost)t.targetMode=b.dataset.target;else sendCommand({type:'target',id:t.netId,mode:b.dataset.target});this.renderInspector()});
+ const sell=el.querySelector('#sellTower');if(sell)sell.onclick=()=>{if(mp.isHost)applyCommand(mp.localSide,{type:'sell',id:t.netId});else sendCommand({type:'sell',id:t.netId})};
+ if(platform&&t.tile){platform.onclick=()=>{const tileIndex=this.tiles.indexOf(t.tile);if(mp.isHost)applyCommand(mp.localSide,{type:'platform',tileIndex});else sendCommand({type:'platform',tileIndex})}}
+};
+Game.prototype.update=function(dt){if(!this.multi?.enabled)return originalGameUpdate.call(this,dt);if(!mp.isHost){if(!this.started||this.paused)return;this.time+=dt;if(this.wave===0)this.waveCountdown=Math.max(0,this.waveCountdown-dt);this.emitPortalParticles(dt);this.v19UpdateEffects?.(dt,false);for(const e of this.enemies)e.distance=lerp(e.distance,e.targetDistance??e.distance,Math.min(1,dt*7));this.particles=this.particles.filter(p=>p.update(dt));this.texts=this.texts.filter(t=>t.update(dt));this.beams=this.beams.filter(b=>b.update(dt));this.areas=this.areas.filter(a=>a.update(dt));this.uiTimer=(this.uiTimer||0)-dt;if(this.uiTimer<=0){this.updateUI();this.uiTimer=.12}return}const local=this.multi.players[mp.localSide];syncGlobalsFromLocal();originalGameUpdate.call(this,dt);saveGlobalsToPlayer(mp.localSide);for(let side=0;side<2;side++){if(side===mp.localSide)continue;const p=this.multi.players[side];if(p.alive)p.energy=Math.min(p.maxEnergy,p.energy+p.energyRegen*dt)}syncGlobalsFromLocal();updateMultiHud()};
 Game.prototype.emitPortalParticles=function(dt){if(!this.multi?.enabled)return originalEmitPortal.call(this,dt);for(let lane=0;lane<2;lane++){const path=this.multi.paths[lane],s=path.pointAt(0),color=PLAYER_COLORS[lane];if(Math.random()<dt*(settings.quality==='high'?28:12)){const a=Math.random()*TAU,r=rand(24,58);this.particles.push(new Particle(s.x+Math.cos(a)*r,s.y+Math.sin(a)*r*.72,color,{life:rand(.45,.9),size:rand(1.2,3.3),angle:a+Math.PI/2,speed:rand(24,72),gravity:0,drag:.96}))}}};
 function drawPathModel(path,th,color){ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='rgba(8,5,20,.97)';ctx.lineWidth=58;ctx.shadowBlur=38;ctx.shadowColor=color;ctx.beginPath();path.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle=th.path;ctx.lineWidth=41;ctx.stroke();ctx.setLineDash([6,15]);ctx.lineDashOffset=-game.time*46;ctx.strokeStyle=color+'bb';ctx.lineWidth=3;ctx.stroke();ctx.setLineDash([])}
 function drawMultiBase(path,side){const p=path.pointAt(path.total),player=game.multi.players[side],own=side===mp.localSide,color=own?'#55c7ff':'#ff5c74';ctx.save();ctx.translate(p.x,p.y);ctx.shadowBlur=28;ctx.shadowColor=color;ctx.strokeStyle=color;ctx.fillStyle='rgba(5,14,28,.96)';ctx.lineWidth=3;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6,r=35;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle=color;ctx.globalAlpha=.7;ctx.beginPath();ctx.arc(0,0,18,0,TAU);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.font='1000 14px system-ui';ctx.textAlign='center';ctx.fillText('⬡',0,5);ctx.font='900 10px system-ui';ctx.fillStyle=color;ctx.fillText(`${own?'TA BASE':'BASE RIVALE'} • ${displayName(player)}`,0,65);ctx.font='900 9px system-ui';ctx.fillStyle='#fff';ctx.fillText(`${Math.max(0,player.lives)}/${player.maxLives} PV`,0,82);ctx.restore()}
-Game.prototype.drawWorld=function(th){if(!this.multi?.enabled)return originalDrawWorld.call(this,th);for(const s of this.stars){ctx.globalAlpha=s.a*(.65+.35*Math.sin(this.time*s.s+s.x));ctx.fillStyle=th.dust;ctx.fillRect(s.x,s.y,s.r,s.r)}ctx.globalAlpha=1;ctx.strokeStyle=th.grid;ctx.lineWidth=1/this.cam.zoom;for(let x=0;x<=WORLD.w;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}for(let y=0;y<=WORLD.h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}for(const e of this.environment){ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.rot);ctx.globalAlpha=e.type==='crystal'?.16:.08;ctx.fillStyle=th.accent;if(e.type==='crystal'){ctx.beginPath();ctx.moveTo(0,-e.r*1.8);ctx.lineTo(e.r,e.r);ctx.lineTo(-e.r,e.r);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.arc(0,0,e.r,0,TAU);ctx.fill()}ctx.restore()}this.drawResonancePlatforms();drawPathModel(this.multi.paths[0],th,PLAYER_COLORS[0]);drawPathModel(this.multi.paths[1],th,PLAYER_COLORS[1]);for(let side=0;side<2;side++){const s=this.multi.paths[side].pointAt(0);this.drawPortal(s.x,s.y,PLAYER_COLORS[side],1,s.angle,'#fff',{rank:Math.min(5,this.multi.players[side].rank),label:`PORTAIL • ${displayName(this.multi.players[side])}`});drawMultiBase(this.multi.paths[side],side)}for(const d of this.decals){ctx.globalAlpha=.17*d.life/d.max;ctx.fillStyle=d.color;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,TAU);ctx.fill()}ctx.globalAlpha=1;this.areas.forEach(a=>a.draw());this.mines.forEach(m=>m.draw());this.towers.forEach(t=>t.draw());this.enemies.forEach(e=>e.draw());this.projectiles.forEach(p=>p.draw());this.beams.forEach(b=>b.draw());this.particles.forEach(p=>p.draw());this.texts.forEach(t=>t.draw());if(this.placing){const p=this.preview||{x:this.pointer.wx,y:this.pointer.wy},ok=this.canPlace(p.x,p.y),col=ok?PLAYER_COLORS[mp.localSide]:'#ff5c74';ctx.save();ctx.globalAlpha=.13;ctx.fillStyle=col;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,this.placing.range,0,TAU);ctx.fill();ctx.globalAlpha=.7;ctx.stroke();ctx.beginPath();ctx.arc(p.x,p.y,22,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 17px system-ui';ctx.textAlign='center';ctx.fillText(this.placing.icon,p.x,p.y+5);ctx.restore()}};
-Game.prototype.updateUI=function(force=false){originalUpdateUI.call(this,force);if(!this.multi?.enabled)return;syncGlobalsFromLocal();$('#money').textContent=Math.floor(this.money);$('#lives').textContent=`${Math.max(0,this.lives)}/${this.maxLives}`;$('#energy').textContent=`${Math.floor(this.energy)}/${this.maxEnergy}`;$('#speedBtn').textContent='×1';$('#speedBtn').disabled=true;const first=$('#firstWaveCountdown');first.classList.toggle('show',this.started&&this.wave===0&&this.waveCountdown>0);$('#firstWaveCountdownValue').textContent=Math.max(0,Math.ceil(this.waveCountdown));$('#waveState').textContent=this.wave===0?'préparation fixe 45 s':`double front • prochaine ${Math.ceil(this.waveCountdown)}s`;$('#statusRibbon').innerHTML=`<div class="status-chip mode">${this.multi.tag.toUpperCase()} • R${this.playerRank}</div><div class="status-chip zone">2 PORTAILS • 2 BASES</div><div class="status-chip anomaly">${this.anomaly.icon} ${this.anomaly.name}</div>`;updateMultiHud();updateSpectator()};
+Game.prototype.drawWorld=function(th){if(!this.multi?.enabled)return originalDrawWorld.call(this,th);for(const s of this.stars){ctx.globalAlpha=s.a*(.65+.35*Math.sin(this.time*s.s+s.x));ctx.fillStyle=th.dust;ctx.fillRect(s.x,s.y,s.r,s.r)}ctx.globalAlpha=1;ctx.strokeStyle=th.grid;ctx.lineWidth=1/this.cam.zoom;for(let x=-WORLD.w;x<=WORLD.w*2;x+=42){ctx.beginPath();ctx.moveTo(x,-WORLD.h);ctx.lineTo(x,WORLD.h*2);ctx.stroke()}for(let y=-WORLD.h;y<=WORLD.h*2;y+=42){ctx.beginPath();ctx.moveTo(-WORLD.w,y);ctx.lineTo(WORLD.w*2,y);ctx.stroke()}for(const e of this.environment){ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.rot);ctx.globalAlpha=e.type==='crystal'?.16:.08;ctx.fillStyle=th.accent;if(e.type==='crystal'){ctx.beginPath();ctx.moveTo(0,-e.r*1.8);ctx.lineTo(e.r,e.r);ctx.lineTo(-e.r,e.r);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.arc(0,0,e.r,0,TAU);ctx.fill()}ctx.restore()}this.drawResonancePlatforms();drawPathModel(this.multi.paths[0],th,PLAYER_COLORS[0]);drawPathModel(this.multi.paths[1],th,PLAYER_COLORS[1]);for(let side=0;side<2;side++){const s=this.multi.paths[side].pointAt(0);this.drawPortal(s.x,s.y,PLAYER_COLORS[side],1,s.angle,'#ffffff',{rank:Math.min(5,this.multi.players[side].rank),label:`PORTAIL • ${displayName(this.multi.players[side])}`});drawMultiBase(this.multi.paths[side],side)}for(const d of this.decals){ctx.globalAlpha=.17*d.life/d.max;ctx.fillStyle=d.color;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,TAU);ctx.fill()}ctx.globalAlpha=1;this.areas.forEach(a=>a.draw());this.mines.forEach(m=>m.draw());this.towers.forEach(t=>t.draw());this.enemies.forEach(e=>e.draw());this.projectiles.forEach(p=>p.draw());this.beams.forEach(b=>b.draw());this.particles.forEach(p=>p.draw());this.texts.forEach(t=>t.draw());if(this.placing){const p=this.preview||{x:this.pointer.wx,y:this.pointer.wy},ok=this.canPlace(p.x,p.y),col=ok?PLAYER_COLORS[mp.localSide]:'#ff5c74';ctx.save();ctx.globalAlpha=.13;ctx.fillStyle=col;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,this.placing.range,0,TAU);ctx.fill();ctx.globalAlpha=.7;ctx.stroke();ctx.beginPath();ctx.arc(p.x,p.y,22,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 17px system-ui';ctx.textAlign='center';ctx.fillText(this.placing.icon,p.x,p.y+5);ctx.restore()}};
+function positionMultiRibbon(){
+ if(!game.multi?.enabled)return;
+ const top=document.getElementById('topbar'),ribbon=document.getElementById('statusRibbon');
+ if(!top||!ribbon)return;
+ const rect=top.getBoundingClientRect();
+ ribbon.style.top=Math.ceil(rect.bottom+6)+'px';
+}
+Game.prototype.updateUI=function(force=false){
+ originalUpdateUI.call(this,force);if(!this.multi?.enabled)return;
+ syncGlobalsFromLocal();
+ $('#money').textContent=Math.floor(this.money);$('#lives').textContent=`${Math.max(0,this.lives)}/${this.maxLives}`;$('#energy').textContent=`${Math.floor(this.energy)}/${this.maxEnergy}`;
+ $('#speedBtn').textContent='×1';$('#speedBtn').disabled=true;
+ const countdown=Math.max(0,Math.ceil(this.waveCountdown)),players=this.multi.players,me=players[mp.localSide],rival=players[1-mp.localSide];
+ $('#firstWaveCountdown').classList.remove('show');
+ const skip=$('#firstWaveSkip');if(skip){skip.disabled=true;skip.style.display='none'}
+ $('#waveState').textContent=this.wave===0?`départ dans ${countdown}s`:`2 fronts • prochaine ${countdown}s`;
+ $('#statusRibbon').innerHTML=`<div class="status-chip mode" style="color:${PLAYER_COLORS[mp.localSide]}">TOI • ${displayName(me)} • R${me.rank}</div><div class="status-chip synergy">${this.multi.tag.toUpperCase()} • ${this.wave===0?'DÉPART '+countdown+'s':'VAGUE '+this.wave}</div><div class="status-chip anomaly" style="color:${PLAYER_COLORS[1-mp.localSide]}">RIVAL • ${displayName(rival)} • ♥${Math.max(0,rival.lives)}/${rival.maxLives}</div>`;
+ $('#multiHud').classList.remove('show');updateSpectator();positionMultiRibbon();
+};
+addEventListener('resize',()=>requestAnimationFrame(positionMultiRibbon));
 $('#mpContinueSpectate').onclick=()=>{$('#multiResultOverlay').classList.add('hidden');game.paused=false;mp.result={...(mp.result||{}),dismissed:true}};$('#mpBackLobby').onclick=()=>location.reload();
-populateMultiMenu();showProfile();game.reset();game.started=false;game.paused=true;game.updateUI(true);document.title='Dark Rift TD — V18 Multiplayer';
+populateMultiMenu();showProfile();game.reset();game.started=false;game.paused=true;game.updateUI(true);document.title='Dark Rift TD — V19 Multiplayer';
+window.__DARK_RIFT_MULTI__=mp;
+window.__DARK_RIFT_MULTI_DEBUG_START__=()=>{mp.isHost=true;mp.role='host';mp.localSide=0;mp.host={pseudo:'TestVert',id:'10001',rank:Math.max(4,mp.rank)};mp.guest={pseudo:'TestViolet',id:'20002',rank:Math.max(4,mp.rank)};mp.meta={room:'DEBUG',tag:'coop',private:true,map:'rift',mode:'classic',host:mp.host,guest:mp.guest,phase:'waiting',seed:Math.floor(Math.random()*2147483646)+1};startMatch(true);clearInterval(mp.stateTimer);};
+if(new URLSearchParams(location.search).get('mpdebug')==='1')setTimeout(()=>window.__DARK_RIFT_MULTI_DEBUG_START__(),80);
 })();
 </script>
 
 
-<style id="v18-clean-map-style">
-/* V18.1 — plateformes plus discrètes, sans anneaux pointillés fantômes */
-body.v18-clean-map #game{touch-action:none}
+
+
+<style id="v19-multiplayer-layout">
+body.multiplayer-running #multiHud{display:none!important}
+body.multiplayer-running #firstWaveCountdown{display:none!important}
+body.multiplayer-running #statusRibbon{display:flex!important;z-index:14;width:min(960px,calc(100vw - 16px));justify-content:center;overflow-x:auto;scrollbar-width:none;padding:0 2px;pointer-events:none}
+body.multiplayer-running #statusRibbon::-webkit-scrollbar{display:none}
+body.multiplayer-running #statusRibbon .status-chip{background:rgba(5,9,22,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+body.multiplayer-running #speedBtn{pointer-events:none;opacity:.72}
+@media(max-width:900px){body.multiplayer-running #statusRibbon{left:7px;right:7px;transform:none;width:auto;max-width:none;justify-content:flex-start;gap:5px}body.multiplayer-running #statusRibbon .status-chip{font-size:7px;padding:5px 7px}}
 </style>
-
-<style id="v18-multi-mobile-fix-style">
-body.multiplayer-running #firstWaveCountdown,
-body.multiplayer-running #statusRibbon{display:none!important}
-body.multiplayer-running #game{touch-action:none!important;-webkit-user-select:none;user-select:none}
-body.multiplayer-running #multiHud{top:calc(76px + var(--safe-top));width:min(900px,calc(100vw - 18px));z-index:14}
-body.multiplayer-running .mp-player-hud{min-width:0;overflow:hidden}
-body.multiplayer-running .mp-player-hud b,
-body.multiplayer-running .mp-player-hud span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media(max-width:900px){
-  body.multiplayer-running #multiHud{top:calc(205px + var(--safe-top))!important;grid-template-columns:1fr 1fr;gap:5px;width:calc(100vw - 14px)}
-  body.multiplayer-running .mp-center-hud{grid-column:1/-1;grid-row:2;padding:3px 7px;border-radius:9px;background:rgba(5,9,22,.72);border:1px solid rgba(255,255,255,.08)}
-  body.multiplayer-running .mp-player-hud{padding:6px 7px;border-radius:11px}
-  body.multiplayer-running .mp-player-hud b{font-size:8px}
-  body.multiplayer-running .mp-player-hud span{font-size:7px}
-  body.multiplayer-running #towerDock,
-  body.multiplayer-running #inspector{bottom:calc(68px + var(--safe-bottom))}
-}
-@media(max-height:620px) and (orientation:landscape){
-  body.multiplayer-running #multiHud{top:calc(62px + var(--safe-top))!important;width:min(760px,calc(100vw - 124px));grid-template-columns:1fr auto 1fr}
-  body.multiplayer-running .mp-center-hud{grid-column:auto;grid-row:auto}
-}
-</style>
-<script id="v18-multiplayer-stability-patch">
-(()=>{
-  'use strict';
-  document.body.classList.add('v18-clean-map');
-
-  Game.prototype.makeEnvironment = function(){
-    const items=[];
-    for(let i=0;i<150;i++){
-      const x=rand(24,WORLD.w-24), y=rand(24,WORLD.h-24);
-      const near=(this.multi?.paths||[this.path]).some(path=>path.distanceTo(x,y)<84);
-      if(near) continue;
-      const crystal=Math.random()<.58;
-      items.push({x,y,r:crystal?rand(4,15):rand(5,18),rot:rand(0,TAU),type:crystal?'crystal':'vent'});
-    }
-    return items;
-  };
-
-  Game.prototype.drawResonancePlatforms = function(){
-    for(const tile of this.tiles){
-      if(tile.type==='rock'){
-        ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);
-        ctx.fillStyle='rgba(42,52,69,.94)';ctx.strokeStyle='rgba(168,190,220,.24)';ctx.lineWidth=1.5;
-        ctx.beginPath();
-        for(let i=0;i<7;i++){
-          const a=i/7*TAU,r=(tile.radius||30)*(.84+Math.sin(i*2.17+(tile.rot||0))*.12);
-          i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
-        }
-        ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();continue;
-      }
-      const def=RESONANCE_TYPES[tile.type];if(!def)continue;
-      const occupied=Boolean(this.platformTower(tile)),level=tile.level||1,radius=23+level*1.8;
-      ctx.save();ctx.translate(tile.x,tile.y);ctx.globalAlpha=occupied?.62:.84;
-      ctx.fillStyle='rgba(5,10,22,.94)';ctx.strokeStyle=def.color;ctx.lineWidth=1.7+level*.25;ctx.shadowBlur=occupied?7:10;ctx.shadowColor=def.color;
-      ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6;i?ctx.lineTo(Math.cos(a)*radius,Math.sin(a)*radius):ctx.moveTo(Math.cos(a)*radius,Math.sin(a)*radius)}ctx.closePath();ctx.fill();ctx.stroke();
-      ctx.shadowBlur=0;ctx.globalAlpha=occupied?.45:.19;ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,11+level,0,TAU);ctx.fill();
-      ctx.globalAlpha=occupied?.62:.95;ctx.fillStyle=def.color;ctx.font='900 17px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(def.icon,0,1);
-      ctx.globalAlpha=.46;ctx.strokeStyle=def.color;ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,radius+5,0,TAU);ctx.stroke();ctx.restore();
-    }
-  };
-
-  function deterministicMultiTiles(paths){
-    const tiles=[];
-    const types=['power','range','rate','relay','recovery','power'];
-    for(let lane=0;lane<2;lane++){
-      const path=paths[lane];
-      for(let i=0;i<types.length;i++){
-        const type=types[i];
-        const pd=path.total*(.13+i*.145);
-        const p=path.pointAt(pd);
-        const side=((i+lane)%2===0)?-1:1;
-        const offset=96+((i*17+lane*11)%22);
-        const tile={
-          x:p.x+Math.cos(p.angle+Math.PI/2)*offset*side,
-          y:p.y+Math.sin(p.angle+Math.PI/2)*offset*side,
-          type,level:1,color:RESONANCE_TYPES[type].color,phase:(i+lane*.5),
-          surge:14+((i*11+lane*7)%43),lane
-        };
-        if(type==='recovery')tile.discount=((i+lane)%3===0)?.60:.15;
-        tiles.push(tile);
-      }
-      for(let i=0;i<2;i++){
-        const pd=path.total*(.31+i*.39),p=path.pointAt(pd),side=((i+lane)%2===0)?1:-1,offset=139;
-        tiles.push({x:p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y:p.y+Math.sin(p.angle+Math.PI/2)*offset*side,type:'rock',radius:27+i*5,rot:(lane+1)*(i+1)*.71,phase:0,blocker:true,lane});
-      }
-    }
-    return tiles;
-  }
-
-  function rebuildPath(path,newW,newH){
-    const points=path.points.map(p=>[
-      80+(p.x-80)*(newW-160)/(3600-160),
-      70+(p.y-70)*(newH-140)/(1320-140)
-    ]);
-    return new PathModel(points);
-  }
-
-  function prepareCleanMultiWorld(g){
-    if(!g.multi?.enabled||g._v18MultiCleanReady)return;
-    g._v18MultiCleanReady=true;
-    const newW=2800,newH=1650;
-    g.multi.paths=g.multi.paths.map(path=>rebuildPath(path,newW,newH));
-    WORLD.w=newW;WORLD.h=newH;
-    g.path=g.multi.paths[g.multi.localSide??0];
-    g.entryDistance=0;g.baseDistance=g.path.total;
-    g.tiles=deterministicMultiTiles(g.multi.paths);
-    g.environment=g.makeEnvironment();
-    g.stars=Array.from({length:380},()=>({x:Math.random()*WORLD.w,y:Math.random()*WORLD.h,r:rand(.4,1.8),a:rand(.14,.72),s:rand(.2,1.2)}));
-    g.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.18,.28,.72)};
-    g.pointer={sx:VW/2,sy:VH/2,wx:g.cam.x,wy:g.cam.y};
-    document.body.classList.add('multiplayer-running');
-  }
-
-  const previousUpdateUI=Game.prototype.updateUI;
-  Game.prototype.updateUI=function(force=false){
-    if(this.multi?.enabled)prepareCleanMultiWorld(this);
-    previousUpdateUI.call(this,force);
-    if(!this.multi?.enabled)return;
-    document.body.classList.add('multiplayer-running');
-    const prep=Math.max(0,Math.ceil(this.waveCountdown));
-    const players=this.multi.players||[];
-    const local=players[this.multi.localSide??0],rival=players[1-(this.multi.localSide??0)];
-    if(local)$('#mpLocalHud').innerHTML=`<b style="color:var(--self)">J${(local.side??0)+1} • ${local.pseudo}#${local.id}</b><span>R${local.rank} · ♥${Math.max(0,local.lives)} · ${Math.floor(local.money)}¤ · ${Math.floor(local.energy)}ϟ</span>`;
-    if(rival)$('#mpRivalHud').innerHTML=`<b style="color:var(--rival)">J${(rival.side??1)+1} • ${rival.pseudo}#${rival.id}</b><span>R${rival.rank} · ♥${Math.max(0,rival.lives)} · ${Math.floor(rival.money)}¤ · ${Math.floor(rival.energy)}ϟ</span>`;
-    $('#mpModeHud').textContent=this.wave===0?`${this.multi.tag.toUpperCase()} • DÉPART ${prep}s`:`${this.multi.tag.toUpperCase()} • VAGUE ${this.wave}`;
-    $('#waveState').textContent=this.wave===0?`départ dans ${prep}s`:'double front synchronisé';
-    $('#firstWaveCountdown').classList.remove('show');
-  };
-
-  const previousUpdate=Game.prototype.update;
-  Game.prototype.update=function(dt){
-    if(this.multi?.enabled)prepareCleanMultiWorld(this);
-    return previousUpdate.call(this,dt);
-  };
-
-  const previousZoomAt=Game.prototype.zoomAt;
-  Game.prototype.zoomAt=function(sx,sy,factor){
-    if(!this.multi?.enabled)return previousZoomAt.call(this,sx,sy,factor);
-    const before=this.screenToWorld(sx,sy);
-    this.cam.zoom=clamp(this.cam.zoom*factor,.22,2.35);
-    const after=this.screenToWorld(sx,sy);
-    this.cam.x+=before.x-after.x;this.cam.y+=before.y-after.y;this.clampCamera();
-  };
-  const previousCenterCamera=Game.prototype.centerCamera;
-  Game.prototype.centerCamera=function(){
-    if(!this.multi?.enabled)return previousCenterCamera.call(this);
-    this.cam.x=WORLD.w/2;this.cam.y=WORLD.h/2;
-    this.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.18,.28,.72);
-    this.clampCamera();
-  };
-
-  /* Safari/iPhone : gestion tactile directe, indépendante des Pointer Events. */
-  const blockTouchPointer=e=>{
-    if(game.multi?.enabled&&e.pointerType==='touch'){
-      e.preventDefault();e.stopImmediatePropagation();
-    }
-  };
-  ['pointerdown','pointermove','pointerup','pointercancel'].forEach(type=>canvas.addEventListener(type,blockTouchPointer,{capture:true,passive:false}));
-
-  let touchState=null;
-  function beginSingle(t){
-    touchState={mode:'pan',startX:t.clientX,startY:t.clientY,lastX:t.clientX,lastY:t.clientY,camX:game.cam.x,camY:game.cam.y,moved:false};
-  }
-  function beginPinch(a,b){
-    const cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;
-    touchState={mode:'pinch',distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1,zoom:game.cam.zoom,world:game.screenToWorld(cx,cy),moved:true};
-  }
-  canvas.addEventListener('touchstart',e=>{
-    if(!game.multi?.enabled)return;
-    e.preventDefault();
-    if(e.touches.length===1)beginSingle(e.touches[0]);
-    else if(e.touches.length>=2)beginPinch(e.touches[0],e.touches[1]);
-  },{passive:false,capture:true});
-  canvas.addEventListener('touchmove',e=>{
-    if(!game.multi?.enabled||!touchState)return;
-    e.preventDefault();
-    if(e.touches.length>=2){
-      const a=e.touches[0],b=e.touches[1];
-      if(touchState.mode!=='pinch')beginPinch(a,b);
-      const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1,cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;
-      game.cam.zoom=clamp(touchState.zoom*d/touchState.distance,.22,2.35);
-      const after=game.screenToWorld(cx,cy);game.cam.x+=touchState.world.x-after.x;game.cam.y+=touchState.world.y-after.y;game.clampCamera();
-      return;
-    }
-    if(e.touches.length===1){
-      const t=e.touches[0];
-      if(touchState.mode!=='pan')beginSingle(t);
-      touchState.lastX=t.clientX;touchState.lastY=t.clientY;
-      if(Math.hypot(t.clientX-touchState.startX,t.clientY-touchState.startY)>7)touchState.moved=true;
-      if(touchState.moved){
-        game.cam.x=touchState.camX-(t.clientX-touchState.startX)/game.cam.zoom;
-        game.cam.y=touchState.camY-(t.clientY-touchState.startY)/game.cam.zoom;
-        game.clampCamera();
-      }
-    }
-  },{passive:false,capture:true});
-  canvas.addEventListener('touchend',e=>{
-    if(!game.multi?.enabled||!touchState)return;
-    e.preventDefault();
-    if(e.touches.length>=2){beginPinch(e.touches[0],e.touches[1]);return;}
-    if(e.touches.length===1){beginSingle(e.touches[0]);return;}
-    const changed=e.changedTouches[0];
-    if(touchState.mode==='pan'&&!touchState.moved&&changed)game.handleTap(changed.clientX,changed.clientY);
-    touchState=null;
-  },{passive:false,capture:true});
-  canvas.addEventListener('touchcancel',e=>{if(game.multi?.enabled){e.preventDefault();touchState=null}},{passive:false,capture:true});
-})();
-</script>
 
 </body>
 </html>
