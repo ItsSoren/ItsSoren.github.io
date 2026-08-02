@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — V18 Solo</title>
+<title>Dark Rift TD — V19 Solo</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#aa76ff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ffb3;--red:#ff5c74;
@@ -2632,6 +2632,294 @@ body.v18-clean-map #game{touch-action:none}
   game.renderTowerList();
   game.renderEnergyLab();
   game.updateUI(true);
+})();
+</script>
+
+
+
+<style id="v19-evolution-style">
+/* ===== DARK RIFT TD V19 — ORGANIC FRONT ===== */
+body.v19-evolution #game{touch-action:none}
+body.v19-inspecting #firstWaveCountdown{filter:saturate(.65);opacity:.38;pointer-events:none}
+
+/* Capacités : durée et fonction lisibles au premier coup d’œil. */
+body.v19-evolution .ability-btn{min-width:154px}
+body.v19-evolution .ability-btn b{line-height:1.15}
+body.v19-evolution .ability-btn small{line-height:1.25}
+body.v19-evolution .ability-btn.v19-active{border-color:rgba(85,255,179,.68);box-shadow:0 0 22px rgba(85,255,179,.16);background:linear-gradient(145deg,rgba(85,255,179,.12),rgba(255,255,255,.025))}
+
+/* Inspecteur V19 : plus compact, plus stable, moins de blocs empilés. */
+#inspector.v19-inspector{padding:12px!important;overflow:auto!important}
+#inspector.v19-inspector .close-inspector{position:absolute!important;float:none!important;top:8px!important;right:8px!important;z-index:5;width:36px!important;height:36px!important;min-width:36px!important;margin:0!important;background:rgba(7,11,25,.94)}
+.v19-head{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:2px 42px 10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.v19-head .tower-badge{width:46px;height:46px;flex:none;font-size:24px}
+.v19-head h2{font-size:16px;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v19-head p{margin-top:4px;font-size:8px;color:var(--muted);line-height:1.3}
+.v19-role{display:inline-flex;margin-top:5px;padding:3px 7px;border-radius:999px;border:1px solid color-mix(in srgb,var(--tower-color) 38%,transparent);color:var(--tower-color);font-size:7px;font-weight:950;letter-spacing:.12em}
+.v19-architecture{padding:6px 8px;border-radius:10px;border:1px solid rgba(255,209,102,.25);background:rgba(255,209,102,.06);color:var(--gold);font-size:9px;font-weight:950;white-space:nowrap}
+.v19-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:9px 0}
+.v19-stat{min-width:0;padding:7px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.v19-stat label{display:block;font-size:6.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v19-stat b{display:block;margin-top:2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v19-platform{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;margin:7px 0;border-radius:11px;background:color-mix(in srgb,var(--platform-color,#8ba6ba) 8%,rgba(255,255,255,.025));border:1px solid color-mix(in srgb,var(--platform-color,#8ba6ba) 28%,transparent)}
+.v19-platform-main{min-width:0}.v19-platform-main b{display:block;font-size:9px;color:var(--platform-color,#dff8ff)}.v19-platform-main small{display:block;margin-top:2px;color:var(--muted);font-size:7.5px;line-height:1.25}
+.v19-platform button{flex:0 0 auto;padding:7px 8px;border-radius:9px;font-size:7.5px;font-weight:950;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff}
+.v19-details{margin:7px 0;border:1px solid rgba(255,255,255,.07);border-radius:11px;background:rgba(255,255,255,.025);overflow:hidden}
+.v19-details summary{padding:8px 10px;cursor:pointer;color:#dff8ff;font-size:8px;font-weight:900;list-style:none}.v19-details summary::-webkit-details-marker{display:none}
+.v19-details .mechanic-box{margin:0!important;border:0!important;border-top:1px solid rgba(255,255,255,.07)!important;border-radius:0!important;padding:9px!important;font-size:8.5px!important}
+.v19-section{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
+.v19-section-title{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;color:var(--muted);font-size:7px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}
+.v19-upgrades{display:grid;grid-template-columns:1fr;gap:5px}
+.v19-upgrade{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 9px;border-radius:10px;text-align:left;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035);color:#fff}
+.v19-upgrade b{font-size:9px}.v19-upgrade small{display:block;margin-top:2px;color:var(--muted);font-size:7px}.v19-upgrade strong{font-size:8px;color:var(--gold);white-space:nowrap}.v19-upgrade .energy-cost{color:var(--violet)}
+.v19-targets{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.v19-targets .target-btn{padding:7px 2px}
+.v19-actions{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}.v19-actions .sell{margin:0}.v19-actions .action{padding:9px 10px;font-size:9px}
+
+@media(max-width:900px){
+  body.v19-inspecting #firstWaveCountdown{display:none!important}
+  #inspector.v19-inspector{max-height:min(58vh,510px)!important;bottom:calc(68px + var(--safe-bottom))!important}
+  .v19-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .v19-stat{padding:6px}.v19-stat b{font-size:11px}
+  .v19-head h2{font-size:15px}
+}
+@media(max-width:520px){
+  .v19-head{grid-template-columns:42px minmax(0,1fr) auto;gap:8px}.v19-head .tower-badge{width:42px;height:42px}
+  .v19-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .v19-platform{align-items:flex-start}.v19-platform button{padding:7px 6px}
+}
+</style>
+
+
+<script id="v19-evolution-script">
+(()=>{
+  'use strict';
+  if(window.__DARK_RIFT_V19__) return;
+  window.__DARK_RIFT_V19__ = true;
+  document.body.classList.add('v19-evolution');
+
+  const V19_ROLE={pulse:'ANTI-NUÉE',gatling:'SATURATION',sniper:'PRÉCISION',rail:'PERFORATION',cannon:'ZONE',mortar:'SIÈGE',rockets:'SALVE',mine:'PIÈGES',cryo:'GEL',inferno:'BRÛLURE',tesla:'CHAÎNE',solar:'RAYON',gravity:'ASPIRATION',chrono:'TEMPS',beacon:'SOUTIEN',disrupt:'BOUCLIERS',spore:'TOXIQUE',leech:'ÉCONOMIE',portal:'RETOUR',drone:'ESSAIM',sonic:'ONDE',bulwark:'BLOCAGE'};
+  const V19_SHORT={overdrive:'⚡ Overdrive 12s',riftbomb:'💥 Bombe R175',cryo:'❄ Nova 3·5·10s',repair:'✚ Répare +30%'};
+  const V19_ABILITY={
+    overdrive:{cost:70,cooldown:35,duration:12,name:'⚡ Overdrive',desc:'Toutes tes tours accélérées pendant 12 s'},
+    riftbomb:{cost:75,cooldown:28,duration:0,name:'💥 Bombe',desc:'Impact ciblé massif • rayon 175'},
+    cryo:{cost:85,cooldown:42,duration:3,name:'❄ Onde Nova',desc:'Onde 3 s • gel 5 s • ralentissement 10 s'},
+    repair:{cost:65,cooldown:38,duration:0,name:'✚ Réparation',desc:'Restaure 30 % des PV maximum'}
+  };
+  for(const [id,data] of Object.entries(V19_ABILITY)) Object.assign(ABILITIES[id],data);
+
+  function v19Seed(){
+    try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]>>>0}catch{return (Date.now()^Math.floor(Math.random()*0xffffffff))>>>0}
+  }
+  function v19Rng(seed){let a=(seed>>>0)||0x6d2b79f5;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+  function v19Hash(text){let h=2166136261>>>0;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+  function v19GeneratePath(seed,mapId,w=WORLD.w,h=WORLD.h){
+    const rng=v19Rng((seed^v19Hash(mapId))>>>0),count=12+Math.floor(rng()*5),marginX=145,marginY=150;
+    const centre=h*(.43+rng()*.14),ampBase={rift:.28,glacier:.22,forge:.31,garden:.27}[mapId]||.26;
+    const amp=h*ampBase,phase=rng()*TAU,freq1=.82+rng()*.72,freq2=1.55+rng()*.9;
+    const points=[];let previous=clamp(centre+(rng()-.5)*amp*.35,marginY,h-marginY);
+    for(let i=0;i<count;i++){
+      const t=i/(count-1),x=lerp(marginX,w-marginX,t);
+      let y=centre+Math.sin(t*TAU*freq1+phase)*amp*.56+Math.sin(t*TAU*freq2-phase*.7)*amp*.23+(rng()-.5)*amp*.35;
+      if(i===0||i===count-1)y=centre+(rng()-.5)*amp*.75;
+      y=clamp(y,marginY,h-marginY);
+      if(i>0&&i<count-1)y=clamp(y,previous-h*.19,previous+h*.19);
+      previous=y;points.push([x,y]);
+    }
+    return new PathModel(roundedRoute(points,82,7));
+  }
+  window.__V19_GENERATE_PATH__=v19GeneratePath;
+  window.__V19_RNG__=v19Rng;
+  window.__V19_HASH__=v19Hash;
+
+  Game.prototype.buildRouteVariants=function(){
+    const seed=this.v19SeedValue??v19Seed();
+    this.v19SeedValue=seed;
+    this.v19GeneratedPath=v19GeneratePath(seed,this.mapId||'rift');
+    return [this.v19GeneratedPath];
+  };
+
+  Game.prototype.makeTiles=function(){
+    const out=[],path=this.path,rng=v19Rng(((this.v19SeedValue||1)^0x51f15e5d)>>>0);
+    const platformTypes=['power','range','rate','relay','recovery','power','range','rate','relay','recovery'];
+    const start=Math.max(90,this.entryDistance+80),end=Math.max(start+250,this.baseDistance-90);
+    const placeNear=(type,index,rock=false)=>{
+      for(let tries=0;tries<150;tries++){
+        const ratio=clamp((index+.45+rng()*.45)/(rock?11.2:platformTypes.length+.3),.04,.96);
+        const pd=lerp(start,end,ratio)+(rng()-.5)*(rock?180:115),p=path.pointAt(clamp(pd,start,end));
+        const side=rng()<.5?-1:1,offset=rock?105+rng()*105:90+rng()*55;
+        const x=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y=p.y+Math.sin(p.angle+Math.PI/2)*offset*side;
+        if(x<75||x>WORLD.w-75||y<75||y>WORLD.h-75)continue;
+        if(path.distanceTo(x,y)<(rock?78:72))continue;
+        if(out.some(t=>Math.hypot(t.x-x,t.y-y)<(rock?92:105)))continue;
+        if(rock)out.push({x,y,type:'rock',radius:24+rng()*25,rot:rng()*TAU,phase:rng()*TAU,blocker:true});
+        else{const tile={x,y,type,level:1,color:RESONANCE_TYPES[type].color,phase:rng()*TAU,surge:Math.round(10+rng()*50)};if(type==='recovery')tile.discount=rng()<.28?.60:.15;out.push(tile)}
+        return true;
+      }
+      return false;
+    };
+    platformTypes.forEach((type,i)=>placeNear(type,i,false));
+    for(let i=0;i<10;i++)placeNear('rock',i,true);
+    return out;
+  };
+
+  Game.prototype.makeEnvironment=function(){
+    const rng=v19Rng(((this.v19SeedValue||1)^0xa17e2b31)>>>0),items=[];
+    for(let i=0;i<190;i++){
+      const x=-WORLD.w*.35+rng()*WORLD.w*1.7,y=-WORLD.h*.35+rng()*WORLD.h*1.7;
+      const cx=clamp(x,0,WORLD.w),cy=clamp(y,0,WORLD.h);if(this.path.distanceTo(cx,cy)<82)continue;
+      const roll=rng();items.push({x,y,r:roll<.58?4+rng()*13:5+rng()*20,rot:rng()*TAU,type:roll<.58?'crystal':'vent'});
+    }
+    return items;
+  };
+
+  Game.prototype.drawResonancePlatforms=function(){
+    for(const tile of this.tiles){
+      if(tile.type==='rock'){
+        ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);ctx.fillStyle='rgba(43,53,70,.96)';ctx.strokeStyle='rgba(174,198,226,.28)';ctx.lineWidth=1.5;ctx.shadowBlur=8;ctx.shadowColor='rgba(120,150,190,.18)';ctx.beginPath();
+        for(let i=0;i<8;i++){const a=i/8*TAU,r=tile.radius*(.82+Math.sin(i*2.23+(tile.rot||0))*.13);i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();continue;
+      }
+      const def=RESONANCE_TYPES[tile.type];if(!def)continue;const occupied=Boolean(this.platformTower(tile)),level=tile.level||1,pulse=.5+.5*Math.sin(this.time*1.7+tile.phase),outer=34+level*2;
+      ctx.save();ctx.translate(tile.x,tile.y);ctx.globalAlpha=occupied?.5:.92;ctx.shadowBlur=occupied?8:13;ctx.shadowColor=def.color;
+      ctx.fillStyle='rgba(4,9,21,.94)';ctx.strokeStyle=def.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,outer,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;ctx.globalAlpha=.12+.06*pulse;ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,outer-5,0,TAU);ctx.fill();
+      ctx.globalAlpha=.18;ctx.strokeStyle=def.color;ctx.lineWidth=1.2;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6,r=25+level;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.stroke();
+      ctx.globalAlpha=occupied?.62:1;ctx.fillStyle=def.color;ctx.font='1000 21px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(def.icon,0,.5);
+      for(let i=0;i<3;i++){ctx.globalAlpha=i<level?.9:.16;ctx.beginPath();ctx.arc(-7+i*7,outer-8,1.8,0,TAU);ctx.fill()}
+      ctx.restore();
+    }
+  };
+
+  const v19PreviousReset=Game.prototype.reset;
+  Game.prototype.reset=function(){
+    const multiSetup=Boolean(window.__DRIFT_V19_MULTI_SETUP__);
+    WORLD.w=multiSetup?3400:2400;WORLD.h=multiSetup?1900:1450;
+    this.v19SeedValue=v19Seed();
+    v19PreviousReset.call(this);
+    this.path=this.routeVariants?.[0]||this.v19GeneratedPath||v19GeneratePath(this.v19SeedValue,this.mapId||'rift');
+    this.currentSpawnPath=this.path;this.entryDistance=34;this.baseDistance=Math.max(this.entryDistance+200,this.path.total-34);
+    this.maxWaveStack=2;this.tiles=this.makeTiles();this.environment=this.makeEnvironment();
+    this.stars=Array.from({length:Math.round(WORLD.w*WORLD.h/9000)},()=>({x:rand(-WORLD.w*.3,WORLD.w*1.3),y:rand(-WORLD.h*.3,WORLD.h*1.3),r:rand(.4,1.8),a:rand(.14,.75),s:rand(.2,1.15)}));
+    this.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.06,multiSetup?.20:.27,multiSetup?.9:1.2)};
+    this.v19Nova=null;this.v19NovaSerial=0;
+  };
+
+  Game.prototype.centerCamera=function(){this.cam.x=WORLD.w/2;this.cam.y=WORLD.h/2;this.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.06,this.multi?.enabled?.20:.27,this.multi?.enabled?.9:1.2)};
+  Game.prototype.zoomAt=function(sx,sy,factor){const before=this.screenToWorld(sx,sy);this.cam.zoom=clamp(this.cam.zoom*factor,this.multi?.enabled?.18:.24,2.4);const after=this.screenToWorld(sx,sy);this.cam.x+=before.x-after.x;this.cam.y+=before.y-after.y;this.clampCamera()};
+  Game.prototype.clampCamera=function(){const extraX=Math.max(300,VW/this.cam.zoom*.56),extraY=Math.max(260,VH/this.cam.zoom*.56);this.cam.x=clamp(this.cam.x,-extraX,WORLD.w+extraX);this.cam.y=clamp(this.cam.y,-extraY,WORLD.h+extraY)};
+
+  Game.prototype.earlyWaveDifficulty=function(wave){if(wave===1)return .42;if(wave===2)return .49;if(wave===3)return .57;if(wave===4)return .67;if(wave===5)return .76;if(wave===6)return .9;return 1};
+  const v19PreviousInterval=Game.prototype.waveIntervalFor;
+  Game.prototype.waveIntervalFor=function(nextWave=this.wave+1){const early=[0,36,34,32,34,42,31];if(nextWave<early.length)return early[nextWave];return Math.max(15,v19PreviousInterval.call(this,nextWave)+1.5)};
+  const v19PreviousBuildWave=Game.prototype.buildWave;
+  Game.prototype.buildWave=function(waveNumber=this.wave,anomaly=this.anomaly){
+    let batch=v19PreviousBuildWave.call(this,waveNumber,anomaly);
+    if(waveNumber<=6){
+      const bossItems=batch.filter(x=>x.boss),regular=batch.filter(x=>!x.boss),limits=[0,6,7,8,9,8,11],kept=regular.slice(0,limits[waveNumber]||13).map(x=>({...x,elite:false}));
+      if(bossItems.length){const first=bossItems[0],b=first.boss;first.boss={...b,hp:Math.round(b.hp*.60),shield:Math.round(b.shield*.48),armor:Math.max(.08,b.armor-.08),reward:b.reward};kept.splice(Math.floor(kept.length*.66),0,first)}
+      batch=kept;
+    }
+    return batch;
+  };
+  const v19PreviousStartWave=Game.prototype.startWave;
+  Game.prototype.startWave=function(){
+    if(this.wave<5&&this.waveActive&&(this.spawnQueue.length||this.enemies.some(e=>!e.dead))){this.waveCountdown=4;return false}
+    return v19PreviousStartWave.call(this);
+  };
+
+  function v19EnemyOffset(enemy){
+    if(enemy.v19LaneOffset==null){let seed=v19Hash(`${enemy.netId||''}|${enemy.type}|${enemy.wave}|${enemy.rotation}`),rng=v19Rng(seed);enemy.v19LaneOffset=(rng()-.5)*(enemy.boss?12:enemy.type==='tank'||enemy.type==='carrier'?22:30);enemy.v19Sway=rng()*TAU}
+    return enemy.v19LaneOffset+Math.sin(enemy.game.time*.9+enemy.v19Sway)*2.4;
+  }
+  Object.defineProperty(Enemy.prototype,'x',{configurable:true,get(){const path=this.pathRef||this.game.path,p=path.pointAt(this.distance),o=v19EnemyOffset(this);return p.x+Math.cos(p.angle+Math.PI/2)*o}});
+  Object.defineProperty(Enemy.prototype,'y',{configurable:true,get(){const path=this.pathRef||this.game.path,p=path.pointAt(this.distance),o=v19EnemyOffset(this);return p.y+Math.sin(p.angle+Math.PI/2)*o}});
+
+  Game.prototype.v19LaunchNova=function(side=null,origin=null){
+    const path=this.multi?.enabled&&side!=null?this.multi.paths[side]:this.path;
+    const p=origin||path.pointAt(this.multi?.enabled?path.total:this.baseDistance);
+    this.v19Nova={elapsed:0,duration:3,x:p.x,y:p.y,maxRadius:Math.hypot(WORLD.w,WORLD.h)*1.08,hit:new WeakSet(),side,serial:++this.v19NovaSerial};
+    this.whiteoutUntil=this.time+3.5;this.toast('Onde Nova • propagation 3 s • gel 5 s');
+  };
+  Game.prototype.v19UpdateEffects=function(dt,applyGameplay=true){
+    const nova=this.v19Nova;if(!nova)return;nova.elapsed+=dt;const radius=nova.maxRadius*clamp(nova.elapsed/nova.duration,0,1);
+    if(applyGameplay){for(const e of this.enemies){if(e.dead||nova.hit.has(e))continue;const d=Math.hypot(e.x-nova.x,e.y-nova.y);if(d<=radius+34){nova.hit.add(e);e.stunUntil=Math.max(e.stunUntil,this.time+5);e.applySlow(.45,15);this.burst(e.x,e.y,'#b9f7ff',5,65,'spark')}}}
+    if(nova.elapsed>nova.duration+.45)this.v19Nova=null;
+  };
+
+  const v19PreviousUseAbility=Game.prototype.useAbility;
+  Game.prototype.useAbility=function(id){
+    if(this.multi?.enabled)return v19PreviousUseAbility.call(this,id);
+    if(id==='riftbomb')return v19PreviousUseAbility.call(this,id);
+    if(!this.started||this.paused)return;const a=ABILITIES[id],remain=this.abilityRemaining(id);if(remain>0){this.toast(`${a.name} • encore ${Math.ceil(remain)} s`);return}if(this.energy<a.cost){this.toast(`${a.name} demande ${a.cost} énergie`);return}
+    if(id==='cryo'&&!this.enemies.length){this.toast('Aucun ennemi à figer');return}
+    this.energy-=a.cost;this.abilityReadyAt[id]=this.time+a.cooldown;
+    if(id==='overdrive'){this.overdriveUntil=this.time+a.duration;for(const t of this.towers)t.overdriveUntil=this.time+a.duration;this.toast(`Overdrive actif pendant ${a.duration} secondes`)}
+    else if(id==='cryo')this.v19LaunchNova();
+    else if(id==='repair'){const heal=Math.max(1,Math.ceil(this.maxLives*.30));this.lives=Math.min(this.maxLives,this.lives+heal);this.toast(`Réparation : +${heal} PV (${Math.round(heal/this.maxLives*100)} %)`) }
+    haptic([18,30,18]);this.updateUI(true);
+  };
+
+  const v19PreviousUpdate=Game.prototype.update;
+  Game.prototype.update=function(dt){v19PreviousUpdate.call(this,dt);if(this.started&&!this.paused)this.v19UpdateEffects(dt*this.speed,true)};
+
+  const v19PreviousDrawWorld=Game.prototype.drawWorld;
+  Game.prototype.drawWorld=function(th){
+    const left=this.cam.x-VW/(2*this.cam.zoom)-120,right=this.cam.x+VW/(2*this.cam.zoom)+120,top=this.cam.y-VH/(2*this.cam.zoom)-120,bottom=this.cam.y+VH/(2*this.cam.zoom)+120,step=42;
+    ctx.save();ctx.globalAlpha=.42;ctx.strokeStyle=th.grid;ctx.lineWidth=1/this.cam.zoom;
+    for(let x=Math.floor(left/step)*step;x<=right;x+=step){ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);ctx.stroke()}
+    for(let y=Math.floor(top/step)*step;y<=bottom;y+=step){ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke()}ctx.restore();
+    v19PreviousDrawWorld.call(this,th);
+    const nova=this.v19Nova;if(nova){const p=clamp(nova.elapsed/nova.duration,0,1),r=nova.maxRadius*p;ctx.save();ctx.globalAlpha=.12*(1-p*.55);ctx.fillStyle='#aeeeff';ctx.beginPath();ctx.arc(nova.x,nova.y,r,0,TAU);ctx.fill();ctx.globalAlpha=.92*(1-p*.25);ctx.strokeStyle='#dffcff';ctx.shadowBlur=28;ctx.shadowColor='#66f4ff';ctx.lineWidth=10*(1-p)+3;ctx.beginPath();ctx.arc(nova.x,nova.y,r,0,TAU);ctx.stroke();ctx.globalAlpha=.45;ctx.lineWidth=2;ctx.beginPath();ctx.arc(nova.x,nova.y,Math.max(0,r-22),0,TAU);ctx.stroke();ctx.restore()}
+  };
+
+  function v19PlatformInfo(tile){
+    if(!tile)return{title:'Terrain neutre',text:'Aucun bonus de résonance',color:'#8ba6ba'};const def=RESONANCE_TYPES[tile.type],surge=tile.surge||0;
+    const text={power:`+${surge}% dégâts`,range:`+${surge}% portée`,rate:`cadence renforcée`,relay:`recharge d’énergie`,recovery:`-${Math.round((tile.discount||.15)*100)}% coûts`}[tile.type]||`${surge}% résonance`;
+    return{title:`${def?.icon||'○'} ${def?.name||tile.type} • N${tile.level||1}`,text,color:def?.color||'#8ba6ba'};
+  }
+  Game.prototype.renderInspector=function(){
+    const el=$('#inspector'),t=this.selected;document.body.classList.toggle('v19-inspecting',Boolean(t));
+    if(!t){el.classList.remove('open','v19-inspector');el.innerHTML='';return}
+    el.classList.add('open','v19-inspector');el.style.setProperty('--tower-color',t.def.color);
+    const mk=t.mk===2?'MK2':'MK1',allMax=t.allBranchesMax(),mk2=t.mk2Cost(),evo=t.evolutionCost(),tile=v19PlatformInfo(t.tile),platformCost=t.tile?this.platformUpgradeCost(t.tile):null,zone=(MAP_COMBAT[this.mapId]?.mult||{})[t.def.damageType]??1;
+    const branchName={power:'Puissance',range:'Optique',rate:'Cadence'},branchDesc={power:'Dégâts et effets',range:'Portée et rayon',rate:'Vitesse de tir'};
+    const upgrades=['power','range','rate'].map(br=>{const c=t.upgradeCost(br),max=t.up[br]>=5,disabled=max||this.money<c.money||this.energy<c.energy;return`<button class="v19-upgrade" data-up="${br}" ${disabled?'disabled':''}><span><b>${branchName[br]} • ${t.up[br]}/5</b><small>${branchDesc[br]}</small></span><strong>${max?'MAX':`${c.money}¤ <span class="energy-cost">+ ${c.energy}ϟ</span>`}</strong></button>`}).join('');
+    const convert=t.mk===1&&allMax?`<button class="v19-upgrade" data-mk2 ${this.money<mk2.money||this.energy<mk2.energy?'disabled':''}><span><b>Conversion MK2</b><small>Ouvre 15 niveaux avancés</small></span><strong>${mk2.money}¤ <span class="energy-cost">+ ${mk2.energy}ϟ</span></strong></button>`:'';
+    const specialization=t.mk===2&&allMax&&!t.evolution?`<div class="v19-upgrades"><button class="v19-upgrade" data-evo="alpha" ${this.money<evo.money||this.energy<evo.energy?'disabled':''}><span><b>ALPHA</b><small>Puissance et portée</small></span><strong>${evo.money}¤ + ${evo.energy}ϟ</strong></button><button class="v19-upgrade" data-evo="omega" ${this.money<evo.money||this.energy<evo.energy?'disabled':''}><span><b>OMEGA</b><small>Cadence et critique</small></span><strong>${evo.money}¤ + ${evo.energy}ϟ</strong></button></div>`:'';
+    const platformButton=platformCost?`<button id="upgradeResonance" ${this.money<platformCost.money||this.energy<platformCost.energy?'disabled':''}>N${t.tile.level||1} → N${(t.tile.level||1)+1}<br>${platformCost.money}¤ + ${platformCost.energy}ϟ</button>`:'';
+    const sellValue=Math.floor(t.totalSpent*(this.towerSellRatio?this.towerSellRatio(t):this.mods.sell));
+    el.innerHTML=`<button class="icon-btn close-inspector">✕</button><div class="v19-head"><div class="tower-badge">${t.def.icon}</div><div><h2>${t.def.name}</h2><p class="inspector-owner-line">${CATEGORIES[t.def.category].name} • ${DAMAGE_NAMES[t.def.damageType]}</p><span class="v19-role">${V19_ROLE[t.def.id]||t.def.kind.toUpperCase()}</span></div><div class="v19-architecture">${mk}${t.evolution?' • '+t.evolution.toUpperCase():''}</div></div>
+    <div class="v19-stats"><div class="v19-stat"><label>Dégâts</label><b>${Math.round(t.stats.dmg)}</b></div><div class="v19-stat"><label>Portée</label><b>${Math.round(t.stats.range*t.buff.range)}</b></div><div class="v19-stat"><label>Cadence</label><b>${['cryo','chrono','gravity'].includes(t.def.kind)?'ZONE':(1/t.stats.rate).toFixed(1)+'/s'}</b></div><div class="v19-stat"><label>Élim.</label><b>${t.kills}</b></div></div>
+    <div class="v19-platform" style="--platform-color:${tile.color}"><div class="v19-platform-main"><b>${tile.title}</b><small>${tile.text} • carte ×${zone.toFixed(2)}</small></div>${platformButton}</div>
+    <details class="v19-details"><summary>Fonctionnement, forces et faiblesses ▾</summary><div class="mechanic-box"><b>Fonctionnement :</b> ${t.def.mechanic}<br><b>Forte contre :</b> ${t.def.strong}<br><b>Faible contre :</b> ${t.def.weak}</div></details>
+    <div class="v19-section"><div class="v19-section-title"><span>Améliorations ${mk}</span><span>${Math.floor(this.money)}¤ • ${Math.floor(this.energy)}ϟ</span></div><div class="v19-upgrades">${upgrades}${convert}</div></div>
+    ${specialization?`<div class="v19-section"><div class="v19-section-title"><span>Spécialisation finale</span></div>${specialization}</div>`:''}
+    <div class="v19-section"><div class="v19-section-title"><span>Priorité</span></div><div class="v19-targets">${[['first','Premier'],['last','Dernier'],['strong','Fort'],['weak','Faible']].map(([id,n])=>`<button class="target-btn ${t.targetMode===id?'active':''}" data-target="${id}">${n}</button>`).join('')}</div></div>
+    <div class="v19-actions"><button class="action sell" id="sellTower">Vendre • ${sellValue}¤</button><button class="action" id="wikiTower">WIKI</button></div>`;
+    el.querySelector('.close-inspector').onclick=()=>{this.selected=null;this.renderInspector()};
+    el.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{t.upgrade(b.dataset.up);this.renderInspector();this.updateUI(true)});
+    el.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>{t.targetMode=b.dataset.target;this.renderInspector()});
+    el.querySelector('[data-mk2]')?.addEventListener('click',()=>{t.promoteMk2();this.renderInspector();this.updateUI(true)});
+    el.querySelectorAll('[data-evo]').forEach(b=>b.onclick=()=>{t.evolve(b.dataset.evo);this.renderInspector();this.updateUI(true)});
+    el.querySelector('#upgradeResonance')?.addEventListener('click',()=>{this.upgradePlatform(t.tile);this.renderInspector()});
+    el.querySelector('#sellTower').onclick=()=>{this.money+=sellValue;this.towers=this.towers.filter(x=>x!==t);this.selected=null;this.recalcAll();this.renderInspector();this.burst(t.x,t.y,t.def.color,16,130,'spark');this.updateUI(true)};
+    el.querySelector('#wikiTower').onclick=()=>this.openWiki('effects');
+  };
+
+  const v19PreviousUpdateUI=Game.prototype.updateUI;
+  Game.prototype.updateUI=function(force=false){
+    v19PreviousUpdateUI.call(this,force);
+    document.querySelectorAll('.v17-route-chip').forEach(node=>node.remove());
+    for(const b of $$('[data-ability]')){const id=b.dataset.ability,a=ABILITIES[id],remain=this.abilityRemaining(id),active=id==='overdrive'&&this.time<this.overdriveUntil,nova=id==='cryo'&&this.v19Nova; b.classList.toggle('v19-active',Boolean(active||nova));
+      if(active){const left=Math.max(0,Math.ceil(this.overdriveUntil-this.time));b.querySelector('b').textContent=`${a.name} • ACTIF ${left}s`;b.querySelector('small').textContent='Cadence globale renforcée'}
+      else if(nova){b.querySelector('b').textContent=`${a.name} • ONDE ${(Math.max(0,3-this.v19Nova.elapsed)).toFixed(1)}s`;b.querySelector('small').textContent='Gel 5 s puis ralentissement 10 s'}
+      else if(remain<=0){b.querySelector('b').textContent=`${V19_SHORT[id]||a.name} • ${a.cost}`;b.querySelector('small').textContent=`${a.desc} • recharge ${a.cooldown} s`}
+    }
+  };
+
+  const button=document.getElementById('startMultiBtn');if(button)button.textContent='⚔ MULTIJOUEUR V19';
+  const subtitle=document.querySelector('#startOverlay .subtitle');if(subtitle)subtitle.textContent='V19 Organic Front — routes procédurales, hordes vivantes, plateformes retravaillées et capacités tactiques refondues.';
+  document.title='Dark Rift TD — V19 Solo';
+  game.reset();game.buildStartChoices();game.updateProfileUI();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
 })();
 </script>
 
