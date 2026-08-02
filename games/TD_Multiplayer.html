@@ -2917,11 +2917,303 @@ body.v19-evolution .ability-btn.v19-active{border-color:rgba(85,255,179,.68);box
 <div id="multiHud"><div id="mpLocalHud" class="mp-player-hud local"></div><div class="mp-center-hud"><b id="mpModeHud">MULTI</b><span id="mpNetHud">Synchronisation…</span></div><div id="mpRivalHud" class="mp-player-hud rival"></div></div>
 <div id="mpSpectator" class="mp-spectator">BASE DÉTRUITE • MODE SPECTATEUR</div>
 <div id="multiResultOverlay" class="overlay hidden"><div class="modal glass"><div class="panel-title">Résultat multijoueur</div><div id="mpResultLogo" class="logo" style="font-size:54px">VICTOIRE</div><p id="mpResultText" class="subtitle"></p><button id="mpContinueSpectate" class="action primary">CONTINUER LA SIMULATION</button><button id="mpBackLobby" class="action">RETOUR AU LOBBY</button></div></div>
+
+<style id="v19-6-expansion-style">
+/* ===== DARK RIFT TD V19.6 — LIVING BIOMES ===== */
+body.v196 #relicInventory{position:fixed;z-index:13;left:50%;top:calc(116px + var(--safe-top));transform:translateX(-50%);display:flex;gap:5px;padding:5px 7px;border-radius:15px;opacity:0;pointer-events:none;transition:.2s;background:rgba(5,9,22,.76);border:1px solid rgba(154,220,255,.16);box-shadow:0 10px 28px rgba(0,0,0,.28);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+body.v196 #relicInventory.show{opacity:1;pointer-events:auto}
+.v196-relic-slot{width:45px;height:39px;border-radius:10px;display:grid;grid-template-columns:20px 1fr;align-items:center;padding:4px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:var(--muted);position:relative;overflow:hidden}
+.v196-relic-slot.active{border-color:color-mix(in srgb,var(--relic-color) 48%,transparent);background:color-mix(in srgb,var(--relic-color) 10%,rgba(255,255,255,.025));box-shadow:0 0 14px color-mix(in srgb,var(--relic-color) 13%,transparent)}
+.v196-relic-slot .ico{font-size:17px;text-align:center;filter:drop-shadow(0 0 8px var(--relic-color))}.v196-relic-slot .lvl{font-size:8px;font-weight:1000;color:var(--relic-color);line-height:1}.v196-relic-slot .pips{display:flex;gap:2px;margin-top:4px}.v196-relic-slot .pips i{width:5px;height:3px;border-radius:2px;background:rgba(255,255,255,.12)}.v196-relic-slot .pips i.on{background:var(--relic-color);box-shadow:0 0 5px var(--relic-color)}
+#relicOverlay .relic-card .relic-level{display:inline-flex;margin-top:8px;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-size:8px;font-weight:950;color:var(--cyan)}
+#relicOverlay .relic-card.maxed{opacity:.45;filter:saturate(.4)}
+#bossBar .v196-boss-values{text-align:center;font-size:8px;color:#eaf8ff;margin-top:3px;font-weight:850;letter-spacing:.04em}
+#bossBar .v196-shield-bar{height:5px;margin-top:3px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid rgba(170,118,255,.18)}#bossBar .v196-shield-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#66f4ff,#aa76ff);box-shadow:0 0 12px #66f4ff;transition:width .14s}
+.v196-signature{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;margin:7px 0;border-radius:10px;background:rgba(102,244,255,.045);border:1px solid rgba(102,244,255,.13)}.v196-signature b{font-size:8.5px;color:var(--cyan)}.v196-signature span{font-size:7.5px;color:var(--muted);text-align:right}
+/* Nouvelle feuille de route : ligne principale + branches à objectifs. */
+.v196-roadmap{display:grid;gap:10px;margin-top:14px}.v196-main-node{position:relative;display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;padding:12px;border-radius:17px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}.v196-main-node::before{content:"";position:absolute;left:40px;top:-12px;width:2px;height:12px;background:linear-gradient(var(--cyan),rgba(102,244,255,.12))}.v196-main-node:first-child::before{display:none}.v196-main-node.done{border-color:rgba(85,255,179,.28)}.v196-main-node.current{border-color:rgba(102,244,255,.7);box-shadow:0 0 25px rgba(102,244,255,.11)}.v196-main-node.locked{opacity:.54}.v196-rank-orb{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(102,244,255,.16),rgba(7,12,28,.95));border:2px solid rgba(102,244,255,.45);color:var(--cyan);font-size:19px;font-weight:1000;box-shadow:0 0 16px rgba(102,244,255,.09)}.v196-main-node.current .v196-rank-orb{border-color:#fff;box-shadow:0 0 22px rgba(102,244,255,.35)}.v196-node-copy h3{font-size:13px;display:flex;justify-content:space-between;gap:8px}.v196-node-copy h3 em{font-style:normal;color:var(--gold);font-size:9px;white-space:nowrap}.v196-node-copy p{margin-top:4px;color:var(--muted);font-size:9px;line-height:1.42}.v196-node-reward{margin-top:7px;color:#eafcff;font-size:9px;font-weight:850}.v196-branch-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}.v196-branch{padding:9px;border-radius:13px;background:rgba(170,118,255,.045);border:1px solid rgba(170,118,255,.16)}.v196-branch.unlocked{border-color:rgba(85,255,179,.38);background:rgba(85,255,179,.045)}.v196-branch h4{display:flex;justify-content:space-between;gap:6px;font-size:9px}.v196-branch h4 span:first-child{color:var(--violet)}.v196-branch.unlocked h4 span:first-child{color:var(--green)}.v196-branch p{font-size:7.8px;color:var(--muted);line-height:1.35;margin:4px 0 6px}.v196-task-track{height:5px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}.v196-task-track i{display:block;height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));box-shadow:0 0 8px var(--violet)}.v196-branch small{display:block;margin-top:5px;font-size:7px;color:#dff9ff}
+/* Les boutons de pouvoir montrent l'effet sans code cryptique. */
+body.v196 .ability-btn b{font-size:10px!important}body.v196 .ability-btn small{font-size:7.5px!important;display:block!important}
+@media(max-width:900px){body.v196 #relicInventory{top:calc(176px + var(--safe-top));gap:4px;padding:4px 5px}.v196-relic-slot{width:39px;height:35px;grid-template-columns:17px 1fr}.v196-relic-slot .ico{font-size:14px}.v196-branch-list{grid-template-columns:1fr}.v196-main-node{grid-template-columns:48px minmax(0,1fr);padding:10px}.v196-rank-orb{width:46px;height:46px;font-size:16px}.v196-main-node::before{left:33px}.v196-signature{padding:6px 8px}}
+@media(max-height:650px) and (max-width:900px){body.v196 #relicInventory{top:calc(145px + var(--safe-top));transform:translateX(-50%) scale(.9)}}
+</style>
+
+<script id="v19-6-expansion-script">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V196__)return;
+window.__DARK_RIFT_V196__=true;
+document.body.classList.add('v196');
+
+/* -------------------------------------------------------------------------- */
+/*  Progression principale 0 → 10 et branches secondaires à objectifs         */
+/* -------------------------------------------------------------------------- */
+const V196_MAIN=[
+ {rank:0,xp:0,title:'Recrue de la Faille',reward:'Arsenal fondamental et mode Classique.',towers:['pulse','cannon','cryo','beacon','mine'],modes:['discovery','classic'],maps:['rift']},
+ {rank:1,xp:80,title:'Éclaireur',reward:'+20 crédits de départ.',towers:['gatling','tesla'],modes:[],maps:[]},
+ {rank:2,xp:220,title:'Vigie',reward:'+5 énergie maximale.',towers:['sniper','sonic'],modes:[],maps:['glacier']},
+ {rank:3,xp:450,title:'Artificier',reward:'+0,10 énergie/s.',towers:['mortar','rockets'],modes:['extreme'],maps:[]},
+ {rank:4,xp:760,title:'Stratège',reward:'+1 PV de noyau.',towers:['gravity','disrupt','bulwark'],modes:[],maps:['forge']},
+ {rank:5,xp:1150,title:'Architecte',reward:'+25 crédits de départ.',towers:['inferno','chrono'],modes:['bossrush'],maps:[]},
+ {rank:6,xp:1650,title:'Biologiste',reward:'+5 énergie maximale.',towers:['spore','leech'],modes:[],maps:['garden']},
+ {rank:7,xp:2300,title:'Sentinelle',reward:'+0,10 énergie/s.',towers:['solar','rail'],modes:[],maps:[]},
+ {rank:8,xp:3150,title:'Tisseur du Néant',reward:'+1 PV de noyau.',towers:['portal','drone'],modes:['chaos'],maps:[]},
+ {rank:9,xp:4300,title:'Maître de Faille',reward:'+30 crédits de départ.',towers:[],modes:['endless'],maps:[]},
+ {rank:10,xp:5800,title:'Convergence',reward:'+0,20 énergie/s et +1 PV de noyau.',towers:[],modes:[],maps:[]}
+];
+const V196_BRANCHES=[
+ {id:'2.1',rank:2,metric:'lifetimeTowers',goal:25,title:'Fondations rapides',task:'Construire 25 tourelles, toutes parties confondues.',reward:'Débloque l’Acidificateur',tower:'acid'},
+ {id:'3.1',rank:3,metric:'lifetimeUpgrades',goal:45,title:'Atelier de campagne',task:'Acheter 45 améliorations de tourelles.',reward:'Débloque l’Arc Cascade',tower:'arc'},
+ {id:'4.1',rank:4,metric:'completedWaves',goal:24,title:'Tenue de ligne',task:'Nettoyer 24 vagues.',reward:'Badge de maîtrise tactique'},
+ {id:'4.2',rank:4,metric:'lifetimeKills',goal:650,title:'Contrôle de foule',task:'Éliminer 650 ennemis.',reward:'Affiche le compteur de horde avancé'},
+ {id:'5.1',rank:5,metric:'lifetimeEnergySpent',goal:420,title:'Réacteur sollicité',task:'Dépenser 420 points d’énergie.',reward:'Débloque le Prisme Fractal',tower:'prism'},
+ {id:'6.1',rank:6,metric:'bossKills',goal:4,title:'Briseur de titans',task:'Détruire 4 boss.',reward:'Cadre de profil Titan'},
+ {id:'6.2',rank:6,metric:'lifetimeUpgrades',goal:110,title:'Ingénierie MK',task:'Acheter 110 améliorations.',reward:'Détails de signatures MK2'},
+ {id:'7.1',rank:7,metric:'completedWaves',goal:60,title:'Front interminable',task:'Nettoyer 60 vagues.',reward:'Titre Sentinelle vétéran'},
+ {id:'8.1',rank:8,metric:'lifetimeKills',goal:1800,title:'Moissonneur',task:'Éliminer 1 800 ennemis.',reward:'Effet de portail renforcé'},
+ {id:'8.2',rank:8,metric:'lifetimeTowers',goal:90,title:'Réseau défensif',task:'Construire 90 tourelles.',reward:'Emblème Architecte'},
+ {id:'8.3',rank:8,metric:'lifetimeEnergySpent',goal:1100,title:'Flux impossible',task:'Dépenser 1 100 points d’énergie.',reward:'Aura de réacteur avancée'}
+];
+const V196_PROFILE_DEFAULT={lifetimeTowers:0,lifetimeUpgrades:0,lifetimeEnergySpent:0,lifetimeKills:0,bossKills:0};
+function v196EnsureProfile(profile){for(const[k,v]of Object.entries(V196_PROFILE_DEFAULT))if(!Number.isFinite(profile[k]))profile[k]=v;return profile}
+const _loadProfile196=loadProfile;
+loadProfile=function(){return v196EnsureProfile(_loadProfile196())};
+let bootProfile=loadProfile();saveProfile(bootProfile);
+
+ROADMAP.length=0;ROADMAP.push(...V196_MAIN.map(x=>({...x,description:x.reward})));
+for(const map of[TOWER_UNLOCK_RANK,MODE_UNLOCK_RANK,MAP_UNLOCK_RANK])for(const key of Object.keys(map))delete map[key];
+for(const tier of V196_MAIN){for(const id of tier.towers)TOWER_UNLOCK_RANK[id]=tier.rank;for(const id of tier.modes)MODE_UNLOCK_RANK[id]=tier.rank;for(const id of tier.maps)MAP_UNLOCK_RANK[id]=tier.rank}
+rankForXp=function(xp){let rank=0;for(const tier of V196_MAIN)if(xp>=tier.xp)rank=tier.rank;return rank};
+tierForRank=function(rank){return V196_MAIN.find(t=>t.rank===rank)||V196_MAIN[0]};
+nextTierForRank=function(rank){return V196_MAIN.find(t=>t.rank===rank+1)||null};
+requiredTowerRank=function(id){return Object.prototype.hasOwnProperty.call(TOWER_UNLOCK_RANK,id)?TOWER_UNLOCK_RANK[id]:0};
+requiredModeRank=function(id){return Object.prototype.hasOwnProperty.call(MODE_UNLOCK_RANK,id)?MODE_UNLOCK_RANK[id]:0};
+requiredMapRank=function(id){return Object.prototype.hasOwnProperty.call(MAP_UNLOCK_RANK,id)?MAP_UNLOCK_RANK[id]:0};
+rankProgressBonuses=function(rank){const r=clamp(Number(rank)||0,0,10);return{money:(r>=1?20:0)+(r>=5?25:0)+(r>=9?30:0),energy:(r>=2?5:0)+(r>=6?5:0),regen:(r>=3?.10:0)+(r>=7?.10:0)+(r>=10?.20:0),lives:(r>=4?1:0)+(r>=8?1:0)+(r>=10?1:0),sell:0}};
+function v196Metric(profile,key){return Math.max(0,Number(profile?.[key])||0)}
+function v196BranchUnlocked(branch,profile=game?.profile||loadProfile()){return rankForXp(profile.xp)>=branch.rank&&v196Metric(profile,branch.metric)>=branch.goal}
+function v196BranchForTower(id){return V196_BRANCHES.find(b=>b.tower===id)||null}
+
+/* -------------------------------------------------------------------------- */
+/*  Nouvelles tourelles                                                        */
+/* -------------------------------------------------------------------------- */
+DAMAGE_NAMES.acid='Corrosif';DAMAGE_NAMES.prism='Prismatique';
+if(!TOWERS.some(t=>t.id==='acid'))TOWERS.push({id:'acid',category:'bio',damageType:'toxic',name:'Acidificateur',icon:'⚗',cost:148,color:'#9dff55',kind:'acid',dmg:15,range:172,rate:.62,proj:610,splash:58,poison:10,desc:'Globules corrosifs anti-armure',mechanic:'Projette des globules acides qui éclaboussent un groupe et entretiennent une corrosion toxique. MK2 élargit la flaque et améliore la dose.',strong:'Blindés groupés, régénérants',weak:'Phaseurs, longue distance'});
+if(!TOWERS.some(t=>t.id==='arc'))TOWERS.push({id:'arc',category:'elemental',damageType:'electric',name:'Arc Cascade',icon:'⌁',cost:182,color:'#78b7ff',kind:'arc',dmg:36,range:205,rate:.88,chains:7,desc:'Foudre qui gagne en réseau',mechanic:'Crée une cascade électrique longue. MK2 ajoute deux rebonds et réduit la perte de puissance entre les cibles.',strong:'Boucliers, lignes mixtes',weak:'Cible unique isolée'});
+if(!TOWERS.some(t=>t.id==='prism'))TOWERS.push({id:'prism',category:'kinetic',damageType:'solar',name:'Prisme Fractal',icon:'△',cost:195,color:'#ff8ee8',kind:'prism',dmg:44,range:235,rate:1.05,proj:920,multi:3,desc:'Tir fractal à trois éclats',mechanic:'Sépare son faisceau en plusieurs éclats guidés. MK2 ajoute un quatrième éclat et les évolutions spécialisent la salve.',strong:'Vagues mixtes, égides',weak:'Très grosse armure sans soutien'});
+TOWER_UNLOCK_RANK.acid=2;TOWER_UNLOCK_RANK.arc=3;TOWER_UNLOCK_RANK.prism=5;
+const V196_TOWER_SIGNATURE={
+ rockets:t=>t.mk===1?'MK2 : 6 missiles au lieu de 4.':t.evolution==='alpha'?'ALPHA : 8 missiles lourds.':t.evolution==='omega'?'OMEGA : 7 missiles et recharge accélérée.':'MK2 : 6 missiles par salve.',
+ tesla:t=>t.mk===1?'MK2 : +2 rebonds électriques.':`Réseau actuel : ${(t.def.chains||5)+(t.mk===2?2:0)+(t.evolution==='omega'?1:0)} rebonds.`,
+ arc:t=>t.mk===1?'MK2 : +2 rebonds et pertes réduites.':'Cascade MK2 renforcée.',
+ drone:t=>t.mk===1?'MK2 : deux drones supplémentaires.':'Essaim MK2 élargi.',
+ mine:t=>t.mk===1?'MK2 : capacité de mines augmentée.':'Réseau de mines MK2.',
+ portal:t=>t.mk===1?'MK2 : renvoi spatial plus profond.':'Distorsion MK2 amplifiée.',
+ spore:t=>t.mk===1?'MK2 : nuage plus large et plus durable.':'Colonie toxique MK2.',
+ prism:t=>t.mk===1?'MK2 : quatrième éclat fractal.':t.evolution==='alpha'?'ALPHA : éclats lourds.':'MK2 : quatre éclats guidés.'
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Générateur de route par biome                                              */
+/* -------------------------------------------------------------------------- */
+function v196Seeded(seed){return window.__V19_RNG__?window.__V19_RNG__(seed>>>0):(()=>{let a=seed>>>0;return()=>((a=Math.imul(a^a>>>15,1|a)+0x6D2B79F5)>>>0)/4294967296})()}
+function v196Hash(text){return window.__V19_HASH__?window.__V19_HASH__(text):String(text).split('').reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261)}
+function v196GeneratePath(seed,mapId='rift',w=WORLD.w,h=WORLD.h,bounds=null){
+ const rng=v196Seeded((Number(seed)^v196Hash(mapId))>>>0),cfg={rift:{count:18,amp:.37,radius:68},glacier:{count:16,amp:.31,radius:54},forge:{count:19,amp:.40,radius:62},garden:{count:17,amp:.35,radius:92}}[mapId]||{count:17,amp:.34,radius:72};
+ const minY=bounds?.top??145,maxY=bounds?.bottom??h-145,span=maxY-minY,centre=(minY+maxY)/2,amp=span*cfg.amp,points=[],startX=bounds?.left??-115,endX=bounds?.right??w+115;
+ let y=centre+(rng()-.5)*amp*.45,trend=rng()<.5?-1:1;
+ for(let i=0;i<cfg.count;i++){
+   const t=i/(cfg.count-1),jitter=(i===0||i===cfg.count-1)?0:(rng()-.5)*(endX-startX)/cfg.count*.42,x=lerp(startX,endX,t)+jitter;
+   let target;
+   if(mapId==='glacier')target=centre+((Math.floor(i/2)%2?1:-1))*amp*(.68+rng()*.22)+Math.sin(t*TAU*1.25)*amp*.16;
+   else if(mapId==='forge')target=centre+((i%3===0?trend:-trend))*amp*(.55+rng()*.42)+Math.sin(t*TAU*2.4+rng())*amp*.16;
+   else if(mapId==='garden')target=centre+Math.sin(t*TAU*(1.15+rng()*.25)+1.2)*amp*.72+Math.sin(t*TAU*3.15)*amp*.22+(rng()-.5)*amp*.25;
+   else target=centre+Math.sin(t*TAU*(1.55+rng()*.20)+.4)*amp*.58+((i%2?1:-1))*amp*(.24+rng()*.24)+(rng()-.5)*amp*.26;
+   if(i%3===0&&i>0)trend*=-1;
+   const maxJump=span*(mapId==='glacier'?.34:mapId==='forge'?.39:.31);y=clamp(lerp(y,target,.72),minY,maxY);if(points.length)y=clamp(y,points.at(-1)[1]-maxJump,points.at(-1)[1]+maxJump);
+   if(i===0||i===cfg.count-1)y=clamp(centre+(rng()-.5)*amp*.65,minY,maxY);
+   points.push([x,y]);
+ }
+ return new PathModel(roundedRoute(points,cfg.radius,8));
+}
+window.__V196_GENERATE_PATH__=v196GeneratePath;
+Game.prototype.buildRouteVariants=function(){const seed=this.v19SeedValue??Date.now();this.v19SeedValue=seed;this.v19GeneratedPath=v196GeneratePath(seed,this.mapId||'rift');return[this.v19GeneratedPath]};
+
+/* -------------------------------------------------------------------------- */
+/*  Plateformes, gros obstacles et décors propres à la zone                    */
+/* -------------------------------------------------------------------------- */
+function v196BlockerType(mapId){return{rift:'monolith',glacier:'ice_block',forge:'lava_pool',garden:'root_mass'}[mapId]||'monolith'}
+function v196BuildTiles(paths,seed,mapId,multi=false){
+ const rng=v196Seeded(((Number(seed)||1)^0x7f4a7c15^v196Hash(mapId))>>>0),out=[],platforms=['power','range','rate','relay','recovery','power','range','rate','relay'];
+ const collidesPath=(x,y,d)=>paths.some(path=>path.distanceTo(x,y)<d);
+ for(let lane=0;lane<paths.length;lane++){
+   const path=paths[lane],platformCount=multi?8:9,blockCount=multi?13:16;
+   for(let i=0;i<platformCount;i++)for(let tries=0;tries<180;tries++){
+     const type=platforms[(i+Math.floor(rng()*platforms.length))%platforms.length],pd=path.total*(.07+rng()*.86),p=path.pointAt(pd),side=rng()<.5?-1:1,offset=92+rng()*72,x=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y=p.y+Math.sin(p.angle+Math.PI/2)*offset*side;
+     if(x<65||x>WORLD.w-65||y<65||y>WORLD.h-65||collidesPath(x,y,72)||out.some(t=>Math.hypot(t.x-x,t.y-y)<108))continue;
+     const tile={x,y,type,level:1,color:RESONANCE_TYPES[type].color,phase:rng()*TAU,surge:Math.round(12+rng()*48),lane};if(type==='recovery')tile.discount=rng()<.25?.55:.16;out.push(tile);break;
+   }
+   for(let i=0;i<blockCount;i++)for(let tries=0;tries<180;tries++){
+     const pd=path.total*(.04+rng()*.92),p=path.pointAt(pd),side=rng()<.5?-1:1,big=i<Math.max(3,Math.floor(blockCount*.28)),radius=big?58+rng()*38:27+rng()*31,offset=92+radius+rng()*90,x=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y=p.y+Math.sin(p.angle+Math.PI/2)*offset*side;
+     if(x<radius+25||x>WORLD.w-radius-25||y<radius+25||y>WORLD.h-radius-25||collidesPath(x,y,67)||out.some(t=>Math.hypot(t.x-x,t.y-y)<radius+(t.radius||32)+28))continue;
+     out.push({x,y,type:v196BlockerType(mapId),blocker:true,radius,rot:rng()*TAU,phase:rng()*TAU,lane,big});break;
+   }
+ }
+ return out;
+}
+window.__V196_BUILD_TILES__=v196BuildTiles;
+Game.prototype.makeTiles=function(){return v196BuildTiles([this.path],this.v19SeedValue||1,this.mapId||'rift',false)};
+Game.prototype.nearestPlatform=function(x,y,maximum=64){let best=null,bestD=maximum;for(const tile of this.tiles){if(tile.blocker||!RESONANCE_TYPES[tile.type])continue;const d=Math.hypot(tile.x-x,tile.y-y);if(d<=bestD){best=tile;bestD=d}}return best};
+const v196OldCanPlace=Game.prototype.canPlace;
+Game.prototype.canPlace=function(x,y){if(this.tiles?.some(tile=>tile.blocker&&Math.hypot(tile.x-x,tile.y-y)<(tile.radius+28)))return false;return v196OldCanPlace.call(this,x,y)};
+Game.prototype.drawResonancePlatforms=function(){
+ for(const tile of this.tiles){
+   if(tile.blocker){ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);const r=tile.radius,pulse=.5+.5*Math.sin(this.time*.8+(tile.phase||0));
+     if(tile.type==='lava_pool'){ctx.scale(1.35,.72);const g=ctx.createRadialGradient(0,0,r*.1,0,0,r);g.addColorStop(0,'#ffd166');g.addColorStop(.36,'#ff6538');g.addColorStop(.72,'#651b16');g.addColorStop(1,'rgba(10,4,5,.8)');ctx.fillStyle=g;ctx.shadowBlur=18;ctx.shadowColor='#ff6538';ctx.beginPath();ctx.ellipse(0,0,r,r*.76,0,0,TAU);ctx.fill();ctx.strokeStyle=`rgba(255,220,120,${.25+pulse*.25})`;ctx.lineWidth=2;for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(-r*.7+i*r*.4,-r*.2);ctx.lineTo(-r*.4+i*r*.35,r*.25);ctx.stroke()}}
+     else if(tile.type==='ice_block'){ctx.fillStyle='rgba(105,205,245,.22)';ctx.strokeStyle='rgba(190,247,255,.72)';ctx.lineWidth=2.2;ctx.shadowBlur=16;ctx.shadowColor='#66f4ff';ctx.beginPath();for(let i=0;i<7;i++){const a=i/7*TAU,rr=r*(.72+(i%3)*.1);i?ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr)}ctx.closePath();ctx.fill();ctx.stroke();ctx.globalAlpha=.55;ctx.beginPath();ctx.moveTo(-r*.3,-r*.5);ctx.lineTo(r*.2,r*.45);ctx.moveTo(r*.4,-r*.35);ctx.lineTo(-r*.15,r*.15);ctx.stroke()}
+     else if(tile.type==='root_mass'){ctx.strokeStyle='#55ffb3';ctx.fillStyle='rgba(15,58,43,.9)';ctx.lineWidth=Math.max(5,r*.14);ctx.lineCap='round';ctx.shadowBlur=12;ctx.shadowColor='#55ffb3';for(let i=0;i<7;i++){const a=i/7*TAU+(tile.phase||0),len=r*(.55+(i%3)*.16);ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(Math.cos(a+.4)*len*.55,Math.sin(a+.4)*len*.55,Math.cos(a)*len,Math.sin(a)*len);ctx.stroke()}ctx.beginPath();ctx.arc(0,0,r*.42,0,TAU);ctx.fill();ctx.stroke()}
+     else{ctx.fillStyle='rgba(34,22,58,.96)';ctx.strokeStyle='rgba(190,126,255,.66)';ctx.lineWidth=2;ctx.shadowBlur=18;ctx.shadowColor='#aa76ff';ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.55,-r*.25);ctx.lineTo(r*.38,r*.84);ctx.lineTo(-r*.42,r*.72);ctx.lineTo(-r*.62,-r*.18);ctx.closePath();ctx.fill();ctx.stroke();ctx.globalAlpha=.36;ctx.fillStyle='#aa76ff';ctx.fillRect(-r*.08,-r*.65,r*.16,r*1.1)}ctx.restore();continue;
+   }
+   const def=RESONANCE_TYPES[tile.type];if(!def)continue;const occupied=Boolean(this.platformTower(tile)),level=tile.level||1,pulse=.5+.5*Math.sin(this.time*1.8+tile.phase),outer=34+level*2;
+   ctx.save();ctx.translate(tile.x,tile.y);ctx.globalAlpha=occupied?.58:.92;ctx.fillStyle='rgba(4,9,21,.93)';ctx.strokeStyle=def.color;ctx.lineWidth=1.8;ctx.shadowBlur=occupied?8:12;ctx.shadowColor=def.color;ctx.beginPath();ctx.arc(0,0,outer,0,TAU);ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+   ctx.globalAlpha=.10+.05*pulse;ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,outer-5,0,TAU);ctx.fill();ctx.globalAlpha=.12;ctx.strokeStyle=def.color;ctx.lineWidth=1;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6,r=22+level;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.stroke();ctx.globalAlpha=occupied?.66:1;ctx.fillStyle=def.color;ctx.font='1000 20px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(def.icon,0,0);for(let i=0;i<3;i++){ctx.globalAlpha=i<level?.9:.14;ctx.beginPath();ctx.arc(-7+i*7,outer-8,1.7,0,TAU);ctx.fill()}ctx.restore();
+ }
+};
+Game.prototype.makeEnvironment=function(){
+ const rng=v196Seeded(((this.v19SeedValue||1)^0x23e7a091)>>>0),base=[];this.v196Decor=[];const paths=this.multi?.paths||[this.path];
+ for(let i=0;i<210;i++){const x=-WORLD.w*.25+rng()*WORLD.w*1.5,y=-WORLD.h*.25+rng()*WORLD.h*1.5,cx=clamp(x,0,WORLD.w),cy=clamp(y,0,WORLD.h);if(paths.some(p=>p.distanceTo(cx,cy)<88))continue;const crystal=rng()<.62;base.push({x,y,r:crystal?3+rng()*12:4+rng()*17,rot:rng()*TAU,type:crystal?'crystal':'vent'})}
+ const kind={rift:'rift_shard',glacier:'snowbank',forge:'slag',garden:'spore_pod'}[this.mapId]||'rift_shard';for(let i=0;i<36;i++){const x=rng()*WORLD.w,y=rng()*WORLD.h;if(paths.some(p=>p.distanceTo(x,y)<105))continue;this.v196Decor.push({x,y,r:12+rng()*30,rot:rng()*TAU,type:kind})}
+ return base;
+};
+function v196BuildAtmosphere(gameInstance,seed=1){const rng=v196Seeded((Number(seed)^0xbb67ae85)>>>0),count=settings.quality==='high'?85:settings.quality==='medium'?48:24;gameInstance.v196Atmosphere=Array.from({length:count},()=>({x:rng()*WORLD.w,y:rng()*WORLD.h,z:.45+rng()*.9,s:rng()*TAU,r:.8+rng()*2.4}))}
+function v196DrawDecor(g){for(const d of g.v196Decor||[]){ctx.save();ctx.translate(d.x,d.y);ctx.rotate(d.rot);if(d.type==='slag'){ctx.globalAlpha=.25;ctx.fillStyle='#ff6538';ctx.shadowBlur=12;ctx.shadowColor='#ff6538';ctx.beginPath();ctx.arc(0,0,d.r*.42,0,TAU);ctx.fill();ctx.globalAlpha=.2;ctx.strokeStyle='#ffd166';ctx.beginPath();ctx.arc(0,0,d.r*.8,.2,2.7);ctx.stroke()}else if(d.type==='snowbank'){ctx.globalAlpha=.18;ctx.fillStyle='#b9f7ff';ctx.beginPath();ctx.ellipse(0,0,d.r,d.r*.42,0,0,TAU);ctx.fill();ctx.globalAlpha=.28;ctx.strokeStyle='#eaffff';ctx.stroke()}else if(d.type==='spore_pod'){ctx.globalAlpha=.2;ctx.fillStyle='#55ffb3';ctx.beginPath();ctx.arc(0,0,d.r*.55,0,TAU);ctx.fill();for(let i=0;i<5;i++){const a=i/5*TAU;ctx.beginPath();ctx.arc(Math.cos(a)*d.r*.65,Math.sin(a)*d.r*.65,d.r*.13,0,TAU);ctx.fill()}}else{ctx.globalAlpha=.16;ctx.fillStyle='#aa76ff';ctx.beginPath();ctx.moveTo(0,-d.r);ctx.lineTo(d.r*.5,d.r*.6);ctx.lineTo(-d.r*.45,d.r*.45);ctx.closePath();ctx.fill()}ctx.restore()}}
+function v196DrawAtmosphere(g){const list=g.v196Atmosphere||[],map=g.mapId;for(const p of list){let x=p.x,y=p.y,a=.25,size=p.r;if(map==='forge'){y=((p.y-g.time*26*p.z)%WORLD.h+WORLD.h)%WORLD.h;a=.28;ctx.fillStyle='#ff9f43';ctx.shadowColor='#ff6538'}else if(map==='glacier'){x=((p.x+g.time*11*p.z)%WORLD.w+WORLD.w)%WORLD.w;y=((p.y+g.time*18*p.z)%WORLD.h+WORLD.h)%WORLD.h;a=.32;ctx.fillStyle='#dffcff';ctx.shadowColor='#66f4ff'}else if(map==='garden'){x=p.x+Math.sin(g.time*.7+p.s)*18;y=((p.y-g.time*7*p.z)%WORLD.h+WORLD.h)%WORLD.h;a=.22;ctx.fillStyle='#75ffbf';ctx.shadowColor='#55ffb3'}else{x=p.x+Math.sin(g.time*.45+p.s)*10;y=p.y+Math.cos(g.time*.38+p.s)*9;a=.2;ctx.fillStyle='#c596ff';ctx.shadowColor='#aa76ff'}ctx.save();ctx.globalAlpha=a;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(x,y,size,0,TAU);ctx.fill();ctx.restore()}}
+window.__V196_BUILD_ATMOSPHERE__=v196BuildAtmosphere;
+
+/* -------------------------------------------------------------------------- */
+/*  Reliques empilables : cinq types, trois niveaux                            */
+/* -------------------------------------------------------------------------- */
+const V196_RELICS={
+ crit:{icon:'✦',name:'Prisme critique',color:'#ffd166',levels:['+6 % de critique.','1 projectile sur 3 devient prismatique et critique garanti.','1 projectile sur 2 devient prismatique, critique ×2,35.']},
+ damage:{icon:'◆',name:'Noyau offensif',color:'#ff5c74',levels:['+10 % de dégâts.','+10 % de dégâts supplémentaires.','+12 % de dégâts supplémentaires.']},
+ range:{icon:'◎',name:'Optique quantique',color:'#66f4ff',levels:['+8 % de portée.','+8 % de portée supplémentaire.','+9 % de portée supplémentaire.']},
+ tempo:{icon:'⟳',name:'Horloge impossible',color:'#aa76ff',levels:['+8 % de cadence.','+8 % de cadence et +6 % d’effets.','+10 % de cadence et +8 % d’effets.']},
+ core:{icon:'⬡',name:'Cœur auxiliaire',color:'#55ffb3',levels:['+12 énergie max et +1 PV.','+12 énergie max et +1 PV.','+16 énergie max et +1 PV.']}
+};
+const relicInventory=document.createElement('div');relicInventory.id='relicInventory';relicInventory.className='glass';document.body.appendChild(relicInventory);
+Game.prototype.v196RelicLevel=function(id){return this.v196Relics?.[id]||0};
+Game.prototype.v196ApplyRelicStep=function(id,level){if(id==='crit')this.mods.crit+=[0,.06,.04,.04][level]||0;if(id==='damage')this.mods.damage*=[1,1.10,1.10,1.12][level]||1;if(id==='range')this.mods.range*=[1,1.08,1.08,1.09][level]||1;if(id==='tempo'){this.mods.rate*=[1,.92,.92,.90][level]||1;this.mods.status*=[1,1,1.06,1.08][level]||1}if(id==='core'){const e=[0,12,12,16][level]||0;this.maxEnergy+=e;this.energy=Math.min(this.maxEnergy,this.energy+e);this.maxLives+=1;this.lives=Math.min(this.maxLives,this.lives+1)}};
+Game.prototype.v196GrantRelic=function(id,silent=false){const def=V196_RELICS[id];if(!def)return false;this.v196Relics=this.v196Relics||Object.fromEntries(Object.keys(V196_RELICS).map(k=>[k,0]));const next=Math.min(3,(this.v196Relics[id]||0)+1);if(next===(this.v196Relics[id]||0))return false;this.v196Relics[id]=next;this.v196ApplyRelicStep(id,next);this.relics.push(`${id}:${next}`);this.recalcAll();this.v196RenderRelics();if(!silent)this.toast(`${def.name} • niveau ${next}/3`);return true};
+Game.prototype.v196SetRelics=function(stacks){for(const id of Object.keys(V196_RELICS)){const target=clamp(Number(stacks?.[id])||0,0,3),current=this.v196Relics?.[id]||0;for(let level=current+1;level<=target;level++){this.v196Relics[id]=level;this.v196ApplyRelicStep(id,level)}}this.recalcAll();this.v196RenderRelics()};
+Game.prototype.v196RenderRelics=function(){const active=this.started&&!document.querySelector('#startOverlay:not(.hidden)');relicInventory.classList.toggle('show',active);relicInventory.innerHTML=Object.entries(V196_RELICS).map(([id,d])=>{const level=this.v196Relics?.[id]||0;return`<div class="v196-relic-slot ${level?'active':''}" style="--relic-color:${d.color}" title="${d.name}${level?' — '+d.levels[level-1]:' — vide'}"><span class="ico">${d.icon}</span><span><b class="lvl">${level?'N'+level:'—'}</b><span class="pips"><i class="${level>=1?'on':''}"></i><i class="${level>=2?'on':''}"></i><i class="${level>=3?'on':''}"></i></span></span></div>`}).join('')};
+Game.prototype.offerRelic=function(){
+ if(this.multi?.enabled)return;this.paused=true;clearInterval(this.relicGateInterval);clearTimeout(this.relicArmTimer);const available=Object.keys(V196_RELICS).filter(id=>(this.v196Relics?.[id]||0)<3),source=available.length?available:Object.keys(V196_RELICS),rng=v196Seeded(((this.v19SeedValue||1)^Math.imul(this.wave+1,0x9e3779b1))>>>0),choices=[...source].sort(()=>rng()-.5).slice(0,3),box=$('#relicChoices'),overlay=$('#relicOverlay'),duration=1600,start=performance.now();box.innerHTML='';overlay.classList.remove('ready');overlay.classList.add('arming');
+ for(const[idIndex,id]of choices.entries()){const d=V196_RELICS[id],current=this.v196Relics?.[id]||0,next=Math.min(3,current+1),b=document.createElement('button');b.className='choice-card relic-card relic-locked'+(current>=3?' maxed':'');b.disabled=true;b.style.animationDelay=`${.15+idIndex*.13}s`;b.innerHTML=`<div class="big" style="color:${d.color}">${d.icon}</div><h3>${d.name}</h3><p>${current>=3?'Niveau maximal : conversion en 100 crédits et 20 énergie.':d.levels[next-1]}</p><span class="relic-level">NIVEAU ${current} → ${current>=3?'MAX':next}</span>`;b.onclick=()=>{if(b.disabled||!overlay.classList.contains('ready'))return;if(current>=3){this.money+=100;this.energy=Math.min(this.maxEnergy,this.energy+20);this.toast('Relique saturée • +100¤ et +20ϟ')}else this.v196GrantRelic(id);overlay.classList.add('hidden');overlay.classList.remove('arming','ready');this.paused=false;this.updateUI(true)};box.appendChild(b)}
+ $('#relicGateText').textContent='Analyse des signatures…';$('#relicGateTime').textContent='1,6 s';overlay.classList.remove('hidden');this.relicGateInterval=setInterval(()=>{const remain=Math.max(0,duration-(performance.now()-start));$('#relicGateTime').textContent=(remain/1000).toFixed(1).replace('.',',')+' s'},80);this.relicArmTimer=setTimeout(()=>{clearInterval(this.relicGateInterval);overlay.classList.remove('arming');overlay.classList.add('ready');$('#relicGateText').textContent='Choisis une amélioration de relique';$('#relicGateTime').textContent='PRÊT';box.querySelectorAll('.relic-card').forEach(b=>{b.disabled=false;b.classList.remove('relic-locked')})},duration)
+};
+const v196FireProjectile=Tower.prototype.fireProjectile;
+Tower.prototype.fireProjectile=function(target,opts={}){const level=this.game.v196RelicLevel?.('crit')||0,chance=level>=3?.5:level>=2?1/3:0;if(chance&&Math.random()<chance)opts={...opts,color:level>=3?'#fff083':'#ff8ee8',effects:{...(opts.effects||{}),v196PrismCrit:true,v196PrismLevel:level}};return v196FireProjectile.call(this,target,opts)};
+const v196ProjectileApply=Projectile.prototype.apply;
+Projectile.prototype.apply=function(enemy,mult){if(!this.effects?.v196PrismCrit)return v196ProjectileApply.call(this,enemy,mult);const oldDmg=this.damage,oldCrit=this.tower.stats.crit;this.damage*=this.effects.v196PrismLevel>=3?2.35:2;this.tower.stats.crit=0;try{v196ProjectileApply.call(this,enemy,mult)}finally{this.damage=oldDmg;this.tower.stats.crit=oldCrit}if(!this.v196Announced&&settings.numbers){this.v196Announced=true;this.game.texts.push(new FloatText(enemy.x,enemy.y-30,'PRISME CRIT',this.color,9))}};
+
+/* -------------------------------------------------------------------------- */
+/*  Signatures personnelles MK2 et nouveaux comportements                      */
+/* -------------------------------------------------------------------------- */
+const v196TowerUpdate=Tower.prototype.update;
+Tower.prototype.update=function(dt){
+ if(this.def.kind==='rockets'){
+   this.level=Math.min(10,1+Math.floor(this.xp/100));this.updateBuff();const g=this.game;if(g.time<this.disabledUntil)return;const frozen=g.time<this.frozenUntil?1.75:1,over=g.time<this.overdriveUntil||g.time<g.overdriveUntil?.58:1;this.cooldown-=dt/(frozen*over*this.buff.rate);const count=4+(this.mk===2?2:0)+(this.evolution==='alpha'?2:this.evolution==='omega'?1:0),targets=this.targets(Math.min(count,6));if(!targets.length)return;this.angle=Math.atan2(targets[0].y-this.y,targets[0].x-this.x);if(this.cooldown>0)return;for(let i=0;i<count;i++)this.fireProjectile(targets[i%targets.length],{kind:'rockets',damage:this.stats.dmg*(count>6?.88:1),splash:this.stats.splash});this.cooldown=this.stats.rate*(this.evolution==='omega'?.72:1);return;
+ }
+ if(this.def.kind==='acid'||this.def.kind==='arc'||this.def.kind==='prism'){
+   this.level=Math.min(10,1+Math.floor(this.xp/100));this.updateBuff();const g=this.game;if(g.time<this.disabledUntil)return;const frozen=g.time<this.frozenUntil?1.75:1,over=g.time<this.overdriveUntil||g.time<g.overdriveUntil?.58:1;this.cooldown-=dt/(frozen*over*this.buff.rate);const count=this.def.kind==='prism'?(3+(this.mk===2?1:0)+(this.evolution==='omega'?1:0)):1,targets=this.targets(count);if(!targets.length)return;this.angle=Math.atan2(targets[0].y-this.y,targets[0].x-this.x);if(this.cooldown>0)return;
+   if(this.def.kind==='acid')this.fireProjectile(targets[0],{damage:this.stats.dmg,splash:this.stats.splash*(this.mk===2?1.28:1),color:'#9dff55',effects:{poison:(this.def.poison||10)*(this.mk===2?1.35:1),damageType:'toxic',cloud:{radius:this.mk===2?64:52,duration:this.mk===2?3.1:2.4,dps:this.stats.dmg*.34}}});
+   else if(this.def.kind==='arc'){const old=this.def.chains;this.def.chains=7+(this.mk===2?2:0)+(this.evolution==='omega'?1:0);this.fireTesla(targets[0]);this.def.chains=old}
+   else for(let i=0;i<count;i++)this.fireProjectile(targets[i%targets.length],{damage:this.stats.dmg*(count>4?.86:1),speed:this.stats.proj,color:i%2?'#ff8ee8':'#fff083',effects:{damageType:'solar'}});
+   this.cooldown=this.stats.rate*(this.evolution==='omega'?.78:1);return;
+ }
+ const oldMulti=this.def.multi,oldChains=this.def.chains;if(this.mk===2&&this.def.kind==='drone')this.def.multi=(oldMulti||4)+2;if(this.mk===2&&this.def.kind==='tesla')this.def.chains=(oldChains||5)+2+(this.evolution==='omega'?1:0);const result=v196TowerUpdate.call(this,dt);this.def.multi=oldMulti;this.def.chains=oldChains;return result;
+};
+const v196Portal=Tower.prototype.firePortal;
+Tower.prototype.firePortal=function(target){if(this.mk!==2)return v196Portal.call(this,target);const oldBoss=target.boss,oldDistance=target.distance;v196Portal.call(this,target);const moved=oldDistance-target.distance,targetBonus=(oldBoss?45:110)+(this.evolution==='alpha'?55:0);target.distance=Math.max(20,target.distance-targetBonus);if(moved<=0)target.distance=Math.max(20,oldDistance-targetBonus)};
+const v196MineUpdate=Tower.prototype.update;
+/* La capacité maximale des mines est gérée dans l'update d'origine par une petite adaptation de la liste. */
+const v196DrawWeapon=Tower.prototype.drawWeapon;
+Tower.prototype.drawWeapon=function(col,g){const k=this.def.kind;if(!['acid','arc','prism'].includes(k))return v196DrawWeapon.call(this,col,g);ctx.fillStyle=col;ctx.strokeStyle=col;ctx.lineWidth=2;if(k==='acid'){ctx.fillRect(0,-7,25,14);ctx.beginPath();ctx.arc(27,0,8,0,TAU);ctx.stroke();ctx.fillStyle='#10182c';ctx.beginPath();ctx.arc(27,0,3,0,TAU);ctx.fill()}else if(k==='arc'){ctx.rotate(-this.angle+g.time*.8);for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,0,8+i*6,i*.9,g.time*1.2+i+Math.PI);ctx.stroke()}ctx.fillStyle=col;ctx.beginPath();ctx.arc(0,0,6,0,TAU);ctx.fill()}else{ctx.beginPath();ctx.moveTo(2,-14);ctx.lineTo(31,0);ctx.lineTo(2,14);ctx.closePath();ctx.stroke();ctx.fillStyle='rgba(255,255,255,.18)';ctx.fill();ctx.beginPath();ctx.arc(10,0,5,0,TAU);ctx.fillStyle=col;ctx.fill()}};
+/* Rendu de tourelle propre : suppression du bandeau de nom et de l'icône inférieure. */
+Tower.prototype.draw=function(){this.drawAura();const g=this.game,col=this.def.color,disabled=g.time<this.disabledUntil,frozen=g.time<this.frozenUntil;ctx.save();ctx.translate(this.x,this.y);ctx.globalAlpha=disabled?.35:1;ctx.shadowBlur=18;ctx.shadowColor=col;this.drawChassis(col);ctx.rotate(this.angle);this.drawWeapon(col,g);ctx.rotate(-this.angle);ctx.fillStyle='#fff';ctx.font='900 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(this.def.icon,0,1);const branches=[['#ff4e9b',this.up.power,-2.55],['#66f4ff',this.up.range,-.45],['#aa76ff',this.up.rate,1.65]];for(const[c,v,start]of branches)if(v){ctx.strokeStyle=c;ctx.shadowBlur=8;ctx.shadowColor=c;ctx.lineWidth=2.2;ctx.beginPath();ctx.arc(0,0,30,start,start+1.45*(v/5));ctx.stroke()}ctx.shadowBlur=0;if(this.mk===2){ctx.strokeStyle='#ffd166';ctx.globalAlpha=.72;ctx.setLineDash([3,5]);ctx.beginPath();ctx.arc(0,0,34,-g.time*1.2,TAU-g.time*1.2);ctx.stroke();ctx.setLineDash([])}if(this.evolution){ctx.fillStyle=this.evolution==='alpha'?'#ffd166':'#ff68e7';ctx.globalAlpha=.9;ctx.beginPath();ctx.arc(0,-32,4,0,TAU);ctx.fill()}if(disabled){ctx.fillStyle='#ff5c74';ctx.font='900 18px system-ui';ctx.fillText('×',0,-26)}if(frozen){ctx.strokeStyle='#b9f7ff';ctx.beginPath();ctx.arc(0,0,28,0,TAU);ctx.stroke()}ctx.restore();if(g.selected===this){ctx.save();ctx.globalAlpha=.1;ctx.fillStyle=col;ctx.strokeStyle=col;ctx.beginPath();ctx.arc(this.x,this.y,this.stats.range*this.buff.range,0,TAU);ctx.fill();ctx.globalAlpha=.55;ctx.stroke();ctx.restore()}};
+
+/* -------------------------------------------------------------------------- */
+/*  Équilibrage du premier boss et barre détaillée                             */
+/* -------------------------------------------------------------------------- */
+const v196BuildWave=Game.prototype.buildWave;
+Game.prototype.buildWave=function(waveNumber=this.wave,anomaly=this.anomaly){const batch=v196BuildWave.call(this,waveNumber,anomaly);if(waveNumber<=6)for(const item of batch)if(item.boss){item.boss={...item.boss,hp:Math.round(item.boss.hp*1.02),shield:Math.round(item.boss.shield*.34),armor:Math.max(.06,item.boss.armor-.05)}}return batch};
+const v196EnemyUpdate=Enemy.prototype.update;
+Enemy.prototype.update=function(dt){if(this.boss&&this.wave<=6)this.damageToBase=5;return v196EnemyUpdate.call(this,dt)};
+const bossBar=document.getElementById('bossBar');if(bossBar&&!bossBar.querySelector('.v196-boss-values'))bossBar.insertAdjacentHTML('beforeend','<div class="v196-boss-values" id="v196BossValues"></div><div class="v196-shield-bar"><i id="v196BossShield"></i></div>');
+
+/* -------------------------------------------------------------------------- */
+/*  Compteurs de carrière et verrouillage des branches                         */
+/* -------------------------------------------------------------------------- */
+Game.prototype.v196Track=function(key,amount=1){this.profile=v196EnsureProfile(this.profile||loadProfile());const before=V196_BRANCHES.filter(b=>b.metric===key).filter(b=>v196BranchUnlocked(b,this.profile)).map(b=>b.id);this.profile[key]=v196Metric(this.profile,key)+amount;saveProfile(this.profile);const unlocked=V196_BRANCHES.filter(b=>b.metric===key&&v196BranchUnlocked(b,this.profile)&&!before.includes(b.id));if(unlocked.length)this.toast(`Branche ${unlocked[0].id} débloquée • ${unlocked[0].reward}`)};
+function v196LocalTrackAllowed(g,tower=null){if(!g.multi?.enabled)return true;return tower?.owner===g.multi.localSide}
+const v196Upgrade=Tower.prototype.upgrade;Tower.prototype.upgrade=function(branch){const before=this.up[branch],energy=this.game.energy;const r=v196Upgrade.call(this,branch);if(this.up[branch]>before&&v196LocalTrackAllowed(this.game,this)){this.game.v196Track('lifetimeUpgrades',1);this.game.v196Track('lifetimeEnergySpent',Math.max(0,energy-this.game.energy))}return r};
+const v196Promote=Tower.prototype.promoteMk2;Tower.prototype.promoteMk2=function(){const before=this.mk,energy=this.game.energy,r=v196Promote.call(this);if(this.mk>before&&v196LocalTrackAllowed(this.game,this)){this.game.v196Track('lifetimeUpgrades',3);this.game.v196Track('lifetimeEnergySpent',Math.max(0,energy-this.game.energy))}return r};
+const v196Evolve=Tower.prototype.evolve;Tower.prototype.evolve=function(type){const before=this.evolution,energy=this.game.energy,r=v196Evolve.call(this,type);if(!before&&this.evolution&&v196LocalTrackAllowed(this.game,this)){this.game.v196Track('lifetimeUpgrades',3);this.game.v196Track('lifetimeEnergySpent',Math.max(0,energy-this.game.energy))}return r};
+const v196Place=Game.prototype.placeTower;Game.prototype.placeTower=function(x,y){const before=this.towers.length,r=v196Place.call(this,x,y);if(this.towers.length>before&&!this.multi?.enabled)this.v196Track('lifetimeTowers',1);return r};
+const v196EnergyTech=Game.prototype.upgradeEnergyTech;Game.prototype.upgradeEnergyTech=function(id){const before=this.energy,r=v196EnergyTech.call(this,id);if(!this.multi?.enabled&&this.energy<before){this.v196Track('lifetimeUpgrades',1);this.v196Track('lifetimeEnergySpent',before-this.energy)}return r};
+const v196Ability=Game.prototype.useAbility;Game.prototype.useAbility=function(id){const before=this.energy,r=v196Ability.call(this,id);if(!this.multi?.enabled&&this.energy<before)this.v196Track('lifetimeEnergySpent',before-this.energy);return r};
+const v196EnemyDie=Enemy.prototype.die;Enemy.prototype.die=function(tower){const wasBoss=!!this.boss,wasDead=this.dead,r=v196EnemyDie.call(this,tower);if(!wasDead&&this.dead&&v196LocalTrackAllowed(this.game,tower)){this.game.v196Track('lifetimeKills',1);if(wasBoss)this.game.v196Track('bossKills',1)}return r};
+const v196RenderTowerList=Game.prototype.renderTowerList;
+Game.prototype.renderTowerList=function(){v196RenderTowerList.call(this);for(const card of $$('#towerList .tower-card')){const branch=v196BranchForTower(card.dataset.id);if(!branch)continue;const unlocked=v196BranchUnlocked(branch,this.profile);if(!unlocked){card.classList.add('locked');card.disabled=false;card.querySelector('em').textContent='—';const small=card.querySelector('small');if(small)small.textContent=`Branche ${branch.id} • ${branch.task}`;let badge=card.querySelector('.rank-lock');if(!badge){badge=document.createElement('span');badge.className='rank-lock';card.appendChild(badge)}badge.textContent=branch.id;card.onclick=()=>{this.toast(`${branch.id} : ${branch.task}`);this.openRoadmap()}}}};
+const v196RefreshCards=Game.prototype.refreshTowerCards;Game.prototype.refreshTowerCards=function(){v196RefreshCards.call(this);for(const card of $$('#towerList .tower-card')){const branch=v196BranchForTower(card.dataset.id);if(branch&&!v196BranchUnlocked(branch,this.profile)){card.classList.add('locked');card.disabled=false}}};
+const v196BeginPlacement=Game.prototype.beginPlacement;Game.prototype.beginPlacement=function(id){const branch=v196BranchForTower(id);if(branch&&!v196BranchUnlocked(branch,this.profile)){this.toast(`Tour verrouillée • branche ${branch.id}`);this.openRoadmap();return}return v196BeginPlacement.call(this,id)};
+
+/* -------------------------------------------------------------------------- */
+/*  Feuille de route lisible                                                   */
+/* -------------------------------------------------------------------------- */
+Game.prototype.updateProfileUI=function(){this.profile=v196EnsureProfile(this.profile||loadProfile());this.playerRank=rankForXp(this.profile.xp);const tier=tierForRank(this.playerRank),next=nextTierForRank(this.playerRank),start=tier.xp,end=next?next.xp:start+1,pct=next?clamp((this.profile.xp-start)/(end-start)*100,0,100):100;if($('#profileRank'))$('#profileRank').textContent=`RANG ${tier.rank}/10 • ${tier.title.toUpperCase()}`;if($('#profileNext'))$('#profileNext').textContent=next?`${Math.max(0,next.xp-this.profile.xp)} XP avant ${next.title}`:'Convergence maximale atteinte';if($('#profileXpFill'))$('#profileXpFill').style.width=pct+'%';if($('#profileStats'))$('#profileStats').textContent=`${this.profile.completedWaves||0} vagues • ${this.profile.victories||0} victoire(s) • ${this.profile.lifetimeKills||0} éliminations`;if($('#rankMiniName'))$('#rankMiniName').textContent=`Rang ${tier.rank}/10 • ${tier.title}`;if($('#rankMiniXp'))$('#rankMiniXp').textContent=next?`${this.profile.xp}/${next.xp} XP`:'MAX';if($('#rankMiniFill'))$('#rankMiniFill').style.width=pct+'%'};
+Game.prototype.openRoadmap=function(){this.profile=v196EnsureProfile(this.profile||loadProfile());this.updateProfileUI();const current=this.playerRank,tier=tierForRank(current),next=nextTierForRank(current),progress=next?clamp((this.profile.xp-tier.xp)/(next.xp-tier.xp)*100,0,100):100,bonus=rankProgressBonuses(current);$('#roadmapProgress').innerHTML=`<div class="profile-line"><strong>RANG ${current}/10 • ${tier.title.toUpperCase()}</strong><span>${next?`${this.profile.xp}/${next.xp} XP`:'CONVERGENCE MAXIMALE'}</span></div><div class="xp-track"><i style="width:${progress}%"></i></div><div class="rank-summary"><div class="statbox"><label>Crédits départ</label><b>+${bonus.money}</b></div><div class="statbox"><label>Énergie max.</label><b>+${bonus.energy}</b></div><div class="statbox"><label>Recharge</label><b>+${bonus.regen.toFixed(2)}/s</b></div><div class="statbox"><label>PV noyau</label><b>+${bonus.lives}</b></div></div>`;$('#roadmapList').innerHTML=`<div class="v196-roadmap">${V196_MAIN.map(node=>{const state=node.rank<current?'done':node.rank===current?'current':'locked',branches=V196_BRANCHES.filter(b=>b.rank===node.rank),unlocks=[...node.towers.map(id=>TOWERS.find(t=>t.id===id)?.name).filter(Boolean),...node.maps.map(id=>MAPS[id]?.name).filter(Boolean),...node.modes.map(id=>MODES[id]?.name).filter(Boolean)];return`<section class="v196-main-node ${state}"><div class="v196-rank-orb">${node.rank}</div><div class="v196-node-copy"><h3><span>${node.title}</span><em>${node.rank?node.xp+' XP':'DÉPART'}</em></h3><p>${unlocks.length?'Déblocages : '+unlocks.join(' • '):'Palier de spécialisation.'}</p><div class="v196-node-reward">${node.reward}</div>${branches.length?`<div class="v196-branch-list">${branches.map(b=>{const value=v196Metric(this.profile,b.metric),pct=clamp(value/b.goal*100,0,100),ok=v196BranchUnlocked(b,this.profile);return`<article class="v196-branch ${ok?'unlocked':''}"><h4><span>${ok?'✓ ':''}${b.id} • ${b.title}</span><span>${Math.min(value,b.goal)}/${b.goal}</span></h4><p>${b.task}</p><div class="v196-task-track"><i style="width:${pct}%"></i></div><small>${b.reward}</small></article>`}).join('')}</div>`:''}</div></section>`}).join('')}</div>`;$('#roadmapOverlay').classList.remove('hidden')};
+Game.prototype.showRankUnlock=function(before,after){const node=tierForRank(after),items=[...node.towers.map(id=>TOWERS.find(t=>t.id===id)).filter(Boolean).map(t=>`<span class="unlock-chip new">${t.icon} ${t.name}</span>`),...node.maps.map(id=>`<span class="unlock-chip new">${MAPS[id].icon} ${MAPS[id].name}</span>`),...node.modes.map(id=>`<span class="unlock-chip new">${MODES[id].icon} ${MODES[id].name}</span>`),`<span class="unlock-chip new">${node.reward}</span>`];$('#unlockTitle').textContent=`RANG ${after}/10 • ${node.title.toUpperCase()}`;$('#unlockText').textContent='La ligne principale progresse. Les branches secondaires restent liées à tes actions de carrière.';$('#unlockItems').innerHTML=items.join('');$('#unlockOverlay').classList.remove('hidden');this.paused=true};
+
+/* -------------------------------------------------------------------------- */
+/*  Inspecteur : signature personnelle sans alourdir le panneau                */
+/* -------------------------------------------------------------------------- */
+const v196Inspector=Game.prototype.renderInspector;
+Game.prototype.renderInspector=function(){v196Inspector.call(this);const t=this.selected,el=$('#inspector');if(!t||!el.classList.contains('open'))return;const signature=V196_TOWER_SIGNATURE[t.def.id]?.(t);if(signature&&!el.querySelector('.v196-signature')){const platform=el.querySelector('.v19-platform');platform?.insertAdjacentHTML('afterend',`<div class="v196-signature"><b>✦ SIGNATURE ${t.mk===2?'MK2':'À DÉBLOQUER'}</b><span>${signature}</span></div>`)}};
+
+/* -------------------------------------------------------------------------- */
+/*  Portail : mini compte à rebours et ambiance de biome                       */
+/* -------------------------------------------------------------------------- */
+Game.prototype.v196DrawPortalCountdown=function(path=this.path,entry=this.entryDistance,color='#66f4ff'){if(!this.started||this.waveCountdown<=0)return;const p=path.pointAt(entry),seconds=Math.max(0,Math.ceil(this.waveCountdown));ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle='rgba(4,8,20,.82)';ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-48,82,96,20,10);ctx.fill();ctx.stroke();ctx.fillStyle='#effbff';ctx.font='900 8px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(`PROCHAINE VAGUE • ${seconds}s`,0,92);ctx.restore()};
+const v196DrawWorld=Game.prototype.drawWorld;
+Game.prototype.drawWorld=function(th){v196DrawWorld.call(this,th);v196DrawDecor(this);v196DrawAtmosphere(this);if(!this.multi?.enabled)this.v196DrawPortalCountdown(this.path,this.entryDistance,th.accent)};
+
+/* -------------------------------------------------------------------------- */
+/*  Capacités : noms sans ambiguïté                                            */
+/* -------------------------------------------------------------------------- */
+Object.assign(ABILITIES.overdrive,{name:'⚡ Overdrive',cost:72,cooldown:38,duration:12,desc:'12 s de cadence renforcée'});
+Object.assign(ABILITIES.riftbomb,{name:'💥 Frappe Rift',cost:80,cooldown:32,desc:'Impact ciblé • rayon 175'});
+Object.assign(ABILITIES.cryo,{name:'❄ Onde Cryo',cost:88,cooldown:50,duration:3,desc:'Onde 3 s • gel 5 s • ralentissement 10 s'});
+Object.assign(ABILITIES.repair,{name:'✚ Nanoréparation',cost:70,cooldown:45,desc:'Restaure 30 % du noyau'});
+const v196UpdateUI=Game.prototype.updateUI;
+Game.prototype.updateUI=function(force=false){v196UpdateUI.call(this,force);this.v196RenderRelics();const boss=this.enemies.find(e=>e.boss&&!e.dead),values=$('#v196BossValues'),shield=$('#v196BossShield');if(boss){if(values)values.textContent=`PV ${Math.ceil(boss.hp).toLocaleString('fr-FR')} / ${Math.ceil(boss.maxHp).toLocaleString('fr-FR')} • Bouclier ${Math.ceil(boss.shield)} / ${Math.ceil(boss.maxShield||0)}`;if(shield)shield.style.width=100*clamp((boss.shield||0)/(boss.maxShield||1),0,1)+'%'}else{if(values)values.textContent='';if(shield)shield.style.width='0%'}for(const b of $$('[data-ability]')){const id=b.dataset.ability,a=ABILITIES[id],remain=this.abilityRemaining(id),active=id==='overdrive'&&this.time<this.overdriveUntil,nova=id==='cryo'&&this.v19Nova;if(active){b.querySelector('b').textContent=`⚡ OVERDRIVE • ${Math.max(0,Math.ceil(this.overdriveUntil-this.time))}s`;b.querySelector('small').textContent='Toutes les tourelles accélérées'}else if(nova){b.querySelector('b').textContent=`❄ ONDE CRYO • ${(Math.max(0,3-this.v19Nova.elapsed)).toFixed(1)}s`;b.querySelector('small').textContent='Gel 5 s puis ralentissement 10 s'}else if(remain<=0){const labels={overdrive:'⚡ OVERDRIVE • 72',riftbomb:'💥 FRAPPE RIFT • 80',cryo:'❄ ONDE CRYO • 88',repair:'✚ NANO-RÉPARATION • 70'};b.querySelector('b').textContent=labels[id];b.querySelector('small').textContent=a.desc+` • recharge ${a.cooldown}s`}}};
+
+/* -------------------------------------------------------------------------- */
+/*  Reset final                                                                */
+/* -------------------------------------------------------------------------- */
+const v196Reset=Game.prototype.reset;
+Game.prototype.reset=function(){v196Reset.call(this);this.profile=v196EnsureProfile(this.profile||loadProfile());this.v196Relics=Object.fromEntries(Object.keys(V196_RELICS).map(id=>[id,0]));this.relics=[];v196BuildAtmosphere(this,this.v19SeedValue||1);this.v196RenderRelics()};
+const subtitle=document.querySelector('#startOverlay .subtitle');if(subtitle)subtitle.textContent='V19.6 Living Biomes — routes propres à chaque zone, progression ramifiée, reliques empilables et signatures MK2.';
+document.title=document.title.replace('V19','V19.6');
+game.profile=v196EnsureProfile(game.profile||loadProfile());game.reset();game.buildStartChoices();game.updateProfileUI();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
+})();
+</script>
+
 <script id="v18-multiplayer-engine">
 (()=>{
 'use strict';
 const CLOUD_URL='wss://clouddata.turbowarp.org';
-const PROJECT_BASE='itssoren.github.io/games/TD-Multiplayer-v19';
+const PROJECT_BASE='itssoren.github.io/games/TD-Multiplayer-v19-6';
 const LOBBY_PROJECT=PROJECT_BASE+'/lobby';
 const LOBBY_SLOTS=16;
 const PLAYER_COLORS=['#55ffb3','#aa76ff'];
@@ -3108,6 +3400,43 @@ if(new URLSearchParams(location.search).get('mpdebug')==='1')setTimeout(()=>wind
 
 
 
+
+<style id="v19-6-multi-style">
+body.multiplayer-running.v196 #relicInventory{top:calc(116px + var(--safe-top))}
+@media(max-width:900px){body.multiplayer-running.v196 #relicInventory{top:calc(150px + var(--safe-top));transform:translateX(-50%) scale(.92)}}
+</style>
+<script id="v19-6-multi-extension">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V196_MULTI__)return;
+window.__DARK_RIFT_V196_MULTI__=true;
+const mp=window.__DARK_RIFT_MULTI__;
+if(!mp)return;
+function v196MultiSeed(){return ((Number(mp.meta?.seed)||1)^window.__V19_HASH__(game.mapId||'rift'))>>>0}
+function v196EnsureMultiBiome(){
+ if(!game.multi?.enabled)return;const seed=v196MultiSeed();if(game.v196MultiBiomeSeed===seed)return;
+ const bounds=[{top:110,bottom:825,left:-125,right:WORLD.w+125},{top:1075,bottom:1810,left:-125,right:WORLD.w+125}],paths=[window.__V196_GENERATE_PATH__((seed^0x9e3779b1)>>>0,game.mapId,WORLD.w,WORLD.h,bounds[0]),window.__V196_GENERATE_PATH__((seed^0x3c6ef372)>>>0,game.mapId,WORLD.w,WORLD.h,bounds[1])];
+ game.multi.paths=paths;game.path=paths[mp.localSide];game.entryDistance=0;game.baseDistance=game.path.total;game.tiles=window.__V196_BUILD_TILES__(paths,seed,game.mapId,true);game.environment=game.makeEnvironment();window.__V196_BUILD_ATMOSPHERE__(game,seed);for(const e of game.enemies){e.pathRef=paths[e.lane||0]}for(const t of game.towers){const d0=paths[0].distanceTo(t.x,t.y),d1=paths[1].distanceTo(t.x,t.y);t.lane=d0<=d1?0:1}game.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.04,.18,.86)};game.v196MultiBiomeSeed=seed;game.toast(`${game.map.name} • deux tracés ${game.mapId==='forge'?'volcaniques':game.mapId==='glacier'?'glaciaires':game.mapId==='garden'?'organiques':'fracturés'}`)
+}
+function v196WrapRoom(){if(!mp.room||mp.room.__v196Wrapped)return;mp.room.__v196Wrapped=true;const previous=mp.room.onSet;mp.room.onSet=(name,value)=>{if(name==='☁ relic'){const packet=mp.room.get(name);if(packet?.stacks)game.v196SetRelics(packet.stacks)}return previous?.(name,value)}}
+const oldUpdate=Game.prototype.update;
+Game.prototype.update=function(dt){if(this.multi?.enabled){v196EnsureMultiBiome();v196WrapRoom()}return oldUpdate.call(this,dt)};
+const oldCanPlace=Game.prototype.canPlace;
+Game.prototype.canPlace=function(x,y){if(this.multi?.enabled&&this.tiles?.some(tile=>tile.blocker&&Math.hypot(tile.x-x,tile.y-y)<tile.radius+28))return false;return oldCanPlace.call(this,x,y)};
+function v196MultiOffset(enemy){if(enemy.v196LaneOffset==null){const seed=window.__V19_HASH__(`${enemy.netId||''}|${enemy.type}|${enemy.wave}|${enemy.lane||0}`),rng=window.__V19_RNG__(seed);enemy.v196LaneOffset=(rng()-.5)*(enemy.boss?14:enemy.type==='tank'||enemy.type==='carrier'?24:34);enemy.v196LaneSway=rng()*TAU}return enemy.v196LaneOffset+Math.sin(enemy.game.time*.82+enemy.v196LaneSway)*2.8}
+Object.defineProperty(Enemy.prototype,'x',{configurable:true,get(){const path=this.pathRef||this.game.path,p=path.pointAt(this.distance),o=v196MultiOffset(this);return p.x+Math.cos(p.angle+Math.PI/2)*o}});
+Object.defineProperty(Enemy.prototype,'y',{configurable:true,get(){const path=this.pathRef||this.game.path,p=path.pointAt(this.distance),o=v196MultiOffset(this);return p.y+Math.sin(p.angle+Math.PI/2)*o}});
+const oldDrawWorld=Game.prototype.drawWorld;
+Game.prototype.drawWorld=function(th){oldDrawWorld.call(this,th);if(this.multi?.enabled)for(let side=0;side<2;side++)this.v196DrawPortalCountdown(this.multi.paths[side],0,side===0?'#55ffb3':'#aa76ff')};
+const oldFinishWave=Game.prototype.finishWave;
+Game.prototype.finishWave=function(){const waves=this.multi?.enabled?this.waveLedger.map(x=>x.wave):[];const result=oldFinishWave.call(this);if(this.multi?.enabled&&mp.isHost&&waves.some(w=>w%(this.mode.relicEvery||4)===0)){const wave=Math.max(...waves),available=Object.keys(this.v196Relics||{}).filter(id=>(this.v196Relics[id]||0)<3),ids=available.length?available:Object.keys(this.v196Relics||{}),rng=window.__V19_RNG__((v196MultiSeed()^Math.imul(wave+1,0x85ebca6b))>>>0),id=ids[Math.floor(rng()*ids.length)];if(id&&this.v196GrantRelic(id)){this.toast(`Relique d’équipe synchronisée • niveau ${this.v196Relics[id]}/3`);mp.room?.set('☁ relic',{seq:Date.now(),stacks:{...this.v196Relics}})}}return result};
+const oldSetupUpdateUI=Game.prototype.updateUI;
+Game.prototype.updateUI=function(force=false){const r=oldSetupUpdateUI.call(this,force);if(this.multi?.enabled){v196EnsureMultiBiome();v196WrapRoom()}return r};
+const subtitleObserver=new MutationObserver(()=>{const subtitle=document.querySelector('#startOverlay .subtitle');if(subtitle&&subtitle.textContent.includes('V19 Multiplayer'))subtitle.textContent='V19.6 Multiplayer — biomes vivants, progression ramifiée, reliques d’équipe empilables et trois nouvelles tourelles.'});subtitleObserver.observe(document.getElementById('startOverlay'),{childList:true,subtree:true});
+document.title='Dark Rift TD — V19.6 Multiplayer';
+})();
+</script>
+
 <style id="v19-multiplayer-layout">
 body.multiplayer-running #multiHud{display:none!important}
 body.multiplayer-running #firstWaveCountdown{display:none!important}
@@ -3117,6 +3446,309 @@ body.multiplayer-running #statusRibbon .status-chip{background:rgba(5,9,22,.9);b
 body.multiplayer-running #speedBtn{pointer-events:none;opacity:.72}
 @media(max-width:900px){body.multiplayer-running #statusRibbon{left:7px;right:7px;transform:none;width:auto;max-width:none;justify-content:flex-start;gap:5px}body.multiplayer-running #statusRibbon .status-chip{font-size:7px;padding:5px 7px}}
 </style>
+
+<script id="v19-6-1-multiplayer-sync-patch">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V1961_SYNC_PATCH__)return;
+window.__DARK_RIFT_V1961_SYNC_PATCH__=true;
+
+const mp=window.__DARK_RIFT_MULTI__;
+if(!mp)return;
+
+const SYNC={
+  version:1961,
+  authority:0,
+  epoch:0,
+  roomKey:'',
+  authSeen:0,
+  heartbeat:[0,0],
+  lastHeartbeatSent:0,
+  lastAuthSent:0,
+  lastLaneSent:0,
+  lastGlobalSent:0,
+  laneSeq:[0,0],
+  laneRecv:[0,0],
+  globalSeq:0,
+  globalRecv:0,
+  commandRecv:[0,0],
+  ready:false,
+  claimedAt:0,
+  takeoverCount:0,
+  room:null,
+  timer:null,
+  oldStateStopped:false,
+  lastFrameAt:0,
+  lastAuthorityChange:0,
+  cosmeticBudget:0,
+  wasActive:false
+};
+mp.syncPatch=SYNC;
+
+const PLAYER_COLORS_SYNC=['#55ffb3','#aa76ff'];
+const TARGET_MODES=new Set(['first','last','strong','weak']);
+const EVO_NAMES_SYNC=[null,'alpha','omega'];
+
+function syncNow(){return Date.now()}
+function syncRoomKey(){return `${mp.code||''}:${Number(mp.meta?.seed)||0}`}
+function syncPacketBase(){return{v:SYNC.version,room:mp.code||'',seed:Number(mp.meta?.seed)||0,owner:SYNC.authority,epoch:SYNC.epoch,ts:syncNow()}}
+function validPacket(packet,maxAge=12000){return!!packet&&packet.v===SYNC.version&&String(packet.room||'')===String(mp.code||'')&&Number(packet.seed||0)===Number(mp.meta?.seed||0)&&syncNow()-Number(packet.ts||0)<maxAge}
+function isAuthority(){return!!(mp.active&&game.multi?.enabled&&SYNC.authority===mp.localSide)}
+function setRuntimeAuthority(owner,epoch=SYNC.epoch,announce=false){
+  owner=owner===1?1:0;
+  const changed=SYNC.authority!==owner;
+  SYNC.authority=owner;
+  SYNC.epoch=Math.max(SYNC.epoch,Number(epoch)||0);
+  SYNC.authSeen=syncNow();
+  if(mp.active&&game.multi?.enabled)mp.isHost=owner===mp.localSide;
+  if(changed){
+    SYNC.lastAuthorityChange=syncNow();
+    if(announce)game.toast?.(`Relais réseau repris par J${owner+1}`);
+  }
+}
+function loadPlayerIntoGame(side){
+  const p=game.multi?.players?.[side];
+  if(!p)return;
+  game.money=p.money;game.energy=p.energy;game.maxEnergy=p.maxEnergy;game.energyRegen=p.energyRegen;
+  game.energyTech={...(p.energyTech||{capacity:0,regen:0,recycle:0})};game.lives=p.lives;game.maxLives=p.maxLives;game.playerRank=p.rank;
+  if(game.multi?.paths?.[side]){game.path=game.multi.paths[side];game.baseDistance=game.path.total;game.entryDistance=0}
+}
+function saveGameIntoPlayer(side){
+  const p=game.multi?.players?.[side];
+  if(!p)return;
+  p.money=game.money;p.energy=game.energy;p.maxEnergy=game.maxEnergy;p.energyRegen=game.energyRegen;
+  p.energyTech={...game.energyTech};p.lives=game.lives;p.maxLives=game.maxLives;
+}
+function restoreLocalGlobals(){loadPlayerIntoGame(mp.localSide)}
+function nearestLaneSync(x,y){
+  const paths=game.multi?.paths;if(!paths)return 0;
+  return paths[0].distanceTo(x,y)<=paths[1].distanceTo(x,y)?0:1;
+}
+function getTowerSync(id){return game.towers.find(t=>String(t.netId)===String(id))}
+function withCommandSide(side,fn){
+  const oldSide=mp.localSide,oldHost=mp.isHost,oldPath=game.path,oldBase=game.baseDistance;
+  mp.localSide=side;mp.isHost=true;loadPlayerIntoGame(side);
+  try{return fn()}finally{
+    saveGameIntoPlayer(side);mp.localSide=oldSide;mp.isHost=oldHost;game.path=oldPath;game.baseDistance=oldBase;restoreLocalGlobals();
+  }
+}
+function buildRemoteTower(side,cmd){
+  const p=game.multi?.players?.[side],def=TOWERS.find(t=>t.id===cmd.defId),x0=Number(cmd.x),y0=Number(cmd.y);
+  if(!p?.alive||!def||!Number.isFinite(x0)||!Number.isFinite(y0)||requiredTowerRank(def.id)>p.rank)return;
+  let x=x0,y=y0;const cost=Math.ceil(def.cost*game.mods.cost);
+  if(p.money<cost||!game.canPlace(x,y))return;
+  const tile=game.nearestPlatform?.(x,y)||game.tiles.find(t=>t.type!=='rock'&&Math.hypot(t.x-x,t.y-y)<42)||null;
+  if(tile){if(game.platformTower?.(tile))return;x=tile.x;y=tile.y}
+  p.money-=cost;
+  const tower=new Tower(game,x,y,def,tile);
+  tower.owner=side;tower.ownerColor=PLAYER_COLORS_SYNC[side];tower.lane=nearestLaneSync(x,y);
+  tower.netId=`${side}-sf-${syncNow()}-${Math.floor(Math.random()*100000)}`;
+  game.towers.push(tower);game.recalcAll();game.burst?.(x,y,tower.ownerColor,16,120,'spark');
+}
+function applyRemoteCommand(side,cmd){
+  if(!isAuthority()||!cmd||!game.multi?.players?.[side]?.alive)return;
+  withCommandSide(side,()=>{
+    if(cmd.type==='build')buildRemoteTower(side,cmd);
+    else if(cmd.type==='upgrade'){const t=getTowerSync(cmd.id);if(t?.owner===side)t.upgrade(cmd.branch)}
+    else if(cmd.type==='mk2'){const t=getTowerSync(cmd.id);if(t?.owner===side)t.promoteMk2()}
+    else if(cmd.type==='evolve'){const t=getTowerSync(cmd.id);if(t?.owner===side)t.evolve(cmd.evolution)}
+    else if(cmd.type==='target'){const t=getTowerSync(cmd.id);if(t?.owner===side&&TARGET_MODES.has(cmd.mode))t.targetMode=cmd.mode}
+    else if(cmd.type==='sell'){
+      const t=getTowerSync(cmd.id);if(t?.owner===side){const p=game.multi.players[side];p.money+=Math.floor(t.totalSpent*(game.towerSellRatio?.(t)??game.mods.sell));game.towers=game.towers.filter(x=>x!==t);if(game.selected===t)game.selected=null;game.recalcAll()}
+    }
+    else if(cmd.type==='platform'){
+      const tile=game.tiles[Number(cmd.tileIndex)],tower=game.towers.find(t=>t.tile===tile);if(tile&&tower?.owner===side)game.upgradePlatform(tile)
+    }
+    else if(cmd.type==='energyTech')game.upgradeEnergyTech(cmd.id);
+    else if(cmd.type==='ability')game.useAbility(cmd.id);
+  });
+  game.renderInspector?.();game.updateUI?.(true);
+}
+
+function playerRecord(p){
+  return[+p.money.toFixed(2),+p.energy.toFixed(2),p.maxEnergy,+p.energyRegen.toFixed(3),p.lives,p.maxLives,p.alive?1:0,p.kills||0,p.rank,p.energyTech?.capacity||0,p.energyTech?.regen||0,p.energyTech?.recycle||0,p.abilityReadyAt||null]
+}
+function applyPlayerRecords(records){
+  if(!records||!game.multi?.players)return;
+  for(let side=0;side<2;side++){
+    const a=records[side],p=game.multi.players[side];if(!a||!p)continue;
+    p.money=Number(a[0])||0;p.energy=Number(a[1])||0;p.maxEnergy=Number(a[2])||100;p.energyRegen=Number(a[3])||1.6;
+    p.lives=Number(a[4])||0;p.maxLives=Number(a[5])||20;p.alive=!!a[6];p.kills=Number(a[7])||0;p.rank=Number(a[8])||1;
+    p.energyTech={capacity:Number(a[9])||0,regen:Number(a[10])||0,recycle:Number(a[11])||0};p.abilityReadyAt=a[12]||p.abilityReadyAt||{};
+  }
+}
+function enemyRecord(e){
+  return[
+    e.netId,e.type,e.wave||game.wave,+e.distance.toFixed(1),+e.hp.toFixed(1),+e.maxHp.toFixed(1),+e.shield.toFixed(1),+(Number(e.maxShield||0).toFixed(1)),
+    e.boss?.id||'',e.elite?1:0,+((e.slowFactor||1).toFixed(3)),Math.max(0,+((e.slowUntil-game.time).toFixed(2))),Math.max(0,+((e.stunUntil-game.time).toFixed(2))),
+    +(e.burn||0).toFixed(2),Math.max(0,+((e.burnUntil-game.time).toFixed(2))),+(e.poison||0).toFixed(2),Math.max(0,+((e.poisonUntil-game.time).toFixed(2)))
+  ];
+}
+function sendLaneFrame(lane){
+  if(!isAuthority()||!mp.room?.connected)return;
+  const enemies=game.enemies.filter(e=>!e.dead&&e.lane===lane).sort((a,b)=>b.distance-a.distance).slice(0,240).map(enemyRecord);
+  const packet={...syncPacketBase(),seq:++SYNC.laneSeq[lane],lane,w:game.wave,c:+game.waveCountdown.toFixed(2),t:+game.time.toFixed(2),a:game.anomaly?.id||'none',p:game.multi.players.map(playerRecord),e:enemies};
+  mp.room.set(`☁ lf${lane}`,packet);
+}
+function applyLaneFrame(packet){
+  if(!validPacket(packet,7000)||isAuthority())return;
+  const lane=packet.lane===1?1:0,seq=Number(packet.seq)||0;if(seq<=SYNC.laneRecv[lane])return;
+  SYNC.laneRecv[lane]=seq;SYNC.lastFrameAt=syncNow();
+  game.wave=Math.max(game.wave,Number(packet.w)||0);game.waveCountdown=Number(packet.c)||0;game.time=Math.max(game.time,Number(packet.t)||0-.32);
+  game.anomaly=ANOMALIES.find(a=>a.id===packet.a)||game.anomaly||ANOMALIES[0];applyPlayerRecords(packet.p);
+  const current=new Map(game.enemies.filter(e=>e.lane===lane).map(e=>[String(e.netId),e])),next=[];
+  for(const a of packet.e||[]){
+    const id=String(a[0]),type=a[1],wave=Number(a[2])||game.wave,boss=a[8]?BOSSES.find(b=>b.id===a[8]):null;
+    let e=current.get(id);
+    if(!e)e=new Enemy(game,type,wave,{boss,elite:!!a[9],anomaly:game.anomaly});
+    e.netId=id;e.lane=lane;e.pathRef=game.multi.paths[lane];e.wave=wave;e.targetDistance=Number(a[3])||0;
+    if(e.distance==null||Math.abs(e.distance-e.targetDistance)>190)e.distance=e.targetDistance;
+    e.hp=Number(a[4])||0;e.maxHp=Number(a[5])||1;e.shield=Number(a[6])||0;e.maxShield=Number(a[7])||0;e.boss=boss;e.elite=!!a[9];
+    e.slowFactor=Number(a[10])||1;e.slowUntil=game.time+(Number(a[11])||0);e.stunUntil=game.time+(Number(a[12])||0);
+    e.burn=Number(a[13])||0;e.burnUntil=game.time+(Number(a[14])||0);e.poison=Number(a[15])||0;e.poisonUntil=game.time+(Number(a[16])||0);
+    next.push(e);
+  }
+  game.enemies=game.enemies.filter(e=>e.lane!==lane).concat(next);
+  SYNC.ready=SYNC.globalRecv>0&&SYNC.laneRecv[0]>0&&SYNC.laneRecv[1]>0;restoreLocalGlobals();
+}
+function towerRecord(t){return[t.netId,t.owner,t.def.id,Math.round(t.x),Math.round(t.y),t.mk,t.up.power,t.up.range,t.up.rate,t.evolution||'',t.kills||0,Math.round(t.totalSpent||0),t.totalEnergySpent||0,t.targetMode,t.tile?game.tiles.indexOf(t.tile):-1,t.lane??nearestLaneSync(t.x,t.y)]}
+function queueRecord(q){return[q.type,q.wave||game.wave,q.lane??0,q.boss?.id||'',q.elite?1:0,q.anomaly?.id||game.anomaly?.id||'none']}
+function blockadeRecord(b){return[b.tower?.netId||'',b.pathDistance||0,b.hp||0,b.maxHp||0,b.life||0,b.color||'#9fd1ff',b.pathRef===game.multi.paths[1]?1:0]}
+function globalCheckpoint(){
+  return{...syncPacketBase(),seq:++SYNC.globalSeq,w:game.wave,c:+game.waveCountdown.toFixed(2),t:+game.time.toFixed(2),a:game.anomaly?.id||'none',p:game.multi.players.map(playerRecord),
+    tw:game.towers.map(towerRecord),ti:game.tiles.map(t=>[t.level||1,t.surge||0,t.discount||0]),sq:(game.spawnQueue||[]).map(queueRecord),wl:(game.waveLedger||[]).map(x=>[x.wave,x.anomaly?.id||'none',x.boss?1:0]),st:+(game.spawnTimer||0).toFixed(3),wa:game.waveActive?1:0,
+    nv:game.v19Nova?[+game.v19Nova.elapsed.toFixed(2),game.v19Nova.duration,Math.round(game.v19Nova.x),Math.round(game.v19Nova.y),game.v19Nova.side??-1,game.v19Nova.serial||0]:null,
+    bl:(game.blockades||[]).map(blockadeRecord),pb:(game.pendingBombs||[]).map(b=>[Math.round(b.x),Math.round(b.y),+b.timer.toFixed(2),b.max||1.15,b.done?1:0]),rel:game.v196Relics||null,res:game.multi.result||null};
+}
+function sendGlobalCheckpoint(){if(isAuthority()&&mp.room?.connected)mp.room.set(`☁ gx${SYNC.globalSeq%2}`,globalCheckpoint())}
+function applyGlobalCheckpoint(packet){
+  if(!validPacket(packet,9000)||isAuthority())return;const seq=Number(packet.seq)||0;if(seq<=SYNC.globalRecv)return;SYNC.globalRecv=seq;SYNC.lastFrameAt=syncNow();
+  game.wave=Number(packet.w)||0;game.waveCountdown=Number(packet.c)||0;game.time=Math.max(game.time,Number(packet.t)||0-.3);game.anomaly=ANOMALIES.find(a=>a.id===packet.a)||ANOMALIES[0];
+  applyPlayerRecords(packet.p);
+  if(packet.ti)for(let i=0;i<Math.min(packet.ti.length,game.tiles.length);i++){const a=packet.ti[i],t=game.tiles[i];t.level=Number(a[0])||1;t.surge=Number(a[1])||t.surge;t.discount=Number(a[2])||t.discount}
+  const oldSelected=game.selected?.netId,towerMap=new Map(game.towers.map(t=>[String(t.netId),t])),nextT=[];
+  for(const a of packet.tw||[]){
+    const id=String(a[0]),def=TOWERS.find(t=>t.id===a[2]);if(!def)continue;let t=towerMap.get(id);const tile=Number(a[14])>=0?game.tiles[Number(a[14])]:null;
+    if(!t)t=new Tower(game,Number(a[3]),Number(a[4]),def,tile);
+    t.netId=id;t.owner=Number(a[1])||0;t.ownerColor=PLAYER_COLORS_SYNC[t.owner];t.x=Number(a[3]);t.y=Number(a[4]);t.tile=tile;t.mk=Number(a[5])||1;
+    t.up={power:Number(a[6])||0,range:Number(a[7])||0,rate:Number(a[8])||0};t.evolution=a[9]||null;t.kills=Number(a[10])||0;t.totalSpent=Number(a[11])||0;t.totalEnergySpent=Number(a[12])||0;t.targetMode=a[13]||'first';t.lane=Number(a[15])||0;t.recalc();nextT.push(t);
+  }
+  game.towers=nextT;game.selected=oldSelected?game.towers.find(t=>String(t.netId)===String(oldSelected))||null:null;
+  game.spawnQueue=(packet.sq||[]).map(a=>({type:a[0],wave:Number(a[1])||game.wave,lane:Number(a[2])||0,boss:a[3]?BOSSES.find(b=>b.id===a[3]):null,elite:!!a[4],anomaly:ANOMALIES.find(x=>x.id===a[5])||game.anomaly}));
+  game.waveLedger=(packet.wl||[]).map(a=>({wave:Number(a[0])||0,anomaly:ANOMALIES.find(x=>x.id===a[1])||ANOMALIES[0],boss:!!a[2]}));game.spawnTimer=Number(packet.st)||0;game.waveActive=!!packet.wa;
+  if(packet.nv){const a=packet.nv;game.v19Nova={elapsed:Number(a[0])||0,duration:Number(a[1])||3,x:Number(a[2])||0,y:Number(a[3])||0,side:Number(a[4]),serial:Number(a[5])||0,maxRadius:Math.hypot(WORLD.w,WORLD.h)*1.08,hit:new WeakSet()}}
+  else if(game.v19Nova?.elapsed>game.v19Nova?.duration)game.v19Nova=null;
+  game.blockades=(packet.bl||[]).map(a=>{const lane=Number(a[6])||0,path=game.multi.paths[lane],pd=Number(a[1])||0,p=path.pointAt(pd);return{tower:getTowerSync(a[0]),x:p.x,y:p.y,pathDistance:pd,hp:Number(a[2])||0,maxHp:Number(a[3])||0,life:Number(a[4])||0,color:a[5]||'#9fd1ff',pathRef:path}});
+  game.pendingBombs=(packet.pb||[]).map(a=>({x:Number(a[0]),y:Number(a[1]),timer:Number(a[2]),max:Number(a[3])||1.15,done:!!a[4]}));
+  if(packet.rel&&game.v196SetRelics)game.v196SetRelics(packet.rel);
+  game.multi.result=packet.res||null;game.recalcAll();restoreLocalGlobals();SYNC.ready=SYNC.laneRecv[0]>0&&SYNC.laneRecv[1]>0;
+  if(packet.res)showSyncedResult(packet.res);game.renderInspector?.();game.updateUI?.(true);
+}
+function showSyncedResult(result){
+  if(!result||mp.result)return;mp.result=result;const won=result.winner===mp.localSide,logo=document.getElementById('mpResultLogo'),text=document.getElementById('mpResultText'),overlay=document.getElementById('multiResultOverlay');
+  if(logo){logo.textContent=won?'VICTOIRE':'DÉFAITE';logo.style.background=won?'linear-gradient(135deg,#fff,#55ffb3,#66f4ff)':'linear-gradient(135deg,#fff,#ff5c74,#ff4e9b)'}
+  if(text)text.textContent=result.reason||'La partie est terminée.';overlay?.classList.remove('hidden');game.paused=true;
+}
+
+function applyAuth(packet){
+  if(!validPacket(packet,10000))return;const owner=packet.owner===1?1:0,epoch=Number(packet.epoch)||0;
+  if(epoch<SYNC.epoch)return;if(epoch===SYNC.epoch&&Number(packet.ts)<=SYNC.authSeen)return;
+  setRuntimeAuthority(owner,epoch,owner!==SYNC.authority);SYNC.heartbeat[owner]=Math.max(SYNC.heartbeat[owner],Number(packet.ts)||0);
+}
+function sendHeartbeat(){if(!mp.room?.connected||!mp.active)return;const packet={...syncPacketBase(),side:mp.localSide,w:game.wave};mp.room.set(`☁ hb${mp.localSide}`,packet);SYNC.heartbeat[mp.localSide]=packet.ts}
+function sendAuthorityLease(){if(!isAuthority()||!mp.room?.connected)return;const packet={...syncPacketBase()};mp.room.set('☁ auth',packet);SYNC.authSeen=packet.ts;SYNC.heartbeat[mp.localSide]=packet.ts}
+function claimAuthority(){
+  if(!mp.active||!game.multi?.enabled||syncNow()-SYNC.claimedAt<5000)return;
+  SYNC.claimedAt=syncNow();SYNC.takeoverCount++;SYNC.epoch=Math.max(SYNC.epoch+1,1);setRuntimeAuthority(mp.localSide,SYNC.epoch,true);
+  sendAuthorityLease();sendGlobalCheckpoint();sendLaneFrame(0);sendLaneFrame(1);
+}
+function resetForRoom(){
+  const key=syncRoomKey();if(!key||key===SYNC.roomKey)return;SYNC.roomKey=key;SYNC.authority=0;SYNC.epoch=0;SYNC.authSeen=syncNow();SYNC.heartbeat=[0,0];SYNC.laneRecv=[0,0];SYNC.globalRecv=0;SYNC.ready=false;SYNC.oldStateStopped=false;SYNC.lastFrameAt=0;SYNC.commandRecv=[0,0];
+  if(mp.active&&game.multi?.enabled)setRuntimeAuthority(0,0,false);
+}
+function wrapRoom(){
+  const room=mp.room;if(!room||room===SYNC.room)return;SYNC.room=room;
+  if(!room.__v1961SetWrapped){
+    room.__v1961SetWrapped=true;const previousSet=room.set.bind(room);
+    room.set=function(name,obj){if(/^☁ c\d/.test(name)&&obj?.items)obj={...obj,side:mp.localSide,v:SYNC.version,room:mp.code||'',seed:Number(mp.meta?.seed)||0};return previousSet(name,obj)};
+  }
+  if(!room.__v1961OnSetWrapped){
+    room.__v1961OnSetWrapped=true;const previous=room.onSet;
+    room.onSet=(name,value)=>{
+      const data=room.get(name);
+      if(name==='☁ auth')applyAuth(data);
+      else if(name==='☁ hb0'||name==='☁ hb1'){if(validPacket(data,12000)){const side=Number(data.side)===1?1:0;SYNC.heartbeat[side]=Math.max(SYNC.heartbeat[side],Number(data.ts)||0)}}
+      else if(name==='☁ lf0'||name==='☁ lf1')applyLaneFrame(data);
+      else if(name==='☁ gx0'||name==='☁ gx1')applyGlobalCheckpoint(data);
+      else if(/^☁ c\d/.test(name)&&isAuthority()&&data?.side!=null&&String(data.room||'')===String(mp.code||'')&&Number(data.seed||0)===Number(mp.meta?.seed||0)&&syncNow()-Number(data.ts||0)<15000){
+        const side=Number(data.side)===1?1:0;
+        for(const packet of data.items||[]){const seq=Number(packet.seq)||0;if(seq>SYNC.commandRecv[side]){SYNC.commandRecv[side]=seq;applyRemoteCommand(side,packet.cmd)}}
+        const old=mp.isHost;mp.isHost=false;try{return previous?.(name,value)}finally{mp.isHost=old}
+      }
+      else if(/^☁ s\d/.test(name)&&SYNC.ready&&!isAuthority()){
+        const old=mp.isHost;mp.isHost=true;try{return previous?.(name,value)}finally{mp.isHost=old}
+      }
+      return previous?.(name,value);
+    };
+  }
+}
+function stopLegacyStateTimer(){
+  if(!mp.active||!game.multi?.enabled||SYNC.oldStateStopped)return;
+  if(mp.stateTimer){clearInterval(mp.stateTimer);mp.stateTimer=null}
+  SYNC.oldStateStopped=true;
+}
+function cosmeticRemoteFire(dt){
+  if(isAuthority()||!game.multi?.enabled)return;
+  SYNC.cosmeticBudget=Math.min(8,SYNC.cosmeticBudget+dt*5);
+  for(const t of game.towers){
+    const targets=game.enemies.filter(e=>!e.dead&&e.lane===(t.lane??nearestLaneSync(t.x,t.y))&&Math.hypot(e.x-t.x,e.y-t.y)<=Math.min(t.stats?.range||160,260));
+    if(!targets.length)continue;const target=targets.reduce((a,b)=>a.distance>b.distance?a:b);t.angle=Math.atan2(target.y-t.y,target.x-t.x);t.__syncFxCd=(t.__syncFxCd||0)-dt;
+    if(t.__syncFxCd<=0&&SYNC.cosmeticBudget>=1){SYNC.cosmeticBudget-=1;t.__syncFxCd=Math.max(.18,Math.min(.85,(t.stats?.rate||.6)*.9));game.beams.push(new Beam(t.x,t.y,target.x,target.y,t.ownerColor||PLAYER_COLORS_SYNC[t.owner||0],1.25,.065))}
+  }
+}
+
+const previousUpdate=Game.prototype.update;
+Game.prototype.update=function(dt){
+  const result=previousUpdate.call(this,dt);
+  if(this.multi?.enabled&&mp.active){resetForRoom();wrapRoom();cosmeticRemoteFire(dt)}
+  return result;
+};
+const previousUpdateUI=Game.prototype.updateUI;
+Game.prototype.updateUI=function(force=false){
+  const result=previousUpdateUI.call(this,force);
+  if(this.multi?.enabled&&mp.active){
+    const ribbon=document.getElementById('statusRibbon');if(ribbon){ribbon.querySelectorAll('.v1961-sync-chip').forEach(n=>n.remove());const age=(syncNow()-Math.max(SYNC.lastFrameAt,SYNC.authSeen))/1000,owner=SYNC.authority+1,status=isAuthority()?'SIMULATION LOCALE':age>3?'RELAIS EN ATTENTE':'SYNC 2 FRONTS';ribbon.insertAdjacentHTML('beforeend',`<div class="status-chip v1961-sync-chip" style="color:${age>3?'#ffd166':'#66f4ff'}">${status} • J${owner}${age>0.1?` • ${age.toFixed(1)}s`:''}</div>`)}
+    const net=document.getElementById('mpNetHud');if(net)net.textContent=`Autorité J${SYNC.authority+1} • ${SYNC.ready?'2 lignes reçues':'initialisation'}`;
+  }
+  return result;
+};
+
+function networkTick(){
+  try{
+    resetForRoom();wrapRoom();
+    if(!mp.active||!game.multi?.enabled||!mp.room?.connected){SYNC.wasActive=false;return}
+    const n=syncNow();
+    if(!SYNC.wasActive){
+      SYNC.wasActive=true;SYNC.authority=0;SYNC.epoch=0;SYNC.authSeen=n;SYNC.heartbeat=[0,0];SYNC.laneRecv=[0,0];SYNC.globalRecv=0;SYNC.ready=false;SYNC.oldStateStopped=false;SYNC.lastFrameAt=0;SYNC.commandRecv=[0,0];setRuntimeAuthority(0,0,false);
+    }
+    stopLegacyStateTimer();
+    if(n-SYNC.lastHeartbeatSent>=1400){SYNC.lastHeartbeatSent=n;sendHeartbeat()}
+    if(isAuthority()){
+      if(n-SYNC.lastAuthSent>=1300){SYNC.lastAuthSent=n;sendAuthorityLease()}
+      if(n-SYNC.lastLaneSent>=520){SYNC.lastLaneSent=n;sendLaneFrame(0);sendLaneFrame(1)}
+      if(n-SYNC.lastGlobalSent>=1100){SYNC.lastGlobalSent=n;sendGlobalCheckpoint()}
+    }else{
+      const owner=SYNC.authority,latest=Math.max(SYNC.authSeen,SYNC.heartbeat[owner]||0,SYNC.lastFrameAt||0);
+      if(latest&&n-latest>5200)claimAuthority();
+    }
+  }catch(error){console.warn('[V19.6.1 sync patch]',error)}
+}
+SYNC.timer=setInterval(networkTick,100);
+
+document.title='Dark Rift TD — V19.6.1 Multiplayer Sync';
+console.info('Dark Rift TD V19.6.1 : synchronisation par front et reprise automatique chargées.');
+})();
+</script>
 
 </body>
 </html>
