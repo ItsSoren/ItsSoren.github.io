@@ -280,10 +280,10 @@ button:disabled{opacity:.34;cursor:not-allowed;transform:none!important;box-shad
 <div id="placementHint" class="glass">Clique pour construire • clic droit ou Échap pour annuler</div>
 <div class="mobile-tools"><button id="touchZoomIn" class="touch-tool">＋</button><button id="touchCenter" class="touch-tool">⌾</button><button id="touchZoomOut" class="touch-tool">−</button></div>
 <div id="mobilePlacement" class="glass"><button id="mobilePlaceCancel" class="placement-action">✕</button><div id="placementStatus"><b>Choisis une zone libre</b><span>Touche la carte puis confirme.</span></div><button id="mobilePlaceConfirm" class="placement-action confirm" disabled>✓ POSER</button></div>
-<div id="startOverlay" class="overlay"><div class="modal glass"><div class="logo">DARK RIFT TD</div><p class="subtitle">V14 Reactor Ascension — les vagues arrivent seules, les crédits sont rares, l’énergie alimente désormais les améliorations et chaque tour peut franchir le palier MK2.</p><div id="profileCard"><div class="profile-line"><strong id="profileRank">RANG 1 • ÉCLAIREUR</strong><span id="profileNext">Prochaine technologie : 0 XP</span></div><div class="xp-track"><i id="profileXpFill"></i></div><div class="profile-line" style="margin:8px 0 0"><span id="profileStats">0 vague • 0 victoire</span><button id="startRoadmapBtn" class="action" style="padding:7px 10px">FEUILLE DE ROUTE</button></div></div><div class="account-actions">
+<div id="startOverlay" class="overlay"><div class="modal glass"><div class="logo">DARK RIFT TD</div><p class="subtitle">V18 Nexus Beta — le mode solo reste intact et un mode multijoueur expérimental à deux pilotes est désormais accessible séparément.</p><div id="profileCard"><div class="profile-line"><strong id="profileRank">RANG 1 • ÉCLAIREUR</strong><span id="profileNext">Prochaine technologie : 0 XP</span></div><div class="xp-track"><i id="profileXpFill"></i></div><div class="profile-line" style="margin:8px 0 0"><span id="profileStats">0 vague • 0 victoire</span><button id="startRoadmapBtn" class="action" style="padding:7px 10px">FEUILLE DE ROUTE</button></div></div><div class="account-actions">
   <button id="resetProfileBtn" class="action danger-action">RÉINITIALISER LE COMPTE</button>
 </div>
-<div class="start-grid"><div class="start-panel"><div class="panel-title">Type de partie</div><div id="modeChoices" class="choice-grid"></div></div><div class="start-panel"><div class="panel-title">Zone de combat</div><div id="mapChoices" class="choice-grid"></div></div></div><button id="startBtn" class="action primary" style="font-size:16px;padding:14px 26px">OUVRIR LA FAILLE</button><button id="startWikiBtn" class="action" style="margin-left:7px">CONSULTER LE WIKI</button></div></div>
+<div class="start-grid"><div class="start-panel"><div class="panel-title">Type de partie</div><div id="modeChoices" class="choice-grid"></div></div><div class="start-panel"><div class="panel-title">Zone de combat</div><div id="mapChoices" class="choice-grid"></div></div></div><button id="startBtn" class="action primary" style="font-size:16px;padding:14px 26px">OUVRIR LA FAILLE</button><button id="startMultiBtn" class="action" style="margin-left:7px;border-color:rgba(255,78,155,.55);box-shadow:0 0 18px rgba(255,78,155,.12)">⚔ MULTIJOUEUR BETA</button><button id="startWikiBtn" class="action" style="margin-left:7px">CONSULTER LE WIKI</button><div style="margin-top:9px;font-size:8px;color:var(--muted)">Le multijoueur ouvre une page annexe et ne charge pas son moteur pendant une partie solo.</div></div></div>
 <div id="roadmapOverlay" class="overlay hidden"><div class="modal glass" style="width:min(880px,96vw)"><div class="modal-head"><div><div class="panel-title">Progression permanente</div><h2>Feuille de route technologique</h2></div><button class="icon-btn" data-close="roadmapOverlay">✕</button></div><p class="subtitle" style="text-align:left;margin:0">Chaque vague terminée rapporte de la recherche. Les boss et les modes difficiles en donnent davantage. Les déblocages restent disponibles lors des prochaines parties.</p><div id="roadmapProgress" style="margin-top:12px"></div><div id="roadmapList" class="roadmap-list"></div></div></div>
 <div id="unlockOverlay" class="overlay hidden"><div class="modal glass" style="width:min(620px,94vw)"><div class="unlock-burst">✦</div><div class="panel-title">Nouveau palier de recherche</div><h2 id="unlockTitle">RANG SUPÉRIEUR</h2><p id="unlockText" class="subtitle"></p><div id="unlockItems" class="unlock-icons" style="justify-content:center;margin:14px 0"></div><button id="unlockContinue" class="action primary">CONTINUER</button></div></div>
 <div id="relicOverlay" class="overlay hidden"><div class="modal glass"><div class="panel-title">Anomalie stabilisée</div><h2>Choisis une relique permanente</h2><div id="relicGate"><div class="relic-gate-line"><span id="relicGateText">Cristallisation des choix…</span><span id="relicGateTime">3,2 s</span></div><div class="relic-gate-track"><i></i></div></div><div id="relicChoices"></div></div></div>
@@ -1717,5 +1717,772 @@ game.renderTowerList();
 })();
 </script>
 
+
+<script>
+(()=>{
+  if(window.__DRIFT_V17__) return;
+  window.__DRIFT_V17__ = true;
+
+  const roleLabel = {
+    pulse:'ANTI-SWARM',gatling:'DAKKA',sniper:'SNIPER',rail:'PIERCE',
+    cannon:'AOE',mortar:'SIEGE',rockets:'SALVE',mine:'MINES',
+    cryo:'SLOW',inferno:'FLAME',tesla:'CHAIN',solar:'BEAM',
+    gravity:'PULL',chrono:'TIME',beacon:'BUFF',disrupt:'SHIELD',
+    spore:'TOXIC',leech:'ECO',portal:'VOID',drone:'SWARM',
+    sonic:'SONIC',bulwark:'BLOCAGE'
+  };
+
+  DAMAGE_NAMES.sonic = 'Sonique';
+  if(!TOWERS.some(t=>t.id==='sonic')){
+    TOWERS.push({
+      id:'sonic', category:'control', damageType:'sonic',
+      name:'Résonateur Sonique', icon:'◍', cost:110, color:'#8fe7ff', kind:'sonic',
+      dmg:23, range:185, rate:1.15, splash:76,
+      desc:'Onde de choc courte portée',
+      mechanic:'Déclenche une impulsion sonore au point d’impact. L’onde touche toutes les cibles proches et les désoriente brièvement.',
+      strong:'Essaims, ennemis regroupés', weak:'Très longue portée, blindés isolés'
+    });
+  }
+  if(!TOWERS.some(t=>t.id==='bulwark')){
+    TOWERS.push({
+      id:'bulwark', category:'control', damageType:'support',
+      name:'Bulwark', icon:'▣', cost:125, color:'#9fd1ff', kind:'bulwark',
+      dmg:12, range:165, rate:7.5,
+      desc:'Déploie une barricade temporaire',
+      mechanic:'Projette une barricade sur la route. Les ennemis doivent la briser avant de continuer, ce qui crée un vrai point de blocage.',
+      strong:'Goulots, protection du noyau', weak:'Lignes très longues, dégâts purs'
+    });
+  }
+
+  function rebuildRoadmap20(){
+    const ranks = [
+      {rank:1,xp:0,title:'Éclaireur',description:'Départ de la défense.',towers:['pulse','cannon','cryo','beacon','mine'],modes:['discovery','classic'],maps:['rift']},
+      {rank:2,xp:55,title:'Technicien',description:'Cadence et soutien.',towers:['gatling','tesla'],modes:[],maps:[]},
+      {rank:3,xp:135,title:'Vigie',description:'Longue portée plus lisible.',towers:['sniper','sonic'],modes:[],maps:['glacier']},
+      {rank:4,xp:250,title:'Artificier',description:'Zone et siège.',towers:['mortar','rockets'],modes:['extreme'],maps:[]},
+      {rank:5,xp:420,title:'Stratège',description:'Contrôle du terrain.',towers:['gravity','disrupt','bulwark'],modes:[],maps:['forge']},
+      {rank:6,xp:670,title:'Architecte',description:'Feu et chrono.',towers:['inferno','chrono'],modes:['bossrush'],maps:[]},
+      {rank:7,xp:980,title:'Biologiste',description:'Spore et économie.',towers:['spore','leech'],modes:[],maps:['garden']},
+      {rank:8,xp:1360,title:'Sentinelle',description:'Rayons avancés.',towers:['solar','rail'],modes:[],maps:[]},
+      {rank:9,xp:1820,title:'Tisseur',description:'Néant et portails.',towers:['portal','drone'],modes:['chaos'],maps:[]},
+      {rank:10,xp:2370,title:'Maître de Faille',description:'Toutes les bases de l’arsenal sont disponibles.',towers:[],modes:['endless'],maps:[]},
+    ];
+    let xp = 2370;
+    const lateTitles = ['Vétéran','Commandant','Parangon','Transcendant','Singularité'];
+    for(let rank=11; rank<=20; rank++){
+      xp += Math.round(420 + Math.pow(rank-9, 1.85) * 85);
+      ranks.push({rank, xp, title:`${lateTitles[Math.min(lateTitles.length-1, Math.floor((rank-11)/2))]} ${romanRank((rank-11)%2+1)}`, description:'Rang avancé généré automatiquement. Bonus permanents supplémentaires.', towers:[], modes:[], maps:[], generated:true, reward:'Bonus compte'});
+    }
+    ROADMAP.length = 0;
+    ROADMAP.push(...ranks);
+    for(const k of Object.keys(TOWER_UNLOCK_RANK)) delete TOWER_UNLOCK_RANK[k];
+    for(const k of Object.keys(MODE_UNLOCK_RANK)) delete MODE_UNLOCK_RANK[k];
+    for(const k of Object.keys(MAP_UNLOCK_RANK)) delete MAP_UNLOCK_RANK[k];
+    for(const tier of ROADMAP){
+      for(const id of tier.towers||[]) TOWER_UNLOCK_RANK[id] = tier.rank;
+      for(const id of tier.modes||[]) MODE_UNLOCK_RANK[id] = tier.rank;
+      for(const id of tier.maps||[]) MAP_UNLOCK_RANK[id] = tier.rank;
+    }
+  }
+  rebuildRoadmap20();
+
+  rankProgressBonuses = function(rank){
+    const result = {money:0,energy:0,regen:0,lives:0,sell:0};
+    for(let current=2; current<=rank; current++){
+      const cycle = (current - 2) % 5;
+      if(cycle===0) result.money += 12;
+      if(cycle===1) result.energy += 5;
+      if(cycle===2) result.regen += .08;
+      if(cycle===3) result.lives += 1;
+      if(cycle===4) result.sell += .003;
+    }
+    result.money = Math.min(result.money, 140);
+    result.energy = Math.min(result.energy, 42);
+    result.regen = Math.min(result.regen, 0.95);
+    result.lives = Math.min(result.lives, 6);
+    result.sell = Math.min(result.sell, .03);
+    return result;
+  };
+
+  Game.prototype.applyRankBonuses = function(){
+    this.playerRank = rankForXp(this.profile.xp);
+    const bonus = rankProgressBonuses(this.playerRank);
+    this.rankBonuses = bonus;
+    this.money += bonus.money;
+    this.maxEnergy += bonus.energy;
+    this.energy = Math.min(this.maxEnergy, this.energy + bonus.energy);
+    this.energyRegen += bonus.regen;
+    this.maxLives += bonus.lives;
+    this.lives = this.maxLives;
+    this.mods.sell = Math.min(.68, this.mods.sell + bonus.sell);
+    this.renderEnergyLab();
+    this.updateUI(true);
+  };
+
+  const prevUpdateProfileUIV17 = Game.prototype.updateProfileUI;
+  Game.prototype.updateProfileUI = function(){
+    prevUpdateProfileUIV17.call(this);
+    const tier = tierForRank(this.playerRank);
+    const next = nextTierForRank(this.playerRank);
+    if($('#profileNext')) $('#profileNext').textContent = next ? `${Math.max(0, next.xp - this.profile.xp)} XP avant ${next.title} • rang ${this.playerRank}/20` : 'Rang maximal 20 atteint';
+    if($('#rankMiniName')) $('#rankMiniName').textContent = `Rang ${this.playerRank}/20 • ${tier.title}`;
+  };
+
+  Game.prototype.openRoadmap = function(){
+    this.updateProfileUI();
+    const current = this.playerRank;
+    const tier = tierForRank(current);
+    const next = nextTierForRank(current);
+    const startXp = tier.xp;
+    const endXp = next ? next.xp : startXp + 1;
+    const progress = next ? clamp((this.profile.xp - startXp) / (endXp - startXp) * 100, 0, 100) : 100;
+    const bonus = rankProgressBonuses(current);
+    $('#roadmapProgress').innerHTML = `
+      <div class="profile-line">
+        <strong>RANG ${current}/20 • ${tier.title.toUpperCase()}</strong>
+        <span>${next ? `${this.profile.xp}/${next.xp} XP` : 'PROGRESSION TERMINÉE'}</span>
+      </div>
+      <div class="xp-track"><i style="width:${progress}%"></i></div>
+      <div class="rank-summary">
+        <div class="statbox"><label>Crédits initiaux</label><b>+${bonus.money}</b></div>
+        <div class="statbox"><label>Énergie max.</label><b>+${bonus.energy}</b></div>
+        <div class="statbox"><label>Recharge</label><b>+${bonus.regen.toFixed(2)}/s</b></div>
+        <div class="statbox"><label>PV noyau</label><b>+${bonus.lives}</b></div>
+        <div class="statbox"><label>Revente</label><b>+${Math.round(bonus.sell * 100)}%</b></div>
+      </div>`;
+    $('#roadmapList').innerHTML = `<div class="rank-grid">${ROADMAP.map(rank=>{const state=rank.rank<current?'done':rank.rank===current?'current':'locked';return `<div class="rank-cell ${state}" title="${rank.description}"><strong>${rank.rank}</strong><span>${rank.title}</span><em>${rank.rank===1?'DÉPART':`${rank.xp} XP`}</em></div>`}).join('')}</div>`;
+    $('#roadmapOverlay').classList.remove('hidden');
+  };
+
+  Game.prototype.showRankUnlock = function(before, after){
+    const unlocked = ROADMAP.filter(rank => rank.rank > before && rank.rank <= after);
+    const final = tierForRank(after);
+    const chips = [];
+    for(const rank of unlocked){
+      for(const id of rank.towers || []){ const tower = TOWERS.find(candidate => candidate.id===id); if(tower) chips.push(`<span class="unlock-chip new">${tower.icon} ${tower.name}</span>`); }
+      for(const id of rank.modes || []) chips.push(`<span class="unlock-chip new">${MODES[id].icon} Mode ${MODES[id].name}</span>`);
+      for(const id of rank.maps || []) chips.push(`<span class="unlock-chip new">${MAPS[id].icon} ${MAPS[id].name}</span>`);
+    }
+    $('#unlockTitle').textContent = `RANG ${after}/20 • ${final.title.toUpperCase()}`;
+    $('#unlockText').textContent = 'Le protocole permanent de ton compte progresse. Les premiers rangs montent désormais beaucoup plus vite.';
+    $('#unlockItems').innerHTML = chips.slice(-12).join('');
+    $('#unlockOverlay').classList.remove('hidden');
+    this.paused = true;
+  };
+
+  const prevRenderWikiV17 = Game.prototype.renderWiki;
+  Game.prototype.renderWiki = function(){
+    if(this.wikiTab === 'roadmap'){
+      $$('.wiki-tab').forEach(button => button.classList.toggle('active', button.dataset.id === 'roadmap'));
+      const bonus = rankProgressBonuses(this.playerRank);
+      $('#wikiContent').innerHTML = `
+        <div class="wiki-section">
+          <h3>20 rangs plus lisibles</h3>
+          <p>Les rangs 1 à 10 débloquent rapidement l’arsenal. Les rangs 11 à 20 renforcent ton compte sans te noyer dans une progression trop longue.</p>
+        </div>
+        <div class="wiki-section">
+          <h3>Bonus actuels du rang ${this.playerRank}</h3>
+          <ul>
+            <li>+${bonus.money} crédits au départ.</li>
+            <li>+${bonus.energy} énergie maximale.</li>
+            <li>+${bonus.regen.toFixed(2)} énergie par seconde.</li>
+            <li>+${bonus.lives} PV au noyau.</li>
+            <li>+${Math.round(bonus.sell * 100)}% de revente.</li>
+          </ul>
+        </div>`;
+      return;
+    }
+    return prevRenderWikiV17.call(this);
+  };
+
+  ABILITIES.overdrive.cooldown = 10;
+  ABILITIES.riftbomb.cooldown = 10;
+  ABILITIES.cryo.cooldown = 10;
+  ABILITIES.repair.cooldown = 10;
+  ABILITIES.riftbomb.desc = 'Choisis l’impact, la bombe tombe puis explose';
+
+  function tileStrength(tile){
+    const scale = [0,1,1.5,1.95][tile?.level || 1] || 1;
+    return ((tile?.surge || 12) / 100) * scale;
+  }
+  function towerUpgradeDiscount(tower){
+    if(tower?.tile?.type === 'recovery') return tower.tile.discount || 0.15;
+    return 0;
+  }
+
+  Tower.prototype.upgradeCost = function(branch){
+    const lv = this.up[branch];
+    const base = this.mk===1
+      ? {money:Math.ceil(this.def.cost*(.30+lv*.24)*this.game.mods.cost),energy:Math.max(3,4+lv*2)}
+      : {money:Math.ceil(this.def.cost*(1.6+lv*.32)*this.game.mods.cost),energy:Math.max(10,16+lv*3)};
+    const discount = towerUpgradeDiscount(this);
+    base.money = Math.max(8, Math.ceil(base.money * (1 - discount)));
+    base.energy = Math.max(2, Math.ceil(base.energy * (1 - Math.min(.35, discount * .45))));
+    return base;
+  };
+  Tower.prototype.mk2Cost = function(){
+    const discount = towerUpgradeDiscount(this);
+    return {money:Math.max(40, Math.ceil(this.def.cost*3.05*this.game.mods.cost*(1-discount))), energy:Math.max(18, Math.ceil(36*(1-Math.min(.25, discount*.3))))};
+  };
+  Tower.prototype.evolutionCost = function(){
+    const discount = towerUpgradeDiscount(this);
+    return {money:Math.max(55, Math.ceil(this.def.cost*3.8*this.game.mods.cost*(1-discount))), energy:Math.max(25, Math.ceil(48*(1-Math.min(.25, discount*.3))))};
+  };
+  Game.prototype.platformUpgradeCost = function(platform){
+    if(!platform || platform.type==='rock' || platform.level>=3) return null;
+    return {money:Math.ceil((65 + platform.level*55) * .7), energy:Math.ceil((16 + platform.level*10) * .7)};
+  };
+  Game.prototype.towerSellRatio = function(){ return this.mods.sell; };
+
+  const prevRenderInspectorV17 = Game.prototype.renderInspector;
+  Game.prototype.renderInspector = function(){
+    prevRenderInspectorV17.call(this);
+    const t = this.selected, panel = $('#inspector');
+    if(!t || !panel || !panel.classList.contains('open')) return;
+    const head = panel.querySelector('.inspector-head div');
+    if(head && !panel.querySelector('.v17-role-tag')){
+      head.insertAdjacentHTML('beforeend', `<div class="v17-role-tag" style="margin-top:6px;font-size:9px;color:#c9f9ff;letter-spacing:.18em">${roleLabel[t.def.id] || t.def.kind.toUpperCase()}</div>`);
+    }
+    const sellButton = $('#sellTower');
+    if(sellButton){
+      const value = Math.floor(t.totalSpent * (this.towerSellRatio ? this.towerSellRatio(t) : this.mods.sell));
+      sellButton.textContent = `Vendre • ${value} crédits`;
+      sellButton.onclick = ()=>{
+        this.money += value;
+        this.towers = this.towers.filter(x=>x!==t);
+        this.selected = null;
+        this.recalcAll();
+        this.renderInspector();
+        this.burst(t.x,t.y,t.def.color,16,130,'spark');
+        this.updateUI(true);
+      };
+    }
+    const platformBox = panel.querySelector('.platform-box');
+    if(platformBox && t.tile?.type==='recovery'){
+      const discount = Math.round((t.tile.discount || .15) * 100);
+      platformBox.querySelector('.platform-lines')?.insertAdjacentHTML('beforeend', `<div class="platform-line"><b>Remise d’upgrade :</b> -${discount}%</div>`);
+    }
+  };
+
+  Object.defineProperty(Enemy.prototype, 'x', { configurable:true, get(){ return (this.pathRef || this.game.path).pointAt(this.distance).x; } });
+  Object.defineProperty(Enemy.prototype, 'y', { configurable:true, get(){ return (this.pathRef || this.game.path).pointAt(this.distance).y; } });
+  Object.defineProperty(Enemy.prototype, 'progress', { configurable:true, get(){ const g=this.game; const span=Math.max(1,g.baseDistance-g.entryDistance); return clamp((this.distance-g.entryDistance)/span,0,1); } });
+
+  Game.prototype.buildRouteVariants = function(){
+    const base = this.map.path.map(p=>Array.isArray(p)?[p[0],p[1]]:[p.x,p.y]);
+    const alt = base.map((p, i, arr)=>{
+      if(i===0 || i===arr.length-1) return [...p];
+      const prev = arr[i-1], next = arr[i+1];
+      const dx = next[0]-prev[0], dy = next[1]-prev[1];
+      const len = Math.hypot(dx,dy) || 1;
+      const nx = -dy/len, ny = dx/len;
+      const offset = (i%2===0?1:-1) * rand(45, 105);
+      return [p[0] + nx*offset, p[1] + ny*offset];
+    });
+    return [
+      new PathModel(roundedRoute(base, 66, 5)),
+      new PathModel(roundedRoute(alt, 66, 5))
+    ];
+  };
+
+  const prevResetV17 = Game.prototype.reset;
+  Game.prototype.reset = function(){
+    prevResetV17.call(this);
+    this.routeVariants = this.buildRouteVariants();
+    this.activeRouteIndex = 0;
+    this.path = this.routeVariants[0];
+    this.currentSpawnPath = this.path;
+    this.entryDistance = 22;
+    this.baseDistance = Math.max(this.entryDistance + 120, this.path.total - 22);
+    this.pendingBombs = [];
+    this.blockades = [];
+    this.waveRouteLabel = 'ALPHA';
+    this.tiles = this.makeTiles();
+    this.environment = this.makeEnvironment();
+  };
+
+  const prevStartGameV17b = Game.prototype.startGame;
+  Game.prototype.startGame = function(){
+    prevStartGameV17b.call(this);
+    this.entryDistance = 22;
+    this.baseDistance = Math.max(this.entryDistance + 120, this.path.total - 22);
+    this.pendingBombs = [];
+    this.blockades = [];
+  };
+
+  const prevBuildWaveV17 = Game.prototype.buildWave;
+  Game.prototype.buildWave = function(waveNumber=this.wave, anomaly=this.anomaly){
+    const batch = prevBuildWaveV17.call(this, waveNumber, anomaly);
+    const pathRef = this.currentSpawnPath || this.path;
+    batch.forEach(item => item.pathRef = pathRef);
+    return batch;
+  };
+
+  Game.prototype.spawnEnemy = function(item){
+    const enemy = new Enemy(this, item.type, item.wave ?? this.wave, {boss:item.boss, elite:item.elite, anomaly:item.anomaly});
+    enemy.pathRef = item.pathRef || this.currentSpawnPath || this.path;
+    this.enemies.push(enemy);
+  };
+  Game.prototype.spawnAt = function(type, distance, extra={}){
+    const wave = extra.wave ?? this.wave;
+    const anomaly = extra.anomaly ?? this.anomaly;
+    const enemy = new Enemy(this, type, wave, {distance, ...extra, anomaly});
+    enemy.pathRef = extra.pathRef || this.currentSpawnPath || this.path;
+    this.enemies.push(enemy);
+    return enemy;
+  };
+
+  const prevStartWaveV17 = Game.prototype.startWave;
+  Game.prototype.startWave = function(){
+    if(this.routeVariants?.length > 1 && this.wave >= 1 && Math.random() < .42){
+      this.activeRouteIndex = 1;
+      this.waveRouteLabel = 'BETA';
+    } else {
+      this.activeRouteIndex = 0;
+      this.waveRouteLabel = 'ALPHA';
+    }
+    this.currentSpawnPath = this.routeVariants?.[this.activeRouteIndex] || this.path;
+    this.path = this.currentSpawnPath;
+    this.entryDistance = 22;
+    this.baseDistance = Math.max(this.entryDistance + 120, this.path.total - 22);
+    const ok = prevStartWaveV17.call(this);
+    if(ok) this.toast(`Trajet ${this.waveRouteLabel} • vague ${this.wave}`);
+    return ok;
+  };
+
+  Game.prototype.makeTiles = function(){
+    const out = [];
+    const sequence = ['power','range','rate','relay','recovery'];
+    const path = this.path;
+    const placeNearRoute = (type, extra={})=>{
+      for(let tries=0; tries<140; tries++){
+        const pd = rand(this.entryDistance + 90, Math.max(this.entryDistance + 120, this.baseDistance - 95));
+        const p = path.pointAt(pd);
+        const side = Math.random() < .5 ? -1 : 1;
+        const dist = extra.rock ? rand(92, 136) : rand(84, 118);
+        const x = p.x + Math.cos(p.angle + Math.PI/2) * dist * side;
+        const y = p.y + Math.sin(p.angle + Math.PI/2) * dist * side;
+        if(x < 80 || x > WORLD.w - 80 || y < 80 || y > WORLD.h - 80) continue;
+        if(out.some(t=>Math.hypot(t.x - x, t.y - y) < (extra.rock ? 110 : 90))) continue;
+        const base = {x,y,type,phase:rand(0,TAU)};
+        if(extra.rock){
+          out.push({...base, radius:rand(24, 42), rot:rand(0,TAU), blocker:true});
+        }else if(type==='recovery'){
+          const hard = Math.random() < .34;
+          out.push({...base, level:1, color:RESONANCE_TYPES[type].color, surge:Math.round(rand(10,60)), discount:hard ? .60 : .15});
+        }else{
+          out.push({...base, level:1, color:RESONANCE_TYPES[type].color, surge:Math.round(rand(10,60))});
+        }
+        return true;
+      }
+      return false;
+    };
+    for(let round=0; round<2; round++) for(const type of sequence) placeNearRoute(type);
+    for(let i=0; i<3; i++) placeNearRoute(sequence[i]);
+    const rockCount = 3 + (Math.random() < .5 ? 1 : 0);
+    for(let i=0; i<rockCount; i++) placeNearRoute('rock', {rock:true});
+    return out;
+  };
+  Game.prototype.nearestPlatform = function(x, y, maximum = 58){
+    let best = null, bestDistance = maximum;
+    for(const platform of this.tiles){
+      if(platform.type === 'rock') continue;
+      const distance = Math.hypot(platform.x - x, platform.y - y);
+      if(distance <= bestDistance){ best = platform; bestDistance = distance; }
+    }
+    return best;
+  };
+  const prevCanPlaceV17 = Game.prototype.canPlace;
+  Game.prototype.canPlace = function(x, y){
+    if(this.tiles.some(tile => tile.type==='rock' && Math.hypot(tile.x - x, tile.y - y) < (tile.radius + 24))) return false;
+    return prevCanPlaceV17.call(this, x, y);
+  };
+
+  Game.prototype.makeEnvironment = function(){
+    const items = [];
+    for(let i=0; i<180; i++){
+      const x = rand(-WORLD.w, WORLD.w * 2), y = rand(-WORLD.h, WORLD.h * 2);
+      if(this.path.distanceTo(clamp(x,0,WORLD.w), clamp(y,0,WORLD.h)) < 70) continue;
+      const roll = Math.random();
+      items.push({
+        x,y,
+        r: roll < .4 ? rand(4,16) : rand(14,34),
+        rot: rand(0,TAU),
+        type: roll < .3 ? 'crystal' : roll < .65 ? 'rock' : 'road'
+      });
+    }
+    return items;
+  };
+
+  Game.prototype.drawResonancePlatforms = function(){
+    for(const tile of this.tiles){
+      if(tile.type === 'rock'){
+        ctx.save();
+        ctx.translate(tile.x, tile.y);
+        ctx.rotate(tile.rot + Math.sin(this.time * .25 + tile.x) * .08);
+        ctx.globalAlpha = .9;
+        ctx.fillStyle = 'rgba(46,56,74,.95)';
+        ctx.strokeStyle = 'rgba(164,186,220,.28)';
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = 'rgba(130,155,200,.22)';
+        ctx.beginPath();
+        for(let i=0;i<7;i++){
+          const a = i / 7 * TAU;
+          const rr = tile.radius * (.82 + Math.sin(i*2.3 + tile.rot) * .14);
+          if(i) ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr); else ctx.moveTo(Math.cos(a)*rr, Math.sin(a)*rr);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+      const definition = RESONANCE_TYPES[tile.type];
+      if(!definition) continue;
+      const occupied = Boolean(this.platformTower(tile));
+      const pulse = .72 + .28 * Math.sin(this.time * 2 + tile.phase);
+      const level = tile.level || 1;
+      ctx.save();
+      ctx.translate(tile.x, tile.y);
+      ctx.globalAlpha = occupied ? .26 : .20;
+      ctx.shadowBlur = 18 + level * 4;
+      ctx.shadowColor = definition.color;
+      ctx.fillStyle = definition.color;
+      ctx.beginPath();
+      ctx.arc(0,0,32 + level * 3,0,TAU);
+      ctx.fill();
+      ctx.globalAlpha = occupied ? .42 : .35;
+      ctx.fillStyle = 'rgba(3,8,18,.92)';
+      ctx.strokeStyle = definition.color;
+      ctx.lineWidth = 2.2 + level * .35;
+      ctx.beginPath();
+      for(let i=0;i<8;i++){
+        const a=i/8*TAU+Math.PI/8, r=29 + Math.sin(tile.phase+i)*1.5;
+        if(i) ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r); else ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.globalAlpha = .36 + pulse * .14;
+      ctx.setLineDash([5,8]);
+      ctx.beginPath();
+      ctx.arc(0,0,38+level*2,0,TAU);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = .92;
+      ctx.fillStyle = definition.color;
+      ctx.font = '1000 26px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(definition.icon, 0, 1);
+      ctx.font = '900 8px system-ui';
+      ctx.fillStyle = '#effdff';
+      ctx.fillText(`${tile.surge || 0}%`, 0, 25);
+      ctx.restore();
+    }
+  };
+
+  const prevPlaceTowerV17 = Game.prototype.placeTower;
+  Game.prototype.placeTower = function(x,y){
+    const before = this.money;
+    prevPlaceTowerV17.call(this,x,y);
+    if(this.selected?.tile?.type === 'recovery'){
+      this.selected.tile.sellBonus = 0;
+    }
+    if(this.money !== before) this.updateUI(true);
+  };
+
+  const prevTowerUpdateV17 = Tower.prototype.update;
+  Tower.prototype.fireSonic = function(target){
+    this.game.ring(target.x, target.y, this.def.color, this.stats.splash || 76, .42);
+    for(const enemy of this.game.enemies){
+      if(enemy.dead) continue;
+      const d = Math.hypot(enemy.x - target.x, enemy.y - target.y);
+      if(d <= (this.stats.splash || 76)){
+        const falloff = 1 - d / (this.stats.splash || 76) * .35;
+        enemy.hit(this.stats.dmg * falloff, this, 'sonic', true);
+        enemy.applySlow(.86, .7);
+      }
+    }
+    this.game.burst(target.x, target.y, this.def.color, 18, 170, 'spark');
+  };
+  Tower.prototype.deployBlockade = function(){
+    const g = this.game;
+    const existing = (g.blockades || []).filter(b => b.tower === this && b.hp > 0);
+    if(existing.length >= 1) return false;
+    const nearestEnemy = [...g.enemies].sort((a,b)=>b.distance-a.distance)[0];
+    let pd;
+    if(nearestEnemy) pd = clamp(nearestEnemy.distance + 18, g.entryDistance + 65, g.baseDistance - 55);
+    else {
+      const near = g.path.nearest(this.x, this.y);
+      pd = clamp(near.pathDistance, g.entryDistance + 65, g.baseDistance - 55);
+    }
+    const p = g.path.pointAt(pd);
+    if(Math.hypot(p.x - this.x, p.y - this.y) > this.stats.range) return false;
+    g.blockades.push({tower:this, x:p.x, y:p.y, pathDistance:pd, hp:140 + this.up.power * 45 + (this.mk===2?85:0), maxHp:140 + this.up.power * 45 + (this.mk===2?85:0), life:16, color:this.def.color, pathRef:g.path});
+    g.burst(p.x,p.y,this.def.color,12,110,'spark');
+    return true;
+  };
+  Tower.prototype.update = function(dt){
+    if(this.def.kind === 'sonic' || this.def.kind === 'bulwark'){
+      this.level = Math.min(10, 1 + Math.floor(this.xp / 100));
+      this.updateBuff();
+      const g=this.game;
+      if(g.time < this.disabledUntil) return;
+      const frozen = g.time < this.frozenUntil ? 1.75 : 1;
+      const over = g.time < this.overdriveUntil || g.time < g.overdriveUntil ? .58 : 1;
+      this.cooldown -= dt / (frozen * over * this.buff.rate);
+      const targets = this.targets(1);
+      if(targets.length){
+        const first = targets[0];
+        this.angle = Math.atan2(first.y - this.y, first.x - this.x);
+      }
+      if(this.def.kind === 'sonic'){
+        if(!targets.length || this.cooldown > 0) return;
+        this.fireSonic(targets[0]);
+        this.cooldown = this.stats.rate;
+        return;
+      }
+      if(this.def.kind === 'bulwark'){
+        if(this.cooldown > 0) return;
+        if(this.deployBlockade()){
+          if(targets[0]) targets[0].hit(this.stats.dmg, this, 'support', true);
+          this.cooldown = this.stats.rate;
+          this.game.toast('Barricade déployée');
+        }
+        return;
+      }
+    }
+    return prevTowerUpdateV17.call(this, dt);
+  };
+
+  const prevEnemyUpdateV17 = Enemy.prototype.update;
+  Enemy.prototype.update = function(dt){
+    if(this.dead) return false;
+    const g = this.game;
+    if(g.blockades?.length){
+      const block = g.blockades.find(b => b.hp > 0 && Math.abs(b.pathDistance - this.distance) < this.size + 16 && (!this.pathRef || !b.pathRef || b.pathRef === this.pathRef));
+      if(block && g.time >= this.stunUntil){
+        block.hp -= (this.boss ? 60 : this.speed * .6) * dt;
+        this.flash = .05;
+        if(block.hp <= 0){
+          g.burst(block.x, block.y, block.color, 18, 150, 'spark');
+          g.texts.push(new FloatText(block.x, block.y - 22, 'BARRICADE BRISÉE', '#cfeeff', 8));
+        }
+        return true;
+      }
+    }
+    return prevEnemyUpdateV17.call(this, dt);
+  };
+
+  const prevUseAbilityV17 = Game.prototype.useAbility;
+  Game.prototype.useAbility = function(id){
+    if(id !== 'riftbomb') return prevUseAbilityV17.call(this, id);
+    if(!this.started || this.paused) return;
+    const a = ABILITIES[id], remain = this.abilityRemaining(id);
+    if(remain > 0){ this.toast(`${a.name} recharge encore ${Math.ceil(remain)} s`); return; }
+    if(this.energy < a.cost){ this.toast(`${a.name} demande ${a.cost} énergie`); return; }
+    this.cancelPlacement();
+    this.armedAbility = 'riftbomb';
+    this.toast('Choisis la zone à bombarder');
+    haptic(8);
+  };
+
+  const prevCancelPlacementV17 = Game.prototype.cancelPlacement;
+  Game.prototype.cancelPlacement = function(){
+    prevCancelPlacementV17.call(this);
+    if(this.armedAbility && !this.pendingBombCommit){ this.armedAbility = null; }
+  };
+
+  const prevHandleTapV17 = Game.prototype.handleTap;
+  Game.prototype.handleTap = function(sx, sy){
+    const w = this.screenToWorld(sx, sy);
+    if(this.armedAbility === 'riftbomb'){
+      const a = ABILITIES.riftbomb;
+      this.armedAbility = null;
+      this.energy -= a.cost;
+      this.abilityReadyAt.riftbomb = this.time + a.cooldown;
+      this.pendingBombs.push({x:w.x, y:w.y, timer:1.15, max:1.15});
+      this.toast('Bombe en approche');
+      haptic([10,18,10]);
+      this.updateUI(true);
+      return;
+    }
+    return prevHandleTapV17.call(this, sx, sy);
+  };
+
+  const prevUpdateV17 = Game.prototype.update;
+  Game.prototype.update = function(dt){
+    prevUpdateV17.call(this, dt);
+    if(!this.started || this.paused) return;
+    const scaledDt = dt * this.speed;
+    if(this.blockades?.length){
+      for(const b of this.blockades) b.life -= scaledDt;
+      this.blockades = this.blockades.filter(b => b.life > 0 && b.hp > 0);
+    }
+    if(this.pendingBombs?.length){
+      for(const bomb of this.pendingBombs){
+        bomb.timer -= scaledDt;
+        if(!bomb.done && bomb.timer <= 0){
+          bomb.done = true;
+          for(const e of this.enemies){
+            const d = Math.hypot(e.x - bomb.x, e.y - bomb.y);
+            if(d < 175) e.hit(350 + this.wave * 16, null, 'ability', true);
+          }
+          this.burst(bomb.x, bomb.y, '#ff7b7b', 60, 340, 'explosion');
+          this.ring(bomb.x, bomb.y, '#ffd166', 175, .6);
+          this.addShake(14);
+          this.flash = .28;
+          this.toast('Impact de bombe');
+        }
+      }
+      this.pendingBombs = this.pendingBombs.filter(b => !b.done || b.timer > -0.25);
+    }
+  };
+
+  const prevDrawTowerV17 = Tower.prototype.draw;
+  Tower.prototype.draw = function(){
+    prevDrawTowerV17.call(this);
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    const label = roleLabel[this.def.id] || roleLabel[this.def.kind] || this.def.kind.toUpperCase();
+    ctx.fillStyle = 'rgba(6,12,26,.92)';
+    ctx.strokeStyle = this.def.color;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(-27, -40, 54, 11, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#f0fbff';
+    ctx.font = '900 7px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, 0, -34.5);
+    if(this.def.kind === 'sniper'){
+      ctx.strokeStyle = '#eefcff';
+      ctx.globalAlpha = .55;
+      ctx.beginPath(); ctx.moveTo(26,0); ctx.lineTo(42,0); ctx.stroke();
+    } else if(this.def.kind === 'gatling'){
+      ctx.strokeStyle = '#ff87ae';
+      ctx.globalAlpha = .45;
+      ctx.beginPath(); ctx.arc(0,0,37,0,TAU); ctx.stroke();
+    } else if(this.def.id === 'cannon' || this.def.kind==='mortar' || this.def.kind==='rockets'){
+      ctx.globalAlpha = .55; ctx.strokeStyle = '#ffd166'; ctx.beginPath(); ctx.arc(0,0,37,0,TAU); ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  const prevDrawWorldV17 = Game.prototype.drawWorld;
+  Game.prototype.drawWorld = function(th){
+    ctx.save();
+    ctx.strokeStyle = th.grid;
+    ctx.globalAlpha = .18;
+    ctx.lineWidth = 1/this.cam.zoom;
+    for(let x=-WORLD.w; x<=WORLD.w*2; x+=42){ ctx.beginPath(); ctx.moveTo(x,-WORLD.h); ctx.lineTo(x,WORLD.h*2); ctx.stroke(); }
+    for(let y=-WORLD.h; y<=WORLD.h*2; y+=42){ ctx.beginPath(); ctx.moveTo(-WORLD.w,y); ctx.lineTo(WORLD.w*2,y); ctx.stroke(); }
+    for(const deco of this.environment || []){
+      ctx.save();
+      ctx.translate(deco.x, deco.y);
+      ctx.rotate(deco.rot + (deco.type==='road' ? Math.sin(this.time*.08 + deco.x*.001)*.04 : 0));
+      if(deco.type === 'road'){
+        ctx.globalAlpha = .06;
+        ctx.fillStyle = '#aeb8d3';
+        ctx.fillRect(-deco.r*1.8, -deco.r*.25, deco.r*3.6, deco.r*.5);
+      } else if(deco.type === 'rock'){
+        ctx.globalAlpha = .08;
+        ctx.fillStyle = '#8ea6bf';
+        ctx.beginPath(); ctx.arc(0,0,deco.r,0,TAU); ctx.fill();
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+    prevDrawWorldV17.call(this, th);
+    if(this.routeVariants?.[1]){
+      ctx.save();
+      ctx.globalAlpha = .14;
+      ctx.strokeStyle = '#d6efff';
+      ctx.lineWidth = 8;
+      ctx.setLineDash([22,18]);
+      const alt = this.routeVariants[1];
+      ctx.beginPath();
+      alt.points.forEach((p,i)=>{ if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); });
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+    for(const b of this.blockades || []){
+      ctx.save();
+      ctx.translate(b.x,b.y);
+      ctx.globalAlpha = .92;
+      ctx.fillStyle = 'rgba(10,18,32,.94)';
+      ctx.strokeStyle = b.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(-15,-20,30,40,8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = b.color; ctx.fillRect(-9,-4,18,8);
+      ctx.fillStyle = '#effbff'; ctx.font = '900 7px system-ui'; ctx.textAlign = 'center'; ctx.fillText(`${Math.max(0, Math.ceil(b.hp))}`, 0, -26);
+      ctx.restore();
+    }
+    for(const bomb of this.pendingBombs || []){
+      const progress = 1 - Math.max(0, bomb.timer) / (bomb.max || 1.15);
+      const y = bomb.y - (1-progress) * 210;
+      ctx.save();
+      ctx.globalAlpha = .75;
+      ctx.strokeStyle = '#ffb3b3';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(bomb.x, bomb.y, 175, 0, TAU); ctx.stroke();
+      ctx.fillStyle = '#ff7575';
+      ctx.beginPath(); ctx.arc(bomb.x, y, 10, 0, TAU); ctx.fill();
+      ctx.restore();
+    }
+    if(this.armedAbility === 'riftbomb'){
+      const p = this.pointer || {wx:WORLD.w/2, wy:WORLD.h/2};
+      ctx.save();
+      ctx.globalAlpha = .22;
+      ctx.fillStyle = '#ff7b7b';
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(p.wx, p.wy, 175, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = '900 12px system-ui'; ctx.textAlign = 'center'; ctx.fillText('BOMBE', p.wx, p.wy - 184);
+      ctx.restore();
+    }
+  };
+
+  const prevUpdateUIV17c = Game.prototype.updateUI;
+  Game.prototype.updateUI = function(force=false){
+    prevUpdateUIV17c.call(this, force);
+    const zone = $('#statusRibbon');
+    if(zone && this.waveRouteLabel){
+      zone.querySelectorAll('.v17-route-chip').forEach(node=>node.remove());
+      zone.insertAdjacentHTML('beforeend', `<div class="status-chip synergy v17-route-chip">Route ${this.waveRouteLabel}</div>`);
+    }
+    const waveState = $('#waveState');
+    if(waveState && this.wave===0 && this.waveCountdown>0) waveState.textContent = `prochaine dans ${Math.max(0, Math.ceil(this.waveCountdown))}s • prépa libre`;
+  };
+
+  // Relaunch with v17 data.
+  game.reset();
+  game.buildStartChoices();
+  game.updateProfileUI();
+  game.renderTowerList();
+  game.renderEnergyLab();
+  game.updateUI(true);
+})();
+</script>
+
+
+<script id="v18-multiplayer-link">
+(()=>{
+  const button=document.getElementById('startMultiBtn');
+  if(!button)return;
+  button.addEventListener('click',()=>{
+    try{
+      const profile=JSON.parse(localStorage.getItem('darkRiftAscensionProfile')||'{}');
+      localStorage.setItem('darkRiftV18LaunchContext',JSON.stringify({xp:Number(profile.xp)||0,at:Date.now()}));
+    }catch{}
+    location.href='dark-rift-v18-multiplayer.html';
+  });
+})();
+</script>
 </body>
 </html>
