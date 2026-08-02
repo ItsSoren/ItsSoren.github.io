@@ -2491,5 +2491,149 @@ game.renderTowerList();
 })();
 </script>
 
+
+<style id="v18-clean-map-style">
+/* V18.1 — plateformes plus discrètes, sans anneaux pointillés fantômes */
+body.v18-clean-map #game{touch-action:none}
+</style>
+
+<script id="v18-clean-map-patch">
+(()=>{
+  'use strict';
+  document.body.classList.add('v18-clean-map');
+
+  function stablePathFor(gameInstance){
+    const raw = gameInstance.map.path.map(point => Array.isArray(point) ? [point[0], point[1]] : [point.x, point.y]);
+    return new PathModel(roundedRoute(raw, 66, 5));
+  }
+
+  /* Une seule route par partie : plus de trajet BETA invisible qui remplace ALPHA. */
+  Game.prototype.buildRouteVariants = function(){
+    return [stablePathFor(this)];
+  };
+
+  /* Décor propre : suppression totale des morceaux de vieille route en pointillés. */
+  Game.prototype.makeEnvironment = function(){
+    const items = [];
+    for(let i=0;i<105;i++){
+      const x = rand(-WORLD.w*.22, WORLD.w*1.22);
+      const y = rand(-WORLD.h*.22, WORLD.h*1.22);
+      const cx = clamp(x,0,WORLD.w), cy = clamp(y,0,WORLD.h);
+      if(this.path.distanceTo(cx,cy) < 88) continue;
+      const crystal = Math.random() < .58;
+      items.push({
+        x, y,
+        r: crystal ? rand(4,15) : rand(5,18),
+        rot: rand(0,TAU),
+        type: crystal ? 'crystal' : 'vent'
+      });
+    }
+    return items;
+  };
+
+  /* Moins de zones, mieux espacées et toujours réellement à côté de la route. */
+  Game.prototype.makeTiles = function(){
+    const out = [];
+    const types = ['power','range','rate','relay','recovery','power','range','rate'];
+    const path = this.path;
+    const start = Math.max(80, this.entryDistance + 75);
+    const end = Math.max(start + 180, this.baseDistance - 80);
+
+    const place = (type,index,isRock=false)=>{
+      for(let attempt=0;attempt<90;attempt++){
+        const ratio = (index + .72) / (types.length + .45);
+        const pd = clamp(lerp(start,end,ratio) + rand(-48,48), start, end);
+        const p = path.pointAt(pd);
+        const side = ((index + attempt) % 2 === 0) ? -1 : 1;
+        const offset = isRock ? rand(105,142) : rand(91,116);
+        const x = p.x + Math.cos(p.angle + Math.PI/2) * offset * side;
+        const y = p.y + Math.sin(p.angle + Math.PI/2) * offset * side;
+        if(x<72 || x>WORLD.w-72 || y<72 || y>WORLD.h-72) continue;
+        if(path.distanceTo(x,y)<76) continue;
+        if(out.some(t=>Math.hypot(t.x-x,t.y-y)<(isRock?118:108))) continue;
+        if(isRock){
+          out.push({x,y,type:'rock',radius:rand(24,39),rot:rand(0,TAU),phase:0,blocker:true});
+        }else{
+          const tile={x,y,type,level:1,color:RESONANCE_TYPES[type].color,phase:rand(0,TAU),surge:Math.round(rand(10,60))};
+          if(type==='recovery') tile.discount=Math.random()<.30?.60:.15;
+          out.push(tile);
+        }
+        return true;
+      }
+      return false;
+    };
+
+    types.forEach((type,index)=>place(type,index,false));
+    place('rock',1,true);
+    place('rock',5,true);
+    place('rock',7,true);
+    return out;
+  };
+
+  /* Plateformes lisibles : petit socle plein, aucune orbite pointillée, aucun gros halo. */
+  Game.prototype.drawResonancePlatforms = function(){
+    for(const tile of this.tiles){
+      if(tile.type==='rock'){
+        ctx.save();
+        ctx.translate(tile.x,tile.y);
+        ctx.rotate(tile.rot || 0);
+        ctx.fillStyle='rgba(42,52,69,.94)';
+        ctx.strokeStyle='rgba(168,190,220,.24)';
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        for(let i=0;i<7;i++){
+          const a=i/7*TAU;
+          const r=tile.radius*(.84+Math.sin(i*2.17+(tile.rot||0))*.12);
+          i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+        }
+        ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+        continue;
+      }
+      const def=RESONANCE_TYPES[tile.type];
+      if(!def) continue;
+      const occupied=Boolean(this.platformTower(tile));
+      const level=tile.level||1;
+      const radius=23+level*1.8;
+      ctx.save();
+      ctx.translate(tile.x,tile.y);
+      ctx.globalAlpha=occupied?.62:.86;
+      ctx.fillStyle='rgba(5,10,22,.94)';
+      ctx.strokeStyle=def.color;
+      ctx.lineWidth=1.7+level*.25;
+      ctx.shadowBlur=occupied?7:11;
+      ctx.shadowColor=def.color;
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const a=i/6*TAU-Math.PI/6;
+        i?ctx.lineTo(Math.cos(a)*radius,Math.sin(a)*radius):ctx.moveTo(Math.cos(a)*radius,Math.sin(a)*radius);
+      }
+      ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.globalAlpha=occupied?.45:.20;
+      ctx.fillStyle=def.color;
+      ctx.beginPath();ctx.arc(0,0,11+level,0,TAU);ctx.fill();
+      ctx.globalAlpha=occupied?.62:.95;
+      ctx.fillStyle=def.color;
+      ctx.font='900 17px system-ui';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(def.icon,0,1);
+      ctx.globalAlpha=.48;
+      ctx.strokeStyle=def.color;
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(0,0,radius+5,0,TAU);ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  /* Le reset reconstruit immédiatement la carte avec les nouvelles règles. */
+  game.reset();
+  game.buildStartChoices();
+  game.updateProfileUI();
+  game.renderTowerList();
+  game.renderEnergyLab();
+  game.updateUI(true);
+})();
+</script>
+
 </body>
 </html>
