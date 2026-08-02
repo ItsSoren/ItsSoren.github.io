@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — V18.2 Twin Front</title>
+<title>Dark Rift TD — V18.3 Twin Front</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#a56dff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ff9f;--red:#ff5c74;
@@ -77,7 +77,7 @@ button,input,select{font:inherit;color:inherit}button{cursor:pointer}button:disa
 <div id="placementBar" class="glass"><button id="placeCancel" class="placement-action">✕</button><div id="placementText"><b>Choisis une position</b><span>Touche la carte puis confirme.</span></div><button id="placeConfirm" class="placement-action confirm" disabled>✓ POSER</button></div>
 <div id="toast" class="glass"></div>
 
-<div id="startOverlay" class="overlay"><div class="modal glass"><div class="logo">DARK RIFT TD</div><p class="subtitle">V18.2 Twin Front — solo stabilisé et multijoueur deux joueurs avec deux routes indépendantes, ressources séparées et salons TurboWarp.</p><div class="profile-card"><div class="rank-line"><strong id="profileRank">RANG 1 • RECRUE</strong><span id="profileNext">60 XP avant le rang 2</span></div><div class="xp-track"><i id="profileFill"></i></div><div class="rank-line" style="margin-top:8px"><span id="profileStats">0 vague • 0 victoire</span><button id="profileRoadmap" class="action" style="padding:7px 10px">PROGRESSION</button></div></div><div class="start-grid"><div class="start-panel"><div class="panel-title">Type de partie solo</div><div id="modeChoices" class="choice-grid"></div></div><div class="start-panel"><div class="panel-title">Zone de combat</div><div id="mapChoices" class="choice-grid"></div></div></div><div class="start-actions"><button id="startSolo" class="action primary">OUVRIR LA FAILLE SOLO</button><button id="openMulti" class="action">⚔ MULTIJOUEUR</button><button id="openHelpStart" class="action">AIDE</button></div></div></div>
+<div id="startOverlay" class="overlay"><div class="modal glass"><div class="logo">DARK RIFT TD</div><p class="subtitle">V18.3 Twin Front — moteur solo conservé, multijoueur deux joueurs reconstruit proprement, deux routes indépendantes et synchronisation TurboWarp optimisée.</p><div class="profile-card"><div class="rank-line"><strong id="profileRank">RANG 1 • RECRUE</strong><span id="profileNext">60 XP avant le rang 2</span></div><div class="xp-track"><i id="profileFill"></i></div><div class="rank-line" style="margin-top:8px"><span id="profileStats">0 vague • 0 victoire</span><button id="profileRoadmap" class="action" style="padding:7px 10px">PROGRESSION</button></div></div><div class="start-grid"><div class="start-panel"><div class="panel-title">Type de partie solo</div><div id="modeChoices" class="choice-grid"></div></div><div class="start-panel"><div class="panel-title">Zone de combat</div><div id="mapChoices" class="choice-grid"></div></div></div><div class="start-actions"><button id="startSolo" class="action primary">OUVRIR LA FAILLE SOLO</button><button id="openMulti" class="action">⚔ MULTIJOUEUR</button><button id="openHelpStart" class="action">AIDE</button></div></div></div>
 
 <div id="multiOverlay" class="overlay hidden"><div class="modal glass"><div class="modal-head"><div><div class="panel-title">Twin Front Online</div><h2>Multijoueur TurboWarp</h2></div><div style="display:flex;align-items:center;gap:8px"><span id="cloudState" class="cloud-state">HORS LIGNE</span><button id="closeMulti" class="icon-btn">✕</button></div></div>
   <section id="multiIdentity" class="multi-screen active"><div class="multi-panel" style="max-width:580px;margin:auto"><div class="panel-title">Identité du pilote</div><div class="field"><label>Pseudo</label><input id="nickname" maxlength="14" placeholder="Soren"></div><div class="identity-preview"><strong id="identityPreview">Pilote#0000</strong><span id="identityRank">RANG 1/20</span></div><button id="saveIdentity" class="action primary" style="width:100%">ENTRER DANS LE MENU MULTI</button></div></section>
@@ -193,7 +193,7 @@ class Game{
  syncLocalWallet(){const p=this.players[this.localPlayer]||this.players[0];if(!p)return;this.money=p.money;this.energy=p.energy;this.maxEnergy=p.maxEnergy;this.energyRegen=p.energyRegen;this.lives=p.lives;this.maxLives=p.maxLives;this.playerRank=p.rank}
  captureLocalWallet(){const p=this.players[this.localPlayer];if(!p)return;p.money=this.money;p.energy=this.energy;p.maxEnergy=this.maxEnergy;p.energyRegen=this.energyRegen;p.lives=this.lives;p.maxLives=this.maxLives}
  withPlayer(index,fn){const local=this.localPlayer,saved={money:this.money,energy:this.energy,maxEnergy:this.maxEnergy,energyRegen:this.energyRegen,lives:this.lives,maxLives:this.maxLives,playerRank:this.playerRank};const p=this.players[index];this.money=p.money;this.energy=p.energy;this.maxEnergy=p.maxEnergy;this.energyRegen=p.energyRegen;this.lives=p.lives;this.maxLives=p.maxLives;this.playerRank=p.rank;let r;try{r=fn()}finally{p.money=this.money;p.energy=this.energy;p.maxEnergy=this.maxEnergy;p.energyRegen=this.energyRegen;p.lives=this.lives;p.maxLives=this.maxLives;Object.assign(this,saved);this.localPlayer=local;if(index===local)this.syncLocalWallet()}return r}
- startSolo(){this.multiActive=false;this.authoritative=true;this.multiHost=false;this.localPlayer=0;this.profile.lastMode=this.modeId;this.profile.lastMap=this.mapId;storageSet('darkRiftV182Profile',JSON.stringify(this.profile));this.reset(false);this.started=true;this.paused=false;this.waveCountdown=120;$('#startOverlay').classList.add('hidden');this.toast('V18.2 Solo • préparation 2 minutes')}
+ startSolo(){this.multiActive=false;this.authoritative=true;this.multiHost=false;this.localPlayer=0;this.profile.lastMode=this.modeId;this.profile.lastMap=this.mapId;storageSet('darkRiftV182Profile',JSON.stringify(this.profile));this.reset(false);this.started=true;this.paused=false;this.waveCountdown=120;$('#startOverlay').classList.add('hidden');this.toast('V18.3 Solo • préparation 2 minutes')}
  startMulti(config,isHost,world=null){this.multiActive=true;this.multiHost=isHost;this.authoritative=isHost;this.localPlayer=isHost?0:1;this.multiConfig=config;this.modeId=config.modeId||'discovery';this.mapId=config.mapId||'rift';this.mode=MODES[this.modeId];this.map=MAPS[this.mapId];WORLD={...MULTI_WORLD};this.time=0;this.speed=1;this.started=true;this.paused=false;this.wave=0;this.waveCountdown=45;this.waveActive=false;this.spawnQueue=[];this.spawnTimer=0;this.maxWaveStack=1;this.waveLedger=[];this.enemies=[];this.towers=[];this.projectiles=[];this.particles=[];this.texts=[];this.beams=[];this.mines=[];this.bombs=[];this.selected=null;this.placing=null;this.preview=null;this.abilityPlacement=null;this.result=null;this.multiLaneActive=[true,true];this.players=config.players.map((p,i)=>this.makePlayer({...p,index:i},rankBonuses(p.rank||1)));this.buildWorld();if(world)this.applyWorld(world);this.syncLocalWallet();this.renderCategories();this.renderTowers();this.updateUI(true);$('#startOverlay').classList.add('hidden');$('#multiOverlay').classList.add('hidden');this.toast(isHost?'Partie créée • préparation 45 s':'Partie rejointe • synchronisation')}
  buildStartChoices(){const modeBox=$('#modeChoices'),mapBox=$('#mapChoices');modeBox.innerHTML='';for(const[id,m]of Object.entries(MODES)){const b=document.createElement('button');b.className='choice-card'+(id===this.modeId?' active':'');b.style.setProperty('--c',m.color);b.innerHTML=`<em>${m.icon}</em><b>${m.name}</b><small>${m.desc}</small>`;b.onclick=()=>{this.modeId=id;this.buildStartChoices()};modeBox.appendChild(b)}mapBox.innerHTML='';for(const[id,m]of Object.entries(MAPS)){const b=document.createElement('button');b.className='choice-card'+(id===this.mapId?' active':'');b.style.setProperty('--c',m.color);b.innerHTML=`<em>${m.icon}</em><b>${m.name}</b><small>${m.desc}</small>`;b.onclick=()=>{this.mapId=id;this.buildStartChoices()};mapBox.appendChild(b)}}
  renderCategories(){const box=$('#categoryTabs');box.innerHTML='';for(const[id,c]of Object.entries(CATEGORIES)){const b=document.createElement('button');b.className='category-btn'+(id===this.category?' active':'');b.style.setProperty('--cat',c.color);b.textContent=`${c.icon} ${c.name}`;b.onclick=()=>{this.category=id;this.renderCategories();this.renderTowers()};box.appendChild(b)}}
@@ -204,7 +204,7 @@ class Game{
  canPlace(x,y,def=this.placing){if(!def||x<38||x>WORLD.w-38||y<38||y>WORLD.h-38||this.rockAt(x,y,30)||this.towers.some(t=>!t.dead&&Math.hypot(t.x-x,t.y-y)<58))return false;const near=this.nearestPath(x,y);if(def.kind==='barrier')return near.distance<42;if(near.distance<68)return false;return true}
  placeTower(x,y,owner=this.localPlayer,fromNetwork=false){const def=this.placing||TOWERS.find(t=>t.id===this.pendingDefId);if(!def)return false;let near=this.nearestPath(x,y);if(def.kind==='barrier'){x=near.x;y=near.y}const p=this.players[owner],zone=this.zoneAt(x,y),cost=Math.ceil(def.cost*1.24*(zone?.type==='recovery'?Math.max(.55,1-((zone.surge/100)*(1+(zone.level-1)*.45))*.38):1));if(p.money<cost||!this.canPlace(x,y,def))return false;p.money-=cost;const t=new Tower(this,x,y,def,owner,zone,{lane:def.kind==='barrier'?near.lane:null,structureDistance:def.kind==='barrier'?near.pathDistance:0,structureAngle:def.kind==='barrier'?near.angle:0,totalSpent:cost});this.towers.push(t);this.selected=owner===this.localPlayer?t:null;this.burst(x,y,ownerColor(owner),18,130);if(owner===this.localPlayer){this.syncLocalWallet();this.cancelPlacement();this.renderInspector()}this.renderTowers();this.updateUI(true);return t}
  selectAt(x,y){const t=[...this.towers].reverse().find(t=>!t.dead&&Math.hypot(t.x-x,t.y-y)<30);this.selected=t||null;this.renderInspector();if(t)$('#towerDock').classList.remove('open')}
- renderInspector(){const panel=$('#inspector'),t=this.selected;if(!t||t.dead){panel.classList.remove('open');panel.innerHTML='';return}panel.classList.add('open');panel.style.setProperty('--tower-color',ownerColor(t.owner));const mine=t.owner===this.localPlayer,p=this.players[t.owner],ratio=t.def.kind==='barrier'?clamp(t.structureHp/Math.max(1,t.maxStructureHp),0,1):1;panel.innerHTML=`<button class="icon-btn close-inspector">✕</button><div class="inspector-head"><div class="tower-badge">${t.def.icon}</div><div><h2>${t.def.name}</h2><p>${CATEGORIES[t.def.category].name} • ${t.zone?ZONE_TYPES[t.zone.type].name:'terrain neutre'}</p></div></div>${this.multiActive?`<div class="owner-badge" style="--owner:${ownerColor(t.owner)}"><b>● ${this.playerDisplay(p)}</b><span>${mine?'MODIFIABLE':'DISTANT'}</span></div>`:''}<div class="mechanic-box"><b>Rôle :</b> ${t.def.desc}<br><b>Fort :</b> ${t.def.strong}<br><b>Faible :</b> ${t.def.weak}</div><div class="stats"><div class="stat"><label>Dégâts</label><b>${Math.round(t.damage())}</b></div><div class="stat"><label>Portée</label><b>${Math.round(t.range())}</b></div><div class="stat"><label>Cadence</label><b>${t.def.kind==='barrier'?'Blocage':(1/t.rate()).toFixed(1)+'/s'}</b></div><div class="stat"><label>Éliminations</label><b>${t.kills}</b></div></div>${t.def.kind==='barrier'?`<div class="section"><div class="section-title">Blindage</div><div class="structure-track"><i style="width:${ratio*100}%"></i></div><div style="font-size:8px;margin-top:5px">${Math.ceil(t.structureHp)} / ${Math.ceil(t.maxStructureHp)}</div></div>`:''}<div class="section"><div class="section-title">Améliorations</div>${['power','range','rate'].map(br=>{const c=t.upgradeCost(br),names={power:'Puissance',range:'Optique',rate:'Accélérateur'};return`<button class="upgrade-btn" data-up="${br}" ${!mine||t.up[br]>=5||this.players[t.owner].money<c.money||this.players[t.owner].energy<c.energy?'disabled':''}><span><b>${names[br]} • ${t.up[br]}/5</b><small>Coût réduit V18.2</small></span><strong>${t.up[br]>=5?'MAX':`${c.money}¤ + ${c.energy}ϟ`}</strong></button>`}).join('')}</div><div class="section"><div class="section-title">Ciblage</div><div class="target-row">${[['first','Premier'],['last','Dernier'],['strong','Fort'],['weak','Faible']].map(([id,n])=>`<button class="target-btn ${t.targetMode===id?'active':''}" data-target="${id}" ${!mine?'disabled':''}>${n}</button>`).join('')}</div></div><button id="sellTower" class="action danger sell-btn" ${!mine?'disabled':''}>VENDRE • ${Math.floor(t.totalSpent*.65)}¤</button>`;panel.querySelector('.close-inspector').onclick=()=>{this.selected=null;this.renderInspector()};panel.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>this.requestUpgrade(t,b.dataset.up));panel.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>this.requestTarget(t,b.dataset.target));$('#sellTower').onclick=()=>this.requestSell(t)}
+ renderInspector(){const panel=$('#inspector'),t=this.selected;if(!t||t.dead){panel.classList.remove('open');panel.innerHTML='';return}panel.classList.add('open');panel.style.setProperty('--tower-color',ownerColor(t.owner));const mine=t.owner===this.localPlayer,p=this.players[t.owner],ratio=t.def.kind==='barrier'?clamp(t.structureHp/Math.max(1,t.maxStructureHp),0,1):1;panel.innerHTML=`<button class="icon-btn close-inspector">✕</button><div class="inspector-head"><div class="tower-badge">${t.def.icon}</div><div><h2>${t.def.name}</h2><p>${CATEGORIES[t.def.category].name} • ${t.zone?ZONE_TYPES[t.zone.type].name:'terrain neutre'}</p></div></div>${this.multiActive?`<div class="owner-badge" style="--owner:${ownerColor(t.owner)}"><b>● ${this.playerDisplay(p)}</b><span>${mine?'MODIFIABLE':'DISTANT'}</span></div>`:''}<div class="mechanic-box"><b>Rôle :</b> ${t.def.desc}<br><b>Fort :</b> ${t.def.strong}<br><b>Faible :</b> ${t.def.weak}</div><div class="stats"><div class="stat"><label>Dégâts</label><b>${Math.round(t.damage())}</b></div><div class="stat"><label>Portée</label><b>${Math.round(t.range())}</b></div><div class="stat"><label>Cadence</label><b>${t.def.kind==='barrier'?'Blocage':(1/t.rate()).toFixed(1)+'/s'}</b></div><div class="stat"><label>Éliminations</label><b>${t.kills}</b></div></div>${t.def.kind==='barrier'?`<div class="section"><div class="section-title">Blindage</div><div class="structure-track"><i style="width:${ratio*100}%"></i></div><div style="font-size:8px;margin-top:5px">${Math.ceil(t.structureHp)} / ${Math.ceil(t.maxStructureHp)}</div></div>`:''}<div class="section"><div class="section-title">Améliorations</div>${['power','range','rate'].map(br=>{const c=t.upgradeCost(br),names={power:'Puissance',range:'Optique',rate:'Accélérateur'};return`<button class="upgrade-btn" data-up="${br}" ${!mine||t.up[br]>=5||this.players[t.owner].money<c.money||this.players[t.owner].energy<c.energy?'disabled':''}><span><b>${names[br]} • ${t.up[br]}/5</b><small>Coût optimisé V18.3</small></span><strong>${t.up[br]>=5?'MAX':`${c.money}¤ + ${c.energy}ϟ`}</strong></button>`}).join('')}</div><div class="section"><div class="section-title">Ciblage</div><div class="target-row">${[['first','Premier'],['last','Dernier'],['strong','Fort'],['weak','Faible']].map(([id,n])=>`<button class="target-btn ${t.targetMode===id?'active':''}" data-target="${id}" ${!mine?'disabled':''}>${n}</button>`).join('')}</div></div><button id="sellTower" class="action danger sell-btn" ${!mine?'disabled':''}>VENDRE • ${Math.floor(t.totalSpent*.65)}¤</button>`;panel.querySelector('.close-inspector').onclick=()=>{this.selected=null;this.renderInspector()};panel.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>this.requestUpgrade(t,b.dataset.up));panel.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>this.requestTarget(t,b.dataset.target));$('#sellTower').onclick=()=>this.requestSell(t)}
  requestUpgrade(t,branch){if(t.owner!==this.localPlayer)return;if(this.multiActive&&!this.multiHost){MP.sendCommand('upgrade',{towerId:t.id,branch});return}if(t.upgrade(branch)){this.renderInspector();this.updateUI(true)}}
  requestTarget(t,mode){if(t.owner!==this.localPlayer)return;if(this.multiActive&&!this.multiHost){MP.sendCommand('target',{towerId:t.id,mode});return}t.targetMode=mode;this.renderInspector()}
  requestSell(t){if(t.owner!==this.localPlayer)return;if(this.multiActive&&!this.multiHost){MP.sendCommand('sell',{towerId:t.id});return}this.sellTower(t)}
@@ -249,9 +249,9 @@ class Game{
  updateProfileUI(){const r=rankForXp(this.profile.xp),tier=rankTier(r),next=nextRank(r),start=tier.xp,end=next?next.xp:start+1,pct=next?clamp((this.profile.xp-start)/(end-start)*100,0,100):100;$('#profileRank').textContent=`RANG ${r}/20 • ${tier.title.toUpperCase()}`;$('#profileNext').textContent=next?`${Math.max(0,next.xp-this.profile.xp)} XP avant ${next.title}`:'Rang maximum atteint';$('#profileFill').style.width=pct+'%';$('#profileStats').textContent=`record vague ${this.profile.bestWave} • ${this.profile.victories} victoire(s) • ${this.profile.kills} éliminations`;$('#rankName').textContent=`Rang ${r}/20 • ${tier.title}`;$('#rankXp').textContent=next?`${this.profile.xp}/${next.xp} XP`:'MAX';$('#rankFill').style.width=pct+'%'}
  updateUI(force=false){const p=this.players[this.localPlayer]||this.players[0];if(!p)return;this.syncLocalWallet();$('#money').textContent=Math.floor(p.money);$('#lives').textContent=`${Math.max(0,Math.ceil(p.lives))}/${p.maxLives}`;$('#wave').textContent=this.wave;$('#waveState').textContent=this.waveActive?`${this.waveLedger.length} engagée${this.waveLedger.length>1?'s':''} • +${Math.ceil(this.waveCountdown)}s`:`prochaine dans ${Math.ceil(this.waveCountdown)}s`;$('#energy').textContent=`${Math.floor(p.energy)}/${p.maxEnergy}`;const relay=this.towers.filter(t=>!t.dead&&t.owner===this.localPlayer&&t.zone?.type==='relay').reduce((s,t)=>s+t.bonus().regen,0);$('#energyRate').textContent=`+${(p.energyRegen+relay).toFixed(2)}/s`;$('#speedBtn').textContent='×'+(this.multiActive?1:this.speed);$('#speedBtn').disabled=this.multiActive;const prep=this.started&&this.wave===0&&this.waveCountdown>0;$('#prepBanner').style.display=prep?'flex':'none';if(prep){const sec=Math.max(0,Math.ceil(this.waveCountdown)),m=String(Math.floor(sec/60)).padStart(2,'0'),s=String(sec%60).padStart(2,'0');$('#prepTime').textContent=`${m}:${s}`;$('#prepKicker').textContent=this.multiActive?'Préparation multijoueur':'Préparation initiale';$('#prepLabel').textContent=this.multiActive?'45 secondes • vitesse verrouillée ×1.':'Place tes premières tourelles puis lance quand tu veux.';$('#prepHint').textContent=this.multiActive?'Les deux routes démarrent automatiquement.':'La première vague démarre automatiquement à la fin.';$('#prepSkip').style.display=this.multiActive?'none':''}const chips=[`<div class="chip mode">${this.multiActive?'⚔ MULTI':'● SOLO'} • ${this.mode.name}</div>`,`<div class="chip map">${this.map.icon} ${this.map.name}</div>`,this.paths.length>1&&!this.multiActive?'<div class="chip warn">⑂ BIFURCATION RÉELLE</div>':'',this.waveLedger.length>1?`<div class="chip warn">⚠ PRESSION ×${this.waveLedger.length}</div>`:''].join('');$('#statusRibbon').innerHTML=chips;if(this.multiActive){$('#multiHud').style.display='grid';const a=this.players[0],b=this.players[1];$('#multiP1').innerHTML=`<b>${this.playerDisplay(a)} • R${a.rank}</b><span>¤${Math.floor(a.money)} • ϟ${Math.floor(a.energy)}/${a.maxEnergy} • ♥${Math.max(0,Math.ceil(a.lives))}/${a.maxLives}</span>`;$('#multiP2').innerHTML=`<b>${this.playerDisplay(b)} • R${b.rank}</b><span>¤${Math.floor(b.money)} • ϟ${Math.floor(b.energy)}/${b.maxEnergy} • ♥${Math.max(0,Math.ceil(b.lives))}/${b.maxLives}</span>`;$('#multiTag').textContent=this.multiConfig?.tag?.toUpperCase()||'COOP'}else $('#multiHud').style.display='none';for(const b of $$('[data-ability]')){const id=b.dataset.ability,cost={overdrive:85,bomb:95,cryo:90,repair:80}[id],remain=this.abilityRemaining(id);b.disabled=!this.started||this.paused||p.eliminated||remain>0||p.energy<cost;b.classList.toggle('cooldown',remain>0);b.classList.toggle('ready',remain<=0&&p.energy>=cost);b.querySelector('b').textContent=remain>0?`${{overdrive:'⚡ Overdrive',bomb:'💥 Bombe',cryo:'❄ Nova',repair:'✚ Réparer'}[id]} • ${Math.ceil(remain)}s`:`${{overdrive:'⚡ Overdrive',bomb:'💥 Bombe',cryo:'❄ Nova',repair:'✚ Réparer'}[id]} • ${cost}`}this.renderTowers();if(force&&this.selected)this.renderInspector()}
  toast(msg){const e=$('#toast');e.textContent=msg;e.classList.add('toast-show');clearTimeout(this.toastTimer);this.toastTimer=setTimeout(()=>e.classList.remove('toast-show'),2200)}
- buildWorldPayload(){return{v:'18.2',matchId:this.multiConfig?.matchId,world:{w:WORLD.w,h:WORLD.h},modeId:this.modeId,mapId:this.mapId,paths:this.paths.map(p=>p.points.map(q=>[Math.round(q.x*10)/10,Math.round(q.y*10)/10])),zones:this.zones.map(z=>({...z})),rocks:this.rocks.map(r=>({...r}))}}
+ buildWorldPayload(){return{v:'18.3',matchId:this.multiConfig?.matchId,world:{w:WORLD.w,h:WORLD.h},modeId:this.modeId,mapId:this.mapId,paths:this.paths.map(p=>p.points.map(q=>[Math.round(q.x*10)/10,Math.round(q.y*10)/10])),zones:this.zones.map(z=>({...z})),rocks:this.rocks.map(r=>({...r}))}}
  applyWorld(data){if(!data?.paths)return;WORLD={w:data.world?.w||MULTI_WORLD.w,h:data.world?.h||MULTI_WORLD.h};this.paths=data.paths.map(p=>new PathModel(p));this.path=this.paths[0];this.zones=(data.zones||[]).map(z=>({...z}));this.rocks=(data.rocks||[]).map(r=>({...r}));this.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*.9,.31,1.25)}}
- buildSnapshot(){return{v:'18.2',matchId:this.multiConfig?.matchId,tick:++this.multiTick,time:this.time,wave:this.wave,waveCountdown:this.waveCountdown,waveActive:this.waveActive,players:this.players.map(p=>[p.money,p.energy,p.maxEnergy,p.energyRegen,p.lives,p.maxLives,p.rank,p.eliminated?1:0,p.abilityReadyAt.overdrive,p.abilityReadyAt.bomb,p.abilityReadyAt.cryo,p.abilityReadyAt.repair,p.overdriveUntil,p.kills||0]),enemies:this.enemies.map(e=>[e.id,e.type,e.wave,e.lane,e.distance,e.hp,e.maxHp,e.shield,e.maxShield,e.slowFactor,e.slowUntil,e.stunUntil,e.burn,e.burnUntil,e.fragile,e.fragileUntil,e.lastOwner]),towers:this.towers.filter(t=>!t.dead).map(t=>[t.id,t.owner,t.def.id,t.x,t.y,t.zone?.id||'',t.targetMode,t.up.power,t.up.range,t.up.rate,t.kills,t.xp,t.totalSpent,t.lane,t.structureDistance,t.structureAngle,t.structureHp,t.maxStructureHp,t.cooldown]),mines:this.mines.map(m=>[m.id,m.owner,m.tower.id,m.lane,m.pathDistance,m.life,m.arm]),bombs:this.bombs.map(b=>[b.x,b.y,b.life,b.max,b.owner]),result:this.result}}
+ buildSnapshot(){return{v:'18.3',matchId:this.multiConfig?.matchId,tick:++this.multiTick,time:this.time,wave:this.wave,waveCountdown:this.waveCountdown,waveActive:this.waveActive,players:this.players.map(p=>[p.money,p.energy,p.maxEnergy,p.energyRegen,p.lives,p.maxLives,p.rank,p.eliminated?1:0,p.abilityReadyAt.overdrive,p.abilityReadyAt.bomb,p.abilityReadyAt.cryo,p.abilityReadyAt.repair,p.overdriveUntil,p.kills||0]),enemies:this.enemies.map(e=>[e.id,e.type,e.wave,e.lane,e.distance,e.hp,e.maxHp,e.shield,e.maxShield,e.slowFactor,e.slowUntil,e.stunUntil,e.burn,e.burnUntil,e.fragile,e.fragileUntil,e.lastOwner]),towers:this.towers.filter(t=>!t.dead).map(t=>[t.id,t.owner,t.def.id,t.x,t.y,t.zone?.id||'',t.targetMode,t.up.power,t.up.range,t.up.rate,t.kills,t.xp,t.totalSpent,t.lane,t.structureDistance,t.structureAngle,t.structureHp,t.maxStructureHp,t.cooldown]),mines:this.mines.map(m=>[m.id,m.owner,m.tower.id,m.lane,m.pathDistance,m.life,m.arm]),bombs:this.bombs.map(b=>[b.x,b.y,b.life,b.max,b.owner]),result:this.result}}
  applySnapshot(s){if(!s||s.matchId!==this.multiConfig?.matchId||s.tick<=(this.lastSnapshotTick||0))return;this.lastSnapshotTick=s.tick;this.time=s.time;this.wave=s.wave;this.waveCountdown=s.waveCountdown;this.waveActive=s.waveActive;for(let i=0;i<s.players.length;i++){const d=s.players[i],p=this.players[i];if(!p)continue;[p.money,p.energy,p.maxEnergy,p.energyRegen,p.lives,p.maxLives,p.rank]=d;p.eliminated=!!d[7];p.abilityReadyAt={overdrive:d[8],bomb:d[9],cryo:d[10],repair:d[11]};p.overdriveUntil=d[12];p.kills=d[13]}const oldE=new Map(this.enemies.map(e=>[e.id,e])),nextE=[];for(const d of s.enemies){const[id,type,wave,lane,distance,hp,maxHp,shield,maxShield,slowFactor,slowUntil,stunUntil,burn,burnUntil,fragile,fragileUntil,lastOwner]=d;let e=oldE.get(id);if(!e)e=new Enemy(this,type,wave,lane,{id,hp,maxHp,shield,maxShield});e.targetDistance=distance;e.hp=hp;e.maxHp=maxHp;e.shield=shield;e.maxShield=maxShield;e.slowFactor=slowFactor;e.slowUntil=slowUntil;e.stunUntil=stunUntil;e.burn=burn;e.burnUntil=burnUntil;e.fragile=fragile;e.fragileUntil=fragileUntil;e.lastOwner=lastOwner;e.dead=false;nextE.push(e)}this.enemies=nextE;const zoneMap=new Map(this.zones.map(z=>[z.id,z])),oldT=new Map(this.towers.map(t=>[t.id,t])),nextT=[];for(const d of s.towers){const[id,owner,defId,x,y,zoneId,targetMode,power,range,rate,kills,xp,totalSpent,lane,structureDistance,structureAngle,structureHp,maxStructureHp,cooldown]=d,def=TOWERS.find(t=>t.id===defId);if(!def)continue;let t=oldT.get(id);if(!t)t=new Tower(this,x,y,def,owner,zoneMap.get(zoneId)||null,{id});t.owner=owner;t.x=x;t.y=y;t.zone=zoneMap.get(zoneId)||null;t.targetMode=targetMode;t.up={power,range,rate};t.kills=kills;t.xp=xp;t.totalSpent=totalSpent;t.lane=lane;t.structureDistance=structureDistance;t.structureAngle=structureAngle;t.structureHp=structureHp;t.maxStructureHp=maxStructureHp;t.cooldown=cooldown;t.dead=false;nextT.push(t)}const selectedId=this.selected?.id;this.towers=nextT;this.selected=selectedId?this.towers.find(t=>t.id===selectedId)||null:null;const towerMap=new Map(this.towers.map(t=>[t.id,t]));this.mines=(s.mines||[]).map(d=>{const[id,owner,towerId,lane,pd,life,arm]=d,t=towerMap.get(towerId);if(!t)return null;const m=new MineTrap(this,t,lane,pd);m.id=id;m.owner=owner;m.life=life;m.arm=arm;return m}).filter(Boolean);this.bombs=(s.bombs||[]).map(d=>{const[x,y,life,max,owner]=d,b=new BombDrop(this,x,y,owner,true);b.life=life;b.max=max;return b});this.result=s.result||null;if(this.result&&!this.paused)this.finishResult(this.result);this.syncLocalWallet();this.updateUI(true);if(this.selected)this.renderInspector()}
  executeCommand(owner,cmd){if(!this.authoritative||!cmd)return;const d=cmd.data||{};if(cmd.kind==='place'){const def=TOWERS.find(t=>t.id===d.defId);if(!def||this.players[owner].rank<towerRank(def.id))return;this.pendingDefId=def.id;const old=this.placing;this.placing=def;this.placeTower(d.x,d.y,owner,true);this.placing=old;this.pendingDefId=null}else if(cmd.kind==='upgrade'){const t=this.towers.find(t=>t.id===d.towerId&&t.owner===owner);if(t)t.upgrade(d.branch)}else if(cmd.kind==='target'){const t=this.towers.find(t=>t.id===d.towerId&&t.owner===owner);if(t)t.targetMode=d.mode}else if(cmd.kind==='sell'){const t=this.towers.find(t=>t.id===d.towerId&&t.owner===owner);if(t)this.sellTower(t)}else if(cmd.kind==='ability'){this.executeAbility(owner,d.id,d)}this.updateUI(true)}
 }
@@ -268,7 +268,7 @@ class CloudConnection{
  close(){this.closed=true;try{this.socket?.close()}catch{}}
 }
 const MP=window.MP={
- root:'itssoren.github.io/dark-rift-td-v18-2',directory:null,room:null,roomCode:null,role:null,lobby:null,publicSlot:null,lobbies:new Map(),identity:null,heartbeat:null,commandSeq:0,commandHistory:[],lastCommandSeq:0,snapshotParts:new Map(),pendingWorld:null,pendingMeta:null,
+ root:'itssoren.github.io/dark-rift-td-v18-3',directory:null,room:null,roomCode:null,role:null,lobby:null,publicSlot:null,lobbies:new Map(),identity:null,heartbeat:null,commandSeq:0,commandHistory:[],lastCommandSeq:0,snapshotParts:new Map(),pendingWorld:null,pendingMeta:null,
  loadIdentity(){try{const v=JSON.parse(storageGet('darkRiftV182Identity','null'));if(v?.nickname&&v?.id)this.identity=v}catch{}if(!this.identity)this.identity={nickname:'',id:String(Math.floor(1000+Math.random()*9000)),rank:rankForXp(game.profile.xp)};this.identity.rank=rankForXp(game.profile.xp);$('#nickname').value=this.identity.nickname||'';this.refreshIdentity()},
  refreshIdentity(){const n=sanitizeName($('#nickname').value)||'Pilote';$('#identityPreview').textContent=`${n}#${this.identity.id}`;$('#identityRank').textContent=`RANG ${rankForXp(game.profile.xp)}/20`},
  saveIdentity(){const n=sanitizeName($('#nickname').value);if(!n){game.toast('Choisis un pseudo');return false}this.identity={nickname:n,id:this.identity?.id||String(Math.floor(1000+Math.random()*9000)),rank:rankForXp(game.profile.xp)};storageSet('darkRiftV182Identity',JSON.stringify(this.identity));this.refreshIdentity();return true},
@@ -278,7 +278,7 @@ const MP=window.MP={
  setCloudState(state){const e=$('#cloudState');e.textContent={connecting:'CONNEXION…',online:'CLOUD EN LIGNE',offline:'HORS LIGNE',error:'ERREUR CLOUD'}[state]||state.toUpperCase();e.className='cloud-state '+(state==='online'?'online':state==='error'?'error':'')},
  ensureDirectory(){if(this.directory)return;this.directory=new CloudConnection(this.root+'/directory',{onStatus:s=>this.setCloudState(s),onValue:(name,payload)=>{const m=name.match(/☁ lobby (\d+)/);if(m){const slot=+m[1];if(payload&&payload.state==='open'&&Date.now()-(payload.heartbeat||0)<16000)this.lobbies.set(slot,payload);else this.lobbies.delete(slot);this.renderLobbies()}}})},
  renderLobbies(){const box=$('#lobbyList'),arr=[...this.lobbies.entries()].filter(([,l])=>l.state==='open'&&Date.now()-(l.heartbeat||0)<16000);if(!arr.length){box.innerHTML='<div class="empty">Aucun salon public détecté.</div>';return}box.innerHTML='';for(const[slot,l]of arr){const b=document.createElement('button');b.className='lobby-card';b.innerHTML=`<div><strong>${l.host.nickname}#${l.host.id} • R${l.host.rank}</strong><p>veut jouer en <span class="tag ${l.tag}">${l.tag.toUpperCase()}</span> • ${MAPS[l.mapId]?.name||'Faille'}</p></div><span style="font-size:8px;color:var(--cyan)">REJOINDRE</span>`;b.onclick=()=>this.joinRoom(l.code);box.appendChild(b)}},
- createRoom(visibility){if(!this.saveIdentity())return;this.ensureDirectory();const code=makeCode(),tag=$('#roomTag').value,slot=visibility==='public'?[...Array(10).keys()].find(i=>!this.lobbies.has(i))??Math.floor(Math.random()*10):null;this.role='host';this.roomCode=code;this.publicSlot=slot;this.lobby={v:'18.2',code,visibility,tag,modeId:game.modeId,mapId:game.mapId,state:'open',host:{...this.identity},guest:null,heartbeat:Date.now()};this.connectRoom();if(slot!=null)this.directory.set(`☁ lobby ${slot}`,this.lobby);this.setScreen('room');this.renderRoom();this.startHeartbeat()},
+ createRoom(visibility){if(!this.saveIdentity())return;this.ensureDirectory();const code=makeCode(),tag=$('#roomTag').value,slot=visibility==='public'?[...Array(10).keys()].find(i=>!this.lobbies.has(i))??Math.floor(Math.random()*10):null;this.role='host';this.roomCode=code;this.publicSlot=slot;this.lobby={v:'18.3',code,visibility,tag,modeId:game.modeId,mapId:game.mapId,state:'open',host:{...this.identity},guest:null,heartbeat:Date.now()};this.connectRoom();if(slot!=null)this.directory.set(`☁ lobby ${slot}`,this.lobby);this.setScreen('room');this.renderRoom();this.startHeartbeat()},
  joinRoom(code){if(!this.saveIdentity())return;code=String(code||'').trim().toUpperCase();if(code.length!==6){game.toast('Code de salon invalide');return}this.role='guest';this.roomCode=code;this.lobby=null;this.pendingWorld=null;this.pendingMeta=null;this.connectRoom();this.setScreen('room');$('#roomCode').textContent=code;$('#roomInfo').textContent='Connexion au salon…';this.startHeartbeat()},
  connectRoom(){this.room?.close();this.room=new CloudConnection(this.root+'/room/'+this.roomCode,{onStatus:s=>this.setCloudState(s),onValue:(name,payload)=>this.onRoomValue(name,payload)})},
  onRoomValue(name,payload){if(name==='☁ meta'&&payload){this.pendingMeta=payload;this.lobby=payload;if(this.role==='guest'&&payload.state==='open'&&!payload.guest){this.lobby={...payload,guest:{...this.identity},heartbeat:Date.now()};this.room.set('☁ meta',this.lobby)}this.renderRoom();if(payload.state==='playing')this.tryStartGuest();if(payload.state==='finished'&&payload.result&&!game.result)game.finishResult(payload.result)}else if(name==='☁ world'&&payload){this.pendingWorld=payload;this.tryStartGuest()}else if(name==='☁ command'&&this.role==='host'&&payload)this.consumeCommands(payload);else if(['☁ snap core','☁ snap enemies','☁ snap towers'].includes(name)&&this.role==='guest'&&payload)this.receiveSnapshotPart(name,payload)},
@@ -286,9 +286,9 @@ const MP=window.MP={
  launch(){if(this.role!=='host'||!this.lobby?.guest)return;const config={matchId:makeCode()+Date.now().toString(36),tag:this.lobby.tag,modeId:this.lobby.modeId,mapId:this.lobby.mapId,players:[{...this.lobby.host},{...this.lobby.guest}]};this.lobby={...this.lobby,state:'playing',startedAt:Date.now(),matchId:config.matchId,config,heartbeat:Date.now()};this.room.set('☁ meta',this.lobby);if(this.publicSlot!=null)this.directory?.set(`☁ lobby ${this.publicSlot}`,{...this.lobby,state:'playing'});game.startMulti(config,true);this.room.set('☁ world',game.buildWorldPayload());this.publishSnapshot(game.buildSnapshot())},
  tryStartGuest(){if(this.role!=='guest'||game.multiActive||!this.pendingMeta?.config||!this.pendingWorld)return;game.startMulti(this.pendingMeta.config,false,this.pendingWorld);$('#multiOverlay').classList.add('hidden')},
  startHeartbeat(){clearInterval(this.heartbeat);this.heartbeat=setInterval(()=>{if(!this.room||!this.lobby)return;this.lobby={...this.lobby,heartbeat:Date.now()};if(this.role==='host'){this.room.set('☁ meta',this.lobby);if(this.publicSlot!=null&&this.lobby.state==='open')this.directory?.set(`☁ lobby ${this.publicSlot}`,this.lobby)}},2200)},
- sendCommand(kind,data={}){if(this.role!=='guest'||!this.room)return;const cmd={seq:++this.commandSeq,kind,data,at:Date.now()};this.commandHistory.push(cmd);this.commandHistory=this.commandHistory.slice(-15);clearTimeout(this.commandTimer);this.commandTimer=setTimeout(()=>this.room?.set('☁ command',{v:'18.2',playerId:this.identity.id,commands:this.commandHistory}),55)},
+ sendCommand(kind,data={}){if(this.role!=='guest'||!this.room)return;const cmd={seq:++this.commandSeq,kind,data,at:Date.now()};this.commandHistory.push(cmd);this.commandHistory=this.commandHistory.slice(-15);clearTimeout(this.commandTimer);this.commandTimer=setTimeout(()=>this.room?.set('☁ command',{v:'18.3',playerId:this.identity.id,commands:this.commandHistory}),55)},
  consumeCommands(payload){if(!payload||payload.playerId!==this.lobby?.guest?.id||!Array.isArray(payload.commands))return;for(const cmd of payload.commands.sort((a,b)=>a.seq-b.seq)){if(cmd.seq<=this.lastCommandSeq)continue;this.lastCommandSeq=cmd.seq;game.executeCommand(1,cmd)}},
- publishSnapshot(s){if(this.role!=='host'||!this.room||!s)return;const{enemies,towers,mines,bombs,...core}=s;this.room.set('☁ snap core',core);this.room.set('☁ snap enemies',{v:'18.2',tick:s.tick,matchId:s.matchId,enemies});this.room.set('☁ snap towers',{v:'18.2',tick:s.tick,matchId:s.matchId,towers,mines,bombs})},
+ publishSnapshot(s){if(this.role!=='host'||!this.room||!s)return;const{enemies,towers,mines,bombs,...core}=s;this.room.set('☁ snap core',core);this.room.set('☁ snap enemies',{v:'18.3',tick:s.tick,matchId:s.matchId,enemies});this.room.set('☁ snap towers',{v:'18.3',tick:s.tick,matchId:s.matchId,towers,mines,bombs})},
  receiveSnapshotPart(name,p){if(p.matchId!==game.multiConfig?.matchId)return;const tick=p.tick,entry=this.snapshotParts.get(tick)||{};if(name==='☁ snap core')entry.core=p;else if(name==='☁ snap enemies')entry.enemies=p.enemies||[];else Object.assign(entry,{towers:p.towers||[],mines:p.mines||[],bombs:p.bombs||[]});this.snapshotParts.set(tick,entry);for(const k of [...this.snapshotParts.keys()])if(k<tick-4)this.snapshotParts.delete(k);if(entry.core&&entry.enemies&&entry.towers){this.snapshotParts.delete(tick);game.applySnapshot({...entry.core,enemies:entry.enemies,towers:entry.towers,mines:entry.mines,bombs:entry.bombs})}},
  publishMetaResult(result){if(!this.lobby||!this.room)return;this.lobby={...this.lobby,state:'finished',result,heartbeat:Date.now()};this.room.set('☁ meta',this.lobby)},
  leaveRoom(){if(this.role==='host'&&this.room){const closed={...this.lobby,state:'closed',heartbeat:Date.now()};this.room.set('☁ meta',closed);if(this.publicSlot!=null)this.directory?.set(`☁ lobby ${this.publicSlot}`,0)}clearInterval(this.heartbeat);this.heartbeat=null;this.room?.close();this.room=null;this.role=null;this.lobby=null;this.roomCode=null;this.publicSlot=null;this.commandHistory=[];this.commandSeq=0;this.lastCommandSeq=0;this.snapshotParts.clear();this.pendingMeta=null;this.pendingWorld=null;$('#multiOverlay').classList.add('hidden');if(game.multiActive)game.returnMenu();else $('#startOverlay').classList.remove('hidden')}
@@ -298,5 +298,244 @@ const game=new Game();window.game=game;
 $('#nickname').oninput=()=>MP.refreshIdentity();$('#saveIdentity').onclick=()=>{if(MP.saveIdentity()){MP.setScreen('browser');MP.ensureDirectory()}};$('#changeIdentity').onclick=()=>MP.setScreen('identity');$('#createPublic').onclick=()=>MP.createRoom('public');$('#createPrivate').onclick=()=>MP.createRoom('private');$('#joinPrivate').onclick=()=>MP.joinRoom($('#joinCode').value);$('#refreshLobbies').onclick=()=>{MP.ensureDirectory();MP.directory?.set('☁ ping',{t:Date.now(),r:Math.random()});MP.renderLobbies()};$('#leaveRoom').onclick=()=>MP.leaveRoom();$('#launchMatch').onclick=()=>MP.launch();
 let last=performance.now();function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;game.update(dt);game.draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 </script>
+
+<style id="v183-style">
+html,body,#game{touch-action:none!important;user-select:none;-webkit-user-select:none}
+#game{cursor:grab}#game:active{cursor:grabbing}
+body.v183-prep #statusRibbon{opacity:0;pointer-events:none}
+#multiHud{top:calc(172px + var(--safe-top))}
+#v183LaneTools{display:none;position:fixed;z-index:16;right:calc(74px + var(--safe-right));top:50%;transform:translateY(-50%);gap:7px;flex-direction:column}
+#v183LaneTools button{width:44px;height:44px;border-radius:14px;border:1px solid var(--lane-color);background:rgba(7,11,25,.9);color:var(--lane-color);font-size:9px;font-weight:1000;box-shadow:0 8px 24px rgba(0,0,0,.34),0 0 16px color-mix(in srgb,var(--lane-color) 18%,transparent)}
+#v183LaneTools.show{display:flex}
+#v183NetBadge{position:fixed;z-index:21;right:calc(10px + var(--safe-right));top:calc(10px + var(--safe-top));padding:5px 8px;border-radius:999px;background:rgba(5,9,22,.86);border:1px solid rgba(255,255,255,.12);font-size:7px;font-weight:950;letter-spacing:.08em;color:var(--muted);pointer-events:none;opacity:0;transition:opacity .18s}
+#v183NetBadge.show{opacity:1}#v183NetBadge.online{color:var(--green);border-color:rgba(85,255,159,.35)}#v183NetBadge.error{color:var(--red);border-color:rgba(255,92,116,.38)}
+@media(max-width:900px){
+  #topbar{top:calc(7px + var(--safe-top));grid-template-columns:repeat(8,minmax(0,1fr));padding:6px;gap:5px;border-radius:18px}
+  #statusRibbon{top:calc(118px + var(--safe-top));justify-content:flex-start;width:calc(100vw - 18px);overflow-x:auto;pointer-events:auto;scrollbar-width:none}
+  #statusRibbon::-webkit-scrollbar{display:none}
+  #prepBanner{top:calc(151px + var(--safe-top));width:calc(100vw - 18px);padding:8px 10px;border-radius:15px}
+  #multiHud{top:calc(226px + var(--safe-top));width:calc(100vw - 18px);gap:5px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+  .multi-player{padding:7px 8px;min-width:0}.multi-player b{font-size:9px}.multi-player span{font-size:7px}.multi-tag{padding:6px 7px;font-size:7px}
+  .mobile-tools{top:58%;right:calc(8px + var(--safe-right));gap:8px}.touch-tool{width:50px;height:50px;border-radius:16px}
+  #v183LaneTools{right:calc(66px + var(--safe-right));top:58%}
+  #abilityDock{left:116px;right:calc(7px + var(--safe-right));bottom:calc(7px + var(--safe-bottom));height:58px;gap:7px}
+  .ability-btn{min-width:132px;height:58px;padding:8px 10px}
+  #mobileToggle{width:102px;height:58px}
+  #towerDock{bottom:calc(72px + var(--safe-bottom));height:min(53vh,430px)}
+  #inspector{bottom:calc(72px + var(--safe-bottom));max-height:min(66vh,560px)}
+  #v183NetBadge{display:none}
+}
+@media(max-width:430px){
+  #prepBanner{top:calc(153px + var(--safe-top))}.prep-main b{font-size:21px}.prep-main span{font-size:9px}.prep-hint{font-size:7px!important}
+  #multiHud{top:calc(225px + var(--safe-top))}.multi-player span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #v183LaneTools button{width:40px;height:40px}
+}
+</style>
+<script id="v183-script">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V183__)return;
+window.__DARK_RIFT_V183__=true;
+document.title='Dark Rift TD — V18.3 Twin Front';
+
+for(const id of ['v18-multiplayer-link','v18-multiplayer-script','v18MultiOverlay','v18MultiHud','v18ResultOverlay'])document.getElementById(id)?.remove();
+if(typeof MP==='object'){
+  try{MP.directory?.close?.()}catch{}
+  MP.directory=null;
+  MP.root='itssoren.github.io/dark-rift-td-v18-3';
+  MP.lobbies?.clear?.();
+}
+
+const subtitle=document.querySelector('#startOverlay .subtitle');
+if(subtitle)subtitle.textContent='V18.3 Twin Front — le solo garde son moteur complet et le multijoueur utilise maintenant deux fronts séparés, une caméra mobile fiable et un nouveau réseau de salons.';
+const help=document.querySelector('#helpOverlay .modal');
+if(help&&!help.querySelector('[data-v183-help]'))help.insertAdjacentHTML('beforeend','<div data-v183-help class="multi-panel" style="margin-top:10px;text-align:left"><b>V18.3 — stabilité multijoueur</b><p class="subtitle" style="margin:6px 0 0">Le vieux lien vers une page multijoueur séparée et les anciens salons ont été retirés. Cette version fonctionne dans un seul fichier, sur un nouveau canal cloud, avec une seule route rendue par front et une synchronisation hôte autoritaire.</p></div>');
+
+const laneTools=document.createElement('div');
+laneTools.id='v183LaneTools';
+laneTools.innerHTML='<button id="v183FocusP1" style="--lane-color:var(--p1)">J1</button><button id="v183FocusAll" style="--lane-color:var(--cyan)">TOUT</button><button id="v183FocusP2" style="--lane-color:var(--p2)">J2</button>';
+document.body.appendChild(laneTools);
+const netBadge=document.createElement('div');
+netBadge.id='v183NetBadge';
+netBadge.textContent='CLOUD';
+document.body.appendChild(netBadge);
+
+function isMobileView(){return innerWidth<=900||matchMedia('(pointer:coarse)').matches}
+function laneCenter(game,lane){const path=game.paths?.[lane];if(!path)return{x:WORLD.w/2,y:WORLD.h/2};const mid=path.pointAt(path.total*.52);return{x:mid.x,y:mid.y}}
+function fitLane(game,lane){if(!game.multiActive)return game.centerCamera();const c=laneCenter(game,lane),laneW=1540,laneH=1120;game.cam.x=c.x;game.cam.y=c.y;game.cam.zoom=clamp(Math.min(VW/laneW,VH/laneH)*(isMobileView()?.92:.82),.42,1.25);game.clampCamera()}
+function fitAll(game){game.cam.x=WORLD.w/2;game.cam.y=WORLD.h/2;game.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*(isMobileView()?.92:.94),.28,1.05);game.clampCamera()}
+window.__v183FitLane=lane=>fitLane(game,lane);
+document.getElementById('v183FocusP1').onclick=()=>fitLane(game,0);
+document.getElementById('v183FocusP2').onclick=()=>fitLane(game,1);
+document.getElementById('v183FocusAll').onclick=()=>fitAll(game);
+
+const baseBuildWorld=Game.prototype.buildWorld;
+Game.prototype.buildWorld=function buildWorldV183(){
+  if(this.multiActive){
+    this.paths=this.makeMultiPaths();
+    this.zones=this.makeZones(16);
+    this.rocks=this.makeRockClusters(28,true);
+  }else{
+    this.paths=this.makeSoloPaths();
+    this.zones=this.makeZones(14);
+    this.rocks=this.makeRockClusters(22,false);
+  }
+  this.path=this.paths[0];
+  this.dust=Array.from({length:this.multiActive?360:240},()=>({x:rand(-WORLD.w*.35,WORLD.w*1.35),y:rand(-WORLD.h*.5,WORLD.h*1.5),r:rand(.5,2.1),a:rand(.05,.28),s:rand(.15,.8)}));
+  this.stars=Array.from({length:this.multiActive?240:170},()=>({x:rand(0,WORLD.w),y:rand(0,WORLD.h),r:rand(.4,1.7),a:rand(.1,.68),s:rand(.2,1.2)}));
+  this.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*(this.multiActive?.92:.96),this.multiActive?.3:.42,this.multiActive?1.25:1.6)};
+  this.pointer={sx:VW/2,sy:VH/2,wx:WORLD.w/2,wy:WORLD.h/2};
+  this.activePointers=new Map();
+  this.dragStart=null;this.pinchStart=null;
+};
+
+Game.prototype.makeZones=function makeZonesV183(count){
+  const out=[],types=Object.keys(ZONE_TYPES),perLane=this.multiActive?Math.ceil(count/2):count;
+  for(let lane=0;lane<this.paths.length;lane++){
+    const path=this.paths[lane],needed=this.multiActive?perLane:count;
+    for(let index=0,attempt=0;index<needed&&attempt<1200;attempt++){
+      const progress=(index+1)/(needed+1),d=clamp(path.total*(progress+rand(-.035,.035)),130,path.total-130),p=path.pointAt(d);
+      const side=(index%2===0?-1:1),offset=rand(105,158),x=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y=p.y+Math.sin(p.angle+Math.PI/2)*offset*side;
+      if(x<72||x>WORLD.w-72||y<72||y>WORLD.h-72)continue;
+      if(this.distanceToPaths(x,y)<82)continue;
+      if(out.some(z=>Math.hypot(z.x-x,z.y-y)<118))continue;
+      const type=types[(index+lane*2)%types.length];
+      out.push({id:'z'+out.length,x,y,type,level:1,surge:Math.round(rand(12,60)),phase:rand(0,TAU),color:ZONE_TYPES[type].color,lane});
+      index++;
+    }
+    if(!this.multiActive)break;
+  }
+  return out.slice(0,count);
+};
+
+Game.prototype.makeRockClusters=function makeRockClustersV183(target=22,multi=false){
+  const rocks=[],clusterGoal=multi?7:6,piecesGoal=Math.max(target,clusterGoal*3),minR=multi?30:28,maxR=multi?60:55;
+  const blockedCenter=(x,y,r)=>x<95||x>WORLD.w-95||y<90||y>WORLD.h-90||this.distanceToPaths(x,y)<110+r*.18||this.zones.some(z=>Math.hypot(z.x-x,z.y-y)<r+75);
+  for(let cluster=0,tries=0;cluster<clusterGoal&&tries<900;tries++){
+    const lane=multi?cluster%2:0,path=this.paths[lane],d=rand(150,path.total-150),p=path.pointAt(d),side=Math.random()<.5?-1:1,offset=rand(185,300),cx=p.x+Math.cos(p.angle+Math.PI/2)*offset*side,cy=p.y+Math.sin(p.angle+Math.PI/2)*offset*side,main=rand(minR,maxR);
+    if(blockedCenter(cx,cy,main)||rocks.some(r=>Math.hypot(r.x-cx,r.y-cy)<r.r+main+70))continue;
+    const pieces=Math.floor(rand(3,6.99)),group=[];
+    for(let i=0;i<pieces;i++){
+      const a=i===0?0:rand(0,TAU),spread=i===0?0:rand(main*.42,main*1.18),r=main*(i===0?1:rand(.48,.82)),x=cx+Math.cos(a)*spread,y=cy+Math.sin(a)*spread;
+      if(blockedCenter(x,y,r*.65))continue;
+      group.push({x,y,r,rot:rand(0,TAU),shade:rand(.78,1.08),cluster,vertices:Math.floor(rand(7,10))});
+    }
+    if(group.length>=3){rocks.push(...group);cluster++}
+  }
+  return rocks.slice(0,piecesGoal);
+};
+
+Game.prototype.drawZones=function drawZonesV183(){
+  for(const z of this.zones){
+    const def=ZONE_TYPES[z.type],occupied=this.towers.some(t=>!t.dead&&t.zone===z),pulse=.5+.5*Math.sin(this.time*2+z.phase);
+    ctx.save();ctx.translate(z.x,z.y);ctx.shadowBlur=12;ctx.shadowColor=def.color;
+    ctx.globalAlpha=occupied?.055:.09;ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,39+z.level*2,0,TAU);ctx.fill();
+    ctx.globalAlpha=occupied?.25:.42;ctx.strokeStyle=def.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,39+z.level*2,0,TAU);ctx.stroke();
+    ctx.globalAlpha=.12+.08*pulse;ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,0,47+z.level*2,0,TAU);ctx.stroke();
+    ctx.globalAlpha=.95;ctx.fillStyle=def.color;ctx.font='1000 22px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(def.icon,0,-3);
+    ctx.fillStyle='#effbff';ctx.font='900 7px system-ui';ctx.fillText(`${z.surge}%`,0,18);
+    ctx.restore();
+  }
+};
+
+Game.prototype.drawRocks=function drawRocksV183(th){
+  for(const r of this.rocks){
+    ctx.save();ctx.translate(r.x,r.y);ctx.rotate(r.rot);ctx.shadowBlur=24;ctx.shadowColor='rgba(0,0,0,.78)';
+    const grad=ctx.createRadialGradient(-r.r*.28,-r.r*.32,r.r*.08,0,0,r.r*1.05);grad.addColorStop(0,`rgba(${Math.round(78*r.shade)},${Math.round(88*r.shade)},${Math.round(112*r.shade)},.98)`);grad.addColorStop(.48,`rgba(${Math.round(46*r.shade)},${Math.round(53*r.shade)},${Math.round(72*r.shade)},.98)`);grad.addColorStop(1,'rgba(20,25,38,.99)');
+    ctx.fillStyle=grad;ctx.strokeStyle='rgba(180,200,225,.22)';ctx.lineWidth=2;ctx.beginPath();
+    const n=r.vertices||8;for(let i=0;i<n;i++){const a=i/n*TAU,rr=r.r*(.78+.2*Math.sin(i*2.17+r.rot*3));i?ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr)}ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.globalAlpha=.18;ctx.strokeStyle=th.glow;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-r.r*.42,-r.r*.1);ctx.lineTo(-r.r*.08,-r.r*.38);ctx.lineTo(r.r*.28,-r.r*.15);ctx.stroke();
+    ctx.restore();
+  }
+};
+
+Game.prototype.drawPaths=function drawPathsV183(th){
+  ctx.lineJoin='round';ctx.lineCap='round';
+  for(let lane=0;lane<this.paths.length;lane++){
+    const path=this.paths[lane],laneColor=this.multiActive?ownerColor(lane):th.path,glow=this.multiActive?ownerColor(lane):th.glow;
+    ctx.globalAlpha=1;ctx.shadowBlur=46;ctx.shadowColor=glow;ctx.strokeStyle='rgba(4,5,14,.99)';ctx.lineWidth=68;this.strokePath(path);ctx.stroke();
+    ctx.shadowBlur=20;ctx.shadowColor=glow;ctx.strokeStyle=laneColor;ctx.globalAlpha=.72;ctx.lineWidth=54;this.strokePath(path);ctx.stroke();
+    ctx.shadowBlur=0;ctx.strokeStyle='rgba(12,18,38,.98)';ctx.globalAlpha=1;ctx.lineWidth=42;this.strokePath(path);ctx.stroke();
+    ctx.strokeStyle=laneColor;ctx.globalAlpha=.58;ctx.lineWidth=4;this.strokePath(path);ctx.stroke();
+    ctx.setLineDash([7,16]);ctx.lineDashOffset=-this.time*42;ctx.strokeStyle='rgba(225,250,255,.57)';ctx.globalAlpha=1;ctx.lineWidth=2.4;this.strokePath(path);ctx.stroke();ctx.setLineDash([]);
+    const start=path.pointAt(0),end=path.pointAt(path.total);this.drawPortal(start.x,start.y,laneColor,start.angle,lane);this.drawBase(end.x,end.y,end.angle,lane);
+  }
+  ctx.globalAlpha=1;ctx.shadowBlur=0;
+};
+
+const baseDrawBase=Game.prototype.drawBase;
+Game.prototype.drawBase=function drawBaseV183(x,y,angle,lane){
+  baseDrawBase.call(this,x,y,angle,lane);
+  if(!this.multiActive)return;
+  const p=this.players[lane];if(!p)return;
+  ctx.save();ctx.translate(x,y);ctx.rotate(-angle);ctx.fillStyle=ownerColor(lane);ctx.globalAlpha=.24;ctx.beginPath();ctx.arc(0,0,54+Math.sin(this.time*3+lane)*3,0,TAU);ctx.strokeStyle=ownerColor(lane);ctx.lineWidth=2;ctx.stroke();ctx.restore();
+};
+
+const baseStartSolo=Game.prototype.startSolo;
+Game.prototype.startSolo=function startSoloV183(){baseStartSolo.call(this);this.toast('V18.3 Solo • préparation 2 minutes');setTimeout(()=>this.centerCamera(),0)};
+const baseStartMulti=Game.prototype.startMulti;
+Game.prototype.startMulti=function startMultiV183(config,isHost,world=null){
+  baseStartMulti.call(this,config,isHost,world);
+  this.speed=1;this.waveCountdown=45;
+  document.getElementById('v183LaneTools').classList.add('show');
+  setTimeout(()=>isMobileView()?fitLane(this,this.localPlayer):fitAll(this),0);
+  this.toast(isHost?'V18.3 • salon créé • préparation 45 s':'V18.3 • salon rejoint • synchronisation');
+};
+const baseReturnMenu=Game.prototype.returnMenu;
+Game.prototype.returnMenu=function returnMenuV183(){document.getElementById('v183LaneTools').classList.remove('show');baseReturnMenu.call(this)};
+const baseFinishResult=Game.prototype.finishResult;
+Game.prototype.finishResult=function finishResultV183(result){document.getElementById('v183LaneTools').classList.remove('show');return baseFinishResult.call(this,result)};
+
+Game.prototype.centerCamera=function centerCameraV183(){if(this.multiActive&&isMobileView())fitLane(this,this.localPlayer);else if(this.multiActive)fitAll(this);else{this.cam.x=WORLD.w/2;this.cam.y=WORLD.h/2;this.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*.96,.42,1.45);this.clampCamera()}};
+Game.prototype.clampCamera=function clampCameraV183(){
+  const halfW=VW/(2*this.cam.zoom),halfH=VH/(2*this.cam.zoom),margin=80;
+  if(halfW>=WORLD.w/2+margin)this.cam.x=WORLD.w/2;else this.cam.x=clamp(this.cam.x,halfW-margin,WORLD.w-halfW+margin);
+  if(halfH>=WORLD.h/2+margin)this.cam.y=WORLD.h/2;else this.cam.y=clamp(this.cam.y,halfH-margin,WORLD.h-halfH+margin);
+};
+
+Game.prototype.pointerDown=function pointerDownV183(e){
+  if(e.button!=null&&e.button!==0)return;
+  e.preventDefault();
+  try{canvas.setPointerCapture(e.pointerId)}catch{}
+  const point={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,moved:false};
+  this.activePointers.set(e.pointerId,point);
+  if(this.activePointers.size===1){this.dragStart={camX:this.cam.x,camY:this.cam.y,x:e.clientX,y:e.clientY};this.pinchStart=null}
+  else if(this.activePointers.size===2){const a=[...this.activePointers.values()],cx=(a[0].x+a[1].x)/2,cy=(a[0].y+a[1].y)/2;this.pinchStart={distance:Math.max(1,Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)),zoom:this.cam.zoom,world:this.screenToWorld(cx,cy)};a.forEach(v=>v.moved=true)}
+};
+Game.prototype.pointerMove=function pointerMoveV183(e){
+  const w=this.screenToWorld(e.clientX,e.clientY);this.pointer={sx:e.clientX,sy:e.clientY,wx:w.x,wy:w.y};if(this.abilityPlacement)this.abilityPreview={x:w.x,y:w.y};
+  const p=this.activePointers.get(e.pointerId);if(!p)return;e.preventDefault();p.lastX=p.x;p.lastY=p.y;p.x=e.clientX;p.y=e.clientY;if(Math.hypot(p.x-p.startX,p.y-p.startY)>5)p.moved=true;
+  if(this.activePointers.size>=2&&this.pinchStart){const a=[...this.activePointers.values()].slice(0,2),d=Math.max(1,Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)),cx=(a[0].x+a[1].x)/2,cy=(a[0].y+a[1].y)/2;this.cam.zoom=clamp(this.pinchStart.zoom*d/this.pinchStart.distance,.28,2.35);const after=this.screenToWorld(cx,cy);this.cam.x+=this.pinchStart.world.x-after.x;this.cam.y+=this.pinchStart.world.y-after.y;this.clampCamera();a.forEach(v=>v.moved=true);return}
+  if(this.activePointers.size===1&&this.dragStart&&p.moved){this.cam.x=this.dragStart.camX-(e.clientX-this.dragStart.x)/this.cam.zoom;this.cam.y=this.dragStart.camY-(e.clientY-this.dragStart.y)/this.cam.zoom;this.clampCamera()}
+};
+Game.prototype.pointerUp=function pointerUpV183(e){
+  const p=this.activePointers.get(e.pointerId);if(!p)return;e.preventDefault();const tap=!p.moved&&this.activePointers.size===1;this.activePointers.delete(e.pointerId);try{canvas.releasePointerCapture(e.pointerId)}catch{}
+  if(this.activePointers.size<2)this.pinchStart=null;
+  if(this.activePointers.size===1){const left=[...this.activePointers.values()][0];this.dragStart={camX:this.cam.x,camY:this.cam.y,x:left.x,y:left.y}}
+  else if(!this.activePointers.size)this.dragStart=null;
+  if(tap)this.handleTap(e.clientX,e.clientY);
+};
+function clearPointers(){if(!window.game)return;game.activePointers?.clear?.();game.dragStart=null;game.pinchStart=null}
+window.addEventListener('pointerup',e=>{if(e.target!==canvas&&game.activePointers?.has(e.pointerId))game.pointerUp(e)},{passive:false});
+window.addEventListener('pointercancel',clearPointers);window.addEventListener('blur',clearPointers);document.addEventListener('visibilitychange',()=>{if(document.hidden)clearPointers()});
+
+const baseSetCloudState=MP?.setCloudState?.bind(MP);
+if(MP&&baseSetCloudState)MP.setCloudState=function setCloudStateV183(state){baseSetCloudState(state);netBadge.textContent=state==='online'?'CLOUD OK':state==='connecting'?'CLOUD…':state==='error'?'CLOUD ERREUR':'CLOUD OFF';netBadge.className='show '+(state==='online'?'online':state==='error'?'error':'')};
+
+const baseOpen=MP?.open?.bind(MP);
+if(MP&&baseOpen)MP.open=function openV183(){MP.root='itssoren.github.io/dark-rift-td-v18-3';return baseOpen()};
+const baseLeaveRoom=MP?.leaveRoom?.bind(MP);
+if(MP&&baseLeaveRoom)MP.leaveRoom=function leaveRoomV183(){document.getElementById('v183LaneTools').classList.remove('show');return baseLeaveRoom()};
+
+const baseUpdateUIV183=Game.prototype.updateUI;
+Game.prototype.updateUI=function updateUIV183(force=false){const result=baseUpdateUIV183.call(this,force);document.body.classList.toggle('v183-prep',!!(this.started&&this.wave===0&&this.waveCountdown>0));return result};
+
+const oldCenter=document.getElementById('centerCam');if(oldCenter)oldCenter.title='Recentrer sur ton front';
+const oldSpeed=document.getElementById('speedBtn');if(oldSpeed)oldSpeed.title='Multijoueur : vitesse verrouillée à ×1';
+
+game.reset(false);game.buildStartChoices();game.updateProfileUI();game.renderCategories();game.renderTowers();game.updateUI(true);
+})();
+</script>
+
 </body>
 </html>
