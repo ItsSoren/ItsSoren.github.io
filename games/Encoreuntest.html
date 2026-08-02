@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>TAPIS // party v4.0</title>
+<title>TAPIS // party v5.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -383,6 +383,27 @@ body.big-cards .handrow.compact .card{width:40px;height:58px}
 #confettiWrap{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}
 .confetti{position:absolute;top:-20px;width:8px;height:14px;opacity:.9;animation:confettiFall linear forwards;border-radius:2px}
 @keyframes confettiFall{to{transform:translateY(110vh) rotate(540deg);opacity:0}}
+
+/* ================= TAPIS V5 â lisibilitÃ© de jeu ================= */
+.game-guide{width:min(460px,100%);margin:10px auto 4px;padding:11px 13px;border:2px solid var(--line);border-radius:15px;background:linear-gradient(145deg,var(--panel),var(--panel2));display:none;align-items:center;gap:10px;box-shadow:0 8px 22px #0002}
+.game-guide.show{display:flex;animation:guideIn .18s ease-out}.game-guide.good{border-color:var(--ok)}.game-guide.warn{border-color:var(--accent)}.game-guide.bad{border-color:var(--bad)}
+@keyframes guideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.guide-icon{width:38px;height:38px;border-radius:12px;background:#0003;display:flex;align-items:center;justify-content:center;font-size:21px;flex:0 0 auto}
+.guide-copy{min-width:0;flex:1}.guide-title{font-family:var(--disp);font-size:12px;color:var(--text);font-weight:700}.guide-text{font-size:10px;color:var(--dim);line-height:1.35;margin-top:2px}
+.game-action{width:100%;border-radius:17px;padding:16px;font-size:15px;box-shadow:0 7px 18px #0003}.game-action small{display:block;font-family:var(--body);font-size:10px;opacity:.7;margin-top:2px}
+.game-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin:7px 0}.game-stat{background:#0003;border:1px solid var(--line);border-radius:12px;padding:9px;text-align:center}.game-stat b{display:block;font-family:var(--disp);font-size:17px;color:var(--accent)}.game-stat span{font-size:9px;color:var(--dim)}
+.turn-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-family:var(--disp);font-size:10px;background:var(--accent);color:#171300}.turn-badge.wait{background:var(--line);color:var(--text)}
+.cardwrap{position:relative}.cardwrap.legal .card{box-shadow:0 0 0 2px var(--ok),0 8px 16px #0004;transform:translateY(-3px)}.cardwrap.legal::after{content:'JOUABLE';position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);font-family:var(--disp);font-size:7px;background:var(--ok);color:#06250f;padding:2px 5px;border-radius:7px;z-index:3}
+.sequence-strip{display:flex;gap:5px;align-items:center;justify-content:flex-start;overflow-x:auto;width:100%;padding:6px 3px 10px;scrollbar-width:none}.sequence-strip::-webkit-scrollbar{display:none}.sequence-arrow{font-size:14px;color:var(--accent);flex:none}
+.yellow-board-v5{display:grid;grid-template-columns:repeat(5,minmax(58px,1fr));gap:6px;width:100%;overflow-x:auto;padding:3px}.yellow-pot{min-width:58px;border:1px solid var(--line);border-radius:11px;padding:5px 3px;background:#0002;text-align:center}.yellow-pot .card{margin:auto}.yellow-pot-name{font-size:7px;color:var(--dim);height:19px;overflow:hidden}.yellow-pot-coins{font-family:var(--disp);font-size:9px;color:var(--accent);margin-top:3px}
+.tsuro-place-target{position:absolute;inset:7%;border:2px dashed var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#0007;color:var(--accent);font-family:var(--disp);font-size:9px;z-index:5;animation:targetPulse 1.2s ease-in-out infinite;pointer-events:none}@keyframes targetPulse{50%{transform:scale(.94);opacity:.65}}
+.tsuro-handtile.selected{box-shadow:0 0 0 3px var(--accent),0 10px 22px #0006;transform:translateY(-7px) scale(1.04)}
+.tsuro-turnline{grid-column:1/-1;text-align:center;font-family:var(--disp);font-size:10px;color:var(--accent);padding:2px 0 0}
+.dice-stage{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;width:100%;padding:13px 4px}.die{width:58px;height:58px;border-radius:15px;background:#F5EFE0;color:#151a18;border:3px solid transparent;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:8px;box-shadow:0 7px 0 #0003;position:relative;cursor:pointer;transition:.13s}.die:active{transform:translateY(3px);box-shadow:0 3px 0 #0003}.die.held{border-color:var(--accent);transform:translateY(-5px);box-shadow:0 8px 0 #0003,0 0 18px color-mix(in srgb,var(--accent) 55%,transparent)}.die.held::after{content:'GARDÃ';position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:var(--disp);font-size:7px;background:var(--accent);color:#231a00;padding:2px 6px;border-radius:8px}.pip{width:9px;height:9px;border-radius:50%;background:#18221e;align-self:center;justify-self:center}.dice-score-card{width:100%;background:#0003;border:2px solid var(--line);border-radius:15px;padding:12px;text-align:center}.dice-score-card strong{font-family:var(--disp);font-size:18px;color:var(--accent)}
+.dice-playerbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}.dice-player{border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:7px;display:flex;align-items:center;gap:7px;min-width:0}.dice-player.turn{border-color:var(--accent)}.dice-player .dpname{font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dice-player .dpscore{font-family:var(--disp);font-size:9px;color:var(--accent)}
+#s-game .handrow{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+@media(max-width:420px){.game-guide{margin-top:6px}.yellow-board-v5{grid-template-columns:repeat(5,62px)}.die{width:52px;height:52px}.pip{width:8px;height:8px}.game-action{font-size:14px}}
+
 </style>
 </head>
 <body>
@@ -514,7 +535,8 @@ body.big-cards .handrow.compact .card{width:40px;height:58px}
     <button class="gcard" data-g="2"><span class="gicon">&#9830;</span><span class="gtag">Cartes &#183; 78 &#183; Atouts</span><div class="gname">TAROT ALL&#201;G&#201;</div><div class="gdesc">4 couleurs + 22 atouts. Plis tour par tour, obligation de suivre ou couper.</div></button>
     <button class="gcard" data-g="3"><span class="gicon">&#9827;</span><span class="gtag">Cartes &#183; Casino</span><div class="gname">BLACKJACK</div><div class="gdesc">Chacun joue son tour face au croupier. Approche-toi de 21 sans d&#233;passer.</div></button>
     <button class="gcard" data-g="4"><span class="gicon">&#9829;</span><span class="gtag">Cartes &#183; Jetons</span><div class="gname">NAIN JAUNE</div><div class="gdesc">Suites croissantes, cases &#224; jetons, premier &#224; vider sa main gagne les jetons des autres.</div></button>
-    <button class="gcard" data-g="5"><span class="gicon">&#9672;</span><span class="gtag">Tuiles &#183; Plateau</span><div class="gname">TSURO</div><div class="gdesc">Pose des tuiles pour tracer ton chemin. Ne sors pas du plateau, le dernier en jeu gagne.</div></button>
+    <button class="gcard" data-g="5"><span class="gicon">&#9672;</span><span class="gtag">Tuiles &#183; Plateau</span><div class="gname">TSURO</div><div class="gdesc">Choisis ton dÃ©part, pose une tuile devant ton pion et suis le chemin. Dernier survivant gagnant.</div></button>
+    <button class="gcard" data-g="6"><span class="gicon">&#9861;</span><span class="gtag">DÃ©s &#183; 3 manches</span><div class="gname">DÃS POKER</div><div class="gdesc">Lance 5 dÃ©s jusqu'Ã  3 fois, garde ceux que tu veux et compose la meilleure combinaison.</div></button>
   </div>
 </section>
 
@@ -524,6 +546,7 @@ body.big-cards .handrow.compact .card{width:40px;height:58px}
     <div class="eyebrow" id="g-eyebrow">// jeu</div>
     <h1 id="g-title" style="font-size:clamp(1.1em,5.2vw,1.6em);line-height:1.25">&#8230;</h1>
   </div>
+  <div id="g-guide" class="game-guide" aria-live="polite"></div>
 
   <div id="tableOval">
     <div id="tableFelt">
@@ -554,13 +577,14 @@ body.big-cards .handrow.compact .card{width:40px;height:58px}
 
 <script>
 'use strict';
+// TAPIS // party V5 â rÃ©seau par salon, actions par joueur et moteurs de jeu rafraÃ®chis.
 const APP_VERSION='4.0.0';
 /* Version 4 : salons rÃ©ellement isolÃ©s, reconnexion fiable, migration du chef,
    annuaire nettoyÃ©, chat stabilisÃ© et correctifs de gameplay. */
 const CFG={
-  BASE_ID:"soren-lab.github.io/nebula-party-v4",
-  DIRECTORY_ID:"soren-lab.github.io/nebula-party-v4/directory",
-  ROOM_PREFIX:"soren-lab.github.io/nebula-party-v4/room/",
+  BASE_ID:"soren-lab.github.io/nebula-party-v5",
+  DIRECTORY_ID:"soren-lab.github.io/nebula-party-v5/directory",
+  ROOM_PREFIX:"soren-lab.github.io/nebula-party-v5/room/",
   SLOTS:4,
   SLOT_TTL:26000,
   HOST_TTL:18000
@@ -974,8 +998,12 @@ function onVar(name,val){
     if(document.getElementById("s-results")?.classList.contains("active"))refreshResults();else renderGame();
     return;
   }
-  if(name==="ACT"){
-    if(!isHost||!gHost)return;const d=decState(val);if(!d||d.room!==myRoom)return;handleAction(d.obj);return;
+  if(/^ACT\d$/.test(name)||name==="ACT"){
+    if(!isHost||!gHost)return;
+    const d=decState(val);if(!d||d.room!==myRoom||!d.obj)return;
+    const lane=/^ACT\d$/.test(name)?parseInt(name.slice(3)):d.obj.slot;
+    if(Number(d.obj.slot)!==Number(lane))return;
+    handleAction(d.obj);return;
   }
   if(/^KICK\d$/.test(name)){
     const slot=parseInt(name.slice(4));if(slot!==mySlot)return;const room=parseInt(val.slice(0,4));if(room!==myRoom||Date.now()-joinedAt<1500)return;kicked();return;
@@ -1028,7 +1056,14 @@ function renderRecentRooms(){
     connectAndJoin(room,false,null);
   });
 }
-function msg(id,t,c){const e=document.getElementById(id);e.textContent=t||"";e.className="msg"+(c?" "+c:"")}
+function msg(id,t,c){const e=document.getElementById(id);if(!e)return;e.textContent=t||"";e.className="msg"+(c?" "+c:"")}
+function setGameGuide(icon,title,text,kind){
+  const el=document.getElementById("g-guide");if(!el)return;
+  el.className="game-guide show"+(kind?" "+kind:"");
+  el.innerHTML=`<div class="guide-icon">${icon||"â¦"}</div><div class="guide-copy"><div class="guide-title">${esc(title||"")}</div><div class="guide-text">${esc(text||"")}</div></div>`;
+}
+function clearGameGuide(){const el=document.getElementById("g-guide");if(el){el.className="game-guide";el.innerHTML=""}}
+function fairOrder(order,seed){return shuffled(order,Number(seed)||1)}
 function esc(s){return String(s).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))}
 function isOnline(slot){return slot===mySlot||(players[slot]&&Date.now()-players[slot].lastSeen<CFG.SLOT_TTL)}
 
@@ -1293,6 +1328,7 @@ function clearGameScreen(){
   document.getElementById("g-center").textContent="";
   document.getElementById("g-title").textContent="\u2026";
   document.getElementById("g-pill").textContent="\u2013";
+  clearGameGuide();
   msg("g-msg","");
 }
 function executeStopGame(){
@@ -1453,7 +1489,7 @@ document.getElementById("b-picker").onclick=()=>{
   show("s-picker");cset("GAME",encGame(myRoom,PHASE.PICKER,0,0,epoch));
 };
 
-const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,TAROT:2,BJ:3,YELLOW:4,TSURO:5};
+const PHASE={LOBBY:0,PICKER:1,PLAY:2,RESULTS:3}, GID={NONE:0,WAR:1,TAROT:2,BJ:3,YELLOW:4,TSURO:5,DICE:6};
 function onPhase(st){
   if(!st||myRoom===0||mySlot<0||st.room!==myRoom)return;
   if(isHost&&isPublicRoom)refreshPublicRoomEntry(false);
@@ -1484,7 +1520,8 @@ document.querySelectorAll(".gcard").forEach(c=>c.onclick=()=>{
 function msg2Picker(t){document.getElementById("pk-hint").textContent=t}
 
 function launch(st){
-  const order=onlinePlayers().map(p=>p.__slot).sort((a,b)=>a-b);
+  const baseOrder=onlinePlayers().map(p=>p.__slot).sort((a,b)=>a-b);
+  const order=st.gameId===GID.WAR?baseOrder:fairOrder(baseOrder,st.epoch);
   gSeqSeen=-1;gView=null;
   show("s-game");clearGameScreen();
   if(st.gameId===GID.TSURO){document.getElementById("tableOval").classList.add("tsuro-mode");document.getElementById("s-game").classList.add("tsuro-screen")}
@@ -1494,6 +1531,7 @@ function launch(st){
     else if(st.gameId===GID.BJ)gHost=bjInit(order,st.epoch);
     else if(st.gameId===GID.YELLOW)gHost=yellowInit(order,st.epoch);
     else if(st.gameId===GID.TSURO)gHost=tsuroInit(order,st.epoch);
+    else if(st.gameId===GID.DICE)gHost=diceInit(order,st.epoch);
     gHost.gid=st.gameId;gHost.room=myRoom;gHost.seq=0;gHost.round=st.round;gHost.matchId=st.epoch;
     pushState();
   }
@@ -1608,9 +1646,17 @@ function pushState(){
   renderGame();
 }
 function sendAction(obj){
-  if(mySlot<0)return;const actionId=clientId+"-"+Date.now()+"-"+(++actionCounter);
-  const payload=Object.assign({slot:mySlot,actionId},obj);
-  if(isHost&&gHost)handleAction(payload);else cset("ACT",encState(myRoom,Date.now()%10000,payload));
+  if(mySlot<0||!myRoom)return;
+  const actionId=clientId+"-"+nowEpoch10()+"-"+(++actionCounter);
+  const payload=Object.assign({
+    slot:mySlot,
+    actionId,
+    sentAt:nowEpoch10(),
+    matchId:(gView&&gView.matchId)||(gHost&&gHost.matchId)||(lastGame&&lastGame.epoch)||0,
+    gid:(gView&&gView.gid)||(gHost&&gHost.gid)||(lastGame&&lastGame.gameId)||0
+  },obj);
+  if(isHost&&gHost)handleAction(payload);
+  else cset("ACT"+mySlot,encState(myRoom,actionCounter%10000,payload));
 }
 function rememberAction(id){
   if(!id)return true;if(handledActionIds.has(id))return false;handledActionIds.add(id);handledActionQueue.push(id);
@@ -1618,7 +1664,15 @@ function rememberAction(id){
 }
 function handleAction(obj){
   if(!gHost||obj.slot===undefined||!rememberAction(obj.actionId))return;
-  if(gHost.gid===GID.WAR)warAction(obj);else if(gHost.gid===GID.TAROT)tarotAction(obj);else if(gHost.gid===GID.BJ)bjAction(obj);else if(gHost.gid===GID.YELLOW)yellowAction(obj);else if(gHost.gid===GID.TSURO)tsuroAction(obj);
+  if(obj.matchId&&gHost.matchId&&Number(obj.matchId)!==Number(gHost.matchId))return;
+  if(obj.gid&&Number(obj.gid)!==Number(gHost.gid))return;
+  if(obj.sentAt&&epochAge10(obj.sentAt)>20000)return;
+  if(gHost.gid===GID.WAR)warAction(obj);
+  else if(gHost.gid===GID.TAROT)tarotAction(obj);
+  else if(gHost.gid===GID.BJ)bjAction(obj);
+  else if(gHost.gid===GID.YELLOW)yellowAction(obj);
+  else if(gHost.gid===GID.TSURO)tsuroAction(obj);
+  else if(gHost.gid===GID.DICE)diceAction(obj);
 }
 function renderGame(){
   if(!gView||!document.getElementById("s-game").classList.contains("active"))return;
@@ -1627,6 +1681,7 @@ function renderGame(){
   else if(gView.gid===GID.BJ)bjRender();
   else if(gView.gid===GID.YELLOW)yellowRender();
   else if(gView.gid===GID.TSURO)tsuroRender();
+  else if(gView.gid===GID.DICE)diceRender();
 }
 
 function warInit(order,seed){
@@ -1702,37 +1757,32 @@ function finishWar(){
 }
 function warRender(){
   const g=gView;
-  document.getElementById("g-eyebrow").textContent="// bataille";
-  document.getElementById("g-title").textContent="Dernier avec des cartes gagne";
-  document.getElementById("g-pill").textContent=(g.alive?g.alive.length:0)+" en jeu";
+  document.getElementById("g-eyebrow").textContent="// bataille express";
+  document.getElementById("g-title").textContent="Retourne ta carte au bon moment";
+  document.getElementById("g-pill").textContent=(g.alive?g.alive.length:0)+" joueurs encore en jeu";
   renderSeats(null,
-    s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" \u00B7 \u00E9limin\u00E9":""),
+    s=>(g.piles&&g.piles[s]?g.piles[s].length:0)+" cartes"+(g.alive&&!g.alive.includes(s)?" Â· Ã©liminÃ©":""),
     s=>{
-      const entries=(g.table||[]).filter(t=>t.slot===s);
-      if(!entries.length)return"";
-      const last=entries[entries.length-1];
-      const isWinningCard=g.resolving&&s===g.lastWinner&&!last.hidden;
-      return last.hidden?backHTML(true):cardHTML(last.card.suit,last.card.rank,{trump:isWinningCard,mini:true});
+      const entries=(g.table||[]).filter(t=>t.slot===s);if(!entries.length)return"";
+      const last=entries[entries.length-1],win=g.resolving&&s===g.lastWinner&&!last.hidden;
+      return last.hidden?backHTML(true):cardHTML(last.card.suit,last.card.rank,{trump:win,mini:true});
     }
   );
   const inBattle=g.active&&g.active.length&&g.table&&g.table.length>(g.alive?g.alive.length:0)&&!g.resolving;
-  let centerText="";
-  if(g.resolving&&g.lastWinner!==null&&g.lastWinner!==undefined)centerText=pName(g.lastWinner)+" remporte le pli \u2726";
-  else if(inBattle)centerText="Bataille ! Retournez une carte pour trancher";
-  document.getElementById("g-center").textContent=centerText;
-  const mySlotAlive=g.alive&&g.alive.includes(mySlot);
+  const myAlive=g.alive&&g.alive.includes(mySlot);
   const needFlip=!g.resolving&&g.active&&g.active.includes(mySlot)&&!(g.flipped&&g.flipped[mySlot]);
+  const waiting=(g.active||[]).filter(s=>!(g.flipped&&g.flipped[s])).length;
+  if(g.resolving&&g.lastWinner!==null&&g.lastWinner!==undefined)setGameGuide("ð",pName(g.lastWinner)+" remporte le pli","Les cartes vont rejoindre son paquet.","good");
+  else if(inBattle)setGameGuide("âï¸","Bataille !","Les joueurs Ã  Ã©galitÃ© doivent retourner une nouvelle carte.","warn");
+  else if(needFlip)setGameGuide("ð ","Ã toi de retourner","Tout le monde rÃ©vÃ¨le une carte. La plus forte rÃ©cupÃ¨re le pli.","good");
+  else if(myAlive)setGameGuide("â³","Carte envoyÃ©e",waiting+" joueur"+(waiting>1?"s":"")+" doit encore jouer.","");
+  else setGameGuide("ðï¸","Tu observes","Ton paquet est vide, mais tu peux suivre la fin de la manche.","bad");
+  document.getElementById("g-center").textContent="";
   const ctl=document.getElementById("g-controls");
-  if(mySlotAlive&&needFlip){
-    ctl.innerHTML=`<button class="p" id="warflip">Retourner ma carte</button>`;
-    document.getElementById("warflip").onclick=()=>sendAction({type:"flip"});
-  }else if(g.resolving){
-    ctl.innerHTML=`<div class="waitbox">Le pli se ramasse\u2026</div>`;
-  }else{
-    ctl.innerHTML=`<div class="waitbox">${mySlotAlive?"Carte envoy\u00E9e, en attente des autres\u2026":"Tu es \u00E9limin\u00E9, tu observes la suite."}</div>`;
-  }
-  document.getElementById("g-hand").innerHTML="";
-  document.getElementById("g-pile").innerHTML="";
+  if(myAlive&&needFlip){ctl.innerHTML=`<button class="p game-action" id="warflip">RETOURNER MA CARTE<small>${inBattle?"DÃ©partage la bataille":"RÃ©vÃ¨le la carte du dessus"}</small></button>`;document.getElementById("warflip").onclick=()=>sendAction({type:"flip"})}
+  else if(g.resolving)ctl.innerHTML=`<div class="waitbox">Le pli se ramasseâ¦</div>`;
+  else ctl.innerHTML=`<div class="game-stats"><div class="game-stat"><b>${g.piles&&g.piles[mySlot]?g.piles[mySlot].length:0}</b><span>TES CARTES</span></div><div class="game-stat"><b>${(g.table||[]).length}</b><span>CARTES SUR TABLE</span></div></div>`;
+  document.getElementById("g-hand").innerHTML="";document.getElementById("g-pile").innerHTML="";
 }
 
 const TAROT_SUIT=["\u2665","\u2666","\u2663","\u2660"];
@@ -1773,7 +1823,7 @@ function tarotInit(order,seed){
     if(ka===0)return a.suit-b.suit||a.rank-b.rank;
     return a.rank-b.rank;
   }));
-  const firstIdx=1%order.length;
+  const firstIdx=0;
   return{order,hands,chien,
     turnIdx:firstIdx,leadSuit:null,trick:[],tricksWon:Object.fromEntries(order.map(s=>[s,[]])),
     roundOver:false};
@@ -1848,46 +1898,28 @@ function finishTarot(){
   broadcastScoreAndFinish(g,delta,{tricksWon:g.tricksWon});
 }
 function tarotRender(){
-  const g=gView;
-  document.getElementById("g-eyebrow").textContent="// tarot all\u00E9g\u00E9";
-  document.getElementById("g-title").textContent="Suis la couleur ou coupe \u00E0 l'atout";
-  document.getElementById("g-pill").textContent=g.resolving?"Pli termin\u00E9":(g.hands&&g.hands[g.order[g.turnIdx]]?"Tour de "+pName(g.order[g.turnIdx]):"");
-  renderSeats(
-    g.resolving?null:g.order[g.turnIdx],
-    s=>(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes \u00B7 "+((g.tricksWon&&g.tricksWon[s])?g.tricksWon[s].length:0)+" plis",
-    s=>{
-      const t=(g.trick||[]).find(x=>x.slot===s);
-      if(!t)return"";
-      const isWinner=g.resolving&&s===g.trickWinner;
-      return tarotCardHTML(t.card,{trump:isWinner,mini:true});
-    }
+  const g=gView,active=g.order[g.turnIdx];
+  document.getElementById("g-eyebrow").textContent="// tarot allÃ©gÃ©";
+  document.getElementById("g-title").textContent="Suis la couleur â sinon coupe Ã  l'atout";
+  document.getElementById("g-pill").textContent=g.resolving?"Pli terminÃ©":"Tour de "+pName(active);
+  renderSeats(g.resolving?null:active,
+    s=>(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes Â· "+((g.tricksWon&&g.tricksWon[s])?g.tricksWon[s].length:0)+" gagnÃ©es",
+    s=>{const t=(g.trick||[]).find(x=>x.slot===s);return t?tarotCardHTML(t.card,{trump:g.resolving&&s===g.trickWinner,mini:true}):""}
   );
-  document.getElementById("g-trick").innerHTML="";
-  document.getElementById("g-center").textContent=g.resolving&&g.trickWinner!==null?pName(g.trickWinner)+" remporte le pli \u2726":((g.trick||[]).length===0?"Nouveau pli\u2026":"");
-  document.getElementById("g-pile").innerHTML="";
-  const ctl=document.getElementById("g-controls");
-  ctl.innerHTML="";
-  const hand=document.getElementById("g-hand");
-  hand.classList.add("compact");
-  const myHand=(g.hands&&g.hands[mySlot])||[];
-  const isMyTurn=!g.resolving&&g.order[g.turnIdx]===mySlot;
+  document.getElementById("g-trick").innerHTML="";document.getElementById("g-center").textContent="";document.getElementById("g-pile").innerHTML="";
+  const hand=document.getElementById("g-hand");hand.classList.add("compact");
+  const myHand=(g.hands&&g.hands[mySlot])||[],isMyTurn=!g.resolving&&active===mySlot;
   const leadKind=g.trick&&g.trick.length?g.trick[0].card.kind:null;
   const leadSuit=g.trick&&g.trick.length&&g.trick[0].card.kind==="suit"?g.trick[0].card.suit:null;
   const legal=isMyTurn?tarotLegal(myHand,leadKind,leadSuit):[];
-  hand.innerHTML=myHand.map((c,i)=>{
-    const dis=!isMyTurn||!legal.includes(i);
-    return `<div class="cardwrap" data-i="${i}">${tarotCardHTML(c,{dis})}</div>`;
-  }).join("");
-  if(isMyTurn){
-    hand.querySelectorAll(".cardwrap").forEach(el=>{
-      const i=parseInt(el.dataset.i);
-      if(!legal.includes(i))return;
-      el.onclick=()=>sendAction({type:"play",cardIdx:i});
-    });
-    msg("g-msg","\u00C0 toi de jouer.","ok");
-  }else{
-    msg("g-msg","Tour de "+pName(g.order[g.turnIdx])+"\u2026","");
-  }
+  const demand=leadKind===null?"Tu ouvres le pli":leadKind==="trump"?"Atout demandÃ©":"Couleur demandÃ©e : "+TAROT_SUIT[leadSuit];
+  if(g.resolving)setGameGuide("ð",pName(g.trickWinner)+" prend le pli","Le gagnant commencera le pli suivant.","good");
+  else if(isMyTurn)setGameGuide("ð",demand,legal.length+" carte"+(legal.length>1?"s":"")+" jouable"+(legal.length>1?"s":"")+" est mise en Ã©vidence.","good");
+  else setGameGuide("ð",demand,"En attente de "+pName(active)+".","");
+  hand.innerHTML=myHand.map((c,i)=>`<div class="cardwrap${isMyTurn&&legal.includes(i)?" legal":""}" data-i="${i}">${tarotCardHTML(c,{dis:!isMyTurn||!legal.includes(i)})}</div>`).join("");
+  if(isMyTurn)hand.querySelectorAll(".cardwrap.legal").forEach(el=>el.onclick=()=>sendAction({type:"play",cardIdx:parseInt(el.dataset.i)}));
+  document.getElementById("g-controls").innerHTML=isMyTurn?`<div class="turn-badge">Ã TOI Â· choisis une carte lumineuse</div>`:`<div class="turn-badge wait">EN ATTENTE Â· ${esc(pName(active))}</div>`;
+  msg("g-msg",isMyTurn?"Respecte la couleur demandÃ©e quand tu peux.":"",isMyTurn?"ok":"");
 }
 
 function bjVal(rank){if(rank===1)return 11;if(rank>=11)return 10;return rank}
@@ -1949,197 +1981,96 @@ function finishBJ(){
   broadcastScoreAndFinish(g,delta,{dealerTotal:dTotal});
 }
 function bjRender(){
-  const g=gView;
-  document.getElementById("g-eyebrow").textContent="// blackjack";
-  document.getElementById("g-title").textContent="Approche-toi de 21";
-  const activeSlot=g.turnIdx<g.order.length?g.order[g.turnIdx]:null;
-  document.getElementById("g-pill").textContent=activeSlot!==null?"Tour de "+pName(activeSlot):"Croupier joue\u2026";
-  renderSeats(activeSlot,
-    s=>{
-      const t=g.hands&&g.hands[s]?bjHandTotal(g.hands[s]):0;
-      return t+(g.done&&g.done[s]?" \u00B7 fini":"");
-    }
-  );
-  const trick=document.getElementById("g-trick");
-  const dealerCards=g.dealer||[];
-  const shown=g.dealerRevealed?dealerCards:dealerCards.slice(0,1);
-  trick.innerHTML=`<div class="trickslot"><div class="nm">Croupier${g.dealerRevealed?" ("+bjHandTotal(dealerCards)+")":""}</div><div style="display:flex;gap:4px">${shown.map(c=>cardHTML(c.suit,c.rank,{mini:true})).join("")}${g.dealerRevealed?"":backHTML(true)}</div></div>`;
-  document.getElementById("g-center").textContent="";
-  document.getElementById("g-pile").innerHTML="";
-  const myHand=(g.hands&&g.hands[mySlot])||[];
-  document.getElementById("g-hand").innerHTML=myHand.map(c=>cardHTML(c.suit,c.rank)).join("")+
-    (myHand.length?`<div class="waitbox" style="width:100%">Total : ${bjHandTotal(myHand)}</div>`:"");
+  const g=gView,active=g.turnIdx<g.order.length?g.order[g.turnIdx]:null;
+  document.getElementById("g-eyebrow").textContent="// blackjack";document.getElementById("g-title").textContent="Vise 21 sans dÃ©passer";
+  document.getElementById("g-pill").textContent=active!==null?"Tour de "+pName(active):"Le croupier joue";
+  renderSeats(active,s=>{const t=g.hands&&g.hands[s]?bjHandTotal(g.hands[s]):0;return t+(g.done&&g.done[s]?" Â· validÃ©":"")});
+  const dealerCards=g.dealer||[],shown=g.dealerRevealed?dealerCards:dealerCards.slice(0,1),dealerTotal=g.dealerRevealed?bjHandTotal(dealerCards):"?";
+  document.getElementById("g-trick").innerHTML=`<div class="trickslot"><div class="nm">Croupier Â· ${dealerTotal}</div><div style="display:flex;gap:5px">${shown.map(c=>cardHTML(c.suit,c.rank,{mini:true})).join("")}${g.dealerRevealed?"":backHTML(true)}</div></div>`;
+  document.getElementById("g-center").textContent="";document.getElementById("g-pile").innerHTML="";
+  const myHand=(g.hands&&g.hands[mySlot])||[],total=bjHandTotal(myHand),isMyTurn=active===mySlot&&!(g.done&&g.done[mySlot]);
+  document.getElementById("g-hand").innerHTML=myHand.map(c=>cardHTML(c.suit,c.rank)).join("");
+  if(total>21)setGameGuide("ð¥","Tu dÃ©passes 21",`Total : ${total}. Ta main est perdue pour cette manche.`,"bad");
+  else if(total===21)setGameGuide("â¨","Blackjack !","21 exact : ta main est automatiquement validÃ©e.","good");
+  else if(isMyTurn)setGameGuide("ð¯","Ton total : "+total,total<12?"Tu peux tirer avec peu de risque.":total<17?"Choisis entre prudence et risque.":"Rester devient souvent le choix sÃ»r.","warn");
+  else if(active===null)setGameGuide("ð©","Le croupier rÃ©vÃ¨le son jeu","Il tire jusqu'Ã  atteindre au moins 17.","");
+  else setGameGuide("â³","Main validÃ©e : "+total,"En attente de "+pName(active)+".","");
   const ctl=document.getElementById("g-controls");
-  const isMyTurn=activeSlot===mySlot&&!(g.done&&g.done[mySlot]);
-  if(isMyTurn&&bjHandTotal(myHand)<21){
-    ctl.innerHTML=`<div class="row2"><button class="p" id="bjhit">Tirer</button><button class="o" id="bjstand">Rester</button></div>`;
-    document.getElementById("bjhit").onclick=()=>sendAction({type:"hit"});
-    document.getElementById("bjstand").onclick=()=>sendAction({type:"stand"});
-    msg("g-msg","","");
-  }else{
-    ctl.innerHTML="";
-    msg("g-msg",activeSlot===null?"Le croupier tire ses cartes\u2026":"Tour de "+pName(activeSlot)+"\u2026","");
-  }
+  if(isMyTurn&&total<21){ctl.innerHTML=`<div class="game-stats"><div class="game-stat"><b>${total}</b><span>TON TOTAL</span></div><div class="game-stat"><b>${dealerTotal}</b><span>CROUPIER</span></div></div><div class="row2"><button class="p game-action" id="bjhit">TIRER<small>Prendre une carte</small></button><button class="o game-action" id="bjstand">RESTER<small>Valider ${total}</small></button></div>`;document.getElementById("bjhit").onclick=()=>sendAction({type:"hit"});document.getElementById("bjstand").onclick=()=>sendAction({type:"stand"})}
+  else ctl.innerHTML=`<div class="game-stats"><div class="game-stat"><b>${total}</b><span>TON TOTAL</span></div><div class="game-stat"><b>${dealerTotal}</b><span>CROUPIER</span></div></div>`;
+  msg("g-msg","","");
 }
 
 const YELLOW_BOARD=[
-  {suit:1,rank:7,stake:5,label:"Nain Jaune (7\u2666)"},
-  {suit:1,rank:10,stake:1,label:"10\u2666"},
-  {suit:2,rank:11,stake:2,label:"Valet\u2663"},
-  {suit:3,rank:12,stake:3,label:"Dame\u2660"},
-  {suit:0,rank:13,stake:4,label:"Roi\u2665"},
+  {suit:1,rank:7,stake:5,label:"Nain Jaune (7â¦)"},{suit:1,rank:10,stake:1,label:"10â¦"},
+  {suit:2,rank:11,stake:2,label:"Valetâ£"},{suit:3,rank:12,stake:3,label:"Dameâ "},{suit:0,rank:13,stake:4,label:"Roiâ¥"}
 ];
 function yellowBoardIndex(suit,rank){return YELLOW_BOARD.findIndex(b=>b.suit===suit&&b.rank===rank)}
+function yellowSort(hand){hand.sort((a,b)=>a.rank-b.rank||a.suit-b.suit)}
 function yellowInit(order,seed){
-  const deck=deck52(seed);
-  const hands={};order.forEach(s=>hands[s]=[]);
-  let i=0;
-  for(let k=0;k<7*order.length;k++){const s=order[i%order.length];hands[s].push(deck[k]);i++}
-  const drawPile=deck.slice(7*order.length);
-  order.forEach(s=>hands[s].sort((a,b)=>a.rank-b.rank||a.suit-b.suit));
-  const pot=YELLOW_BOARD.map(b=>b.stake);
-  let starter=order[0];
-  for(const s of order){if(hands[s].some(c=>c.suit===1&&c.rank===7)){starter=s;break}}
-  return{order,hands,drawPile,pot,
-    turnIdx:order.indexOf(starter),
-    played:[],lastRank:null,passedInRow:0,finished:false,resolving:false,winner:null};
+  const deck=deck52(seed),hands={};order.forEach(s=>hands[s]=[]);
+  const per=Math.min(9,Math.floor(42/order.length));
+  for(let k=0;k<per*order.length;k++)hands[order[k%order.length]].push(deck[k]);
+  order.forEach(s=>yellowSort(hands[s]));
+  let starter=order[0];for(const s of order)if(hands[s].some(c=>c.suit===1&&c.rank===7)){starter=s;break}
+  return{order,hands,drawPile:deck.slice(per*order.length),pot:YELLOW_BOARD.map(b=>b.stake),turnIdx:order.indexOf(starter),played:[],lastRank:null,failedInRow:0,combo:0,jetons:{},yellowClaim:null,lastDraw:null,finished:false,resolving:false,winner:null};
 }
 function yellowCanPlay(hand,lastRank){
   if(lastRank===null)return hand.map((_,i)=>i);
-  return hand.map((c,i)=>({c,i})).filter(x=>x.c.rank===lastRank+1).map(x=>x.i);
+  const wanted=lastRank+1;return hand.map((c,i)=>({c,i})).filter(x=>x.c.rank===wanted).map(x=>x.i);
+}
+function yellowAdvanceTurn(g){
+  if(!g.order.length)return;let guard=0;
+  do{g.turnIdx=(g.turnIdx+1)%g.order.length;guard++}while(guard<g.order.length&&(!g.hands[g.order[g.turnIdx]]||g.hands[g.order[g.turnIdx]].length===0));
+  g.combo=0;
 }
 function yellowAction(obj){
-  const g=gHost;
-  if(g.finished||g.resolving)return;
-  if(g.order[g.turnIdx]!==obj.slot)return;
-  const hand=g.hands[obj.slot];
+  const g=gHost;if(g.finished||g.resolving||g.order[g.turnIdx]!==obj.slot)return;
+  const hand=g.hands[obj.slot]||[];
   if(obj.type==="play"){
-    const idx=obj.cardIdx;
-    if(idx<0||idx>=hand.length)return;
-    const legal=yellowCanPlay(hand,g.lastRank);
-    if(!legal.includes(idx))return;
-    const card=hand.splice(idx,1)[0];
-    g.played.push({slot:obj.slot,card});
-    g.lastRank=card.rank;g.passedInRow=0;
-    const bi=yellowBoardIndex(card.suit,card.rank);
-    if(bi>=0&&g.pot[bi]>0){
-      g.yellowClaim={slot:obj.slot,label:YELLOW_BOARD[bi].label,amount:g.pot[bi]};
-      if(!g.jetons)g.jetons={};
-      g.jetons[obj.slot]=(g.jetons[obj.slot]||0)+g.pot[bi];
-      g.pot[bi]=0;
-    }else{
-      g.yellowClaim=null;
-    }
-    if(hand.length===0){
-      yellowFinishRound(obj.slot);
-      return;
-    }
-    if(card.rank===13){
-      g.lastRank=null;
-      g.roiBonus=true;
-      pushState();
-      return;
-    }
-    advanceYellowTurn();
-    pushState();
-    return;
+    const idx=Number(obj.cardIdx),legal=yellowCanPlay(hand,g.lastRank);if(!legal.includes(idx))return;
+    const card=hand.splice(idx,1)[0];g.played.push({slot:obj.slot,card});g.lastRank=card.rank;g.failedInRow=0;g.combo=(g.combo||0)+1;g.lastDraw=null;
+    const bi=yellowBoardIndex(card.suit,card.rank);g.yellowClaim=null;
+    if(bi>=0&&g.pot[bi]>0){const amount=g.pot[bi];g.jetons[obj.slot]=(g.jetons[obj.slot]||0)+amount;g.pot[bi]=0;g.yellowClaim={slot:obj.slot,label:YELLOW_BOARD[bi].label,amount}}
+    if(hand.length===0){yellowFinishRound(obj.slot);return}
+    if(card.rank===13){g.lastRank=null;g.combo=0;pushState();return}
+    const canContinue=yellowCanPlay(hand,g.lastRank).length>0;
+    if(!canContinue)yellowAdvanceTurn(g);
+    pushState();return;
   }
   if(obj.type==="draw"){
-    const legal=yellowCanPlay(hand,g.lastRank);
-    if(legal.length>0)return;
-    if(g.drawPile.length>0){
-      hand.push(g.drawPile.pop());
-      hand.sort((a,b)=>a.rank-b.rank||a.suit-b.suit);
-    }
-    g.passedInRow++;
-    if(g.passedInRow>=g.order.length){
-      g.lastRank=null;g.passedInRow=0;
-    }else{
-      advanceYellowTurn();
-    }
-    pushState();
-    return;
+    if(yellowCanPlay(hand,g.lastRank).length)return;
+    const drawn=g.drawPile.length?g.drawPile.pop():null;if(drawn){hand.push(drawn);yellowSort(hand)}
+    const drawnPlayable=drawn&&yellowCanPlay(hand,g.lastRank).some(i=>hand[i]===drawn);
+    g.lastDraw={slot:obj.slot,card:drawn,playable:!!drawnPlayable};
+    if(drawnPlayable){g.failedInRow=0;pushState();return}
+    g.failedInRow=(g.failedInRow||0)+1;
+    if(g.failedInRow>=g.order.length){g.lastRank=null;g.failedInRow=0}
+    yellowAdvanceTurn(g);pushState();return;
   }
-}
-function advanceYellowTurn(){
-  const g=gHost;
-  g.turnIdx=(g.turnIdx+1)%g.order.length;
-  let guard=0;
-  while(g.hands[g.order[g.turnIdx]].length===0&&guard<g.order.length){g.turnIdx=(g.turnIdx+1)%g.order.length;guard++}
 }
 function yellowFinishRound(winnerSlot){
-  const g=gHost;
-  g.finished=true;g.resolving=true;g.winner=winnerSlot;
-  pushState();
-  setTimeout(()=>{
-    if(!gHost||gHost!==g)return;
-    if(!g.jetons)g.jetons={};
-    const delta={};
-    g.order.forEach(s=>{
-      if(s===winnerSlot){delta[s]=(g.jetons[s]||0);return}
-      const remaining=g.hands[s].length;
-      delta[s]=(g.jetons[s]||0)-remaining;
-      delta[winnerSlot]=(delta[winnerSlot]||0)+remaining;
-    });
-    g.pot.forEach(amount=>{if(amount>0)delta[winnerSlot]=(delta[winnerSlot]||0)+amount});
-    g.resolving=false;
-    broadcastScoreAndFinish(g,delta,{winnerSlot});
-  },1600);
+  const g=gHost;if(g.finished)return;g.finished=true;g.resolving=true;g.winner=winnerSlot;pushState();
+  setTimeout(()=>{if(!gHost||gHost!==g)return;const delta={};g.order.forEach(s=>delta[s]=g.jetons[s]||0);g.order.forEach(s=>{if(s===winnerSlot)return;const loss=(g.hands[s]||[]).length;delta[s]-=loss;delta[winnerSlot]=(delta[winnerSlot]||0)+loss});g.pot.forEach(v=>delta[winnerSlot]=(delta[winnerSlot]||0)+v);g.resolving=false;broadcastScoreAndFinish(g,delta,{winnerSlot})},1400);
 }
 function yellowRender(){
-  const g=gView;
-  document.getElementById("g-eyebrow").textContent="// nain jaune";
-  document.getElementById("g-title").textContent="Premier \u00E0 vider sa main gagne les jetons";
-  const activeSlot=g.order[g.turnIdx];
-  document.getElementById("g-pill").textContent=g.finished?"Manche termin\u00E9e":"Tour de "+pName(activeSlot);
-  renderSeats(g.finished?null:activeSlot,s=>{
-    const cards=(g.hands&&g.hands[s]?g.hands[s].length:0)+" cartes";
-    const jet=(g.jetons&&g.jetons[s])?" \u00B7 "+g.jetons[s]+" jetons":"";
-    return cards+jet;
-  });
-  const board=document.getElementById("g-trick");
-  board.innerHTML=YELLOW_BOARD.map((b,i)=>{
-    const amount=g.pot?g.pot[i]:b.stake;
-    return `<div class="trickslot"><div class="nm">${b.label}</div>${cardHTML(b.suit,b.rank,{mini:true})}<div class="ct" style="font-family:var(--disp);color:var(--accent);font-size:11px;margin-top:2px">${amount>0?amount+" \uD83E\uDE99":"pris"}</div></div>`;
-  }).join("");
-  const claim=g.yellowClaim;
-  let centerText="";
-  if(g.finished&&g.winner!==null)centerText=pName(g.winner)+" vide sa main et rafle les jetons \u2726";
-  else if(claim)centerText=pName(claim.slot)+" prend "+claim.label+" (+"+claim.amount+" \uD83E\uDE99)";
-  document.getElementById("g-center").textContent=centerText;
-  const pile=document.getElementById("g-pile");
-  const played=g.played||[];
-  const lastFew=played.slice(-6);
-  pile.innerHTML=lastFew.length
-    ? lastFew.map(p=>cardHTML(p.card.suit,p.card.rank,{mini:true})).join("")
-    : '<div class="waitbox" style="padding:10px 0">Aucune suite en cours \u2014 un 7 ou une carte libre pour d\u00E9marrer</div>';
+  const g=gView,active=g.order[g.turnIdx],myHand=(g.hands&&g.hands[mySlot])||[],isMyTurn=!g.finished&&!g.resolving&&active===mySlot,legal=isMyTurn?yellowCanPlay(myHand,g.lastRank):[];
+  document.getElementById("g-eyebrow").textContent="// nain jaune v5";document.getElementById("g-title").textContent="Pose une suite aussi longtemps que possible";document.getElementById("g-pill").textContent=g.finished?"Manche terminÃ©e":"Tour de "+pName(active);
+  renderSeats(g.finished?null:active,s=>`${g.hands&&g.hands[s]?g.hands[s].length:0} cartes Â· ${g.jetons&&g.jetons[s]||0} jetons`);
+  document.getElementById("g-trick").innerHTML=`<div class="yellow-board-v5">${YELLOW_BOARD.map((b,i)=>`<div class="yellow-pot"><div class="yellow-pot-name">${b.label}</div>${cardHTML(b.suit,b.rank,{mini:true})}<div class="yellow-pot-coins">${g.pot[i]>0?g.pot[i]+" ðª":"PRIS"}</div></div>`).join("")}</div>`;
+  const wanted=g.lastRank===null?"n'importe quelle carte":(g.lastRank===13?"une nouvelle suite":rankLabel(g.lastRank+1));
+  if(g.finished)setGameGuide("ð",pName(g.winner)+" vide sa main","Les cartes restantes des autres joueurs lui rapportent des jetons.","good");
+  else if(isMyTurn&&legal.length)setGameGuide("ð¥",g.combo?"Continue ta sÃ©rie !":"Ã toi de reprendre la suite",`Carte attendue : ${wanted}. Tu gardes la main tant que tu peux continuer.`,"good");
+  else if(isMyTurn)setGameGuide("ð","Aucune carte jouable",g.drawPile.length?"Pioche une carte. Si elle complÃ¨te la suite, tu peux la poser immÃ©diatement.":"La pioche est vide : ton tour passera.","warn");
+  else setGameGuide("â³","Carte attendue : "+wanted,"En attente de "+pName(active)+".","");
+  document.getElementById("g-center").textContent=g.yellowClaim?pName(g.yellowClaim.slot)+" gagne "+g.yellowClaim.amount+" jetons sur "+g.yellowClaim.label:"";
+  const recent=(g.played||[]).slice(-10);document.getElementById("g-pile").innerHTML=recent.length?`<div class="sequence-strip">${recent.map((p,i)=>(i?'<span class="sequence-arrow">âº</span>':'')+cardHTML(p.card.suit,p.card.rank,{mini:true})).join("")}</div>`:`<div class="waitbox" style="padding:8px">Suite libre : le joueur actif choisit une carte de dÃ©part.</div>`;
+  const hand=document.getElementById("g-hand");hand.classList.remove("compact");hand.innerHTML=myHand.map((c,i)=>`<div class="cardwrap${isMyTurn&&legal.includes(i)?" legal":""}" data-i="${i}">${cardHTML(c.suit,c.rank,{dis:!isMyTurn||!legal.includes(i)})}</div>`).join("");
+  if(isMyTurn)hand.querySelectorAll(".cardwrap.legal").forEach(el=>el.onclick=()=>sendAction({type:"play",cardIdx:parseInt(el.dataset.i)}));
   const ctl=document.getElementById("g-controls");
-  const hand=document.getElementById("g-hand");
-  const myHand=(g.hands&&g.hands[mySlot])||[];
-  const isMyTurn=!g.finished&&!g.resolving&&activeSlot===mySlot;
-  const legal=isMyTurn?yellowCanPlay(myHand,g.lastRank):[];
-  hand.innerHTML=myHand.map((c,i)=>{
-    const dis=!isMyTurn||!legal.includes(i);
-    return `<div class="cardwrap" data-i="${i}">${cardHTML(c.suit,c.rank,{dis})}</div>`;
-  }).join("");
-  if(isMyTurn){
-    hand.querySelectorAll(".cardwrap").forEach(el=>{
-      const i=parseInt(el.dataset.i);
-      if(!legal.includes(i))return;
-      el.onclick=()=>sendAction({type:"play",cardIdx:i});
-    });
-    if(legal.length===0){
-      ctl.innerHTML=`<button class="o" id="ydraw">Piocher (aucune carte jouable)</button>`;
-      document.getElementById("ydraw").onclick=()=>sendAction({type:"draw"});
-      msg("g-msg","Tu ne peux pas continuer la suite, pioche une carte.","");
-    }else{
-      ctl.innerHTML="";
-      msg("g-msg","\u00C0 toi de jouer.","ok");
-    }
-  }else{
-    ctl.innerHTML="";
-    msg("g-msg",g.finished?"":"Tour de "+pName(activeSlot)+"\u2026","");
-  }
+  if(isMyTurn&&!legal.length){ctl.innerHTML=`<button class="o game-action" id="ydraw">PIOCHER UNE CARTE<small>${g.drawPile.length} carte(s) dans la pioche</small></button>`;document.getElementById("ydraw").onclick=()=>sendAction({type:"draw"})}
+  else ctl.innerHTML=isMyTurn?`<div class="turn-badge">Ã TOI Â· ${legal.length} carte(s) jouable(s)</div>`:`<div class="turn-badge wait">EN ATTENTE Â· ${esc(pName(active))}</div>`;
+  msg("g-msg",isMyTurn&&legal.length?(g.combo?"Continue, tu gardes la main !":"Choisis une carte lumineuse."):"",isMyTurn&&legal.length?"ok":"");
 }
 
 const TSURO_SIZE=6;
@@ -2179,7 +2110,7 @@ function tsuroInit(order,seed){
   let drawPile=deck.slice(order.length*HAND_SIZE);
   const board={};
   const pawns={};
-  return{order,hands,drawPile,board,pawns,turnIdx:0,placeIdx:0,phase:"placement",finished:false,resolving:false,winners:[]};
+  return{order,hands,drawPile,board,pawns,turnIdx:0,placeIdx:0,phase:"placement",finished:false,resolving:false,winners:[],turnNumber:1};
 }
 function tsuroTakenSpot(g,x,y,point){
   return Object.values(g.pawns).some(p=>p.x===x&&p.y===y&&p.point===point);
@@ -2201,33 +2132,23 @@ function tsuroPlaceAction(obj){
 }
 function tsuroBoardKey(x,y){return x+","+y}
 function tsuroResolveStep(g){
-  let moved=false;
-  const eliminated=[];
+  let moved=false;const eliminated=[],movedSlots=[],records=[];
   g.order.forEach(s=>{
-    const p=g.pawns[s];
-    if(!p.alive||p.looping)return;
-    const tileIdx=g.board[tsuroBoardKey(p.x,p.y)];
-    if(tileIdx===undefined)return;
-    const tile=TSURO_TILES[tileIdx];
-    const exitPoint=tsuroTileFollow(tile,p.point);
-    if(exitPoint===null)return;
-    const dir=TSURO_EXIT[exitPoint];
-    const nx=p.x+dir.dx,ny=p.y+dir.dy;
-    if(nx<0||nx>=TSURO_SIZE||ny<0||ny>=TSURO_SIZE){
-      p.alive=false;eliminated.push(s);moved=true;return;
-    }
-    p.x=nx;p.y=ny;p.point=dir.enter;moved=true;
+    const p=g.pawns[s];if(!p||!p.alive||p.looping)return;
+    const tileIdx=g.board[tsuroBoardKey(p.x,p.y)];if(tileIdx===undefined)return;
+    const exitPoint=tsuroTileFollow(TSURO_TILES[tileIdx],p.point);if(exitPoint===null)return;
+    const dir=TSURO_EXIT[exitPoint],from={x:p.x,y:p.y,point:p.point},nx=p.x+dir.dx,ny=p.y+dir.dy;
+    if(nx<0||nx>=TSURO_SIZE||ny<0||ny>=TSURO_SIZE){p.alive=false;eliminated.push(s);movedSlots.push(s);records.push({slot:s,from,to:null});moved=true;return}
+    p.x=nx;p.y=ny;p.point=dir.enter;moved=true;movedSlots.push(s);records.push({slot:s,from,to:{x:nx,y:ny,point:dir.enter}});
   });
-  const occ={};
-  g.order.forEach(s=>{
-    const p=g.pawns[s];if(!p.alive)return;
-    const key=p.x+","+p.y+","+p.point;
-    (occ[key]=occ[key]||[]).push(s);
-  });
-  Object.values(occ).forEach(slots=>{
-    if(slots.length>1)slots.forEach(s=>{if(g.pawns[s].alive){g.pawns[s].alive=false;eliminated.push(s)}});
-  });
-  return{moved,eliminated};
+  const occ={};g.order.forEach(s=>{const p=g.pawns[s];if(!p||!p.alive)return;const key=p.x+","+p.y+","+p.point;(occ[key]=occ[key]||[]).push(s)});
+  Object.values(occ).forEach(slots=>{if(slots.length>1)slots.forEach(s=>{if(g.pawns[s]?.alive){g.pawns[s].alive=false;eliminated.push(s)}})});
+  for(let i=0;i<records.length;i++)for(let j=i+1;j<records.length;j++){
+    const a=records[i],b=records[j];if(!a.to||!b.to)continue;
+    const crossed=a.from.x===b.to.x&&a.from.y===b.to.y&&b.from.x===a.to.x&&b.from.y===a.to.y;
+    if(crossed)[a.slot,b.slot].forEach(s=>{if(g.pawns[s]?.alive){g.pawns[s].alive=false;eliminated.push(s)}});
+  }
+  return{moved,eliminated:[...new Set(eliminated)],movedSlots,records};
 }
 function tsuroResolveMoves(g){
   const allEliminated=[];
@@ -2268,20 +2189,13 @@ function tsuroAction(obj){
 function tsuroAnimateStep(g,accEliminated){
   if(!gHost||gHost!==g)return;
   const guard=tsuroResolutionGuards.get(g)||{steps:0,seenBySlot:{}};tsuroResolutionGuards.set(g,guard);guard.steps++;
-  const{moved,eliminated}=tsuroResolveStep(g),allElim=accEliminated.concat(eliminated);g.lastEliminated=allElim;
-  const looped=[];
-  g.order.forEach(s=>{
-    const p=g.pawns[s];if(!p||!p.alive||p.looping)return;
-    const key=p.x+","+p.y+","+p.point,set=guard.seenBySlot[s]||(guard.seenBySlot[s]=new Set());
-    if(moved&&set.has(key)){p.looping=true;looped.push(s)}else set.add(key);
-  });
-  if(looped.length)g.loopNotice=[...(g.loopNotice||[]),...looped.filter(s=>!(g.loopNotice||[]).includes(s))];
-  pushState();
-  if(moved&&guard.steps<120&&g.order.some(s=>g.pawns[s]?.alive&&!g.pawns[s].looping)){setTimeout(()=>tsuroAnimateStep(g,allElim),420);return}
-  g.resolving=false;
-  const aliveSlots=g.order.filter(s=>g.pawns[s].alive),movable=g.order.filter(s=>g.pawns[s].alive&&!g.pawns[s].looping&&g.hands[s].length>0);
-  if(aliveSlots.length<=1||movable.length===0){finishTsuro();return}
-  tsuroNextTurn(g);pushState();
+  const step=tsuroResolveStep(g),allElim=[...new Set(accEliminated.concat(step.eliminated))];g.lastEliminated=allElim;
+  const looped=[];(step.movedSlots||[]).forEach(s=>{const p=g.pawns[s];if(!p||!p.alive||p.looping)return;const key=p.x+","+p.y+","+p.point,set=guard.seenBySlot[s]||(guard.seenBySlot[s]=new Set());if(set.has(key)){p.looping=true;looped.push(s)}else set.add(key)});
+  if(looped.length)g.loopNotice=[...(g.loopNotice||[]),...looped.filter(s=>!(g.loopNotice||[]).includes(s))];pushState();
+  if(step.moved&&guard.steps<120&&g.order.some(s=>g.pawns[s]?.alive&&!g.pawns[s].looping)){setTimeout(()=>tsuroAnimateStep(g,allElim),360);return}
+  g.resolving=false;const alive=g.order.filter(s=>g.pawns[s]?.alive),movable=g.order.filter(s=>g.pawns[s]?.alive&&!g.pawns[s].looping&&(g.hands[s]||[]).length>0);
+  if(alive.length<=1||movable.length===0){finishTsuro();return}
+  tsuroNextTurn(g);g.turnNumber=(g.turnNumber||0)+1;pushState();
 }
 function finishTsuro(){
   const g=gHost,delta={};
@@ -2340,7 +2254,7 @@ function tsuroRender(){
 
   document.getElementById("g-title").textContent="Trace ton chemin, ne sors pas du plateau";
   const activeSlot=g.order[g.turnIdx];
-  document.getElementById("g-pill").textContent=g.finished?"Partie termin\u00E9e":"Tour de "+pName(activeSlot);
+  document.getElementById("g-pill").textContent=g.finished?"Partie termin\u00E9e":"Tour "+(g.turnNumber||1)+" Â· "+pName(activeSlot);
   renderTsuroPlayers(g,g.finished?null:activeSlot);
   let centerText="";
   if(g.lastEliminated&&g.lastEliminated.length){
@@ -2357,13 +2271,18 @@ function tsuroRender(){
         const pt=g.pawns[s].point,[px,py]=TSURO_POINT_POS[pt];
         return `<span class="tsuro-pawn" style="background:${["#F2B705","#FF6B6B","#6BE38B","#5FB6F2"][g.order.indexOf(s)%4]};left:${px}%;top:${py}%"></span>`;
       }).join("");
-      grid+=`<div class="tsuro-slot" data-x="${x}" data-y="${y}">${tsuroCellHTML(tileIdx,cellSize)}<div class="tsuro-pawns">${pawnDots}</div></div>`;
+      const target=activeSlot===mySlot&&g.pawns[mySlot]&&g.pawns[mySlot].x===x&&g.pawns[mySlot].y===y&&!g.resolving?'<div class="tsuro-place-target">POSER ICI</div>':'';
+      grid+=`<div class="tsuro-slot" data-x="${x}" data-y="${y}">${tsuroCellHTML(tileIdx,cellSize)}${target}<div class="tsuro-pawns">${pawnDots}</div></div>`;
     }
   }
   grid+="</div>";
   boardEl.innerHTML=grid;
   const myPawn=g.pawns[mySlot];
   const isMyTurn=!g.finished&&!g.resolving&&activeSlot===mySlot&&myPawn&&myPawn.alive&&!myPawn.looping;
+  if(g.resolving)setGameGuide("ð","Les pions suivent les chemins","Attends la fin du dÃ©placement avant le prochain tour.","warn");
+  else if(isMyTurn)setGameGuide("â","Ã toi de poser une tuile","Choisis une tuile puis touche la case indiquÃ©e POSER ICI.","good");
+  else if(myPawn&&!myPawn.alive)setGameGuide("ðï¸","Ton pion est Ã©liminÃ©","Tu peux observer les survivants jusqu'Ã  la fin.","bad");
+  else setGameGuide("â³","Tour de "+pName(activeSlot),"Son pion doit recevoir une tuile sur sa case actuelle.","");
   if(!isMyTurn)tsuroSelectedTile=null;
   const ctl=document.getElementById("g-controls");
   ctl.innerHTML="";
@@ -2427,6 +2346,8 @@ function tsuroRenderPlacement(g,boardEl,cellSize){
   document.getElementById("g-hand").innerHTML="";
   document.getElementById("g-controls").innerHTML="";
   const myTurn=g.placeIdx<g.order.length&&placingSlot===mySlot&&!g.pawns[mySlot];
+  if(myTurn)setGameGuide("ð","Choisis ton dÃ©part","Tape sur un point rose libre autour du plateau.","good");
+  else setGameGuide("â³","Placement de "+pName(placingSlot),g.pawns[mySlot]?"Ton pion est placÃ©. Attends les autres.":"Tu choisiras ton point quand ton tour arrivera.","");
   if(myTurn){
     boardEl.querySelectorAll(".tsuro-spot").forEach(el=>{
       el.onclick=()=>{
@@ -2437,6 +2358,69 @@ function tsuroRenderPlacement(g,boardEl,cellSize){
   }else{
     msg("g-msg",g.pawns[mySlot]?"En attente des autres joueurs\u2026":"Tour de "+pName(placingSlot)+"\u2026","");
   }
+}
+
+
+// ================= DÃS POKER â nouveau jeu V5 =================
+function diceInit(order,seed){
+  return{order,seed:Number(seed)||1,turnIdx:0,round:1,maxRounds:3,dice:[1,1,1,1,1],held:[false,false,false,false,false],rolls:0,scores:Object.fromEntries(order.map(s=>[s,0])),roundScores:Object.fromEntries(order.map(s=>[s,[]])),lastResult:null,resolving:false,finished:false};
+}
+function diceRollValue(g,index){
+  g.rngStep=(g.rngStep||0)+1;const rnd=mulberry32((g.seed+g.rngStep*7919+index*97)|0);return 1+Math.floor(rnd()*6);
+}
+function diceEvaluate(dice){
+  const counts={};dice.forEach(v=>counts[v]=(counts[v]||0)+1);const groups=Object.values(counts).sort((a,b)=>b-a),unique=Object.keys(counts).map(Number).sort((a,b)=>a-b),sum=dice.reduce((a,b)=>a+b,0);
+  if(groups[0]===5)return{name:"YAM !",points:100};
+  if(groups[0]===4)return{name:"CarrÃ©",points:75};
+  if(groups[0]===3&&groups[1]===2)return{name:"Full",points:60};
+  if(unique.join(",")==="1,2,3,4,5"||unique.join(",")==="2,3,4,5,6")return{name:"Grande suite",points:50};
+  if(groups[0]===3)return{name:"Brelan",points:40};
+  if(groups[0]===2&&groups[1]===2)return{name:"Deux paires",points:32};
+  if(groups[0]===2)return{name:"Paire",points:22};
+  return{name:"Chance",points:sum};
+}
+function diceAction(obj){
+  const g=gHost;if(g.finished||g.resolving||g.order[g.turnIdx]!==obj.slot)return;
+  if(obj.type==="toggle"){
+    const i=Number(obj.index);if(g.rolls<1||i<0||i>=5)return;g.held[i]=!g.held[i];pushState();return;
+  }
+  if(obj.type==="roll"){
+    if(g.rolls>=3)return;for(let i=0;i<5;i++)if(!g.held[i])g.dice[i]=diceRollValue(g,i);g.rolls++;pushState();return;
+  }
+  if(obj.type==="bank"){
+    if(g.rolls<1)return;const slot=obj.slot,result=diceEvaluate(g.dice);g.scores[slot]=(g.scores[slot]||0)+result.points;g.roundScores[slot].push(result);g.lastResult={slot,...result,dice:g.dice.slice()};g.resolving=true;pushState();
+    setTimeout(()=>{if(!gHost||gHost!==g)return;diceAdvanceAfterBank(g)},1100);return;
+  }
+}
+function diceAdvanceAfterBank(g){
+  g.resolving=false;g.turnIdx++;if(g.turnIdx>=g.order.length){g.turnIdx=0;g.round++}
+  if(g.round>g.maxRounds){finishDice();return}
+  g.dice=[1,1,1,1,1];g.held=[false,false,false,false,false];g.rolls=0;pushState();
+}
+function finishDice(){
+  const g=gHost,values=g.order.map(s=>g.scores[s]||0),sorted=[...new Set(values)].sort((a,b)=>b-a),delta={};g.order.forEach(s=>{const rank=sorted.indexOf(g.scores[s]||0);delta[s]=rank===0?100:rank===1?55:20});broadcastScoreAndFinish(g,delta,{scores:g.scores});
+}
+function dieHTML(value,held,index,enabled){
+  const positions={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+  return `<button class="die${held?" held":""}" data-die="${index}" ${enabled?"":"disabled"}>${Array.from({length:9},(_,i)=>positions[value].includes(i)?'<span class="pip"></span>':'<span></span>').join("")}</button>`;
+}
+function diceRenderPlayers(g,active){
+  const list=g.order.map(slot=>{const p=roomPlayers().find(x=>x.__slot===slot)||{name:pName(slot),__slot:slot,__me:slot===mySlot};return `<div class="dice-player${slot===active?" turn":""}">${avatarHTML(p,30)}<div style="min-width:0"><div class="dpname">${esc(p.name)}${slot===mySlot?" (toi)":""}</div><div class="dpscore">${g.scores[slot]||0} points</div></div></div>`}).join("");document.getElementById("g-trick").innerHTML=`<div class="dice-playerbar">${list}</div>`;
+}
+function diceRender(){
+  const g=gView,active=g.order[g.turnIdx],isMyTurn=!g.resolving&&active===mySlot,evalNow=diceEvaluate(g.dice);
+  document.getElementById("g-eyebrow").textContent="// dÃ©s poker";document.getElementById("g-title").textContent="Garde les bons dÃ©s et construis une combinaison";document.getElementById("g-pill").textContent=`Manche ${Math.min(g.round,g.maxRounds)}/${g.maxRounds} Â· ${pName(active)}`;
+  document.getElementById("seats").innerHTML="";diceRenderPlayers(g,g.resolving?null:active);document.getElementById("g-center").textContent=g.lastResult&&g.resolving?pName(g.lastResult.slot)+" marque "+g.lastResult.points+" pts Â· "+g.lastResult.name:"";
+  document.getElementById("g-pile").innerHTML=`<div class="dice-stage">${g.dice.map((v,i)=>dieHTML(v,g.held[i],i,isMyTurn&&g.rolls>0)).join("")}</div>`;
+  document.getElementById("g-hand").innerHTML="";
+  if(g.resolving)setGameGuide("ð",g.lastResult.name+" Â· "+g.lastResult.points+" points",pName(g.lastResult.slot)+" termine son tour.","good");
+  else if(isMyTurn&&g.rolls===0)setGameGuide("ð²","Premier lancer","Lance les 5 dÃ©s, puis touche ceux que tu veux garder.","good");
+  else if(isMyTurn)setGameGuide("ð¯",evalNow.name+" Â· "+evalNow.points+" points",g.rolls<3?"Garde les bons dÃ©s, relance ou valide maintenant.":"Trois lancers utilisÃ©s : valide ta combinaison.","warn");
+  else setGameGuide("â³","Tour de "+pName(active),"Observe sa combinaison et prÃ©pare ta stratÃ©gie.","");
+  const ctl=document.getElementById("g-controls");
+  if(isMyTurn){ctl.innerHTML=`<div class="game-stats"><div class="game-stat"><b>${3-g.rolls}</b><span>RELANCES RESTANTES</span></div><div class="game-stat"><b>${g.rolls?evalNow.points:"â"}</b><span>SCORE ACTUEL</span></div></div><div class="row2"><button class="p game-action" id="dice-roll" ${g.rolls>=3?"disabled":""}>${g.rolls?"RELANCER":"LANCER"}<small>Les dÃ©s gardÃ©s ne bougent pas</small></button><button class="o game-action" id="dice-bank" ${g.rolls<1?"disabled":""}>VALIDER<small>${g.rolls?evalNow.name:"Lance d'abord"}</small></button></div>`;const rb=document.getElementById("dice-roll"),bb=document.getElementById("dice-bank");if(rb)rb.onclick=()=>sendAction({type:"roll"});if(bb)bb.onclick=()=>sendAction({type:"bank"});document.querySelectorAll("[data-die]").forEach(el=>el.onclick=()=>sendAction({type:"toggle",index:parseInt(el.dataset.die)}))}
+  else ctl.innerHTML=`<div class="game-stats"><div class="game-stat"><b>${g.scores[mySlot]||0}</b><span>TON SCORE</span></div><div class="game-stat"><b>${g.round}</b><span>MANCHE</span></div></div>`;
+  msg("g-msg",isMyTurn&&g.rolls>0?"Touche un dÃ© pour le garder ou le libÃ©rer.":"",isMyTurn?"ok":"");
 }
 
 const appliedDeltaKeys=new Set(),appliedDeltaQueue=[];
@@ -2455,7 +2439,7 @@ function broadcastScoreAndFinish(g,delta,extra){
 let confettiShownFor=null;
 function showResults(st){
   show("s-results");
-  const names={1:"Bataille",2:"Tarot all\u00E9g\u00E9",3:"Blackjack",4:"Nain Jaune",5:"Tsuro"};
+  const names={1:"Bataille",2:"Tarot all\u00E9g\u00E9",3:"Blackjack",4:"Nain Jaune",5:"Tsuro",6:"DÃ©s Poker"};
   const ready=!!(gView&&gView.finalDelta);
   const delta=ready?gView.finalDelta:{};
   const l=roomPlayers().sort((a,b)=>b.score-a.score);
@@ -2529,7 +2513,8 @@ function resumeHostStateAfterFailover(){
   if(g.gid===GID.WAR){g.resolving=false;resolveWar();return true}
   if(g.gid===GID.TAROT){g.resolving=false;resolveTarotTrick();return true}
   if(g.gid===GID.BJ){if(g.dealerDone){finishBJ();return true}if(g.dealerRevealed){bjDealerStep(g);return true}if(g.turnIdx>=g.order.length){bjDealerPlay();return true}}
-  if(g.gid===GID.YELLOW&&g.winner!==null&&g.winner!==undefined){g.resolving=false;yellowFinishRound(g.winner);return true}
+  if(g.gid===GID.YELLOW&&g.winner!==null&&g.winner!==undefined){g.finished=false;g.resolving=false;yellowFinishRound(g.winner);return true}
+  if(g.gid===GID.DICE){diceAdvanceAfterBank(g);return true}
   if(g.gid===GID.TSURO){
     const seenBySlot={};g.order.forEach(s=>{const p=g.pawns[s];seenBySlot[s]=new Set(p?[p.x+","+p.y+","+p.point]:[])});
     tsuroResolutionGuards.set(g,{steps:0,seenBySlot});tsuroAnimateStep(g,g.lastEliminated||[]);return true;
@@ -2588,7 +2573,11 @@ function handlePlayerLeftDuringGame(slot){
     if(g.hands[slot].length)g.drawPile=(g.drawPile||[]).concat(g.hands[slot]);
     const idx=g.order.indexOf(slot);delete g.hands[slot];
     if(idx>=0){g.order.splice(idx,1);if(idx<g.turnIdx)g.turnIdx--;if(g.turnIdx>=g.order.length)g.turnIdx=0}
+    g.failedInRow=Math.min(g.failedInRow||0,g.order.length);
     if(g.order.length<=1){if(g.order[0]!==undefined)yellowFinishRound(g.order[0]);return}pushState();return;
+  }
+  if(g.gid===GID.DICE&&g.order){
+    const idx=g.order.indexOf(slot);if(idx>=0){const wasCurrent=g.order[g.turnIdx]===slot;g.order.splice(idx,1);delete g.scores[slot];delete g.roundScores[slot];if(idx<g.turnIdx)g.turnIdx--;if(g.turnIdx>=g.order.length)g.turnIdx=0;if(g.order.length<=1){finishDice();return}if(wasCurrent){g.dice=[1,1,1,1,1];g.held=[false,false,false,false,false];g.rolls=0}pushState()}return;
   }
   if(g.gid===GID.BJ&&g.hands&&g.hands[slot]&&!g.done[slot]){
     const current=g.order[g.turnIdx]===slot;g.done[slot]=true;
@@ -2641,6 +2630,8 @@ function autoPlayForStuckSlot(slot){
     const legal=yellowCanPlay(hand,g.lastRank);
     if(legal.length)yellowAction({slot,type:"play",cardIdx:legal[0]});
     else yellowAction({slot,type:"draw"});
+  }else if(g.gid===GID.DICE){
+    if(g.rolls<1)diceAction({slot,type:"roll"});else diceAction({slot,type:"bank"});
   }else if(g.gid===GID.TSURO){
     if(g.phase==="placement"){
       const takenSpots=new Set(Object.values(g.pawns).map(p=>p.x+","+p.y+","+p.point));
