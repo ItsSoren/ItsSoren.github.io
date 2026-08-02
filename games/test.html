@@ -14,8 +14,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;backgrou
 button,input{font:inherit}button{appearance:none;-webkit-appearance:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #cv{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none;-webkit-user-drag:none}
 .panel{background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 30px #0007;backdrop-filter:blur(8px)}
-#lb{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#12202a,#080a0d 65%);z-index:20;padding:20px}
-#card{width:min(360px,100%);padding:28px;border-radius:18px;text-align:center}
+#lb{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#12202a,#080a0d 65%);z-index:20;padding:20px;overflow-y:auto}
+#card{width:min(360px,100%);padding:28px;border-radius:18px;text-align:center;margin:auto 0}
 #card h1{font-size:clamp(26px,8vw,42px);letter-spacing:5px;color:var(--accent);text-shadow:0 0 25px #51d7ff55}
 #card p{font-size:11px;color:var(--dim);line-height:1.6;margin:10px 0 20px}
 #ni{width:100%;border:1px solid #344352;background:#0a0e13;color:var(--text);padding:12px 14px;border-radius:10px;text-align:center;outline:none;font-size:15px}
@@ -62,6 +62,33 @@ button,input{font:inherit}button{appearance:none;-webkit-appearance:none;touch-a
 #preview-badge{font-size:10px;letter-spacing:1px;padding:5px 8px;border-radius:999px;border:1px solid #2a3947;background:#0b1219;color:#88e4ff;font-weight:800;white-space:nowrap}
 #card p{font-size:11px;color:var(--dim);line-height:1.6;margin:10px 0 16px}
 
+#goal-option{margin-top:12px}
+#goal-row{display:flex;align-items:center;border:1px solid #344352;background:#0a0e13;border-radius:10px;overflow:hidden}
+#gi{min-width:0;flex:1;border:0;background:transparent;color:var(--text);padding:11px 12px;text-align:center;outline:none;font-size:14px;-moz-appearance:textfield}
+#gi::-webkit-inner-spin-button,#gi::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#goal-unit{padding:0 12px;color:#7890a7;font-size:10px;border-left:1px solid #263544}
+#goal-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.goal-preset{height:30px;border:1px solid #2c3b49;border-radius:8px;background:#0a1016;color:#91a8bd;font-size:10px;font-weight:800;cursor:pointer}
+.goal-preset.active{border-color:var(--accent);color:var(--accent);background:#11202a;box-shadow:0 0 0 2px #51d7ff1c}
+#goal-help{font-size:9px;color:#657b90;text-align:center}
+#goalbar{position:fixed;top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));width:178px;padding:9px 10px;border-radius:11px;z-index:6;pointer-events:none;transition:opacity .2s,transform .2s}
+#goalbar.hidden{opacity:0;transform:translateY(-8px)}
+#goal-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:9px;letter-spacing:1px;color:#8da3b8}
+#goal-target{color:var(--accent);font-weight:900}
+#goal-leader{font-size:10px;color:#e8f4ff;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#goal-track{height:5px;margin-top:7px;border-radius:999px;background:#071017;border:1px solid #1d2a35;overflow:hidden}
+#goal-fill{height:100%;width:0;background:var(--accent);box-shadow:0 0 12px var(--accent);transition:width .25s ease}
+#victory{position:fixed;inset:0;background:#03070bd9;backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:24px;z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+#victory.show{opacity:1;pointer-events:auto}
+#victory-card{width:min(360px,100%);padding:28px;border-radius:20px;text-align:center;background:#0c131aeF;border:1px solid #304353;box-shadow:0 20px 80px #000b}
+#victory-kicker{font-size:10px;letter-spacing:3px;color:var(--accent)}
+#victory h2{font-size:32px;margin:10px 0 6px;color:#eef8ff;text-shadow:0 0 24px #51d7ff55}
+#victory-name{font-size:16px;font-weight:900;color:var(--accent);word-break:break-word}
+#victory-info{font-size:11px;color:#8298ac;margin:8px 0 20px}
+#victory-close{width:100%;border:0;background:var(--accent);color:#041016;padding:12px;border-radius:10px;font-weight:900;letter-spacing:1px;cursor:pointer}
+@media(max-height:760px){#card{padding:20px}#customs{gap:9px}.choices{gap:6px}.chip{height:31px;min-width:31px}#preview{margin-top:10px;padding:9px 11px}}
+@media(pointer:coarse),(max-width:700px){#goalbar{width:calc(100vw - 178px);min-width:142px;max-width:190px}}
+
 </style>
 </head>
 <body>
@@ -70,6 +97,20 @@ button,input{font:inherit}button{appearance:none;-webkit-appearance:none;touch-a
     <h1>PIXELTRAIL</h1>
     <p>Un monde miroir de -999 a 999. Traverse un bord et reapparais instantanement de l'autre cote.</p>
     <input id="ni" placeholder="Pseudo" maxlength="12" autocomplete="nickname">
+    <div class="opt" id="goal-option">
+      <label for="gi">Goal de score (facultatif)</label>
+      <div id="goal-row">
+        <input id="gi" type="number" inputmode="numeric" min="0" max="999999999" step="1" placeholder="Mode infini">
+        <span id="goal-unit">PTS</span>
+      </div>
+      <div id="goal-presets">
+        <button type="button" class="goal-preset" data-goal="0">INFINI</button>
+        <button type="button" class="goal-preset" data-goal="250">250</button>
+        <button type="button" class="goal-preset" data-goal="500">500</button>
+        <button type="button" class="goal-preset" data-goal="1000">1000</button>
+      </div>
+      <div id="goal-help">Le premier joueur qui atteint le score gagne.</div>
+    </div>
     <div id="customs">
       <div class="opt">
         <label>Couleur</label>
@@ -95,6 +136,11 @@ button,input{font:inherit}button{appearance:none;-webkit-appearance:none;touch-a
   </div>
 </div>
 <canvas id="cv"></canvas>
+<div id="goalbar" class="panel hidden">
+  <div id="goal-head"><span>GOAL</span><span id="goal-target">0 PTS</span></div>
+  <div id="goal-leader">En attente...</div>
+  <div id="goal-track"><div id="goal-fill"></div></div>
+</div>
 <div id="hud" class="panel">
   <div class="title">ETAT</div>
   <div class="hr"><span>Score</span><span class="hv" id="hs">0</span></div>
@@ -113,8 +159,17 @@ button,input{font:inherit}button{appearance:none;-webkit-appearance:none;touch-a
   <button class="pd" id="pd" data-x="0" data-y="1">v</button>
 </div>
 <div id="toast"></div>
+<div id="victory">
+  <div id="victory-card">
+    <div id="victory-kicker">GOAL ATTEINT</div>
+    <h2>VICTOIRE</h2>
+    <div id="victory-name">Player</div>
+    <div id="victory-info">Premier joueur a atteindre le goal.</div>
+    <button id="victory-close" type="button">CONTINUER EN MODE LIBRE</button>
+  </div>
+</div>
 <script>
-const CFG={PROJECT_ID:`${location.hostname||"pixeltrail.local"}${location.pathname||"/"}_mirror_v3`.replace(/[^a-zA-Z0-9._\/-]/g,"_"),CLOUD_HOST:"wss://clouddata.turbowarp.org",TILE:20,MOVE_MS:80,POS_MS:260,SNAPSHOT_MS:12000,SLOTS:29,BANKS:95,BANK_MOVES:48000,CHUNK:32,MINI_CELL:16,WORLD_LIMIT:999,WORLD_SPAN:1999,PLAYER_TTL:15000,CLAIM_WAIT:520,RECONNECT_MS:2500,DPR_MAX:2,PARTICLES:180};
+const CFG={PROJECT_ID:`${location.hostname||"pixeltrail.local"}${location.pathname||"/"}_mirror_v4_goal`.replace(/[^a-zA-Z0-9._\/-]/g,"_"),CLOUD_HOST:"wss://clouddata.turbowarp.org",TILE:20,MOVE_MS:80,POS_MS:260,SNAPSHOT_MS:12000,SLOTS:29,BANKS:95,BANK_MOVES:48000,CHUNK:32,MINI_CELL:16,WORLD_LIMIT:999,WORLD_SPAN:1999,PLAYER_TTL:15000,CLAIM_WAIT:520,RECONNECT_MS:2500,DPR_MAX:2,PARTICLES:180};
 const $=id=>document.getElementById(id);
 const PAD=(n,d)=>Math.max(0,Math.min(Number(n)||0,10**d-1)).toFixed(0).padStart(d,"0");
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -314,7 +369,16 @@ function decodePlayer(value){
   if(!token||bankId>99||tailCount>999||tailPayload.length<tailDigits)return null;
   return {token,themeId,shapeId,ts,x:wrapCoord(x),y:wrapCoord(y),score,bankId,bankSeq,snapCount,tailStartX:wrapCoord(tailStartX),tailStartY:wrapCoord(tailStartY),tailCount,tailPayload,name:nameData.text||"Player"};
 }
-let mySlot=-1,myToken=0,myName="",myThemeId=0,myShapeId=0,myColor=null,myStore=null,px=0,py=0,ux=0,uy=0,score=0,dx=0,dy=0,running=false,claiming=false,started=false;
+function encodeGoal(data){
+  return "1"+PAD(data.target,9)+PAD(data.ownerToken,9)+PAD(data.createdAt,10)+PAD(data.winnerToken||0,9)+PAD(data.finishMs||0,13)+encodeText(data.winnerName||"",36);
+}
+function decodeGoal(value){
+  if(!value||value==="0"||value.length<53||value[0]!=="1")return null;
+  const target=Number(value.slice(1,10)),ownerToken=Number(value.slice(10,19)),createdAt=Number(value.slice(19,29)),winnerToken=Number(value.slice(29,38)),finishMs=Number(value.slice(38,51)),nameData=decodeText(value,51);
+  if(!target||!ownerToken)return null;
+  return {target,ownerToken,createdAt,winnerToken,finishMs,winnerName:nameData.text||""};
+}
+let mySlot=-1,myToken=0,myName="",myThemeId=0,myShapeId=0,myColor=null,myStore=null,px=0,py=0,ux=0,uy=0,score=0,dx=0,dy=0,running=false,claiming=false,started=false,requestedGoal=0,goal=null,localFinishMs=0,shownWinnerKey="";
 let currentBankId=99,currentBankSeq=0,currentBankRevision=0,currentBankStartX=0,currentBankStartY=0,currentBankPaintStart=true,currentDirs=[],snapCount=0,tailStartX=0,tailStartY=0,tailDirs=[],ownedBanks=[];
 let camX=0,camY=0,lastMoveAt=0,lastPosAt=0,lastSnapshotAt=0,lastScoreboardAt=0,lastMiniAt=0,lastCleanupAt=0,lastFxAt=performance.now(),warpEnergy=0,shakeEnergy=0,movePulse=0;
 const particles=[];
@@ -385,10 +449,77 @@ function cloudSet(name,value){
   return true;
 }
 function onCloud(name,value){
+  if(name==="G0"){handleGoalVar(value);return}
   let m=name.match(/^P(\d{1,2})$/);
   if(m){handlePlayerVar(Number(m[1]),value);return}
   m=name.match(/^D(\d{1,2})$/);
   if(m){handleBankVar(Number(m[1]),value)}
+}
+function handleGoalVar(value){
+  goal=decodeGoal(value);
+  updateGoalUI();
+  if(!goal)return;
+  if(localFinishMs&&goal.winnerToken!==myToken&&(localFinishMs<goal.finishMs||localFinishMs===goal.finishMs&&myToken<goal.winnerToken))publishLocalWin();
+  if(goal.winnerToken)showVictory(goal);
+}
+function cloudActiveOthers(){
+  let count=0;
+  for(let i=0;i<CFG.SLOTS;i++){
+    if(i===mySlot)continue;
+    const p=decodePlayer(cvars[`P${i}`]);
+    if(p&&Date.now()/1000-p.ts<CFG.PLAYER_TTL/1000)count++;
+  }
+  return count;
+}
+async function setupGoal(){
+  let existing=decodeGoal(cvars.G0);
+  if(!existing&&requestedGoal>0){
+    const candidate={target:requestedGoal,ownerToken:myToken,createdAt:Math.floor(Date.now()/1000),winnerToken:0,finishMs:0,winnerName:""};
+    cloudSet("G0",encodeGoal(candidate));
+    await sleep(CFG.CLAIM_WAIT);
+    let check=decodeGoal(cvars.G0);
+    if(check&&check.ownerToken!==myToken&&myToken<check.ownerToken&&!check.winnerToken){cloudSet("G0",encodeGoal(candidate));await sleep(CFG.CLAIM_WAIT);check=decodeGoal(cvars.G0)}
+    goal=check||candidate;
+  }else goal=existing;
+  if(goal&&requestedGoal>0&&goal.target!==requestedGoal)toast(`Goal existant: ${goal.target} points`);
+  updateGoalUI();
+}
+function goalLeader(){
+  const list=[{name:myName||"Player",score,color:myColor?myColor.css:"#51d7ff",token:myToken}];
+  for(const p of Object.values(players))list.push({name:p.name,score:p.score||0,color:p.color.css,token:p.token});
+  list.sort((a,b)=>b.score-a.score||a.token-b.token);
+  return list[0];
+}
+function updateGoalUI(){
+  const bar=$("goalbar");
+  if(!goal){bar.classList.add("hidden");return}
+  bar.classList.remove("hidden");
+  $("goal-target").textContent=`${goal.target.toLocaleString("fr-FR")} PTS`;
+  const leader=goalLeader(),done=goal.winnerToken?goal.target:Math.min(goal.target,leader.score),pct=clamp(done/goal.target*100,0,100);
+  $("goal-leader").textContent=goal.winnerToken?`${goal.winnerName||"Player"} a gagne`:`${leader.name}  ${leader.score.toLocaleString("fr-FR")} / ${goal.target.toLocaleString("fr-FR")}`;
+  $("goal-leader").style.color=goal.winnerToken?"var(--accent)":"#e8f4ff";
+  $("goal-fill").style.width=`${pct}%`;
+}
+function publishLocalWin(){
+  if(!goal||!localFinishMs)return;
+  const candidate={...goal,winnerToken:myToken,finishMs:localFinishMs,winnerName:myName};
+  cloudSet("G0",encodeGoal(candidate));
+}
+function checkLocalGoal(){
+  if(!goal||score<goal.target)return;
+  if(!localFinishMs)localFinishMs=Date.now();
+  if(!goal.winnerToken||localFinishMs<goal.finishMs||localFinishMs===goal.finishMs&&myToken<goal.winnerToken)publishLocalWin();
+}
+function showVictory(data){
+  const key=`${data.winnerToken}:${data.finishMs}`;
+  if(!data.winnerToken||shownWinnerKey===key)return;
+  shownWinnerKey=key;dx=0;dy=0;
+  const mine=data.winnerToken===myToken;
+  $("victory-kicker").textContent=mine?"GOAL ATTEINT":"PARTIE TERMINEE";
+  $("victory-name").textContent=data.winnerName||"Player";
+  $("victory-info").textContent=`Premier a atteindre ${data.target.toLocaleString("fr-FR")} points.`;
+  $("victory").classList.add("show");
+  if(mine){warpEnergy=1;shakeEnergy=1;if(navigator.vibrate)navigator.vibrate([50,40,80,40,120])}
 }
 function makeRemote(slot,data){
   const color=getTheme(data.themeId,data.token),p={slot,token:data.token,name:data.name,color,shapeId:data.shapeId||0,store:new TrailStore(color),x:data.x,y:data.y,rx:ux+wrappedDelta(px,data.x),ry:uy+wrappedDelta(py,data.y),score:data.score,bankId:data.bankId,bankSeq:data.bankSeq,snapCount:data.snapCount,tailStartX:data.tailStartX,tailStartY:data.tailStartY,tailCount:data.tailCount,tailPayload:data.tailPayload,livePath:null,lastSeen:Date.now(),active:true};
@@ -422,7 +553,7 @@ function handlePlayerVar(slot,value){
     p=makeRemote(slot,data);
   }else{
     removeLive(p);
-    p.name=data.name;p.x=data.x;p.y=data.y;p.score=data.score;p.bankId=data.bankId;p.bankSeq=data.bankSeq;p.snapCount=data.snapCount;p.tailStartX=data.tailStartX;p.tailStartY=data.tailStartY;p.tailCount=data.tailCount;p.tailPayload=data.tailPayload;p.shapeId=data.shapeId||0;p.lastSeen=Date.now();p.active=true; const newColor=getTheme(data.themeId,data.token); if(newColor.css!==p.color.css){p.color=newColor;p.store.recolor(newColor)}
+    p.name=data.name;p.x=data.x;p.y=data.y;p.score=data.score;p.bankId=data.bankId;p.bankSeq=data.bankSeq;p.snapCount=data.snapCount;p.tailStartX=data.tailStartX;p.tailStartY=data.tailStartY;p.tailCount=data.tailCount;p.tailPayload=data.tailPayload;p.shapeId=data.shapeId||0;p.lastSeen=Date.now();p.active=true; const newColor=getTheme(data.themeId,data.token); if(newColor.css!==p.color.css){p.color=newColor;p.store.recolor(newColor)};updateGoalUI()
     refreshLive(p);
   }
   updateCounts();
@@ -630,6 +761,8 @@ async function bootstrapGame(){
     if(currentBankId<0){setStatus("Aucune banque libre");cloudSet(`P${mySlot}`,"0");$("pb").disabled=false;started=false;return}
     currentBankSeq=0;currentBankRevision=1;
    }else if(currentDirs.length>=CFG.BANK_MOVES){await allocateNextBank()}
+  setStatus("Configuration du goal...");
+  await setupGoal();
   setStatus("Pret !");
   running=true;camX=ux*CFG.TILE;camY=uy*CFG.TILE;lastMoveAt=performance.now();lastPosAt=0;lastSnapshotAt=0;
   document.body.classList.add("playing");$("lb").style.display="none";
@@ -655,6 +788,7 @@ function addMove(mx,my){
   if(warped)triggerWarp(mx,my);else emitMoveFx(mx,my,false);
   if(tailDirs.length>=900)syncCurrentBank(true);
   if(currentDirs.length>=CFG.BANK_MOVES){syncCurrentBank(true);void allocateNextBank()}
+  checkLocalGoal();
 }
 function cleanupPlayers(){
   const now=Date.now();
@@ -666,7 +800,7 @@ function cleanupPlayers(){
 }
 function updateCounts(){$("hp").textContent=countActive();$("hb").textContent=ownedBanks.length}
 function updateHud(){
-  $("hs").textContent=score.toLocaleString("fr-FR");$("ht").textContent=myStore?myStore.unique.toLocaleString("fr-FR"):"0";$("coords").textContent=`x ${px.toLocaleString("fr-FR")}  |  y ${py.toLocaleString("fr-FR")}`;
+  $("hs").textContent=score.toLocaleString("fr-FR");$("ht").textContent=myStore?myStore.unique.toLocaleString("fr-FR"):"0";$("coords").textContent=`x ${px.toLocaleString("fr-FR")}  |  y ${py.toLocaleString("fr-FR")}`;updateGoalUI();
 }
 function updateScoreboard(){
   const list=[{name:myName,score,color:myColor.css}];
@@ -771,7 +905,7 @@ function loop(now){
 }
 
 for(const type of ["contextmenu","selectstart","dragstart"]){
-  document.addEventListener(type,e=>{if(running||e.target!==$("ni"))e.preventDefault()},{capture:true,passive:false});
+  document.addEventListener(type,e=>{if(running||e.target.tagName!=="INPUT")e.preventDefault()},{capture:true,passive:false});
 }
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
 document.addEventListener("gesturechange",e=>e.preventDefault(),{passive:false});
@@ -830,10 +964,25 @@ function renderPickerOptions(){
 }
 renderPickerOptions();
 updatePreview();
+function readGoalInput(){
+  const raw=String($("gi").value||"").replace(/\D/g,"");
+  return raw?clamp(Number(raw)||0,0,999999999):0;
+}
+function updateGoalPresets(){
+  const value=readGoalInput();
+  for(const b of document.querySelectorAll(".goal-preset"))b.classList.toggle("active",Number(b.dataset.goal)===value);
+}
+$("gi").value=localStorage.getItem("pixeltrail_goal")||"";
+$("gi").addEventListener("input",()=>{const value=readGoalInput();$("gi").value=value||"";localStorage.setItem("pixeltrail_goal",value?String(value):"");updateGoalPresets()});
+$("gi").addEventListener("keydown",e=>{if(e.key==="Enter")$("pb").click()});
+for(const b of document.querySelectorAll(".goal-preset"))b.addEventListener("click",()=>{const value=Number(b.dataset.goal)||0;$("gi").value=value||"";localStorage.setItem("pixeltrail_goal",value?String(value):"");updateGoalPresets()});
+updateGoalPresets();
+$("victory-close").addEventListener("click",()=>$("victory").classList.remove("show"));
 $("pb").addEventListener("click",()=>{
   const raw=normalizeName($("ni").value);
   myThemeId=Number(localStorage.getItem("pixeltrail_theme")||0)||0;
   myShapeId=Number(localStorage.getItem("pixeltrail_shape")||0)||0;
+  requestedGoal=readGoalInput();localStorage.setItem("pixeltrail_goal",requestedGoal?String(requestedGoal):"");
   myToken=sessionNumber("pixeltrail_token",9);myName=`${raw}#${String(myToken).slice(-3)}`;myColor=getTheme(myThemeId,myToken);cloudUser=`player${sessionNumber("pixeltrail_cloud_user",7)}`;localStorage.setItem("pixeltrail_name",raw);$("ni").value=raw;$("pb").disabled=true;setStatus("Connexion...");cloudConnect();
 });
 $("ni").value=localStorage.getItem("pixeltrail_name")||"";
