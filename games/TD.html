@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — V15 Resonance Protocol</title>
+<title>Dark Rift TD — V16 Adaptive Breach</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#aa76ff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ffb3;--red:#ff5c74;
@@ -1287,5 +1287,435 @@ game.updateProfileUI();
 game.renderTowerList();
 
 </script>
+
+<style id="v16-style">
+#firstWaveCountdown{
+  top:calc(76px + var(--safe-top))!important;
+  min-width:min(620px,calc(100vw - 24px))!important;
+  padding:8px 12px!important;
+  border-radius:14px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  text-align:left!important;
+  background:linear-gradient(145deg,rgba(9,16,34,.96),rgba(4,7,18,.93))!important;
+  border:1px solid rgba(102,244,255,.24)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.34),0 0 22px rgba(102,244,255,.08)!important;
+  pointer-events:auto!important;
+}
+#firstWaveCountdown .prep-copy{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+#firstWaveCountdown .prep-kicker{display:block;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:900}
+#firstWaveCountdown .prep-main{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+#firstWaveCountdown b{font-size:20px!important;line-height:1!important;color:var(--cyan)!important;white-space:nowrap}
+#firstWaveCountdown span{margin:0!important;font-size:10px!important;letter-spacing:.08em!important;text-transform:none!important;color:#effbff!important;font-weight:850}
+#firstWaveCountdown small{margin:0!important;font-size:8px!important;color:var(--muted)!important;display:block}
+#firstWaveCountdownHint{white-space:nowrap}
+#firstWaveSkip{padding:8px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));color:#fff;font-size:9px;font-weight:950;letter-spacing:.08em;cursor:pointer;flex:0 0 auto}
+#firstWaveSkip:disabled{opacity:.32;cursor:not-allowed}
+#inspector .statbox.v16-focus b{color:var(--gold)}
+#inspector .platform-box .platform-roll{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:8px;font-weight:950;color:#effbff}
+#inspector .platform-box .platform-lines{display:grid;gap:4px;margin-top:7px}
+#inspector .platform-box .platform-line{font-size:8.5px;color:#dff9ff;line-height:1.38}
+#inspector .platform-box .platform-line b{font-size:8.5px}
+#inspector .platform-box .platform-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+@media(max-width:760px){
+  #firstWaveCountdown{top:calc(108px + var(--safe-top))!important;min-width:calc(100vw - 18px)!important;padding:7px 10px!important;gap:8px!important}
+  #firstWaveCountdown .prep-copy{gap:8px}
+  #firstWaveCountdown .prep-main{gap:7px}
+  #firstWaveCountdown b{font-size:18px!important}
+  #firstWaveCountdown span{font-size:9px!important}
+  #firstWaveSkip{padding:7px 9px;font-size:8px}
+  #statusRibbon{top:calc(144px + var(--safe-top))!important}
+}
+</style>
+<script id="v16-script">
+(function(){
+  const prepBanner = document.getElementById('firstWaveCountdown');
+  if (prepBanner) {
+    prepBanner.innerHTML = `
+      <div class="prep-copy">
+        <div>
+          <small class="prep-kicker">Préparation initiale</small>
+          <div class="prep-main">
+            <b id="firstWaveCountdownValue">02:00</b>
+            <span id="firstWaveCountdownLabel">Deux minutes pour placer tes premières tourelles.</span>
+          </div>
+          <small id="firstWaveCountdownHint">La première vague démarre automatiquement si tu ne passes pas.</small>
+        </div>
+      </div>
+      <button id="firstWaveSkip" class="action">SKIP</button>
+    `;
+  }
+
+  function v16PlatformScale(level=1){ return [0,1,1.45,1.9][level] || 1; }
+  function v16PlatformPower(platform){ return ((platform?.surge ?? 18) / 100) * v16PlatformScale(platform?.level || 1); }
+  function v16RecoveryMultiplier(tower){
+    if(tower?.tile?.type!=='recovery') return 1;
+    const bonus = v16PlatformPower(tower.tile);
+    return Math.max(.68, 1 - bonus * .38);
+  }
+  function v16ZoneDelta(mult){ return Math.round(((mult ?? 1) - 1) * 100); }
+  function v16PlatformSummary(platform){
+    if(!platform) return {title:'Aucune résonance', lines:['Cette tourelle ne bénéficie d’aucune plateforme.'], pct:0};
+    const pct = Math.round(v16PlatformPower(platform) * 100);
+    if(platform.type==='power') return {title:`+${pct}% puissance`, lines:[`<b>Dégâts :</b> +${pct}%`, `<b>Critique :</b> +${Math.max(2, Math.round(pct * .16))}%`], pct};
+    if(platform.type==='range') return {title:`+${pct}% portée`, lines:[`<b>Portée :</b> +${pct}%`, `<b>Projectiles :</b> +${Math.round(pct * .85)}% vitesse`], pct};
+    if(platform.type==='rate') return {title:`+${Math.round(pct * .58)}% cadence`, lines:[`<b>Cadence :</b> +${Math.round(pct * .58)}%`, `<b>Contrepartie :</b> -${Math.round(Math.min(16, pct * .16))}% dégâts directs`], pct};
+    if(platform.type==='relay') return {title:`+${(0.06 + v16PlatformPower(platform) * .38).toFixed(2)}ϟ/s`, lines:[`<b>Recharge liée :</b> +${(0.06 + v16PlatformPower(platform) * .38).toFixed(2)} énergie/s`, `<b>Éliminations :</b> récupère davantage d’énergie`], pct};
+    if(platform.type==='recovery') return {title:`-${Math.round((1 - v16RecoveryMultiplier({tile:platform})) * 100)}% coûts`, lines:[`<b>Améliorations :</b> -${Math.round((1 - v16RecoveryMultiplier({tile:platform})) * 100)}%`, `<b>Revente :</b> +${Math.round(Math.min(18, 3 + v16PlatformPower(platform) * 16))}%`], pct};
+    return {title:`+${pct}%`, lines:[`<b>Résonance :</b> +${pct}%`], pct};
+  }
+  function v16FormatTime(seconds){
+    const total = Math.max(0, Math.ceil(seconds));
+    const m = String(Math.floor(total / 60)).padStart(2,'0');
+    const s = String(total % 60).padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  const v15MakeTilesV16 = Game.prototype.makeTiles;
+  Game.prototype.makeTiles = function(){
+    const tiles = v15MakeTilesV16.call(this);
+    for(const platform of tiles){
+      if(platform.surge == null) platform.surge = Math.round(rand(10, 60));
+    }
+    return tiles;
+  };
+
+  const v15ResetV16 = Game.prototype.reset;
+  Game.prototype.reset = function(){
+    v15ResetV16.call(this);
+    this.waveCountdown = 120;
+    this.prepDuration = 120;
+    this.prepSkipped = false;
+  };
+
+  const v15StartGameV16 = Game.prototype.startGame;
+  Game.prototype.startGame = function(){
+    v15StartGameV16.call(this);
+    this.waveCountdown = 120;
+    this.prepDuration = 120;
+    this.prepSkipped = false;
+    this.updateUI(true);
+    this.toast('Phase de préparation • 2 min disponibles');
+  };
+
+  Game.prototype.skipPreparation = function(){
+    if(!this.started || this.paused || this.wave !== 0) return;
+    this.waveCountdown = 0;
+    this.prepSkipped = true;
+    this.updateUI(true);
+    this.toast('Préparation écourtée • la vague 1 démarre');
+  };
+
+  if(document.getElementById('firstWaveSkip')) {
+    document.getElementById('firstWaveSkip').onclick = () => game.skipPreparation();
+  }
+
+  Tower.prototype.recalc = function recalcV16(){
+    v14TowerRecalc.call(this);
+    const platform = this.tile;
+    if(!platform) return;
+    const power = v16PlatformPower(platform);
+    if(platform.type === 'power'){
+      this.stats.dmg *= 1 + power;
+      this.stats.crit += .01 + power * .08;
+    }
+    if(platform.type === 'range'){
+      this.stats.range *= 1 + power;
+      this.stats.proj *= 1 + power * .85;
+    }
+    if(platform.type === 'rate'){
+      this.stats.rate *= Math.max(.42, 1 - power * .58);
+      this.stats.dmg *= 1 - Math.min(.16, power * .16);
+    }
+  };
+
+  Tower.prototype.upgradeCost = function upgradeCostV16(branch){
+    const lv = this.up[branch];
+    const raw = this.mk===1
+      ? {money:Math.ceil(this.def.cost*(.62+lv*.5)*this.game.mods.cost),energy:6+lv*4}
+      : {money:Math.ceil(this.def.cost*(3.25+lv*.48)*this.game.mods.cost),energy:24+lv*5};
+    raw.money = Math.ceil(raw.money * v16RecoveryMultiplier(this));
+    return raw;
+  };
+  Tower.prototype.mk2Cost = function mk2CostV16(){
+    return {money:Math.ceil(Math.ceil(this.def.cost*6.1*this.game.mods.cost) * v16RecoveryMultiplier(this)), energy:60};
+  };
+  Tower.prototype.evolutionCost = function evolutionCostV16(){
+    return {money:Math.ceil(Math.ceil(this.def.cost*7.4*this.game.mods.cost) * v16RecoveryMultiplier(this)), energy:80};
+  };
+
+  Game.prototype.placeTower = function placeTowerV16(x, y) {
+    const definition = this.placing;
+    if (!definition) return;
+
+    const platform = this.nearestPlatform(x, y);
+    if (platform) {
+      if (this.platformTower(platform)) {
+        this.toast('Cette plateforme est déjà occupée');
+        return;
+      }
+      x = platform.x;
+      y = platform.y;
+    }
+
+    const cost = Math.ceil(definition.cost * this.mods.cost);
+    if (this.money < cost || !this.canPlace(x, y)) return;
+
+    this.money -= cost;
+    if (platform?.type === 'recovery') {
+      const refund = Math.round(8 + 38 * v16PlatformPower(platform));
+      this.money += refund;
+      this.texts.push(new FloatText(x, y - 30, `+${refund}¤`, '#ffd166', 10));
+    }
+
+    const tower = new Tower(this, x, y, definition, platform || null);
+    this.towers.push(tower);
+    this.categoryCounts[definition.category]++;
+    this.recalcAll();
+    this.selected = tower;
+    this.cancelPlacement();
+    this.renderInspector();
+    this.burst(x, y, definition.color, 22, 145, 'spark');
+
+    if (platform) {
+      const platformDefinition = RESONANCE_TYPES[platform.type];
+      this.toast(`${definition.name} synchronisée • ${platformDefinition.name} +${platform.surge}%`);
+    }
+
+    haptic([12, 20, 12]);
+    this.updateUI(true);
+  };
+
+  Game.prototype.towerSellRatio = function towerSellRatioV16(tower) {
+    let ratio = this.mods.sell;
+    if (tower.tile?.type === 'recovery') {
+      ratio += Math.min(.18, .03 + v16PlatformPower(tower.tile) * .16);
+    }
+    return Math.min(.92, ratio);
+  };
+
+  Game.prototype.resonanceEnergyRate = function resonanceEnergyRateV16() {
+    let rate = 0;
+    for (const tower of this.towers) {
+      if (tower.tile?.type !== 'relay') continue;
+      rate += .06 + v16PlatformPower(tower.tile) * .38;
+    }
+    return rate;
+  };
+
+  Game.prototype.gainEnergyFromKill = function gainEnergyFromKillV16(enemy) {
+    v14GainEnergyFromKill.call(this, enemy);
+    const relays = this.towers.filter(tower => tower.tile?.type === 'relay');
+    if (!relays.length) return;
+
+    const relayBoost = relays.reduce((sum, tower) => sum + (.4 + v16PlatformPower(tower.tile)), 0);
+    const gain = (enemy.boss ? .18 : enemy.elite ? .06 : .008) * relayBoost;
+    const before = this.energy;
+    this.energy = Math.min(this.maxEnergy, this.energy + gain);
+    const actual = this.energy - before;
+
+    if ((enemy.boss || enemy.elite) && actual > 0) {
+      this.texts.push(new FloatText(enemy.x, enemy.y - 42, `+${actual.toFixed(1)}ϟ`, '#b77cff', 9));
+    }
+  };
+
+  const v15DrawTowerV16 = Tower.prototype.draw;
+  Tower.prototype.draw = function drawV16(){
+    v15DrawTowerV16.call(this);
+    const g = this.game;
+    const pulse = .58 + .42 * Math.sin(g.time * 4 + this.x * .01 + this.y * .015);
+    const branchArcs = [
+      {value:this.up.power, color:'#ff4e9b', start:-2.55, span:1.55},
+      {value:this.up.range, color:'#66f4ff', start:-.45, span:1.55},
+      {value:this.up.rate, color:'#aa76ff', start:1.65, span:1.55}
+    ];
+
+    ctx.save();
+    ctx.translate(this.x, this.y);
+
+    ctx.globalAlpha = .12 + pulse * .08;
+    ctx.fillStyle = this.def.color;
+    ctx.beginPath();
+    ctx.arc(0, 0, 30 + pulse * 2, 0, TAU);
+    ctx.fill();
+
+    ctx.globalAlpha = .35;
+    ctx.strokeStyle = this.def.category === 'artillery' ? '#ffd166' : this.def.color;
+    ctx.lineWidth = this.def.category === 'artillery' ? 1.8 : 1.2;
+    if(this.def.category === 'artillery'){
+      ctx.strokeRect(-25, -25, 50, 50);
+      ctx.beginPath();
+      ctx.moveTo(0, -33); ctx.lineTo(0, -25);
+      ctx.moveTo(33, 0); ctx.lineTo(25, 0);
+      ctx.moveTo(0, 33); ctx.lineTo(0, 25);
+      ctx.moveTo(-33, 0); ctx.lineTo(-25, 0);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, 26, 0, TAU);
+      ctx.stroke();
+    }
+
+    branchArcs.forEach(arc => {
+      if(!arc.value) return;
+      ctx.globalAlpha = .95;
+      ctx.strokeStyle = arc.color;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = arc.color;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.arc(0, 0, 31, arc.start, arc.start + arc.span * (arc.value / 5));
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    });
+
+    if(this.mk === 2){
+      ctx.globalAlpha = .88;
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 2.1;
+      ctx.setLineDash([4,5]);
+      ctx.beginPath();
+      ctx.arc(0, 0, 35, -g.time * 1.5, TAU - g.time * 1.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    if(this.evolution){
+      ctx.globalAlpha = .78;
+      ctx.fillStyle = this.evolution === 'alpha' ? '#ffd166' : '#ff68e7';
+      ctx.beginPath();
+      ctx.arc(0, -34, 4.5, 0, TAU);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = .9;
+    ctx.fillStyle = 'rgba(5,9,22,.92)';
+    ctx.strokeStyle = this.def.category === 'artillery' ? '#ffd166' : 'rgba(255,255,255,.18)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.roundRect(-16, 28, 32, 10, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = this.def.category === 'artillery' ? '#ffd166' : '#effbff';
+    ctx.font = '900 8px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.def.icon, 0, 33);
+    ctx.restore();
+  };
+
+  const v15UpdateUIV16 = Game.prototype.updateUI;
+  Game.prototype.updateUI = function updateUIV16(force = false){
+    v15UpdateUIV16.call(this, force);
+    const banner = document.getElementById('firstWaveCountdown');
+    const value = document.getElementById('firstWaveCountdownValue');
+    const label = document.getElementById('firstWaveCountdownLabel');
+    const hint = document.getElementById('firstWaveCountdownHint');
+    const skip = document.getElementById('firstWaveSkip');
+    if(!banner || !value) return;
+
+    const show = this.started && this.wave === 0 && this.waveCountdown > 0;
+    banner.classList.toggle('show', show);
+    if(show){
+      value.textContent = v16FormatTime(this.waveCountdown);
+      label.textContent = this.towers.length
+        ? `${this.towers.length} tourelle${this.towers.length>1?'s':''} placée${this.towers.length>1?'s':''} • prépare ou passe à la vague 1.`
+        : 'Place tes premières tourelles puis lance la défense quand tu veux.';
+      hint.textContent = 'La première vague démarre automatiquement à la fin du compte à rebours.';
+      if(skip){
+        skip.disabled = false;
+        skip.style.display = '';
+      }
+    } else if(skip) {
+      skip.disabled = true;
+      skip.style.display = 'none';
+    }
+  };
+
+  const v15RenderInspectorV16 = Game.prototype.renderInspector;
+  Game.prototype.renderInspector = function renderInspectorV16(){
+    v15RenderInspectorV16.call(this);
+    const tower = this.selected;
+    const panel = document.getElementById('inspector');
+    if(!tower || !panel || !panel.classList.contains('open')) return;
+
+    const platform = tower.tile;
+    const platformBox = panel.querySelector('.platform-box');
+    const platformCost = platform ? this.platformUpgradeCost(platform) : null;
+    const zoneMult = (MAP_COMBAT[this.mapId]?.mult || {})[tower.def.damageType] ?? 1;
+    const zoneDelta = v16ZoneDelta(zoneMult);
+    const summary = v16PlatformSummary(platform);
+
+    if(platformBox){
+      if(platform){
+        const def = RESONANCE_TYPES[platform.type];
+        const affordable = platformCost && this.money >= platformCost.money && this.energy >= platformCost.energy;
+        platformBox.style.setProperty('--platform-color', def.color);
+        platformBox.innerHTML = `
+          <div class="platform-box-head">
+            <b>${def.icon} ${def.name}</b>
+            <span>NIVEAU ${platform.level}/3</span>
+          </div>
+          <div class="platform-meta">
+            <span class="platform-roll">⚡ Résonance ${platform.surge}%</span>
+            <span class="platform-roll">🗺 Carte ${zoneDelta >= 0 ? '+' : ''}${zoneDelta}%</span>
+          </div>
+          <div class="platform-lines">
+            ${summary.lines.map(line => `<div class="platform-line">${line}</div>`).join('')}
+          </div>
+          ${platformCost ? `
+            <button id="upgradeResonance" class="upgrade-btn" ${affordable ? '' : 'disabled'}>
+              <span>
+                <b>Renforcer la plateforme</b>
+                <small>La résonance aléatoire reste conservée, seul le niveau augmente.</small>
+              </span>
+              <strong>${platformCost.money} ¤ + ${platformCost.energy} ϟ</strong>
+            </button>
+          ` : '<p><b>Synchronisation maximale atteinte.</b></p>'}
+        `;
+      } else {
+        platformBox.innerHTML = `
+          <div class="platform-box-head">
+            <b>○ Terrain neutre</b>
+            <span>CARTE ${zoneDelta >= 0 ? '+' : ''}${zoneDelta}%</span>
+          </div>
+          <p>Cette tourelle n’est reliée à aucune plateforme de résonance.</p>
+        `;
+      }
+      const upgradeButton = document.getElementById('upgradeResonance');
+      if(upgradeButton && platform) upgradeButton.onclick = () => this.upgradePlatform(platform);
+    }
+
+    const grid = panel.querySelector('.stat-grid');
+    if(grid){
+      const platformText = platform ? `${summary.title}` : '0%';
+      const zoneText = `${zoneDelta >= 0 ? '+' : ''}${zoneDelta}%`;
+      let reso = grid.querySelector('[data-v16-resonance]');
+      let zone = grid.querySelector('[data-v16-zone]');
+      if(!reso){
+        grid.insertAdjacentHTML('beforeend', `<div class="statbox v16-focus" data-v16-resonance><label>Résonance</label><b>${platformText}</b></div>`);
+        reso = grid.querySelector('[data-v16-resonance]');
+      } else {
+        reso.querySelector('b').textContent = platformText;
+      }
+      if(!zone){
+        grid.insertAdjacentHTML('beforeend', `<div class="statbox v16-focus" data-v16-zone><label>Bonus carte</label><b>${zoneText}</b></div>`);
+        zone = grid.querySelector('[data-v16-zone]');
+      } else {
+        zone.querySelector('b').textContent = zoneText;
+      }
+    }
+  };
+
+  // Applique immédiatement la v16 au runtime courant.
+  game.reset();
+  game.buildStartChoices();
+  game.updateProfileUI();
+  game.renderTowerList();
+})();
+</script>
+
 </body>
 </html>
