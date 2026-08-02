@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — V14 Reactor Ascension</title>
+<title>Dark Rift TD — V15 Resonance Protocol</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#aa76ff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ffb3;--red:#ff5c74;
@@ -93,6 +93,150 @@ button:disabled{opacity:.34;cursor:not-allowed;transform:none!important;box-shad
 #rankMini{margin:0 0 10px;padding:9px 10px;border-radius:14px;background:linear-gradient(135deg,rgba(102,244,255,.08),rgba(170,118,255,.08));border:1px solid rgba(102,244,255,.16);cursor:pointer}.rank-mini-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;font-weight:950}.rank-mini-top span:last-child{color:var(--gold)}.xp-track{height:7px;margin-top:7px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}.xp-track i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));box-shadow:0 0 14px rgba(102,244,255,.45);transition:width .35s ease}
 #profileCard{width:min(840px,100%);margin:0 auto 16px;padding:13px;border-radius:18px;background:linear-gradient(145deg,rgba(102,244,255,.075),rgba(170,118,255,.07));border:1px solid rgba(102,244,255,.18)}.profile-line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.profile-line strong{font-size:14px;color:var(--cyan)}.profile-line span{color:var(--muted);font-size:10px;text-align:right}.roadmap-list{display:grid;gap:10px;margin-top:14px}.roadmap-tier{position:relative;padding:13px;border-radius:17px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);overflow:hidden}.roadmap-tier.current{border-color:rgba(102,244,255,.55);box-shadow:0 0 26px rgba(102,244,255,.1)}.roadmap-tier.done{border-color:rgba(85,255,179,.28)}.roadmap-tier.locked{opacity:.58}.roadmap-tier h3{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}.roadmap-tier h3 em{font-style:normal;color:var(--gold);font-size:10px}.roadmap-tier p{margin:5px 0 9px;color:var(--muted);font-size:10px;line-height:1.45}.unlock-icons{display:flex;flex-wrap:wrap;gap:6px}.unlock-chip{padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:9px;font-weight:850}.unlock-chip.new{color:var(--gold);border-color:rgba(255,209,102,.4);box-shadow:0 0 16px rgba(255,209,102,.1)}#unlockOverlay .modal{text-align:center}.unlock-burst{font-size:58px;filter:drop-shadow(0 0 22px rgba(255,209,102,.58));animation:unlockPulse 1.25s ease-in-out infinite}@keyframes unlockPulse{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.1) rotate(3deg)}}.mode-lock,.map-lock{display:block;margin-top:5px;color:var(--gold);font-size:8px;font-weight:950}.choice-card:disabled{filter:saturate(.15);opacity:.52}#researchGain{color:var(--violet)}
 @media(max-width:760px){#profileCard{margin-bottom:10px;padding:10px}.profile-line{align-items:flex-start}.profile-line strong{font-size:12px}.roadmap-tier{padding:11px}}
+
+
+/* ===== V15 : RESONANCE PROTOCOL ===== */
+.account-actions{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0 2px;
+}
+.danger-action{
+  background:linear-gradient(135deg,rgba(255,92,116,.25),rgba(100,15,38,.18));
+  border-color:rgba(255,92,116,.48);
+}
+#quitLevelBtn{
+  width:100%;
+  margin-top:8px;
+}
+.settings-danger{
+  grid-column:1/-1;
+  padding:13px;
+  border-radius:15px;
+  background:rgba(255,92,116,.045);
+  border:1px solid rgba(255,92,116,.2);
+}
+.settings-danger h3{
+  font-size:11px;
+  color:var(--red);
+  margin-bottom:5px;
+}
+.settings-danger p{
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.45;
+}
+.rank-grid{
+  display:grid;
+  grid-template-columns:repeat(9,minmax(0,1fr));
+  gap:6px;
+  margin-top:14px;
+}
+.rank-cell{
+  min-height:72px;
+  padding:8px 5px;
+  border-radius:12px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  text-align:center;
+  position:relative;
+}
+.rank-cell.done{
+  border-color:rgba(85,255,179,.22);
+  background:rgba(85,255,179,.035);
+}
+.rank-cell.current{
+  border-color:rgba(102,244,255,.72);
+  background:rgba(102,244,255,.09);
+  box-shadow:0 0 18px rgba(102,244,255,.12);
+}
+.rank-cell.locked{
+  opacity:.5;
+}
+.rank-cell strong{
+  display:block;
+  color:var(--cyan);
+  font-size:11px;
+}
+.rank-cell span{
+  display:block;
+  margin-top:3px;
+  font-size:7.5px;
+  line-height:1.25;
+  color:var(--muted);
+}
+.rank-cell em{
+  display:block;
+  margin-top:4px;
+  font-size:7px;
+  font-style:normal;
+  color:var(--gold);
+}
+.rank-summary{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  margin-top:10px;
+}
+.rank-summary .statbox b{
+  color:var(--gold);
+}
+.platform-box{
+  margin-top:10px;
+  padding:10px;
+  border-radius:13px;
+  background:color-mix(in srgb,var(--platform-color,#66f4ff) 8%,rgba(255,255,255,.025));
+  border:1px solid color-mix(in srgb,var(--platform-color,#66f4ff) 30%,transparent);
+}
+.platform-box-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.platform-box-head b{
+  color:var(--platform-color,#66f4ff);
+  font-size:10px;
+}
+.platform-box-head span{
+  color:var(--gold);
+  font-size:9px;
+  font-weight:900;
+}
+.platform-box p{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:8.5px;
+  line-height:1.4;
+}
+#v15ConfirmOverlay .modal{
+  width:min(560px,94vw);
+}
+.confirm-lock{
+  min-height:18px;
+  margin:8px 0;
+  color:var(--gold);
+  font-size:10px;
+  font-weight:900;
+}
+.confirm-actions{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+@media(max-width:900px){
+  .rank-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .rank-summary{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:590px){
+  .rank-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .rank-cell{min-height:66px;padding:7px 4px}
+}
+
 </style>
 </head>
 <body>
@@ -129,12 +273,33 @@ button:disabled{opacity:.34;cursor:not-allowed;transform:none!important;box-shad
 <div id="placementHint" class="glass">Clique pour construire • clic droit ou Échap pour annuler</div>
 <div class="mobile-tools"><button id="touchZoomIn" class="touch-tool">＋</button><button id="touchCenter" class="touch-tool">⌾</button><button id="touchZoomOut" class="touch-tool">−</button></div>
 <div id="mobilePlacement" class="glass"><button id="mobilePlaceCancel" class="placement-action">✕</button><div id="placementStatus"><b>Choisis une zone libre</b><span>Touche la carte puis confirme.</span></div><button id="mobilePlaceConfirm" class="placement-action confirm" disabled>✓ POSER</button></div>
-<div id="startOverlay" class="overlay"><div class="modal glass"><div class="logo">DARK RIFT TD</div><p class="subtitle">V14 Reactor Ascension — les vagues arrivent seules, les crédits sont rares, l’énergie alimente désormais les améliorations et chaque tour peut franchir le palier MK2.</p><div id="profileCard"><div class="profile-line"><strong id="profileRank">RANG 1 • ÉCLAIREUR</strong><span id="profileNext">Prochaine technologie : 0 XP</span></div><div class="xp-track"><i id="profileXpFill"></i></div><div class="profile-line" style="margin:8px 0 0"><span id="profileStats">0 vague • 0 victoire</span><button id="startRoadmapBtn" class="action" style="padding:7px 10px">FEUILLE DE ROUTE</button></div></div><div class="start-grid"><div class="start-panel"><div class="panel-title">Type de partie</div><div id="modeChoices" class="choice-grid"></div></div><div class="start-panel"><div class="panel-title">Zone de combat</div><div id="mapChoices" class="choice-grid"></div></div></div><button id="startBtn" class="action primary" style="font-size:16px;padding:14px 26px">OUVRIR LA FAILLE</button><button id="startWikiBtn" class="action" style="margin-left:7px">CONSULTER LE WIKI</button></div></div>
+<div id="startOverlay" class="overlay"><div class="modal glass"><div class="logo">DARK RIFT TD</div><p class="subtitle">V14 Reactor Ascension — les vagues arrivent seules, les crédits sont rares, l’énergie alimente désormais les améliorations et chaque tour peut franchir le palier MK2.</p><div id="profileCard"><div class="profile-line"><strong id="profileRank">RANG 1 • ÉCLAIREUR</strong><span id="profileNext">Prochaine technologie : 0 XP</span></div><div class="xp-track"><i id="profileXpFill"></i></div><div class="profile-line" style="margin:8px 0 0"><span id="profileStats">0 vague • 0 victoire</span><button id="startRoadmapBtn" class="action" style="padding:7px 10px">FEUILLE DE ROUTE</button></div></div><div class="account-actions">
+  <button id="resetProfileBtn" class="action danger-action">RÉINITIALISER LE COMPTE</button>
+</div>
+<div class="start-grid"><div class="start-panel"><div class="panel-title">Type de partie</div><div id="modeChoices" class="choice-grid"></div></div><div class="start-panel"><div class="panel-title">Zone de combat</div><div id="mapChoices" class="choice-grid"></div></div></div><button id="startBtn" class="action primary" style="font-size:16px;padding:14px 26px">OUVRIR LA FAILLE</button><button id="startWikiBtn" class="action" style="margin-left:7px">CONSULTER LE WIKI</button></div></div>
 <div id="roadmapOverlay" class="overlay hidden"><div class="modal glass" style="width:min(880px,96vw)"><div class="modal-head"><div><div class="panel-title">Progression permanente</div><h2>Feuille de route technologique</h2></div><button class="icon-btn" data-close="roadmapOverlay">✕</button></div><p class="subtitle" style="text-align:left;margin:0">Chaque vague terminée rapporte de la recherche. Les boss et les modes difficiles en donnent davantage. Les déblocages restent disponibles lors des prochaines parties.</p><div id="roadmapProgress" style="margin-top:12px"></div><div id="roadmapList" class="roadmap-list"></div></div></div>
 <div id="unlockOverlay" class="overlay hidden"><div class="modal glass" style="width:min(620px,94vw)"><div class="unlock-burst">✦</div><div class="panel-title">Nouveau palier de recherche</div><h2 id="unlockTitle">RANG SUPÉRIEUR</h2><p id="unlockText" class="subtitle"></p><div id="unlockItems" class="unlock-icons" style="justify-content:center;margin:14px 0"></div><button id="unlockContinue" class="action primary">CONTINUER</button></div></div>
 <div id="relicOverlay" class="overlay hidden"><div class="modal glass"><div class="panel-title">Anomalie stabilisée</div><h2>Choisis une relique permanente</h2><div id="relicGate"><div class="relic-gate-line"><span id="relicGateText">Cristallisation des choix…</span><span id="relicGateTime">3,2 s</span></div><div class="relic-gate-track"><i></i></div></div><div id="relicChoices"></div></div></div>
 <div id="wikiOverlay" class="overlay hidden"><div class="modal glass"><div class="modal-head"><div><div class="panel-title">Base de données tactique</div><h2>Wiki de la faille</h2></div><button class="icon-btn" data-close="wikiOverlay">✕</button></div><div id="wikiTabs" class="wiki-tabs"></div><input id="wikiSearch" type="search" placeholder="Rechercher une tour, un boss, un effet…"><div id="wikiContent" class="wiki-content"></div></div></div>
-<div id="settingsOverlay" class="overlay hidden"><div class="modal glass" style="width:min(760px,96vw)"><div class="modal-head"><div><div class="panel-title">Rendu et accessibilité</div><h2>Personnalisation</h2></div><button class="icon-btn" data-close="settingsOverlay">✕</button></div><div class="settings-grid"><div class="setting-row"><label for="themeSelect">Thème visuel</label><select id="themeSelect"></select><small>Auto suit la carte et change subtilement pendant les boss.</small></div><div class="setting-row"><label for="qualitySelect">Quantité d’effets</label><select id="qualitySelect"><option value="low">Légère</option><option value="medium">Équilibrée</option><option value="high">Spectaculaire</option></select><small>Réduis-la sur un ancien téléphone pour gagner en fluidité.</small></div><div class="setting-row" style="display:none"><label for="soundStyleSelect">Style sonore</label><select id="soundStyleSelect"><option value="soft">Doux</option><option value="arcade">Arcade</option><option value="cinematic">Cinématique</option></select></div><div class="setting-row"><div class="toggle-line"><div><label>Secousses d’écran</label><small>Explosions, boss et pouvoirs.</small></div><button id="shakeSwitch" class="switch"><i></i></button></div></div><div class="setting-row"><div class="toggle-line"><div><label>Nombres de dégâts</label><small>Affiche les critiques, faiblesses et résistances.</small></div><button id="numbersSwitch" class="switch"><i></i></button></div></div><div class="setting-row"><div class="toggle-line"><div><label>Vibration tactile</label><small>Petits retours haptiques compatibles mobile.</small></div><button id="hapticSwitch" class="switch"><i></i></button></div></div></div><button id="resetSettings" class="action" style="margin-top:14px">Réinitialiser les préférences</button></div></div>
+<div id="settingsOverlay" class="overlay hidden"><div class="modal glass" style="width:min(760px,96vw)"><div class="modal-head"><div><div class="panel-title">Rendu et accessibilité</div><h2>Personnalisation</h2></div><button class="icon-btn" data-close="settingsOverlay">✕</button></div><div class="settings-grid"><div class="setting-row"><label for="themeSelect">Thème visuel</label><select id="themeSelect"></select><small>Auto suit la carte et change subtilement pendant les boss.</small></div><div class="setting-row"><label for="qualitySelect">Quantité d’effets</label><select id="qualitySelect"><option value="low">Légère</option><option value="medium">Équilibrée</option><option value="high">Spectaculaire</option></select><small>Réduis-la sur un ancien téléphone pour gagner en fluidité.</small></div><div class="setting-row" style="display:none"><label for="soundStyleSelect">Style sonore</label><select id="soundStyleSelect"><option value="soft">Doux</option><option value="arcade">Arcade</option><option value="cinematic">Cinématique</option></select></div><div class="setting-row"><div class="toggle-line"><div><label>Secousses d’écran</label><small>Explosions, boss et pouvoirs.</small></div><button id="shakeSwitch" class="switch"><i></i></button></div></div><div class="setting-row"><div class="toggle-line"><div><label>Nombres de dégâts</label><small>Affiche les critiques, faiblesses et résistances.</small></div><button id="numbersSwitch" class="switch"><i></i></button></div></div><div class="setting-row"><div class="toggle-line"><div><label>Vibration tactile</label><small>Petits retours haptiques compatibles mobile.</small></div><button id="hapticSwitch" class="switch"><i></i></button></div></div></div><button id="resetSettings" class="action" style="margin-top:14px">Réinitialiser les préférences</button>
+<div class="settings-danger">
+  <h3>Gestion de la partie</h3>
+  <p>Retourne au menu principal en abandonnant la vague, les tours et les ressources de cette partie. La recherche déjà enregistrée est conservée.</p>
+  <button id="quitLevelBtn" class="action danger-action">QUITTER LE NIVEAU</button>
+</div></div></div>
+
+<div id="v15ConfirmOverlay" class="overlay hidden">
+  <div class="modal glass">
+    <div class="panel-title" id="v15ConfirmEyebrow">Confirmation</div>
+    <h2 id="v15ConfirmTitle">Confirmer l’action</h2>
+    <p id="v15ConfirmText" class="subtitle"></p>
+    <div id="v15ConfirmLock" class="confirm-lock"></div>
+    <div class="confirm-actions">
+      <button id="v15ConfirmCancel" class="action">ANNULER</button>
+      <button id="v15ConfirmAccept" class="action danger-action">CONFIRMER</button>
+    </div>
+  </div>
+</div>
 <div id="bossIntro" class="overlay hidden"><div class="boss-intro-card"><div id="bossSigil" class="sigil">⬢</div><h2 id="bossIntroName"></h2><p id="bossIntroText"></p></div></div>
 <div id="gameOverOverlay" class="overlay hidden"><div class="modal glass"><div class="logo" style="font-size:58px">NOYAU PERDU</div><p class="subtitle" id="gameOverText"></p><button id="restartBtn" class="action primary">RECOMMENCER</button></div></div>
 <div id="victoryOverlay" class="overlay hidden"><div class="modal glass"><div class="logo">FAILLE STABILISÉE</div><p class="subtitle" id="victoryText"></p><button id="continueBtn" class="action primary">CONTINUER EN SANS-FIN</button><button id="victoryRestartBtn" class="action">NOUVELLE PARTIE</button></div></div>
@@ -301,12 +466,818 @@ emitPortalParticles(dt){const rate=settings.quality==='high'?36:settings.quality
 updateUI(force=false){$('#money').textContent=Math.floor(this.money);$('#lives').textContent=`${Math.max(0,this.lives)}/${this.maxLives}`;$('#wave').textContent=this.wave;const active=this.waveLedger.length,countdown=Math.max(0,Math.ceil(this.waveCountdown));$('#waveState').textContent=active?`${active} engagée${active>1?'s':''} • +${countdown}s`:`prochaine dans ${countdown}s`;$('#energy').textContent=`${Math.floor(this.energy)}/${this.maxEnergy}`;$('#energyRate').textContent=`+${(this.energyRegen+(this.categoryCounts.control>=3?.4:0)).toFixed(1)}/s • tours + pouvoirs`;$('#speedBtn').textContent='×'+this.speed;for(const b of $$('[data-ability]')){const id=b.dataset.ability,a=ABILITIES[id],remain=this.abilityRemaining(id),ready=remain<=0&&this.energy>=a.cost;b.disabled=!this.started||this.paused||remain>0||this.energy<a.cost;b.classList.toggle('cooldown',remain>0);b.classList.toggle('ready',ready);b.querySelector('b').textContent=remain>0?`${a.name} • ${Math.ceil(remain)}s`:`${a.name} • ${a.cost}`;b.querySelector('small').textContent=remain>0?'Recharge tactique en cours':`${a.desc} • CD ${a.cooldown}s`}const synergies=Object.entries(this.categoryCounts).filter(([,n])=>n>=3).map(([id])=>CATEGORIES[id].name),combat=MAP_COMBAT[this.mapId];$('#statusRibbon').innerHTML=`<div class="status-chip mode">R${this.playerRank} • ${this.mode.icon} ${this.mode.name}</div><div class="status-chip zone">${this.map.icon} ${combat.short}</div><div class="status-chip anomaly">${this.anomaly.icon} ${this.anomaly.name}</div>${active>1?`<div class="status-chip synergy">⚠ PRESSION ×${active}</div>`:''}${synergies.length?`<div class="status-chip synergy">✦ ${synergies.join(' + ')}</div>`:''}${this.combo>1?`<div class="status-chip synergy">COMBO ×${this.combo}</div>`:''}`;const boss=this.enemies.find(e=>e.boss&&!e.dead);if(boss){$('#bossBar').style.display='block';$('#bossName').textContent=boss.boss.name;$('#bossName').style.color=boss.boss.color;$('#bossFill').style.width=100*boss.hp/boss.maxHp+'%'}else $('#bossBar').style.display='none';this.refreshTowerCards();this.renderEnergyLab();if(force&&this.selected)this.renderInspector()}
 toast(msg){const e=$('#toast');e.textContent=msg;e.classList.add('toast-show');clearTimeout(this.toastTimer);this.toastTimer=setTimeout(()=>e.classList.remove('toast-show'),2200)}currentTheme(){if(settings.theme!=='auto')return THEMES[settings.theme];return THEMES[this.map.theme]}
 draw(){const th=this.currentTheme();ctx.setTransform(DPR,0,0,DPR,0,0);const grad=ctx.createRadialGradient(VW*.5,VH*.28,0,VW*.5,VH*.5,Math.max(VW,VH));grad.addColorStop(0,th.bg1);grad.addColorStop(.48,th.bg2);grad.addColorStop(1,th.bg3);ctx.fillStyle=grad;ctx.fillRect(0,0,VW,VH);const sx=settings.shake?rand(-this.shake,this.shake):0,sy=settings.shake?rand(-this.shake,this.shake):0;ctx.save();ctx.translate(VW/2+sx,VH/2+sy);ctx.scale(this.cam.zoom,this.cam.zoom);ctx.translate(-this.cam.x,-this.cam.y);this.drawWorld(th);ctx.restore();if(this.time<this.whiteoutUntil){ctx.fillStyle=`rgba(190,245,255,${.12+.05*Math.sin(this.time*6)})`;ctx.fillRect(0,0,VW,VH)}if(this.time<this.emberUntil){ctx.fillStyle=`rgba(255,80,20,${.1+.04*Math.sin(this.time*7)})`;ctx.fillRect(0,0,VW,VH)}const boss=this.enemies.find(e=>e.boss&&!e.dead);if(boss){const rg=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.25,VW/2,VH/2,Math.max(VW,VH)*.7);rg.addColorStop(0,'transparent');rg.addColorStop(1,boss.boss.color+'28');ctx.fillStyle=rg;ctx.fillRect(0,0,VW,VH)}if(this.flash>0){ctx.fillStyle=`rgba(255,80,150,${this.flash})`;ctx.fillRect(0,0,VW,VH)}}
-drawWorld(th){for(const s of this.stars){ctx.globalAlpha=s.a*(.65+.35*Math.sin(this.time*s.s+s.x));ctx.fillStyle=th.dust;ctx.fillRect(s.x,s.y,s.r,s.r)}ctx.globalAlpha=1;ctx.strokeStyle=th.grid;ctx.lineWidth=1/this.cam.zoom;for(let x=0;x<=WORLD.w;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}for(let y=0;y<=WORLD.h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}for(const e of this.environment){ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.rot+this.time*(e.type==='vent'?.08:0));ctx.globalAlpha=e.type==='crystal'?.22:.12;ctx.fillStyle=th.accent;ctx.shadowBlur=12;ctx.shadowColor=th.accent;if(e.type==='crystal'){ctx.beginPath();ctx.moveTo(0,-e.r*1.8);ctx.lineTo(e.r,e.r);ctx.lineTo(-e.r,e.r);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.arc(0,0,e.r,0,TAU);ctx.fill()}ctx.restore()}for(const t of this.tiles){const p=.58+.3*Math.sin(this.time*2+t.phase);ctx.save();ctx.globalAlpha=p*.45;ctx.fillStyle=t.color;ctx.strokeStyle=t.color;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(t.x,t.y,23+Math.sin(this.time*2+t.phase)*2,0,TAU);ctx.fill();ctx.globalAlpha=p;ctx.stroke();ctx.fillStyle=t.color;ctx.font='900 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText({power:'◆',range:'◎',rate:'ϟ',credit:'¤'}[t.type],t.x,t.y);ctx.restore()}ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='rgba(8,5,20,.96)';ctx.lineWidth=58;ctx.shadowBlur=42;ctx.shadowColor=th.pathGlow;this.drawPath();ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle=th.path;ctx.lineWidth=41;this.drawPath();ctx.stroke();ctx.setLineDash([6,15]);ctx.lineDashOffset=-this.time*46;ctx.strokeStyle=th.accent+'aa';ctx.lineWidth=3;this.drawPath();ctx.stroke();ctx.setLineDash([]);for(const d of this.decals){ctx.globalAlpha=.17*d.life/d.max;ctx.fillStyle=d.color;ctx.beginPath();ctx.arc(d.x,d.y,d.r*(1+(1-d.life/d.max)*.5),0,TAU);ctx.fill()}ctx.globalAlpha=1;const s=this.path.pointAt(this.entryDistance),b=this.path.pointAt(this.baseDistance),pv=this.getPortalVisual();this.drawPortal(s.x,s.y,pv.primary,1,s.angle,pv.secondary,pv);this.drawCoreBase(b.x,b.y,b.angle);this.areas.forEach(a=>a.draw());this.mines.forEach(m=>m.draw());this.towers.forEach(t=>t.draw());this.enemies.forEach(e=>e.draw());this.projectiles.forEach(p=>p.draw());this.beams.forEach(b=>b.draw());this.particles.forEach(p=>p.draw());this.texts.forEach(t=>t.draw());if(this.placing){const p=this.preview||{x:this.pointer.wx,y:this.pointer.wy},ok=this.canPlace(p.x,p.y),col=ok?this.placing.color:'#ff5c74';ctx.save();ctx.globalAlpha=.13;ctx.fillStyle=col;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,this.placing.range,0,TAU);ctx.fill();ctx.globalAlpha=.65;ctx.stroke();ctx.globalAlpha=.85;ctx.beginPath();ctx.arc(p.x,p.y,22,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 17px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(this.placing.icon,p.x,p.y);ctx.restore()}}
+drawWorld(th){for(const s of this.stars){ctx.globalAlpha=s.a*(.65+.35*Math.sin(this.time*s.s+s.x));ctx.fillStyle=th.dust;ctx.fillRect(s.x,s.y,s.r,s.r)}ctx.globalAlpha=1;ctx.strokeStyle=th.grid;ctx.lineWidth=1/this.cam.zoom;for(let x=0;x<=WORLD.w;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WORLD.h);ctx.stroke()}for(let y=0;y<=WORLD.h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);ctx.stroke()}for(const e of this.environment){ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.rot+this.time*(e.type==='vent'?.08:0));ctx.globalAlpha=e.type==='crystal'?.22:.12;ctx.fillStyle=th.accent;ctx.shadowBlur=12;ctx.shadowColor=th.accent;if(e.type==='crystal'){ctx.beginPath();ctx.moveTo(0,-e.r*1.8);ctx.lineTo(e.r,e.r);ctx.lineTo(-e.r,e.r);ctx.closePath();ctx.fill()}else{ctx.beginPath();ctx.arc(0,0,e.r,0,TAU);ctx.fill()}ctx.restore()}this.drawResonancePlatforms();ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='rgba(8,5,20,.96)';ctx.lineWidth=58;ctx.shadowBlur=42;ctx.shadowColor=th.pathGlow;this.drawPath();ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle=th.path;ctx.lineWidth=41;this.drawPath();ctx.stroke();ctx.setLineDash([6,15]);ctx.lineDashOffset=-this.time*46;ctx.strokeStyle=th.accent+'aa';ctx.lineWidth=3;this.drawPath();ctx.stroke();ctx.setLineDash([]);for(const d of this.decals){ctx.globalAlpha=.17*d.life/d.max;ctx.fillStyle=d.color;ctx.beginPath();ctx.arc(d.x,d.y,d.r*(1+(1-d.life/d.max)*.5),0,TAU);ctx.fill()}ctx.globalAlpha=1;const s=this.path.pointAt(this.entryDistance),b=this.path.pointAt(this.baseDistance),pv=this.getPortalVisual();this.drawPortal(s.x,s.y,pv.primary,1,s.angle,pv.secondary,pv);this.drawCoreBase(b.x,b.y,b.angle);this.areas.forEach(a=>a.draw());this.mines.forEach(m=>m.draw());this.towers.forEach(t=>t.draw());this.enemies.forEach(e=>e.draw());this.projectiles.forEach(p=>p.draw());this.beams.forEach(b=>b.draw());this.particles.forEach(p=>p.draw());this.texts.forEach(t=>t.draw());if(this.placing){const p=this.preview||{x:this.pointer.wx,y:this.pointer.wy},ok=this.canPlace(p.x,p.y),col=ok?this.placing.color:'#ff5c74';ctx.save();ctx.globalAlpha=.13;ctx.fillStyle=col;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,this.placing.range,0,TAU);ctx.fill();ctx.globalAlpha=.65;ctx.stroke();ctx.globalAlpha=.85;ctx.beginPath();ctx.arc(p.x,p.y,22,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 17px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(this.placing.icon,p.x,p.y);ctx.restore()}}
 drawPath(){ctx.beginPath();this.path.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y))}
 drawPortal(x,y,color,dir,angle=0,secondary='#66f4ff',visual={}){ctx.save();ctx.translate(x,y);const pulseSpeed=visual.boss?6.4:4.2,pulse=1+Math.sin(this.time*pulseSpeed)*(visual.boss?.11:.065);ctx.rotate(angle);ctx.scale(pulse,pulse);const wake=ctx.createLinearGradient(-92,0,18,0);wake.addColorStop(0,'transparent');wake.addColorStop(.62,color+'22');wake.addColorStop(1,color+'aa');ctx.fillStyle=wake;ctx.beginPath();ctx.moveTo(-92,-24);ctx.lineTo(5,-15);ctx.lineTo(5,15);ctx.lineTo(-92,24);ctx.closePath();ctx.fill();ctx.globalAlpha=.45;ctx.strokeStyle=secondary;ctx.lineWidth=2;for(let i=0;i<4;i++){const xx=-74+i*18+(this.time*48)%18;ctx.beginPath();ctx.moveTo(xx,-10);ctx.lineTo(xx+10,0);ctx.lineTo(xx,10);ctx.stroke()}ctx.globalAlpha=1;const glow=ctx.createRadialGradient(0,0,3,0,0,64);glow.addColorStop(0,'#010207');glow.addColorStop(.24,'#08031a');glow.addColorStop(.54,color+'8a');glow.addColorStop(.78,secondary+'35');glow.addColorStop(1,'transparent');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,66,0,TAU);ctx.fill();ctx.shadowBlur=visual.boss?42:30;ctx.shadowColor=color;const rings=4+(visual.rank||1);for(let i=0;i<rings;i++){const rot=this.time*dir*(1.08+i*.11)+i*1.07;ctx.strokeStyle=i%3===1?secondary:color;ctx.globalAlpha=.62+.34*Math.sin(this.time*3+i*1.8);ctx.lineWidth=Math.max(.8,4.2-i*.45);ctx.beginPath();ctx.ellipse(0,0,18+i*6.3,12+i*4.4,rot,.18,Math.PI*1.84);ctx.stroke()}ctx.globalAlpha=1;const sparks=18+(visual.stage||0)*4+(visual.boss?10:0);for(let i=0;i<sparks;i++){const a=i/sparks*TAU+this.time*dir*(1.7+i%3*.18),r=28+i%5*7+Math.sin(this.time*5+i)*3;ctx.globalAlpha=.28+.72*((Math.sin(this.time*7+i*2.1)+1)/2);ctx.fillStyle=i%4===0?secondary:color;ctx.beginPath();ctx.arc(Math.cos(a)*r,Math.sin(a)*r*.72,1.2+i%3,0,TAU);ctx.fill()}ctx.globalAlpha=1;ctx.fillStyle='#010208';ctx.beginPath();ctx.ellipse(0,0,16,20,0,0,TAU);ctx.fill();ctx.strokeStyle=secondary;ctx.lineWidth=1.5;ctx.globalAlpha=.8;ctx.beginPath();ctx.ellipse(0,0,12,17,0,0,TAU);ctx.stroke();ctx.globalAlpha=1;ctx.rotate(-angle);ctx.shadowBlur=14;ctx.shadowColor=color;ctx.fillStyle='#fff';ctx.font='900 8px system-ui';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText(visual.label||'FAILLE',0,74);ctx.restore()}
 drawCoreBase(x,y,angle=0){ctx.save();ctx.translate(x,y);const p=.72+.28*Math.sin(this.time*3.2),col=this.lives<=this.maxLives*.3?'#ff5c74':'#55ffb3';ctx.save();ctx.rotate(angle);ctx.globalAlpha=.36;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-62,-16);ctx.lineTo(-42,0);ctx.lineTo(-62,16);ctx.stroke();ctx.beginPath();ctx.moveTo(62,-16);ctx.lineTo(42,0);ctx.lineTo(62,16);ctx.stroke();ctx.restore();ctx.shadowBlur=28;ctx.shadowColor=col;ctx.strokeStyle=col;ctx.fillStyle='rgba(5,20,24,.94)';ctx.lineWidth=3;ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6,r=32;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke();ctx.rotate(-this.time*.55);ctx.globalAlpha=.35+p*.4;ctx.setLineDash([5,8]);ctx.beginPath();ctx.arc(0,0,43,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.rotate(this.time*.55);ctx.globalAlpha=1;const core=ctx.createRadialGradient(-5,-6,2,0,0,19);core.addColorStop(0,'#fff');core.addColorStop(.22,col);core.addColorStop(1,'transparent');ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,0,20,0,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.font='1000 16px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⬡',0,1);ctx.font='900 8px system-ui';ctx.textBaseline='alphabetic';ctx.fillText('BASE',0,59);ctx.restore()}
 }
 const game=new Game();let last=performance.now();function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;game.update(dt);game.draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);window.__DARK_RIFT_GAME__=game;
+
+
+/* ========================================================================== */
+/* V15 — RESONANCE PROTOCOL                                                   */
+/* ========================================================================== */
+
+const RESONANCE_TYPES = {
+  power: {
+    name: 'Amplificateur',
+    icon: '◆',
+    color: '#ff4e9b',
+    short: 'Dégâts et critique',
+    description(level) {
+      const damage = 18 + (level - 1) * 12;
+      const crit = level * 1.5;
+      return `+${damage}% dégâts environ et +${crit.toFixed(1)}% critique.`;
+    }
+  },
+  range: {
+    name: 'Observatoire',
+    icon: '◎',
+    color: '#66f4ff',
+    short: 'Portée et projectiles',
+    description(level) {
+      const range = 16 + (level - 1) * 9;
+      const projectile = 12 + level * 8;
+      return `+${range}% portée environ et +${projectile}% vitesse de projectile.`;
+    }
+  },
+  rate: {
+    name: 'Accélérateur',
+    icon: '⟳',
+    color: '#aa76ff',
+    short: 'Cadence extrême',
+    description(level) {
+      const cadence = 22 + (level - 1) * 13;
+      return `Environ +${cadence}% cadence, mais -4% dégâts directs.`;
+    }
+  },
+  relay: {
+    name: 'Relais énergétique',
+    icon: 'ϟ',
+    color: '#b77cff',
+    short: 'Recharge et récupération',
+    description(level) {
+      const passive = [0, .18, .38, .65][level];
+      return `+${passive.toFixed(2)} énergie/s et récupération d’énergie sur les éliminations.`;
+    }
+  },
+  recovery: {
+    name: 'Plateforme de récupération',
+    icon: '¤',
+    color: '#ffd166',
+    short: 'Économie et revente',
+    description(level) {
+      const discount = [0, 8, 16, 24][level];
+      const sell = [0, 5, 9, 13][level];
+      return `Améliorations -${discount}%, revente +${sell}% et remboursement à la construction.`;
+    }
+  }
+};
+
+function romanRank(value) {
+  const map = [
+    [10, 'X'],
+    [9, 'IX'],
+    [5, 'V'],
+    [4, 'IV'],
+    [1, 'I']
+  ];
+  let n = Math.max(1, value);
+  let out = '';
+  for (const [amount, symbol] of map) {
+    while (n >= amount) {
+      out += symbol;
+      n -= amount;
+    }
+  }
+  return out;
+}
+
+function generatedRankTitle(rank) {
+  if (rank === 99) return 'Singularité Oméga';
+  const bands = [
+    [6, 9, 'Opérateur'],
+    [10, 19, 'Vétéran'],
+    [20, 29, 'Ingénieur'],
+    [30, 39, 'Commandant'],
+    [40, 49, 'Architecte du Néant'],
+    [50, 59, 'Seigneur de Faille'],
+    [60, 69, 'Parangon'],
+    [70, 79, 'Transcendant'],
+    [80, 89, 'Éternel'],
+    [90, 98, 'Singularité']
+  ];
+  const band = bands.find(([from, to]) => rank >= from && rank <= to);
+  if (!band) return `Rang ${rank}`;
+  return `${band[2]} ${romanRank(rank - band[0] + 1)}`;
+}
+
+function generatedRankReward(rank) {
+  if (rank <= 5) return 'Déblocage technologique';
+  if (rank === 99) return 'Tous les protocoles à leur plafond';
+  const cycle = (rank - 6) % 5;
+  if (cycle === 0) return '+8 crédits de départ';
+  if (cycle === 1) return '+4 énergie maximale';
+  if (cycle === 2) return '+0,06 énergie/s';
+  if (cycle === 3) return '+1 PV de noyau';
+  return '+0,5% de revente';
+}
+
+function generateRoadmapTo99() {
+  let xp = ROADMAP.at(-1).xp;
+  for (let rank = 6; rank <= 99; rank++) {
+    const step = Math.round(390 + Math.pow(rank - 4, 1.52) * 34);
+    xp += step;
+    ROADMAP.push({
+      rank,
+      xp,
+      title: generatedRankTitle(rank),
+      description: `Rang généré automatiquement. Récompense permanente : ${generatedRankReward(rank)}.`,
+      towers: [],
+      modes: [],
+      maps: [],
+      generated: true,
+      reward: generatedRankReward(rank)
+    });
+  }
+}
+
+generateRoadmapTo99();
+
+function rankProgressBonuses(rank) {
+  const result = {
+    money: 0,
+    energy: 0,
+    regen: 0,
+    lives: 0,
+    sell: 0
+  };
+
+  for (let current = 6; current <= rank; current++) {
+    const cycle = (current - 6) % 5;
+    if (cycle === 0) result.money += 8;
+    if (cycle === 1) result.energy += 4;
+    if (cycle === 2) result.regen += .06;
+    if (cycle === 3) result.lives += 1;
+    if (cycle === 4) result.sell += .005;
+  }
+
+  result.money = Math.min(result.money, 240);
+  result.energy = Math.min(result.energy, 80);
+  result.regen = Math.min(result.regen, 1.2);
+  result.lives = Math.min(result.lives, 10);
+  result.sell = Math.min(result.sell, .08);
+  return result;
+}
+
+Game.prototype.applyRankBonuses = function applyRankBonuses() {
+  this.playerRank = rankForXp(this.profile.xp);
+  const bonus = rankProgressBonuses(this.playerRank);
+  this.rankBonuses = bonus;
+  this.money += bonus.money;
+  this.maxEnergy += bonus.energy;
+  this.energy = Math.min(this.maxEnergy, this.energy + bonus.energy);
+  this.energyRegen += bonus.regen;
+  this.maxLives += bonus.lives;
+  this.lives = this.maxLives;
+  this.mods.sell = Math.min(.86, this.mods.sell + bonus.sell);
+  this.renderEnergyLab();
+  this.updateUI(true);
+};
+
+const v14Reset = Game.prototype.reset;
+Game.prototype.reset = function resetV15() {
+  v14Reset.call(this);
+  this.applyRankBonuses();
+};
+
+Game.prototype.makeTiles = function makeResonancePlatforms() {
+  const result = [];
+  const sequence = ['power', 'range', 'rate', 'relay', 'recovery'];
+
+  for (let attempt = 0; attempt < 1200 && result.length < 18; attempt++) {
+    const x = rand(82, WORLD.w - 82);
+    const y = rand(74, WORLD.h - 74);
+    const type = sequence[result.length % sequence.length];
+    const definition = RESONANCE_TYPES[type];
+
+    if (this.path.distanceTo(x, y) <= 92) continue;
+    if (result.some(platform => Math.hypot(platform.x - x, platform.y - y) < 105)) continue;
+
+    result.push({
+      x,
+      y,
+      type,
+      level: 1,
+      color: definition.color,
+      phase: rand(0, TAU)
+    });
+  }
+
+  return result;
+};
+
+Game.prototype.platformTower = function platformTower(platform) {
+  return this.towers.find(tower => tower.tile === platform) || null;
+};
+
+Game.prototype.nearestPlatform = function nearestPlatform(x, y, maximum = 66) {
+  let best = null;
+  let bestDistance = maximum;
+  for (const platform of this.tiles) {
+    const distance = Math.hypot(platform.x - x, platform.y - y);
+    if (distance <= bestDistance) {
+      best = platform;
+      bestDistance = distance;
+    }
+  }
+  return best;
+};
+
+Game.prototype.drawResonancePlatforms = function drawResonancePlatforms() {
+  for (const platform of this.tiles) {
+    const definition = RESONANCE_TYPES[platform.type];
+    if (!definition) continue;
+
+    const occupied = Boolean(this.platformTower(platform));
+    const level = platform.level || 1;
+    const pulse = .72 + .28 * Math.sin(this.time * 2.2 + platform.phase);
+
+    ctx.save();
+    ctx.translate(platform.x, platform.y);
+    ctx.globalAlpha = occupied ? .5 : .78;
+    ctx.shadowBlur = 18 + level * 4;
+    ctx.shadowColor = definition.color;
+
+    ctx.fillStyle = 'rgba(4,8,20,.88)';
+    ctx.strokeStyle = definition.color;
+    ctx.lineWidth = 2 + level * .45;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const angle = i / 8 * TAU + Math.PI / 8;
+      const radius = 32;
+      if (i) ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      else ctx.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = .24 + pulse * .2;
+    ctx.fillStyle = definition.color;
+    ctx.beginPath();
+    ctx.arc(0, 0, 25 + level * 2, 0, TAU);
+    ctx.fill();
+
+    ctx.globalAlpha = .8;
+    ctx.rotate(-this.time * .22);
+    ctx.setLineDash([5, 8]);
+    ctx.beginPath();
+    ctx.arc(0, 0, 38 + level * 3, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.rotate(this.time * .22);
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = definition.color;
+    ctx.font = '1000 17px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(definition.icon, 0, 0);
+
+    for (let i = 0; i < 3; i++) {
+      ctx.globalAlpha = i < level ? 1 : .18;
+      ctx.beginPath();
+      ctx.arc(-8 + i * 8, 22, 2.3, 0, TAU);
+      ctx.fill();
+    }
+
+    const pointerNear = this.placing && Math.hypot(this.pointer.wx - platform.x, this.pointer.wy - platform.y) < 82;
+    const selected = this.selected?.tile === platform;
+    if (pointerNear || selected) {
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#effbff';
+      ctx.font = '900 8px system-ui';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(`${definition.name} • N${level}`, 0, 54);
+    }
+
+    ctx.restore();
+  }
+};
+
+const v14CanPlace = Game.prototype.canPlace;
+Game.prototype.canPlace = function canPlaceV15(x, y) {
+  const platform = this.nearestPlatform(x, y);
+  if (platform) {
+    if (this.platformTower(platform)) return false;
+    x = platform.x;
+    y = platform.y;
+  }
+  return v14CanPlace.call(this, x, y);
+};
+
+Game.prototype.placeTower = function placeTowerV15(x, y) {
+  const definition = this.placing;
+  if (!definition) return;
+
+  const platform = this.nearestPlatform(x, y);
+  if (platform) {
+    if (this.platformTower(platform)) {
+      this.toast('Cette plateforme est déjà occupée');
+      return;
+    }
+    x = platform.x;
+    y = platform.y;
+  }
+
+  const cost = Math.ceil(definition.cost * this.mods.cost);
+  if (this.money < cost || !this.canPlace(x, y)) return;
+
+  this.money -= cost;
+  if (platform?.type === 'recovery') {
+    const refund = 12 + (platform.level || 1) * 10;
+    this.money += refund;
+    this.texts.push(new FloatText(x, y - 30, `+${refund}¤`, '#ffd166', 10));
+  }
+
+  const tower = new Tower(this, x, y, definition, platform || null);
+  this.towers.push(tower);
+  this.categoryCounts[definition.category]++;
+  this.recalcAll();
+  this.selected = tower;
+  this.cancelPlacement();
+  this.renderInspector();
+  this.burst(x, y, definition.color, 22, 145, 'spark');
+
+  if (platform) {
+    const platformDefinition = RESONANCE_TYPES[platform.type];
+    this.toast(`${definition.name} synchronisée : ${platformDefinition.name}`);
+  }
+
+  haptic([12, 20, 12]);
+  this.updateUI(true);
+};
+
+const v14TowerRecalc = Tower.prototype.recalc;
+Tower.prototype.recalc = function recalcV15() {
+  v14TowerRecalc.call(this);
+  const platform = this.tile;
+  if (!platform) return;
+
+  const level = platform.level || 1;
+  if (platform.type === 'power') {
+    this.stats.dmg *= 1 + (level - 1) * .12;
+    this.stats.crit += level * .015;
+  }
+  if (platform.type === 'range') {
+    this.stats.range *= 1 + (level - 1) * .09;
+    this.stats.proj *= 1 + .12 + level * .08;
+  }
+  if (platform.type === 'rate') {
+    this.stats.rate *= Math.pow(.88, level - 1);
+    this.stats.dmg *= .96;
+  }
+};
+
+function platformMoneyMultiplier(tower) {
+  if (tower.tile?.type !== 'recovery') return 1;
+  const level = tower.tile.level || 1;
+  return [1, .92, .84, .76][level];
+}
+
+const v14UpgradeCost = Tower.prototype.upgradeCost;
+Tower.prototype.upgradeCost = function upgradeCostV15(branch) {
+  const cost = v14UpgradeCost.call(this, branch);
+  return {
+    ...cost,
+    money: Math.ceil(cost.money * platformMoneyMultiplier(this))
+  };
+};
+
+const v14Mk2Cost = Tower.prototype.mk2Cost;
+Tower.prototype.mk2Cost = function mk2CostV15() {
+  const cost = v14Mk2Cost.call(this);
+  return {
+    ...cost,
+    money: Math.ceil(cost.money * platformMoneyMultiplier(this))
+  };
+};
+
+const v14EvolutionCost = Tower.prototype.evolutionCost;
+Tower.prototype.evolutionCost = function evolutionCostV15() {
+  const cost = v14EvolutionCost.call(this);
+  return {
+    ...cost,
+    money: Math.ceil(cost.money * platformMoneyMultiplier(this))
+  };
+};
+
+Game.prototype.platformUpgradeCost = function platformUpgradeCost(platform) {
+  const level = platform?.level || 1;
+  if (level >= 3) return null;
+  return level === 1
+    ? { money: 190, energy: 45 }
+    : { money: 420, energy: 90 };
+};
+
+Game.prototype.upgradePlatform = function upgradePlatform(platform) {
+  const cost = this.platformUpgradeCost(platform);
+  if (!cost) return;
+  if (this.money < cost.money || this.energy < cost.energy) return;
+
+  this.money -= cost.money;
+  this.energy -= cost.energy;
+  platform.level++;
+  this.recalcAll();
+  this.burst(platform.x, platform.y, RESONANCE_TYPES[platform.type].color, 32, 190, 'spark');
+  this.ring(platform.x, platform.y, RESONANCE_TYPES[platform.type].color, 85, .65);
+  this.toast(`${RESONANCE_TYPES[platform.type].name} amélioré au niveau ${platform.level}`);
+  this.renderInspector();
+  this.updateUI(true);
+  haptic([18, 26, 18]);
+};
+
+Game.prototype.towerSellRatio = function towerSellRatio(tower) {
+  let ratio = this.mods.sell;
+  if (tower.tile?.type === 'recovery') {
+    ratio += [0, .05, .09, .13][tower.tile.level || 1];
+  }
+  return Math.min(.92, ratio);
+};
+
+const v14RenderInspector = Game.prototype.renderInspector;
+Game.prototype.renderInspector = function renderInspectorV15() {
+  v14RenderInspector.call(this);
+  const tower = this.selected;
+  const panel = $('#inspector');
+  if (!tower || !panel.classList.contains('open')) return;
+
+  const sellButton = $('#sellTower');
+  const platform = tower.tile;
+  const definition = platform ? RESONANCE_TYPES[platform.type] : null;
+  const platformCost = platform ? this.platformUpgradeCost(platform) : null;
+
+  const platformBox = document.createElement('div');
+  platformBox.className = 'platform-box';
+  platformBox.style.setProperty('--platform-color', definition?.color || '#8ba6ba');
+
+  if (platform && definition) {
+    const affordable = platformCost && this.money >= platformCost.money && this.energy >= platformCost.energy;
+    platformBox.innerHTML = `
+      <div class="platform-box-head">
+        <b>${definition.icon} ${definition.name}</b>
+        <span>NIVEAU ${platform.level}/3</span>
+      </div>
+      <p>${definition.description(platform.level)}</p>
+      ${platformCost ? `
+        <button id="upgradeResonance" class="upgrade-btn" ${affordable ? '' : 'disabled'}>
+          <span>
+            <b>Renforcer la plateforme</b>
+            <small>Le niveau reste acquis pendant cette partie, même après une vente.</small>
+          </span>
+          <strong>${platformCost.money} ¤ + ${platformCost.energy} ϟ</strong>
+        </button>
+      ` : '<p><b>Synchronisation maximale atteinte.</b></p>'}
+    `;
+  } else {
+    platformBox.innerHTML = `
+      <div class="platform-box-head">
+        <b>○ Terrain neutre</b>
+        <span>AUCUN BONUS</span>
+      </div>
+      <p>Cette tourelle n’est reliée à aucune plateforme de résonance.</p>
+    `;
+  }
+
+  if (sellButton) panel.insertBefore(platformBox, sellButton);
+  else panel.appendChild(platformBox);
+
+  const upgradeButton = $('#upgradeResonance');
+  if (upgradeButton && platform) {
+    upgradeButton.onclick = () => this.upgradePlatform(platform);
+  }
+
+  if (sellButton) {
+    const value = Math.floor(tower.totalSpent * this.towerSellRatio(tower));
+    sellButton.textContent = `Vendre • ${value} crédits`;
+    sellButton.onclick = () => {
+      this.money += value;
+      this.towers = this.towers.filter(candidate => candidate !== tower);
+      this.selected = null;
+      this.recalcAll();
+      this.renderInspector();
+      this.burst(tower.x, tower.y, tower.def.color, 16, 130, 'spark');
+      this.updateUI(true);
+    };
+  }
+};
+
+Game.prototype.resonanceEnergyRate = function resonanceEnergyRate() {
+  let rate = 0;
+  for (const tower of this.towers) {
+    if (tower.tile?.type !== 'relay') continue;
+    rate += [0, .18, .38, .65][tower.tile.level || 1];
+  }
+  return rate;
+};
+
+const v14GainEnergyFromKill = Game.prototype.gainEnergyFromKill;
+Game.prototype.gainEnergyFromKill = function gainEnergyFromKillV15(enemy) {
+  v14GainEnergyFromKill.call(this, enemy);
+  const relayPower = this.towers.reduce((sum, tower) => {
+    if (tower.tile?.type !== 'relay') return sum;
+    return sum + (tower.tile.level || 1);
+  }, 0);
+
+  if (!relayPower) return;
+  const gain = (enemy.boss ? .55 : enemy.elite ? .12 : .015) * relayPower;
+  const before = this.energy;
+  this.energy = Math.min(this.maxEnergy, this.energy + gain);
+  const actual = this.energy - before;
+
+  if ((enemy.boss || enemy.elite) && actual > 0) {
+    this.texts.push(new FloatText(enemy.x, enemy.y - 42, `+${actual.toFixed(1)}ϟ`, '#b77cff', 9));
+  }
+};
+
+const v14Update = Game.prototype.update;
+Game.prototype.update = function updateV15(dt) {
+  const active = this.started && !this.paused;
+  v14Update.call(this, dt);
+  if (!active) return;
+
+  const bonus = this.resonanceEnergyRate();
+  if (bonus > 0) {
+    this.energy = Math.min(this.maxEnergy, this.energy + bonus * dt * this.speed);
+  }
+};
+
+const v14UpdateUI = Game.prototype.updateUI;
+Game.prototype.updateUI = function updateUIV15(force = false) {
+  v14UpdateUI.call(this, force);
+  const quit = $('#quitLevelBtn');
+  if (quit) quit.disabled = !this.started;
+
+  const relay = this.resonanceEnergyRate?.() || 0;
+  if ($('#energyRate')) {
+    const control = this.categoryCounts.control >= 3 ? 1 : 0;
+    $('#energyRate').textContent = `+${(this.energyRegen + control + relay).toFixed(2)}/s • tours + pouvoirs`;
+  }
+};
+
+const v14UpdateProfileUI = Game.prototype.updateProfileUI;
+Game.prototype.updateProfileUI = function updateProfileUIV15() {
+  v14UpdateProfileUI.call(this);
+  const tier = tierForRank(this.playerRank);
+  const next = nextTierForRank(this.playerRank);
+  if ($('#profileNext')) {
+    $('#profileNext').textContent = next
+      ? `${Math.max(0, next.xp - this.profile.xp)} XP avant ${next.title} • rang ${this.playerRank}/99`
+      : 'Rang maximal 99 • Singularité Oméga';
+  }
+  if ($('#rankMiniName')) {
+    $('#rankMiniName').textContent = `Rang ${this.playerRank}/99 • ${tier.title}`;
+  }
+};
+
+Game.prototype.openRoadmap = function openRoadmapV15() {
+  this.updateProfileUI();
+  const current = this.playerRank;
+  const tier = tierForRank(current);
+  const next = nextTierForRank(current);
+  const startXp = tier.xp;
+  const endXp = next ? next.xp : startXp + 1;
+  const progress = next
+    ? clamp((this.profile.xp - startXp) / (endXp - startXp) * 100, 0, 100)
+    : 100;
+  const bonus = rankProgressBonuses(current);
+
+  $('#roadmapProgress').innerHTML = `
+    <div class="profile-line">
+      <strong>RANG ${current}/99 • ${tier.title.toUpperCase()}</strong>
+      <span>${next ? `${this.profile.xp}/${next.xp} XP` : 'PROGRESSION TERMINÉE'}</span>
+    </div>
+    <div class="xp-track"><i style="width:${progress}%"></i></div>
+    <div class="rank-summary">
+      <div class="statbox"><label>Crédits initiaux</label><b>+${bonus.money}</b></div>
+      <div class="statbox"><label>Énergie max.</label><b>+${bonus.energy}</b></div>
+      <div class="statbox"><label>Recharge</label><b>+${bonus.regen.toFixed(2)}/s</b></div>
+      <div class="statbox"><label>PV noyau</label><b>+${bonus.lives}</b></div>
+      <div class="statbox"><label>Revente</label><b>+${Math.round(bonus.sell * 100)}%</b></div>
+    </div>
+  `;
+
+  $('#roadmapList').innerHTML = `
+    <div class="rank-grid">
+      ${ROADMAP.map(rank => {
+        const state = rank.rank < current ? 'done' : rank.rank === current ? 'current' : 'locked';
+        return `
+          <div class="rank-cell ${state}" title="${rank.description}">
+            <strong>${rank.rank}</strong>
+            <span>${rank.title}</span>
+            <em>${rank.rank === 1 ? 'DÉPART' : `${rank.xp} XP`}</em>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+
+  $('#roadmapOverlay').classList.remove('hidden');
+};
+
+Game.prototype.showRankUnlock = function showRankUnlockV15(before, after) {
+  const unlocked = ROADMAP.filter(rank => rank.rank > before && rank.rank <= after);
+  const final = tierForRank(after);
+  const chips = [];
+
+  for (const rank of unlocked) {
+    for (const id of rank.towers || []) {
+      const tower = TOWERS.find(candidate => candidate.id === id);
+      if (tower) chips.push(`<span class="unlock-chip new">${tower.icon} ${tower.name}</span>`);
+    }
+    for (const id of rank.modes || []) {
+      chips.push(`<span class="unlock-chip new">${MODES[id].icon} Mode ${MODES[id].name}</span>`);
+    }
+    for (const id of rank.maps || []) {
+      chips.push(`<span class="unlock-chip new">${MAPS[id].icon} ${MAPS[id].name}</span>`);
+    }
+    if (rank.generated) {
+      chips.push(`<span class="unlock-chip new">R${rank.rank} • ${rank.reward}</span>`);
+    }
+  }
+
+  $('#unlockTitle').textContent = `RANG ${after}/99 • ${final.title.toUpperCase()}`;
+  $('#unlockText').textContent = 'Le protocole permanent de ton compte vient de progresser. Les bonus s’appliqueront dès la prochaine partie.';
+  $('#unlockItems').innerHTML = chips.slice(-12).join('');
+  $('#unlockOverlay').classList.remove('hidden');
+  this.paused = true;
+};
+
+const v14RenderWiki = Game.prototype.renderWiki;
+Game.prototype.renderWiki = function renderWikiV15() {
+  if (this.wikiTab === 'roadmap') {
+    $$('.wiki-tab').forEach(button => button.classList.toggle('active', button.dataset.id === 'roadmap'));
+    const bonus = rankProgressBonuses(this.playerRank);
+    $('#wikiContent').innerHTML = `
+      <div class="wiki-section">
+        <h3>99 rangs générés automatiquement</h3>
+        <p>Les rangs 1 à 5 débloquent l’arsenal, les cartes et les modes. Les rangs 6 à 99 utilisent une courbe calculée et alternent cinq bonus permanents plafonnés afin d’éviter de casser l’équilibrage.</p>
+      </div>
+      <div class="wiki-section">
+        <h3>Bonus actuels du rang ${this.playerRank}</h3>
+        <ul>
+          <li>+${bonus.money} crédits au départ.</li>
+          <li>+${bonus.energy} énergie maximale.</li>
+          <li>+${bonus.regen.toFixed(2)} énergie par seconde.</li>
+          <li>+${bonus.lives} PV au noyau.</li>
+          <li>+${Math.round(bonus.sell * 100)}% de valeur de revente.</li>
+        </ul>
+      </div>
+    `;
+    return;
+  }
+
+  v14RenderWiki.call(this);
+  if (this.wikiTab === 'effects') {
+    $('#wikiContent').insertAdjacentHTML('beforeend', `
+      <div class="wiki-section">
+        <h3>Plateformes de résonance</h3>
+        <ul>
+          ${Object.values(RESONANCE_TYPES).map(definition => `<li style="color:${definition.color}"><b>${definition.icon} ${definition.name} :</b> ${definition.short}. Trois niveaux disponibles.</li>`).join('')}
+        </ul>
+        <p>Une tourelle posée à proximité est aimantée au centre de la plateforme. L’amélioration d’une plateforme reste active pendant toute la partie, même si la tourelle est revendue.</p>
+      </div>
+    `);
+  }
+};
+
+Game.prototype.quitToMenu = function quitToMenu() {
+  this.started = false;
+  this.paused = true;
+  this.selected = null;
+  this.placing = null;
+  this.preview = null;
+
+  const overlays = [
+    'settingsOverlay',
+    'relicOverlay',
+    'wikiOverlay',
+    'roadmapOverlay',
+    'unlockOverlay',
+    'gameOverOverlay',
+    'victoryOverlay'
+  ];
+  overlays.forEach(id => $('#' + id)?.classList.add('hidden'));
+  $('#inspector').classList.remove('open');
+  $('#towerDock').classList.remove('open');
+  $('#startOverlay').classList.remove('hidden');
+
+  this.reset();
+  this.buildStartChoices();
+  this.updateProfileUI();
+  this.toast('Retour au menu • progression permanente conservée');
+};
+
+let v15ConfirmAction = null;
+let v15ConfirmUnlockAt = 0;
+let v15ConfirmTimer = null;
+
+function closeV15Confirm() {
+  $('#v15ConfirmOverlay').classList.add('hidden');
+  v15ConfirmAction = null;
+  v15ConfirmUnlockAt = 0;
+  clearInterval(v15ConfirmTimer);
+  v15ConfirmTimer = null;
+}
+
+function refreshV15Confirm() {
+  const button = $('#v15ConfirmAccept');
+  const label = $('#v15ConfirmLock');
+  const remaining = Math.max(0, v15ConfirmUnlockAt - performance.now());
+
+  if (remaining > 0) {
+    button.disabled = true;
+    label.textContent = `Sécurité : confirmation disponible dans ${(remaining / 1000).toFixed(1)} s`;
+  } else {
+    button.disabled = false;
+    label.textContent = 'Tu peux maintenant confirmer.';
+    clearInterval(v15ConfirmTimer);
+    v15ConfirmTimer = null;
+  }
+}
+
+function openV15Confirm({ eyebrow, title, text, accept, delay = 0, acceptLabel = 'CONFIRMER' }) {
+  v15ConfirmAction = accept;
+  v15ConfirmUnlockAt = performance.now() + delay;
+  $('#v15ConfirmEyebrow').textContent = eyebrow;
+  $('#v15ConfirmTitle').textContent = title;
+  $('#v15ConfirmText').textContent = text;
+  $('#v15ConfirmAccept').textContent = acceptLabel;
+  $('#v15ConfirmOverlay').classList.remove('hidden');
+
+  clearInterval(v15ConfirmTimer);
+  refreshV15Confirm();
+  if (delay > 0) v15ConfirmTimer = setInterval(refreshV15Confirm, 100);
+}
+
+function resetDarkRiftAccount() {
+  try {
+    localStorage.removeItem('darkRiftAscensionProfile');
+    for (const modeId of Object.keys(MODES)) {
+      localStorage.removeItem('darkRiftCodexBest_' + modeId);
+    }
+  } catch {}
+
+  game.profile = { ...PROFILE_DEFAULT };
+  game.playerRank = 1;
+  game.modeId = 'classic';
+  game.mapId = 'rift';
+  saveProfile(game.profile);
+  game.reset();
+  game.buildStartChoices();
+  game.renderTowerList();
+  game.updateProfileUI();
+  $('#startOverlay').classList.remove('hidden');
+  game.toast('Compte réinitialisé • retour au rang 1');
+}
+
+$('#quitLevelBtn').onclick = () => {
+  if (!game.started) return;
+  openV15Confirm({
+    eyebrow: 'Abandon de mission',
+    title: 'Quitter ce niveau ?',
+    text: 'La vague, les tourelles, les reliques, les plateformes améliorées et les ressources de cette partie seront perdues. La recherche déjà enregistrée restera acquise.',
+    acceptLabel: 'QUITTER LE NIVEAU',
+    accept: () => game.quitToMenu()
+  });
+};
+
+$('#resetProfileBtn').onclick = () => {
+  openV15Confirm({
+    eyebrow: 'Réinitialisation permanente',
+    title: 'Effacer tout le compte ?',
+    text: 'Cette action supprime l’XP, les 99 rangs, les déblocages, les victoires et tous les records locaux. Les préférences graphiques sont conservées.',
+    acceptLabel: 'EFFACER LE COMPTE',
+    delay: 2000,
+    accept: resetDarkRiftAccount
+  });
+};
+
+$('#v15ConfirmCancel').onclick = closeV15Confirm;
+$('#v15ConfirmAccept').onclick = () => {
+  if (performance.now() < v15ConfirmUnlockAt || !v15ConfirmAction) return;
+  const action = v15ConfirmAction;
+  closeV15Confirm();
+  action();
+};
+
+// Recrée l’état du menu avec les nouvelles plateformes et les bonus du rang.
+game.reset();
+game.buildStartChoices();
+game.updateProfileUI();
+game.renderTowerList();
+
 </script>
 </body>
 </html>
