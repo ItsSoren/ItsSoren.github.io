@@ -2605,5 +2605,221 @@ populateMultiMenu();showProfile();game.reset();game.started=false;game.paused=tr
 })();
 </script>
 
+
+<style id="v18-clean-map-style">
+/* V18.1 — plateformes plus discrètes, sans anneaux pointillés fantômes */
+body.v18-clean-map #game{touch-action:none}
+</style>
+
+<style id="v18-multi-mobile-fix-style">
+body.multiplayer-running #firstWaveCountdown,
+body.multiplayer-running #statusRibbon{display:none!important}
+body.multiplayer-running #game{touch-action:none!important;-webkit-user-select:none;user-select:none}
+body.multiplayer-running #multiHud{top:calc(76px + var(--safe-top));width:min(900px,calc(100vw - 18px));z-index:14}
+body.multiplayer-running .mp-player-hud{min-width:0;overflow:hidden}
+body.multiplayer-running .mp-player-hud b,
+body.multiplayer-running .mp-player-hud span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:900px){
+  body.multiplayer-running #multiHud{top:calc(205px + var(--safe-top))!important;grid-template-columns:1fr 1fr;gap:5px;width:calc(100vw - 14px)}
+  body.multiplayer-running .mp-center-hud{grid-column:1/-1;grid-row:2;padding:3px 7px;border-radius:9px;background:rgba(5,9,22,.72);border:1px solid rgba(255,255,255,.08)}
+  body.multiplayer-running .mp-player-hud{padding:6px 7px;border-radius:11px}
+  body.multiplayer-running .mp-player-hud b{font-size:8px}
+  body.multiplayer-running .mp-player-hud span{font-size:7px}
+  body.multiplayer-running #towerDock,
+  body.multiplayer-running #inspector{bottom:calc(68px + var(--safe-bottom))}
+}
+@media(max-height:620px) and (orientation:landscape){
+  body.multiplayer-running #multiHud{top:calc(62px + var(--safe-top))!important;width:min(760px,calc(100vw - 124px));grid-template-columns:1fr auto 1fr}
+  body.multiplayer-running .mp-center-hud{grid-column:auto;grid-row:auto}
+}
+</style>
+<script id="v18-multiplayer-stability-patch">
+(()=>{
+  'use strict';
+  document.body.classList.add('v18-clean-map');
+
+  Game.prototype.makeEnvironment = function(){
+    const items=[];
+    for(let i=0;i<150;i++){
+      const x=rand(24,WORLD.w-24), y=rand(24,WORLD.h-24);
+      const near=(this.multi?.paths||[this.path]).some(path=>path.distanceTo(x,y)<84);
+      if(near) continue;
+      const crystal=Math.random()<.58;
+      items.push({x,y,r:crystal?rand(4,15):rand(5,18),rot:rand(0,TAU),type:crystal?'crystal':'vent'});
+    }
+    return items;
+  };
+
+  Game.prototype.drawResonancePlatforms = function(){
+    for(const tile of this.tiles){
+      if(tile.type==='rock'){
+        ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);
+        ctx.fillStyle='rgba(42,52,69,.94)';ctx.strokeStyle='rgba(168,190,220,.24)';ctx.lineWidth=1.5;
+        ctx.beginPath();
+        for(let i=0;i<7;i++){
+          const a=i/7*TAU,r=(tile.radius||30)*(.84+Math.sin(i*2.17+(tile.rot||0))*.12);
+          i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+        }
+        ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();continue;
+      }
+      const def=RESONANCE_TYPES[tile.type];if(!def)continue;
+      const occupied=Boolean(this.platformTower(tile)),level=tile.level||1,radius=23+level*1.8;
+      ctx.save();ctx.translate(tile.x,tile.y);ctx.globalAlpha=occupied?.62:.84;
+      ctx.fillStyle='rgba(5,10,22,.94)';ctx.strokeStyle=def.color;ctx.lineWidth=1.7+level*.25;ctx.shadowBlur=occupied?7:10;ctx.shadowColor=def.color;
+      ctx.beginPath();for(let i=0;i<6;i++){const a=i/6*TAU-Math.PI/6;i?ctx.lineTo(Math.cos(a)*radius,Math.sin(a)*radius):ctx.moveTo(Math.cos(a)*radius,Math.sin(a)*radius)}ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;ctx.globalAlpha=occupied?.45:.19;ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,11+level,0,TAU);ctx.fill();
+      ctx.globalAlpha=occupied?.62:.95;ctx.fillStyle=def.color;ctx.font='900 17px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(def.icon,0,1);
+      ctx.globalAlpha=.46;ctx.strokeStyle=def.color;ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,radius+5,0,TAU);ctx.stroke();ctx.restore();
+    }
+  };
+
+  function deterministicMultiTiles(paths){
+    const tiles=[];
+    const types=['power','range','rate','relay','recovery','power'];
+    for(let lane=0;lane<2;lane++){
+      const path=paths[lane];
+      for(let i=0;i<types.length;i++){
+        const type=types[i];
+        const pd=path.total*(.13+i*.145);
+        const p=path.pointAt(pd);
+        const side=((i+lane)%2===0)?-1:1;
+        const offset=96+((i*17+lane*11)%22);
+        const tile={
+          x:p.x+Math.cos(p.angle+Math.PI/2)*offset*side,
+          y:p.y+Math.sin(p.angle+Math.PI/2)*offset*side,
+          type,level:1,color:RESONANCE_TYPES[type].color,phase:(i+lane*.5),
+          surge:14+((i*11+lane*7)%43),lane
+        };
+        if(type==='recovery')tile.discount=((i+lane)%3===0)?.60:.15;
+        tiles.push(tile);
+      }
+      for(let i=0;i<2;i++){
+        const pd=path.total*(.31+i*.39),p=path.pointAt(pd),side=((i+lane)%2===0)?1:-1,offset=139;
+        tiles.push({x:p.x+Math.cos(p.angle+Math.PI/2)*offset*side,y:p.y+Math.sin(p.angle+Math.PI/2)*offset*side,type:'rock',radius:27+i*5,rot:(lane+1)*(i+1)*.71,phase:0,blocker:true,lane});
+      }
+    }
+    return tiles;
+  }
+
+  function rebuildPath(path,newW,newH){
+    const points=path.points.map(p=>[
+      80+(p.x-80)*(newW-160)/(3600-160),
+      70+(p.y-70)*(newH-140)/(1320-140)
+    ]);
+    return new PathModel(points);
+  }
+
+  function prepareCleanMultiWorld(g){
+    if(!g.multi?.enabled||g._v18MultiCleanReady)return;
+    g._v18MultiCleanReady=true;
+    const newW=2800,newH=1650;
+    g.multi.paths=g.multi.paths.map(path=>rebuildPath(path,newW,newH));
+    WORLD.w=newW;WORLD.h=newH;
+    g.path=g.multi.paths[g.multi.localSide??0];
+    g.entryDistance=0;g.baseDistance=g.path.total;
+    g.tiles=deterministicMultiTiles(g.multi.paths);
+    g.environment=g.makeEnvironment();
+    g.stars=Array.from({length:380},()=>({x:Math.random()*WORLD.w,y:Math.random()*WORLD.h,r:rand(.4,1.8),a:rand(.14,.72),s:rand(.2,1.2)}));
+    g.cam={x:WORLD.w/2,y:WORLD.h/2,zoom:clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.18,.28,.72)};
+    g.pointer={sx:VW/2,sy:VH/2,wx:g.cam.x,wy:g.cam.y};
+    document.body.classList.add('multiplayer-running');
+  }
+
+  const previousUpdateUI=Game.prototype.updateUI;
+  Game.prototype.updateUI=function(force=false){
+    if(this.multi?.enabled)prepareCleanMultiWorld(this);
+    previousUpdateUI.call(this,force);
+    if(!this.multi?.enabled)return;
+    document.body.classList.add('multiplayer-running');
+    const prep=Math.max(0,Math.ceil(this.waveCountdown));
+    const players=this.multi.players||[];
+    const local=players[this.multi.localSide??0],rival=players[1-(this.multi.localSide??0)];
+    if(local)$('#mpLocalHud').innerHTML=`<b style="color:var(--self)">J${(local.side??0)+1} • ${local.pseudo}#${local.id}</b><span>R${local.rank} · ♥${Math.max(0,local.lives)} · ${Math.floor(local.money)}¤ · ${Math.floor(local.energy)}ϟ</span>`;
+    if(rival)$('#mpRivalHud').innerHTML=`<b style="color:var(--rival)">J${(rival.side??1)+1} • ${rival.pseudo}#${rival.id}</b><span>R${rival.rank} · ♥${Math.max(0,rival.lives)} · ${Math.floor(rival.money)}¤ · ${Math.floor(rival.energy)}ϟ</span>`;
+    $('#mpModeHud').textContent=this.wave===0?`${this.multi.tag.toUpperCase()} • DÉPART ${prep}s`:`${this.multi.tag.toUpperCase()} • VAGUE ${this.wave}`;
+    $('#waveState').textContent=this.wave===0?`départ dans ${prep}s`:'double front synchronisé';
+    $('#firstWaveCountdown').classList.remove('show');
+  };
+
+  const previousUpdate=Game.prototype.update;
+  Game.prototype.update=function(dt){
+    if(this.multi?.enabled)prepareCleanMultiWorld(this);
+    return previousUpdate.call(this,dt);
+  };
+
+  const previousZoomAt=Game.prototype.zoomAt;
+  Game.prototype.zoomAt=function(sx,sy,factor){
+    if(!this.multi?.enabled)return previousZoomAt.call(this,sx,sy,factor);
+    const before=this.screenToWorld(sx,sy);
+    this.cam.zoom=clamp(this.cam.zoom*factor,.22,2.35);
+    const after=this.screenToWorld(sx,sy);
+    this.cam.x+=before.x-after.x;this.cam.y+=before.y-after.y;this.clampCamera();
+  };
+  const previousCenterCamera=Game.prototype.centerCamera;
+  Game.prototype.centerCamera=function(){
+    if(!this.multi?.enabled)return previousCenterCamera.call(this);
+    this.cam.x=WORLD.w/2;this.cam.y=WORLD.h/2;
+    this.cam.zoom=clamp(Math.min(VW/WORLD.w,VH/WORLD.h)*1.18,.28,.72);
+    this.clampCamera();
+  };
+
+  /* Safari/iPhone : gestion tactile directe, indépendante des Pointer Events. */
+  const blockTouchPointer=e=>{
+    if(game.multi?.enabled&&e.pointerType==='touch'){
+      e.preventDefault();e.stopImmediatePropagation();
+    }
+  };
+  ['pointerdown','pointermove','pointerup','pointercancel'].forEach(type=>canvas.addEventListener(type,blockTouchPointer,{capture:true,passive:false}));
+
+  let touchState=null;
+  function beginSingle(t){
+    touchState={mode:'pan',startX:t.clientX,startY:t.clientY,lastX:t.clientX,lastY:t.clientY,camX:game.cam.x,camY:game.cam.y,moved:false};
+  }
+  function beginPinch(a,b){
+    const cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;
+    touchState={mode:'pinch',distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1,zoom:game.cam.zoom,world:game.screenToWorld(cx,cy),moved:true};
+  }
+  canvas.addEventListener('touchstart',e=>{
+    if(!game.multi?.enabled)return;
+    e.preventDefault();
+    if(e.touches.length===1)beginSingle(e.touches[0]);
+    else if(e.touches.length>=2)beginPinch(e.touches[0],e.touches[1]);
+  },{passive:false,capture:true});
+  canvas.addEventListener('touchmove',e=>{
+    if(!game.multi?.enabled||!touchState)return;
+    e.preventDefault();
+    if(e.touches.length>=2){
+      const a=e.touches[0],b=e.touches[1];
+      if(touchState.mode!=='pinch')beginPinch(a,b);
+      const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1,cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;
+      game.cam.zoom=clamp(touchState.zoom*d/touchState.distance,.22,2.35);
+      const after=game.screenToWorld(cx,cy);game.cam.x+=touchState.world.x-after.x;game.cam.y+=touchState.world.y-after.y;game.clampCamera();
+      return;
+    }
+    if(e.touches.length===1){
+      const t=e.touches[0];
+      if(touchState.mode!=='pan')beginSingle(t);
+      touchState.lastX=t.clientX;touchState.lastY=t.clientY;
+      if(Math.hypot(t.clientX-touchState.startX,t.clientY-touchState.startY)>7)touchState.moved=true;
+      if(touchState.moved){
+        game.cam.x=touchState.camX-(t.clientX-touchState.startX)/game.cam.zoom;
+        game.cam.y=touchState.camY-(t.clientY-touchState.startY)/game.cam.zoom;
+        game.clampCamera();
+      }
+    }
+  },{passive:false,capture:true});
+  canvas.addEventListener('touchend',e=>{
+    if(!game.multi?.enabled||!touchState)return;
+    e.preventDefault();
+    if(e.touches.length>=2){beginPinch(e.touches[0],e.touches[1]);return;}
+    if(e.touches.length===1){beginSingle(e.touches[0]);return;}
+    const changed=e.changedTouches[0];
+    if(touchState.mode==='pan'&&!touchState.moved&&changed)game.handleTap(changed.clientX,changed.clientY);
+    touchState=null;
+  },{passive:false,capture:true});
+  canvas.addEventListener('touchcancel',e=>{if(game.multi?.enabled){e.preventDefault();touchState=null}},{passive:false,capture:true});
+})();
+</script>
+
 </body>
 </html>
