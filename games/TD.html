@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<title>Dark Rift TD — V21 Ascension</title>
+<title>Dark Rift TD — V22 Reforged</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#aa76ff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ffb3;--red:#ff5c74;
@@ -4352,6 +4352,372 @@ const startSubtitle=document.querySelector('#v20SoloShell .subtitle');if(startSu
 
 document.title='Dark Rift TD — V21 Ascension';
 console.info('Dark Rift TD V21 Ascension : progression, économie, pouvoirs, obstacles et optimisations chargés.');
+})();
+</script>
+
+<style id="v22-reforged-style">
+/* ========================================================================== */
+/* DARK RIFT TD V22 — REFORGED                                                */
+/* ========================================================================== */
+body.v22 #game{image-rendering:auto}
+body.v22 #relicInventoryOverlay{z-index:140}
+body.v22 #relicInventoryOverlay.v22-open{display:grid!important}
+body.v22 #relicInventoryOverlay .modal{width:min(820px,96vw);text-align:left}
+body.v22 #relicInventoryOverlay #v197RelicGrid{display:none!important}
+.v22-relic-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}
+.v22-relic-card{position:relative;min-height:132px;padding:12px;border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--rc) 9%,rgba(255,255,255,.035)),rgba(255,255,255,.018));border:1px solid color-mix(in srgb,var(--rc) 35%,rgba(255,255,255,.08));overflow:hidden}
+.v22-relic-card::after{content:"";position:absolute;width:90px;height:90px;right:-38px;bottom:-40px;border-radius:50%;background:radial-gradient(circle,var(--rc),transparent 70%);opacity:.14}
+.v22-relic-card .v22-rh{display:flex;align-items:center;gap:8px}.v22-relic-card .v22-ri{font-size:25px;color:var(--rc);filter:drop-shadow(0 0 10px var(--rc))}.v22-relic-card h3{font-size:10px}.v22-relic-card small{color:var(--muted);font-size:7.5px}.v22-relic-card p{margin-top:8px;color:#dff8ff;font-size:8px;line-height:1.45}.v22-relic-pips{display:flex;gap:4px;margin-top:9px}.v22-relic-pips i{width:17px;height:4px;border-radius:999px;background:rgba(255,255,255,.09)}.v22-relic-pips i.on{background:var(--rc);box-shadow:0 0 8px var(--rc)}
+.v22-relic-convert{padding:10px 12px;border-radius:14px;background:rgba(255,209,102,.065);border:1px solid rgba(255,209,102,.22);color:#ffe7a2;font-size:8.5px;line-height:1.45}
+.v22-identity{margin:8px 0;padding:8px 10px;border-radius:12px;background:rgba(102,244,255,.045);border:1px solid rgba(102,244,255,.15)}.v22-identity summary{cursor:pointer;color:var(--cyan);font-size:8.5px;font-weight:950;letter-spacing:.08em}.v22-identity p{margin-top:6px;color:#d5edf7;font-size:8px;line-height:1.45}
+.v22-multi-note{margin:8px 0 0;padding:8px 10px;border-radius:12px;background:rgba(102,244,255,.055);border:1px solid rgba(102,244,255,.16);color:#cfefff;font-size:8.5px;line-height:1.45}
+.v22-pseudo-error{margin-top:5px;color:var(--red);font-size:8px;font-weight:850;min-height:11px}
+body.v22 #v20Home .v20-mode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.v22 #v20Home .v20-mode-card[data-v20-mode="duel"]{display:none!important}
+body.v22 #v20FixedMode{display:none!important}
+body.v22 #mpIntent{display:none!important}
+body.v22 #mpIntent+*{display:none!important}
+body.v22 .v22-intent-field{display:none!important}
+.v22-net-ghost{pointer-events:none}
+.v22-version-current{border-color:rgba(255,78,155,.5)!important;box-shadow:0 0 25px rgba(255,78,155,.09)!important}
+.v22-version-current h4{color:#ff70b1!important}
+.v22-perf-note{position:fixed;z-index:5;right:calc(8px + var(--safe-right));bottom:calc(70px + var(--safe-bottom));padding:4px 7px;border-radius:999px;background:rgba(4,8,20,.54);border:1px solid rgba(102,244,255,.1);color:rgba(210,244,255,.35);font-size:6px;pointer-events:none}
+@media(max-width:900px){.v22-relic-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.v22-relic-card:last-child{grid-column:1/-1}body.v22 #v20Home .v20-mode-grid{grid-template-columns:1fr 1fr}.v22-identity{margin-bottom:6px}}
+@media(max-width:560px){.v22-relic-summary{grid-template-columns:1fr}.v22-relic-card:last-child{grid-column:auto}body.v22 #v20Home .v20-mode-grid{grid-template-columns:1fr 1fr}}
+</style>
+<script id="v22-reforged-script">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V22__)return;
+window.__DARK_RIFT_V22__=true;
+document.body.classList.add('v22');
+
+const V22_NAME='V22 • REFORGED';
+const V22_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<900;
+const V22_MP=()=>window.__DARK_RIFT_MULTI__;
+const v22ClampArray=(array,max)=>{if(array?.length>max)array.splice(0,array.length-max)};
+
+/* -------------------------------------------------------------------------- */
+/*  Rendu mobile et budgets d’effets                                           */
+/* -------------------------------------------------------------------------- */
+function v22ResizeCanvas(){
+  VW=innerWidth;VH=innerHeight;
+  DPR=Math.min(devicePixelRatio||1,V22_MOBILE?1.30:1.70);
+  canvas.width=Math.round(VW*DPR);canvas.height=Math.round(VH*DPR);
+  canvas.style.width=VW+'px';canvas.style.height=VH+'px';ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+addEventListener('resize',v22ResizeCanvas,{passive:true});setTimeout(v22ResizeCanvas,30);
+function v22Trim(g){
+  const stressed=V22_MOBILE&&(g.v21PerfLevel||g.v21FrameAvg>.025),m=stressed?.68:1;
+  v22ClampArray(g.particles,Math.floor((V22_MOBILE?300:560)*m));
+  v22ClampArray(g.projectiles,Math.floor((V22_MOBILE?210:390)*m));
+  v22ClampArray(g.beams,Math.floor((V22_MOBILE?90:170)*m));
+  v22ClampArray(g.texts,Math.floor((V22_MOBILE?72:130)*m));
+  v22ClampArray(g.areas,Math.floor((V22_MOBILE?58:100)*m));
+  v22ClampArray(g.decals,Math.floor((V22_MOBILE?80:150)*m));
+  v22ClampArray(g.v22Ballistics,Math.floor((V22_MOBILE?125:230)*m));
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Énergie : progression passive plus généreuse                              */
+/* -------------------------------------------------------------------------- */
+if(ENERGY_TECH.regen)ENERGY_TECH.regen.desc='+0,44/s';
+const v22UpgradeEnergyTech=Game.prototype.upgradeEnergyTech;
+Game.prototype.upgradeEnergyTech=function(id){
+  const before=this.energyTech?.[id]||0,rate=this.energyRegen,result=v22UpgradeEnergyTech.call(this,id);
+  if(id==='regen'&&(this.energyTech?.[id]||0)>before)this.energyRegen=rate+.44;
+  return result;
+};
+const v22ResonanceEnergyRate=Game.prototype.resonanceEnergyRate;
+Game.prototype.resonanceEnergyRate=function(){return (v22ResonanceEnergyRate?.call(this)||0)*2};
+
+/* -------------------------------------------------------------------------- */
+/*  Reliques : plus rares, plus fortes et conversion automatique              */
+/* -------------------------------------------------------------------------- */
+Object.assign(MODES.discovery,{relicEvery:6});
+Object.assign(MODES.classic,{relicEvery:7});
+Object.assign(MODES.extreme,{relicEvery:6});
+Object.assign(MODES.bossrush,{relicEvery:5});
+Object.assign(MODES.chaos,{relicEvery:6});
+Object.assign(MODES.endless,{relicEvery:8});
+const V22_RELICS={
+  crit:{icon:'✦',name:'Prisme critique',color:'#ffd166',levels:['+10 % de critique.','1 projectile sur 3 devient prismatique et critique garanti.','1 projectile sur 2 devient prismatique, critique ×2,35.']},
+  damage:{icon:'◆',name:'Noyau offensif',color:'#ff5c74',levels:['+15 % de dégâts.','+15 % de dégâts supplémentaires.','+20 % de dégâts supplémentaires.']},
+  range:{icon:'◎',name:'Optique quantique',color:'#66f4ff',levels:['+12 % de portée.','+12 % de portée supplémentaire.','+15 % de portée supplémentaire.']},
+  tempo:{icon:'⟳',name:'Horloge impossible',color:'#aa76ff',levels:['+12 % de cadence.','+12 % de cadence et +10 % d’effets.','+15 % de cadence et +15 % d’effets.']},
+  core:{icon:'⬡',name:'Cœur auxiliaire',color:'#55ffb3',levels:['+25 énergie max et +2 PV.','+30 énergie max et +2 PV.','+35 énergie max et +2 PV.']}
+};
+Game.prototype.v196ApplyRelicStep=function(id,level){
+  if(id==='crit')this.mods.crit+=[0,.10,.08,.08][level]||0;
+  if(id==='damage')this.mods.damage*=[1,1.15,1.15,1.20][level]||1;
+  if(id==='range')this.mods.range*=[1,1.12,1.12,1.15][level]||1;
+  if(id==='tempo'){this.mods.rate*=[1,.88,.88,.85][level]||1;this.mods.status*=[1,1,1.10,1.15][level]||1}
+  if(id==='core'){const e=[0,25,30,35][level]||0;this.maxEnergy+=e;this.energy=Math.min(this.maxEnergy,this.energy+e);this.maxLives+=2;this.lives=Math.min(this.maxLives,this.lives+2)}
+};
+function v22AllRelicsMax(g){return Object.keys(V22_RELICS).every(id=>(g.v196Relics?.[id]||0)>=3)}
+function v22ConvertRelic(g,multi=false){
+  const coins=multi?260:420+Math.min(380,(g.wave||0)*7),energy=multi?60:90;
+  if(multi&&g.multi?.players){for(const p of g.multi.players){p.money+=coins;p.energy=Math.min(p.maxEnergy,p.energy+energy)}}
+  else{g.money+=coins;g.energy=Math.min(g.maxEnergy,g.energy+energy)}
+  g.toast(`Reliques saturées • conversion automatique +${coins}¤ +${energy}ϟ`);g.updateUI(true);
+}
+Game.prototype.offerRelic=function(){
+  if(this.multi?.enabled)return;
+  if(v22AllRelicsMax(this)){v22ConvertRelic(this,false);return}
+  this.paused=true;clearInterval(this.relicGateInterval);clearTimeout(this.relicArmTimer);
+  const available=Object.keys(V22_RELICS).filter(id=>(this.v196Relics?.[id]||0)<3),seed=((this.v19SeedValue||1)^Math.imul(this.wave+1,0x9e3779b1))>>>0,rng=window.__V19_RNG__?window.__V19_RNG__(seed):Math.random,choices=[...available].sort(()=>rng()-.5).slice(0,3),box=document.getElementById('relicChoices'),overlay=document.getElementById('relicOverlay'),duration=1200,start=performance.now();
+  box.innerHTML='';overlay.classList.remove('ready');overlay.classList.add('arming');
+  for(const [index,id] of choices.entries()){const d=V22_RELICS[id],current=this.v196Relics?.[id]||0,next=current+1,b=document.createElement('button');b.className='choice-card relic-card relic-locked';b.disabled=true;b.style.animationDelay=`${.08+index*.08}s`;b.innerHTML=`<div class="big" style="color:${d.color}">${d.icon}</div><h3>${d.name}</h3><p>${d.levels[next-1]}</p><span class="relic-level">NIVEAU ${current} → ${next}</span>`;b.onclick=()=>{if(b.disabled||!overlay.classList.contains('ready'))return;this.v196GrantRelic(id);overlay.classList.add('hidden');overlay.classList.remove('arming','ready');this.paused=false;this.updateUI(true)};box.appendChild(b)}
+  document.getElementById('relicGateText').textContent='Stabilisation d’une relique rare…';document.getElementById('relicGateTime').textContent='1,2 s';overlay.classList.remove('hidden');this.relicGateInterval=setInterval(()=>{const remain=Math.max(0,duration-(performance.now()-start));document.getElementById('relicGateTime').textContent=(remain/1000).toFixed(1).replace('.',',')+' s'},80);this.relicArmTimer=setTimeout(()=>{clearInterval(this.relicGateInterval);overlay.classList.remove('arming');overlay.classList.add('ready');document.getElementById('relicGateText').textContent='Choix stabilisé';document.getElementById('relicGateTime').textContent='PRÊT';box.querySelectorAll('.relic-card').forEach(b=>{b.disabled=false;b.classList.remove('relic-locked')})},duration)
+};
+const v22FinishWave=Game.prototype.finishWave;
+Game.prototype.finishWave=function(){
+  const waves=this.multi?.enabled?(this.waveLedger||[]).map(x=>x.wave):[],due=waves.some(w=>w%(this.mode.relicEvery||7)===0),full=this.multi?.enabled&&v22AllRelicsMax(this),result=v22FinishWave.call(this);
+  const mp=V22_MP();if(full&&due&&mp?.isHost)v22ConvertRelic(this,true);return result;
+};
+
+/* Inventaire : binding robuste, même après la fusion des menus V20. */
+function v22EnsureRelicOverlay(){
+  let overlay=document.getElementById('relicInventoryOverlay');
+  if(!overlay){document.body.insertAdjacentHTML('beforeend','<div id="relicInventoryOverlay" class="overlay hidden"><div class="modal glass"><div class="modal-head"><div><div class="panel-title">Cristaux stabilisés</div><h2>Inventaire de reliques</h2></div><button id="v22RelicClose" class="icon-btn">✕</button></div><div id="v22RelicGrid" class="v22-relic-summary"></div><div class="v22-relic-convert">Quand les cinq familles atteignent le niveau 3, les futures reliques ne bloquent plus la partie : elles sont automatiquement converties en crédits et en énergie.</div></div></div>');overlay=document.getElementById('relicInventoryOverlay')}
+  let grid=document.getElementById('v22RelicGrid');if(!grid){grid=document.createElement('div');grid.id='v22RelicGrid';grid.className='v22-relic-summary';overlay.querySelector('.modal').appendChild(grid)}
+  let close=document.getElementById('v22RelicClose')||overlay.querySelector('[data-close-v197]');if(close&&!close.id)close.id='v22RelicClose';if(close)close.onclick=()=>{overlay.classList.add('hidden');overlay.classList.remove('v22-open');overlay.style.display=''};
+  overlay.onclick=e=>{if(e.target===overlay){overlay.classList.add('hidden');overlay.classList.remove('v22-open');overlay.style.display=''}};return overlay;
+}
+Game.prototype.v22OpenRelics=function(){
+  const overlay=v22EnsureRelicOverlay(),grid=document.getElementById('v22RelicGrid')||document.getElementById('v197RelicGrid');
+  grid.className='v22-relic-summary';grid.innerHTML=Object.entries(V22_RELICS).map(([id,d])=>{const lv=this.v196Relics?.[id]||0,next=Math.min(3,lv+1);return `<article class="v22-relic-card" style="--rc:${d.color}"><div class="v22-rh"><span class="v22-ri">${d.icon}</span><div><h3>${d.name}</h3><small>Niveau ${lv}/3</small></div></div><p>${lv?d.levels[lv-1]:'Aucun fragment.'}${lv<3?`<br><b>Prochain niveau :</b> ${d.levels[next-1]}`:'<br><b>Signature maximale stabilisée.</b>'}</p><div class="v22-relic-pips"><i class="${lv>=1?'on':''}"></i><i class="${lv>=2?'on':''}"></i><i class="${lv>=3?'on':''}"></i></div></article>`}).join('');
+  overlay.classList.remove('hidden');overlay.classList.add('v22-open');overlay.style.display='grid';
+};
+function v22BindRelicButton(){const button=document.getElementById('relicInventoryBtn');if(!button||button.dataset.v22Bound)return;button.dataset.v22Bound='1';button.onclick=e=>{e.preventDefault();e.stopPropagation();game.v22OpenRelics()};button.addEventListener('pointerup',e=>{e.preventDefault();game.v22OpenRelics()},{passive:false})}
+v22BindRelicButton();
+
+/* -------------------------------------------------------------------------- */
+/*  Tourelles : rôles plus distincts                                          */
+/* -------------------------------------------------------------------------- */
+const V22_IDENTITIES={
+ pulse:'Verrou cumulatif : chaque sixième impact sur la même cible déclenche une surcharge bonus.',
+ gatling:'Arme balistique réelle : elle projette un éventail de balles qui peuvent manquer et disparaissent à portée maximale.',
+ sniper:'Exécuteur : dégâts fortement augmentés contre une cible sous 28 % de ses PV.',
+ rail:'Perce-ligne : conserve son intérêt maximal sur les files compactes.',
+ cannon:'Explosion fiable de courte portée, conçue pour les groupes proches.',
+ mortar:'Artillerie de siège : très grande portée, mais zone morte autour de la tourelle.',
+ rockets:'Batterie longue portée : missiles guidés très visibles, mais impossible de tirer à courte distance.',
+ mine:'Contrôle anticipé : prépare le terrain avant l’arrivée de la horde.',
+ cryo:'Fragilise les cibles gelées : le cinétique et l’explosif infligent davantage de dégâts.',
+ inferno:'Anti-régénération et dégâts persistants sur les cibles qui quittent le cône.',
+ tesla:'Nettoie les groupes espacés grâce aux rebonds électriques.',
+ solar:'Duel prolongé : le rayon devient dangereux s’il garde la même cible.',
+ gravity:'Regroupe et fait reculer les ennemis pour préparer les dégâts de zone.',
+ chrono:'Contrôle pur sans dégâts : ralentissement maximal sur une grande zone.',
+ beacon:'Amplifie une zone de construction dense plutôt qu’une cible ennemie.',
+ disrupt:'Spécialiste des boucliers : rupture, surcharge et bref étourdissement.',
+ spore:'Contagion : l’infection se propage aux ennemis voisins à la mort de l’hôte.',
+ acid:'Corrosion : retire progressivement de l’armure et amplifie tous les dégâts reçus.',
+ leech:'Économie de durée : faible puissance immédiate, rentabilité sur les longues parties.',
+ portal:'Contrôle d’urgence : chaque ennemi ne peut être renvoyé qu’une seule fois par partie.',
+ drone:'Couverture autonome de plusieurs cibles, sans dépendre d’une seule ligne de tir.',
+ sonic:'Onde instantanée : frappe une zone entière et désoriente brièvement la horde.',
+ bulwark:'Blocage physique : crée du temps, mais les boss brisent rapidement les barricades.',
+ arc:'Chaîne longue dédiée aux groupes très espacés.',
+ prism:'Éclats guidés multi-cibles, plus précis que l’artillerie de zone.',
+ singularity:'Effondrement local : dégâts gravitationnels, recul et concentration de la horde.'
+};
+function v22Def(id,values){const d=TOWERS.find(t=>t.id===id);if(d)Object.assign(d,values)}
+v22Def('gatling',{desc:'Éventail balistique à précision variable',mechanic:'Projette plusieurs balles physiques dans un cône. La chaleur augmente la cadence et resserre progressivement la dispersion, mais certaines balles peuvent manquer.'});
+v22Def('rockets',{range:340,minRange:132,proj:560,desc:'Salves guidées à très longue portée',mechanic:'Dispose d’une portée exceptionnelle et de missiles guidés, mais ne peut viser aucun ennemi trop proche de son socle.'});
+v22Def('mortar',{range:330,minRange:112,desc:'Bombardement de siège à zone morte'});
+v22Def('acid',{desc:'Corrosion d’armure cumulative',mechanic:'Chaque impact applique une charge de corrosion, jusqu’à trois. La cible perd de l’armure et reçoit davantage de dégâts de toutes les sources.'});
+v22Def('spore',{desc:'Infection toxique contagieuse',mechanic:'Infecte une cible sur la durée. Lorsqu’elle meurt, la contamination saute vers plusieurs ennemis proches.'});
+v22Def('portal',{desc:'Renvoi spatial unique par ennemi',mechanic:'Renvoie une cible une seule fois au cours de son trajet. Les boss reculent moins loin et deviennent ensuite immunisés au renvoi.'});
+
+/* Projectile balistique léger pour la Gatling. */
+class V22Ballistic{
+  constructor(tower,angle,damage){this.game=tower.game;this.tower=tower;this.x=tower.x+Math.cos(angle)*22;this.y=tower.y+Math.sin(angle)*22;this.px=this.x;this.py=this.y;this.angle=angle;this.speed=900;this.left=tower.stats.range;this.damage=damage;this.color=tower.def.color;this.dead=false}
+  update(dt){if(this.dead)return false;this.px=this.x;this.py=this.y;const step=Math.min(this.left,this.speed*dt);this.x+=Math.cos(this.angle)*step;this.y+=Math.sin(this.angle)*step;this.left-=step;const grid=this.game.v21EnemyGrid,candidates=[];
+    if(grid){const gx=Math.floor(this.x/grid.cell),gy=Math.floor(this.y/grid.cell),seen=new Set();for(let ix=gx-1;ix<=gx+1;ix++)for(let iy=gy-1;iy<=gy+1;iy++)for(const e of grid.map.get(ix+','+iy)||[])if(!seen.has(e)){seen.add(e);candidates.push(e)}}else candidates.push(...this.game.enemies);
+    let hit=null,best=Infinity;for(const e of candidates){if(e.dead)continue;const d=pointSegmentDistance(e.x,e.y,this.px,this.py,this.x,this.y);if(d<e.size+5){const along=Math.hypot(e.x-this.px,e.y-this.py);if(along<best){best=along;hit=e}}}
+    if(hit){hit.hit(this.damage,this.tower,'kinetic');this.game.burst(hit.x,hit.y,this.color,2,45,'spark');this.dead=true}
+    return !this.dead&&this.left>0
+  }
+  draw(){ctx.save();ctx.strokeStyle=this.color;ctx.lineWidth=2.2;ctx.globalAlpha=.9;ctx.shadowBlur=7;ctx.shadowColor=this.color;ctx.beginPath();ctx.moveTo(this.x-Math.cos(this.angle)*13,this.y-Math.sin(this.angle)*13);ctx.lineTo(this.x+Math.cos(this.angle)*4,this.y+Math.sin(this.angle)*4);ctx.stroke();ctx.restore()}
+}
+function v22TowerTick(t,dt){t.level=Math.min(10,1+Math.floor(t.xp/100));t.updateBuff();const g=t.game;if(g.time<t.disabledUntil)return null;const frozen=g.time<t.frozenUntil?1.75:1,over=(g.time<t.overdriveUntil||g.time<g.overdriveUntil)?.58:1;t.cooldown-=dt/(frozen*over*t.buff.rate);return g}
+const v22TowerUpdate=Tower.prototype.update;
+Tower.prototype.update=function(dt){
+  if(this.def.kind==='gatling'){
+    const g=v22TowerTick(this,dt);if(!g)return;const targets=this.targets(1);if(!targets.length){this.heat=Math.max(0,this.heat-dt*.5);return}const target=targets[0];this.heat=clamp(this.heat+dt*.34,0,1);this.angle=Math.atan2(target.y-this.y,target.x-this.x);if(this.cooldown>0)return;const count=this.mk===2?3:2,spread=.19*(1-this.heat*.62);this.game.v22Ballistics=this.game.v22Ballistics||[];for(let i=0;i<count;i++){const a=this.angle+(i-(count-1)/2)*spread+rand(-spread*.25,spread*.25),dmg=this.stats.dmg*(this.mk===2?.48:.58);if(this.game.v22Ballistics.length<(V22_MOBILE?140:250))this.game.v22Ballistics.push(new V22Ballistic(this,a,dmg))}this.cooldown=this.stats.rate*(1-this.heat*.43);return;
+  }
+  if(this.def.kind==='acid'||this.def.kind==='spore'){
+    const g=v22TowerTick(this,dt);if(!g)return;const targets=this.targets(1);if(!targets.length)return;const target=targets[0];this.angle=Math.atan2(target.y-this.y,target.x-this.x);if(this.cooldown>0)return;
+    if(this.def.kind==='acid')this.fireProjectile(target,{damage:this.stats.dmg,splash:Math.min(34,this.stats.splash||24),color:'#b6ff4f',effects:{damageType:'toxic',v22Acid:true}});
+    else this.fireProjectile(target,{damage:this.stats.dmg*.72,splash:0,color:'#55ffb3',effects:{damageType:'toxic',poison:(this.def.poison||8)*(this.mk===2?1.45:1),v22Spore:true}});
+    this.cooldown=this.stats.rate;return;
+  }
+  return v22TowerUpdate.call(this,dt)
+};
+
+const v22ProjectileApply=Projectile.prototype.apply;
+Projectile.prototype.apply=function(enemy,mult){
+  const tower=this.tower,oldDamage=this.damage;
+  if(tower?.def?.kind==='sniper'&&enemy.hp/enemy.maxHp<.28)this.damage*=1.48;
+  const result=v22ProjectileApply.call(this,enemy,mult);this.damage=oldDamage;
+  if(!enemy||enemy.dead)return result;
+  if(tower?.def?.id==='pulse'){enemy.v22PulseMarks=(enemy.v22PulseMarks||0)+1;if(enemy.v22PulseMarks>=6){enemy.v22PulseMarks=0;enemy.hit(tower.stats.dmg*.9,tower,'electric',true);this.game.ring(enemy.x,enemy.y,'#ff8ec7',34,.24)}}
+  if(this.effects?.v22Acid){enemy.v22CorrosionStacks=Math.min(3,(enemy.v22CorrosionStacks||0)+1);enemy.v22CorrosionUntil=this.game.time+8;this.game.texts.push(new FloatText(enemy.x,enemy.y-25,`CORROSION ${enemy.v22CorrosionStacks}/3`,'#b6ff4f',7))}
+  if(this.effects?.v22Spore){enemy.v22Infection=Math.max(enemy.v22Infection||0,(tower.def.poison||8)*(tower.mk===2?1.45:1));enemy.v22InfectionUntil=this.game.time+5.5}
+  return result
+};
+const v22EnemyHit=Enemy.prototype.hit;
+Enemy.prototype.hit=function(amount,tower,damageType='kinetic',ignoreArmor=false,shieldOnly=false){
+  let value=amount,armor=this.armor;const now=this.game.time;
+  if(this.v22CorrosionUntil>now&&this.v22CorrosionStacks){value*=1+this.v22CorrosionStacks*.08;this.armor=Math.max(0,this.armor-this.v22CorrosionStacks*.04)}
+  if((now<this.stunUntil||this.slowFactor<=.28&&this.slowUntil>now)&&['kinetic','explosive'].includes(damageType))value*=1.18;
+  try{return v22EnemyHit.call(this,value,tower,damageType,ignoreArmor,shieldOnly)}finally{this.armor=armor}
+};
+const v22EnemyDie=Enemy.prototype.die;
+Enemy.prototype.die=function(tower){
+  const infected=this.v22InfectionUntil>this.game.time?(this.v22Infection||0):0,x=this.x,y=this.y,g=this.game;v22EnemyDie.call(this,tower);
+  if(infected){let spread=0;for(const e of g.enemies.sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))){if(e===this||e.dead||Math.hypot(e.x-x,e.y-y)>115)continue;e.poison=Math.max(e.poison,infected*.72);e.poisonUntil=Math.max(e.poisonUntil,g.time+3.8);e.v22Infection=Math.max(e.v22Infection||0,infected*.72);e.v22InfectionUntil=g.time+4.2;if(++spread>=4)break}if(spread)g.ring(x,y,'#55ffb3',105,.36)}
+};
+
+/* Portail : chaque ennemi ne peut subir qu’un seul renvoi. */
+function v22PortalUsed(g,e){return g.v22PortalUsedWeak?.has(e)||(e.netId&&g.v22PortalUsedIds?.has(String(e.netId)))}
+function v22MarkPortal(g,e){g.v22PortalUsedWeak?.add(e);if(e.netId)g.v22PortalUsedIds?.add(String(e.netId));e.v22PortalUsed=true}
+const v22ValidTargets=Tower.prototype.validTargets;
+Tower.prototype.validTargets=function(range=this.stats.range*this.buff.range){const list=v22ValidTargets.call(this,range);return this.def.kind==='portal'?list.filter(e=>!v22PortalUsed(this.game,e)):list};
+Tower.prototype.firePortal=function(target){
+  if(!target||target.dead||v22PortalUsed(this.game,target))return;v22MarkPortal(this.game,target);const back=target.boss?55:Math.min(165,(target.pathRef||this.game.path).total*.075);target.distance=Math.max(this.game.entryDistance+18,target.distance-back);target.hit(this.stats.dmg*.75,this,'void',true);target.applySlow(.72,2.8);this.game.ring(target.x,target.y,this.def.color,62,.42);this.game.texts.push(new FloatText(target.x,target.y-24,'RENVOI UNIQUE',this.def.color,8))
+};
+
+/* Missiles plus longs et plus lisibles, sans ajouter davantage de particules. */
+const v22ProjectileDraw=Projectile.prototype.draw;
+Projectile.prototype.draw=function(){
+  if(this.kind!=='rockets')return v22ProjectileDraw.call(this);const a=Math.atan2(this.ty-this.y,this.tx-this.x);ctx.save();for(const q of this.trail){ctx.globalAlpha=q.life/.22*.18;ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(q.x,q.y,2.4,0,TAU);ctx.fill()}ctx.globalAlpha=1;ctx.translate(this.x,this.y);ctx.rotate(a);ctx.shadowBlur=12;ctx.shadowColor=this.color;ctx.fillStyle=this.color;ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(-11,-5);ctx.lineTo(-7,0);ctx.lineTo(-11,5);ctx.closePath();ctx.fill();ctx.fillStyle='#fff8';ctx.fillRect(-3,-2,10,4);ctx.restore()
+};
+
+/* Identité tactique visible dans l’inspecteur. */
+const v22Inspector=Game.prototype.renderInspector;
+Game.prototype.renderInspector=function(){v22Inspector.call(this);const t=this.selected,panel=document.getElementById('inspector');if(!t||!panel?.classList.contains('open'))return;panel.querySelector('.v22-identity')?.remove();const node=document.createElement('details');node.className='v22-identity';node.open=false;node.innerHTML=`<summary>IDENTITÉ TACTIQUE V22</summary><p>${V22_IDENTITIES[t.def.id]||'Rôle spécialisé conservé et renforcé par son architecture MK2.'}</p>`;const firstSection=panel.querySelector('.section');if(firstSection)panel.insertBefore(node,firstSection);else panel.appendChild(node)};
+
+/* -------------------------------------------------------------------------- */
+/*  Glace centrée sur la silhouette                                            */
+/* -------------------------------------------------------------------------- */
+function v22EnemyShape(e,x,y,scale=1){
+  const s=e.size*scale;ctx.save();ctx.translate(x,y);ctx.rotate(e.rotation+e.game.time*(e.boss?.id==='chronophage'?1.4:.35));ctx.beginPath();
+  if(e.boss){for(let i=0;i<12;i++){const a=i/12*TAU,r=i%2?s:s*.72;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath()}
+  else if(e.type==='runner'||e.type==='berserker'){ctx.moveTo(s,0);ctx.lineTo(-s*.8,-s*.72);ctx.lineTo(-s*.45,0);ctx.lineTo(-s*.8,s*.72);ctx.closePath()}
+  else if(e.type==='swarm')ctx.arc(0,0,s,0,TAU);
+  else if(e.type==='phase'||e.type==='cloaked'){ctx.moveTo(0,-s);ctx.lineTo(s,0);ctx.lineTo(0,s);ctx.lineTo(-s,0);ctx.closePath()}
+  else{for(let i=0;i<6;i++){const a=i/6*TAU;i?ctx.lineTo(Math.cos(a)*s,Math.sin(a)*s):ctx.moveTo(Math.cos(a)*s,Math.sin(a)*s)}ctx.closePath()}ctx.restore()
+}
+const v22EnemyDraw=Enemy.prototype.draw;
+Enemy.prototype.draw=function(){
+  const frozen=this.game.time<this.stunUntil||this.slowFactor<=.28&&this.slowUntil>this.game.time,x=this.x,y=this.y,stun=this.stunUntil,slow=this.slowFactor,slowUntil=this.slowUntil;
+  if(frozen){this.stunUntil=-1;if(this.slowFactor<=.28)this.slowFactor=.31;this.slowUntil=-1}
+  v22EnemyDraw.call(this);this.stunUntil=stun;this.slowFactor=slow;this.slowUntil=slowUntil;this.v22DrawStamp=this.game.v22DrawStamp;
+  if(!frozen||this.dead)return;ctx.save();ctx.fillStyle='rgba(126,224,255,.25)';ctx.strokeStyle='rgba(225,252,255,.88)';ctx.lineWidth=1.5;ctx.shadowBlur=12;ctx.shadowColor='#66e7ff';v22EnemyShape(this,x,y,this.boss?1.32:1.22);ctx.fill();ctx.stroke();const s=this.size*(this.boss?1.55:1.42);ctx.globalAlpha=.55;ctx.beginPath();ctx.moveTo(x-s*.55,y-s*.75);ctx.lineTo(x+s*.1,y+s*.7);ctx.moveTo(x+s*.48,y-s*.45);ctx.lineTo(x-s*.15,y+s*.25);ctx.stroke();ctx.restore()
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Nova optimisée : calcul par impulsions et rendu sans disque géant          */
+/* -------------------------------------------------------------------------- */
+Game.prototype.v19UpdateEffects=function(dt,applyGameplay=true){
+  const nova=this.v19Nova;if(!nova)return;nova.elapsed+=dt;nova.v22Tick=(nova.v22Tick||0)-dt;const radius=nova.maxRadius*clamp(nova.elapsed/nova.duration,0,1);
+  if(applyGameplay&&nova.v22Tick<=0){nova.v22Tick=.075;const r2=(radius+38)*(radius+38);for(const e of this.enemies){if(e.dead||nova.hit.has(e))continue;const dx=e.x-nova.x,dy=e.y-nova.y;if(dx*dx+dy*dy<=r2){nova.hit.add(e);e.stunUntil=Math.max(e.stunUntil,this.time+5);e.applySlow(.45,15);if(this.particles.length<(V22_MOBILE?260:500))this.particles.push(new Particle(e.x,e.y,'#b9f7ff',{shape:'snow',life:.55,size:1.7,speed:20,gravity:4}))}}}
+  if(nova.elapsed>nova.duration+.35)this.v19Nova=null
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Obstacles massifs par biome                                                */
+/* -------------------------------------------------------------------------- */
+function v22ScaleObstacles(g){
+  const factor={rift:1.32,glacier:1.42,forge:1.58,garden:1.55}[g.mapId]||1.35;for(const tile of g.tiles||[]){if(!tile.blocker||tile.v22Scaled)continue;tile.radius=Math.min(V22_MOBILE?148:175,(tile.radius||32)*factor);tile.v22Scaled=true}
+}
+function v22ObstacleCluster(g){
+  for(const tile of g.tiles||[]){if(!tile.blocker)continue;const r=tile.radius||30;ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);
+    if(tile.type==='root_mass'){ctx.globalAlpha=.36;ctx.fillStyle='#55ffb3';for(let i=0;i<5;i++){const a=i/5*TAU+(tile.phase||0),rr=r*(.68+(i%2)*.17);ctx.beginPath();ctx.arc(Math.cos(a)*rr,Math.sin(a)*rr,r*.19,0,TAU);ctx.fill()}}
+    else if(tile.type==='lava_pool'){ctx.globalAlpha=.30;ctx.fillStyle='#ff6538';for(let i=0;i<2;i++){const a=(i?.9:-1.8)+(tile.phase||0),rr=r*.72;ctx.beginPath();ctx.ellipse(Math.cos(a)*rr,Math.sin(a)*rr,r*.30,r*.15,a,0,TAU);ctx.fill()}}
+    else if(tile.type==='ice_block'){ctx.globalAlpha=.27;ctx.fillStyle='#b9f7ff';for(let i=0;i<3;i++){const a=i/3*TAU;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.72,Math.sin(a)*r*.72);ctx.lineTo(Math.cos(a+.18)*r*1.05,Math.sin(a+.18)*r*1.05);ctx.lineTo(Math.cos(a-.18)*r*.88,Math.sin(a-.18)*r*.88);ctx.closePath();ctx.fill()}}
+    else{ctx.globalAlpha=.26;ctx.fillStyle='#aa76ff';for(let i=0;i<3;i++){const a=i/3*TAU;ctx.save();ctx.translate(Math.cos(a)*r*.68,Math.sin(a)*r*.68);ctx.rotate(a);ctx.fillRect(-r*.08,-r*.34,r*.16,r*.68);ctx.restore()}}
+    ctx.restore()
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Réseau : affichage de secours des ennemis du front opposé                  */
+/* -------------------------------------------------------------------------- */
+const V22_NET={room:null,lanes:[new Map(),new Map()],portalSent:0};
+function v22Hash(text){let h=2166136261>>>0;for(const c of String(text)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function v22ReceiveLane(packet){
+  if(!packet||!Array.isArray(packet.e)||!game.multi?.paths)return;const lane=packet.lane===1?1:0,map=V22_NET.lanes[lane],now=performance.now(),next=new Map();
+  for(const a of packet.e){const id=String(a[0]),old=map.get(id),to=Number(a[3])||0,current=old?lerp(old.from,old.to,clamp((now-old.at)/600,0,1)):to;next.set(id,{id,type:a[1],wave:Number(a[2])||0,from:current,to,hp:Number(a[4])||0,maxHp:Number(a[5])||1,shield:Number(a[6])||0,maxShield:Number(a[7])||0,boss:a[8]||'',elite:!!a[9],slow:Number(a[10])||1,stun:Number(a[12])||0,at:now})}
+  V22_NET.lanes[lane]=next
+}
+function v22HookRoom(){
+  const mp=V22_MP(),room=mp?.room;if(!room||room===V22_NET.room)return;V22_NET.room=room;const previous=room.onSet;room.onSet=(name,value)=>{try{const data=room.get(name);if(name==='☁ lf0'||name==='☁ lf1')v22ReceiveLane(data);if(name==='☁ v22portal'&&data?.ids){game.v22PortalUsedIds=new Set(data.ids.map(String))}}catch{}return previous?.(name,value)}
+}
+function v22ProxyPosition(rec,lane){const path=game.multi.paths[lane],d=lerp(rec.from,rec.to,clamp((performance.now()-rec.at)/600,0,1)),p=path.pointAt(d),seed=v22Hash(rec.id+'|'+rec.type+'|'+lane),offset=((seed%1000)/999-.5)*(rec.boss?12:28);return{x:p.x+Math.cos(p.angle+Math.PI/2)*offset,y:p.y+Math.sin(p.angle+Math.PI/2)*offset,d}}
+function v22DrawProxy(rec,lane){
+  const p=v22ProxyPosition(rec,lane),def=ENEMIES[rec.type]||ENEMIES.grunt,boss=rec.boss?BOSSES.find(b=>b.id===rec.boss):null,col=boss?.color||def.color,s=boss?30:(def.size||12);ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle=col;ctx.strokeStyle='#fff9';ctx.shadowBlur=boss?22:11;ctx.shadowColor=col;ctx.beginPath();if(boss){for(let i=0;i<12;i++){const a=i/12*TAU,r=i%2?s:s*.7;i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath()}else if(rec.type==='runner'||rec.type==='berserker'){ctx.moveTo(s,0);ctx.lineTo(-s*.8,-s*.72);ctx.lineTo(-s*.45,0);ctx.lineTo(-s*.8,s*.72);ctx.closePath()}else if(rec.type==='swarm')ctx.arc(0,0,s,0,TAU);else{for(let i=0;i<6;i++){const a=i/6*TAU;i?ctx.lineTo(Math.cos(a)*s,Math.sin(a)*s):ctx.moveTo(Math.cos(a)*s,Math.sin(a)*s)}ctx.closePath()}ctx.fill();if(rec.elite){ctx.lineWidth=2;ctx.strokeStyle='#ffd166';ctx.stroke()}ctx.restore();const w=boss?66:Math.max(24,s*2.1),yy=p.y-s-11;ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(p.x-w/2,yy,w,4);ctx.fillStyle=col;ctx.fillRect(p.x-w/2,yy,w*clamp(rec.hp/rec.maxHp,0,1),4);if(rec.stun>0||rec.slow<=.28){ctx.save();ctx.globalAlpha=.28;ctx.fillStyle='#9deaff';ctx.strokeStyle='#eaffff';ctx.beginPath();ctx.arc(p.x,p.y,s*1.35,0,TAU);ctx.fill();ctx.stroke();ctx.restore()}}
+function v22DrawRemoteEnemies(){
+  const mp=V22_MP();if(!game.multi?.enabled||!mp?.active)return;const drawn=new Set((game.enemies||[]).filter(e=>e.v22DrawStamp===game.v22DrawStamp).map(e=>String(e.netId))),remote=mp.localSide===0?1:0,map=V22_NET.lanes[remote];for(const rec of map.values()){if(performance.now()-rec.at>3200||drawn.has(rec.id))continue;v22DrawProxy(rec,remote)}
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Un seul bouton Multijoueur et pseudo obligatoire                          */
+/* -------------------------------------------------------------------------- */
+function v22ConfigureHome(){
+  const coop=document.querySelector('#v20Home [data-v20-mode="coop"]'),duel=document.querySelector('#v20Home [data-v20-mode="duel"]');if(coop){coop.querySelector('.ico').textContent='◫';coop.querySelector('h3').textContent='MULTIJOUEUR';coop.querySelector('p').textContent='Entre dans le Nexus, choisis ton pseudo, rejoins un salon ou crée ensuite une partie Coop ou Duel.';coop.querySelector('small').textContent='COOP OU DUEL • EN LIGNE';if(!coop.dataset.v22Bound){coop.dataset.v22Bound='1';coop.addEventListener('click',()=>setTimeout(v22ConfigureMulti,0))}}if(duel)duel.style.display='none'
+}
+function v22ValidPseudo(value){const v=String(value||'').trim();return v.length>=2&&v.toLowerCase()!=='pilote'}
+function v22ConfigureMulti(){
+  document.getElementById('v20FixedMode')?.remove();const input=document.getElementById('mpPseudo'),intent=document.getElementById('mpIntent'),online=document.getElementById('mpOnline'),tag=document.getElementById('mpCreateTag');
+  if(intent){intent.value='coop';intent.disabled=false;intent.closest('.mp-field')?.classList.add('v22-intent-field')}
+  if(tag){tag.disabled=false;tag.closest('.mp-field')?.querySelector('label')&&(tag.closest('.mp-field').querySelector('label').textContent='Mode du salon')}
+  if(input){if((input.value||'').trim().toLowerCase()==='pilote')input.value='';input.placeholder='Choisis un pseudo';let error=document.getElementById('v22PseudoError');if(!error){error=document.createElement('div');error.id='v22PseudoError';error.className='v22-pseudo-error';input.after(error)}const refresh=()=>{const ok=v22ValidPseudo(input.value);if(online)online.disabled=!ok;error.textContent=ok?'':'Pseudo obligatoire : au moins 2 caractères.'};if(!input.dataset.v22Bound){input.dataset.v22Bound='1';input.addEventListener('input',refresh)}refresh()}
+  if(online&&!online.dataset.v22Guard){online.dataset.v22Guard='1';online.addEventListener('click',e=>{if(!v22ValidPseudo(input?.value)){e.preventDefault();e.stopImmediatePropagation();game.toast('Choisis un pseudo avant de rejoindre le Nexus')}},true)}
+  const profile=document.querySelector('#mpProfileView .mp-card');if(profile&&!profile.querySelector('.v22-multi-note'))profile.insertAdjacentHTML('beforeend','<div class="v22-multi-note">Le mode Coop ou Duel n’est choisi qu’au moment de créer un salon. Les salons publics indiquent leur règle avec un tag avant de les rejoindre.</div>')
+}
+v22ConfigureHome();
+const v22MenuObserver=new MutationObserver(()=>{v22ConfigureHome();if(document.getElementById('v20MultiShell')?.classList.contains('active'))v22ConfigureMulti()});v22MenuObserver.observe(document.getElementById('startOverlay'),{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+
+/* -------------------------------------------------------------------------- */
+/*  Boucle et dessin finaux                                                    */
+/* -------------------------------------------------------------------------- */
+const v22Reset=Game.prototype.reset;
+Game.prototype.reset=function(){const result=v22Reset.call(this);this.v22Ballistics=[];this.v22PortalUsedWeak=new WeakSet();this.v22PortalUsedIds=new Set();this.v22DrawStamp=0;v22ScaleObstacles(this);return result};
+const v22Update=Game.prototype.update;
+Game.prototype.update=function(dt){
+  const result=v22Update.call(this,dt);const scaled=this.started&&!this.paused?dt*this.speed:dt;this.v22Ballistics=(this.v22Ballistics||[]).filter(b=>b.update(scaled));v22ScaleObstacles(this);v22BindRelicButton();v22HookRoom();
+  const mp=V22_MP();if(mp?.active&&this.multi?.enabled&&mp.isHost&&mp.room?.connected){this.v22PortalBroadcast=(this.v22PortalBroadcast||0)-dt;if(this.v22PortalBroadcast<=0){this.v22PortalBroadcast=1.3;mp.room.set('☁ v22portal',{ids:[...(this.v22PortalUsedIds||[])],ts:Date.now()})}}
+  v22Trim(this);const state=window.__DARK_RIFT_V20_STATE__;document.title=state?.mode&&state.mode!=='home'?`Dark Rift TD — V22 ${String(state.mode==='coop'?'MULTI':state.mode).toUpperCase()}`:'Dark Rift TD — V22 Reforged';return result
+};
+const v22DrawWorld=Game.prototype.drawWorld;
+Game.prototype.drawWorld=function(th){
+  this.v22DrawStamp=(this.v22DrawStamp||0)+1;const nova=this.v19Nova;if(nova)this.v19Nova=null;v22DrawWorld.call(this,th);if(nova)this.v19Nova=nova;v22ObstacleCluster(this);for(const b of this.v22Ballistics||[])b.draw();v22DrawRemoteEnemies();if(nova){const p=clamp(nova.elapsed/nova.duration,0,1),r=nova.maxRadius*p;ctx.save();ctx.strokeStyle='#dffcff';ctx.globalAlpha=.85*(1-p*.3);ctx.lineWidth=V22_MOBILE?4:6;ctx.shadowBlur=V22_MOBILE?8:16;ctx.shadowColor='#66f4ff';ctx.beginPath();ctx.arc(nova.x,nova.y,r,0,TAU);ctx.stroke();ctx.globalAlpha=.30;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(nova.x,nova.y,Math.max(0,r-18),0,TAU);ctx.stroke();ctx.restore()}}
+
+/* -------------------------------------------------------------------------- */
+/*  Update Map dans l’ordre chronologique                                      */
+/* -------------------------------------------------------------------------- */
+const v22RenderWiki=Game.prototype.renderWiki;
+Game.prototype.renderWiki=function(){
+  const result=v22RenderWiki.call(this);if(this.wikiTab!=='updates')return result;const timeline=document.querySelector('.v20-timeline');if(!timeline)return result;
+  timeline.querySelectorAll('.v20-current').forEach(n=>n.classList.remove('v20-current','v22-version-current'));
+  if(!timeline.querySelector('[data-v22-release]'))timeline.insertAdjacentHTML('beforeend','<article data-v22-release class="v20-release v20-current v22-version-current" style="--release-color:#ff4e9b"><h4><span>V22 • Reforged</span><span>VERSION ACTUELLE</span></h4><p>Identités tactiques renforcées, reliques maîtrisées et expérience multijoueur simplifiée.</p><ul><li>Tisseur de Portail limité à un renvoi unique par ennemi</li><li>Gatling balistique avec dispersion et tirs pouvant manquer</li><li>Missiles allongés, portée augmentée et distance minimale</li><li>Acidificateur corrosif et Spore contagieuse réellement différenciés</li><li>Reliques plus rares, plus fortes et conversion automatique à saturation</li><li>Inventaire de reliques réparé</li><li>Un seul accès Multijoueur, pseudo obligatoire, choix Coop/Duel à la création</li><li>Affichage de secours des ennemis du front opposé</li><li>Glace recentrée, Nova allégée et obstacles de biome agrandis</li><li>Recharge énergétique des technologies et relais doublée</li></ul></article>');
+  const order=['Prototypes','V13','V14','V15 •','V15.1','V16','V17','V18 •','V18.1','V19 •','V19.6 •','V19.6.1','V19.7','V20','V21','V22'];const nodes=[...timeline.querySelectorAll('.v20-release')];nodes.sort((a,b)=>{const ta=a.querySelector('h4 span')?.textContent||'',tb=b.querySelector('h4 span')?.textContent||'';const idx=t=>{for(let i=0;i<order.length;i++)if(t.startsWith(order[i]))return i;return 999};return idx(ta)-idx(tb)});nodes.forEach(n=>timeline.appendChild(n));const intro=document.querySelector('.v20-history-intro p');if(intro)intro.textContent='Chronologie du projet, de ses premiers prototypes jusqu’à la version actuelle. Lis-la de haut en bas : les versions deviennent progressivement plus récentes.';return result
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Identité de version                                                        */
+/* -------------------------------------------------------------------------- */
+const badge=document.querySelector('.v20-version');if(badge)badge.textContent=V22_NAME;
+const homeSubtitle=document.querySelector('.v20-home-head .subtitle');if(homeSubtitle)homeSubtitle.textContent='V22 Reforged — tourelles plus distinctes, reliques maîtrisées, multijoueur simplifié et moteur mobile encore allégé.';
+const soloSubtitle=document.querySelector('#v20SoloShell .subtitle');if(soloSubtitle)soloSubtitle.textContent='V22 Reforged — stratégie d’arsenal renforcée, grands biomes et économie énergétique plus fluide.';
+for(const d of TOWERS)d.v22Identity=V22_IDENTITIES[d.id]||d.mechanic;
+v22ScaleObstacles(game);v22BindRelicButton();v22ConfigureHome();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
+document.title='Dark Rift TD — V22 Reforged';
+console.info('Dark Rift TD V22 Reforged : arsenal, reliques, réseau, biomes et optimisations chargés.');
 })();
 </script>
 
