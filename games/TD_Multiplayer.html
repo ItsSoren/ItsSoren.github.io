@@ -2958,6 +2958,14 @@ const PROJECT_BASE='itssoren.github.io/games/TD-Multiplayer-v19-6';
 const LOBBY_PROJECT=PROJECT_BASE+'/lobby';
 const LOBBY_SLOTS=16;
 const PLAYER_COLORS=['#55ffb3','#aa76ff'];
+
+(()=>{
+  if(!TOWERS.some(t=>t.id==='singularity'))TOWERS.push({id:'singularity',category:'control',damageType:'gravity',name:'Réacteur Singularité',icon:'◉',cost:285,color:'#d58cff',kind:'singularity',dmg:38,range:205,rate:1.35,splash:105,desc:'Effondrement gravitationnel de fin de progression',mechanic:'Condense les ennemis dans une micro-singularité, inflige des dégâts de zone et les repousse légèrement en arrière.',strong:'Groupes, phaseurs, fin de ligne',weak:'Cibles très dispersées'});
+  TOWER_UNLOCK_RANK.singularity=10;
+  const tier=ROADMAP.find(r=>r.rank===10);if(tier&&!(tier.towers||[]).includes('singularity'))(tier.towers||(tier.towers=[])).push('singularity');
+  if(typeof V196_MAIN!=='undefined'){const node=V196_MAIN.find(r=>r.rank===10);if(node&&!(node.towers||[]).includes('singularity'))node.towers.push('singularity')}
+})();
+
 const TYPE_INDEX=new Map(TOWERS.map((t,i)=>[t.id,i]));
 const ENEMY_INDEX=new Map(Object.keys(ENEMIES).map((id,i)=>[id,i]));
 const ENEMY_IDS=Object.keys(ENEMIES);
@@ -3775,3 +3783,138 @@ if(mp){
   if(mp.guest&&mp.role==='guest')mp.guest.rank=mp.rank;
 }
 /* Garde-fou : l’inventaire et les libellés V19.6 restent actualisés même
+   après les surcouches de synchronisation réseau. */
+const previousUpdateUI=Game.prototype.updateUI;
+Game.prototype.updateUI=function(force=false){
+  const result=previousUpdateUI.call(this,force);
+  this.v196RenderRelics?.();
+  const labels={
+    overdrive:['⚡ OVERDRIVE • 72','12 s de cadence renforcée • recharge 38 s'],
+    riftbomb:['💥 FRAPPE RIFT • 80','Impact ciblé • rayon 175 • recharge 32 s'],
+    cryo:['❄ ONDE CRYO • 88','Onde 3 s • gel 5 s • ralentissement 10 s • recharge 50 s'],
+    repair:['✚ NANO-RÉPARATION • 70','Restaure 30 % du noyau • recharge 45 s']
+  };
+  for(const button of document.querySelectorAll('[data-ability]')){
+    const id=button.dataset.ability,entry=labels[id];
+    if(!entry)continue;
+    const remaining=this.abilityRemaining?.(id)||0;
+    const active=id==='overdrive'&&this.time<this.overdriveUntil;
+    const nova=id==='cryo'&&this.v19Nova;
+    if(remaining<=0&&!active&&!nova){
+      const strong=button.querySelector('b'),small=button.querySelector('small');
+      if(strong)strong.textContent=entry[0];
+      if(small)small.textContent=entry[1];
+    }
+  }
+  return result;
+};
+const oldReset=Game.prototype.reset;
+Game.prototype.reset=function(){
+  const result=oldReset.call(this);
+  if(!this.v196Relics&&this.v196SetRelics)this.v196SetRelics({});
+  this.v196RenderRelics?.();
+  return result;
+};
+document.title='Dark Rift TD — V19.6.2 Multiplayer Complete';
+console.info('Dark Rift TD V19.6.2 : couche Living Biomes appliquée après le moteur multijoueur.');
+})();
+</script>
+
+<style id="v19-7-polish-style">
+#relicInventory{display:none!important}
+#relicInventoryBtn{font-size:15px}
+#relicInventoryOverlay .modal{width:min(760px,95vw);text-align:left}
+.v197-relic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v197-relic-card{padding:14px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid color-mix(in srgb,var(--rc) 42%,rgba(255,255,255,.08));box-shadow:0 0 22px color-mix(in srgb,var(--rc) 10%,transparent)}
+.v197-relic-card .head{display:flex;align-items:center;gap:10px}.v197-relic-card .ico{font-size:27px;color:var(--rc)}.v197-relic-card h3{font-size:13px}.v197-relic-card p{margin-top:7px;color:var(--muted);font-size:9px;line-height:1.45}.v197-pips{display:flex;gap:5px;margin-top:9px}.v197-pips i{width:28px;height:5px;border-radius:999px;background:rgba(255,255,255,.08)}.v197-pips i.on{background:var(--rc);box-shadow:0 0 9px var(--rc)}
+.v197-debug{margin:20px auto 0;padding:12px;max-width:680px;border-top:1px dashed rgba(255,255,255,.12);opacity:.58}.v197-debug summary{cursor:pointer;font-size:8px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}.v197-debug-actions{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:9px}.v197-debug button{font-size:8px;padding:7px 9px}
+.v197-energy-tag{display:inline-flex;align-items:center;gap:3px;color:var(--violet);font-weight:950}.tower-card .v197-build-energy{position:absolute;right:7px;bottom:6px;z-index:2;font-size:7px;color:var(--violet);font-weight:950}
+.v197-mk-lock{padding:8px 10px;border-radius:11px;border:1px solid rgba(255,209,102,.25);background:rgba(255,209,102,.055);font-size:8px;color:var(--gold);line-height:1.4;margin-top:7px}
+#roadmapOverlay .v196-main-node{border-left:3px solid rgba(102,244,255,.2)}#roadmapOverlay .v196-main-node.current{border-left-color:var(--cyan)}#roadmapOverlay .v196-main-node.done{border-left-color:var(--green)}
+@media(max-width:590px){.v197-relic-grid{grid-template-columns:1fr}.v197-relic-card{padding:11px}}
+</style>
+<script id="v19-7-polish-patch">
+(()=>{
+  'use strict';
+  if(window.__DRIFT_V197__)return;window.__DRIFT_V197__=true;
+  const BUILD_ENERGY_FACTOR=.105, UPGRADE_ENERGY_MULT=2.6, MONEY_DISCOUNT=.75, MK2_UNLOCK_RANK=6;
+  TOWER_UNLOCK_RANK.singularity=10;const v197Tier=ROADMAP.find(r=>r.rank===10);if(v197Tier&&!v197Tier.towers.includes('singularity'))v197Tier.towers.push('singularity');if(typeof V196_MAIN!=='undefined'){const n=V196_MAIN.find(r=>r.rank===10);if(n&&!n.towers.includes('singularity'))n.towers.push('singularity')}
+  const buildEnergy=def=>Math.max(7,Math.ceil((def?.cost||50)*BUILD_ENERGY_FACTOR));
+
+  // Bouton + écran d'inventaire de reliques.
+  const topbar=document.getElementById('topbar');
+  if(topbar&&!document.getElementById('relicInventoryBtn')){
+    const b=document.createElement('button');b.id='relicInventoryBtn';b.className='icon-btn';b.title='Inventaire de reliques';b.textContent='✦';
+    b.onclick=()=>game.v197OpenRelics();topbar.insertBefore(b,document.getElementById('settingsBtn'));
+  }
+  if(!document.getElementById('relicInventoryOverlay')){
+    document.body.insertAdjacentHTML('beforeend',`<div id="relicInventoryOverlay" class="overlay hidden"><div class="modal glass"><div class="modal-head"><div><div class="panel-title">Cristaux stabilisés</div><h2>Inventaire de reliques</h2></div><button class="icon-btn" data-close-v197>✕</button></div><p class="subtitle" style="text-align:left;margin:0 0 12px">Cinq familles peuvent monter jusqu'au niveau 3. Les effets se cumulent pendant la partie.</p><div id="v197RelicGrid" class="v197-relic-grid"></div></div></div>`);
+    document.querySelector('[data-close-v197]').onclick=()=>document.getElementById('relicInventoryOverlay').classList.add('hidden');
+  }
+  Game.prototype.v197OpenRelics=function(){
+    const grid=document.getElementById('v197RelicGrid');
+    grid.innerHTML=Object.entries(V196_RELICS).map(([id,d])=>{const lv=this.v196Relics?.[id]||0;return `<article class="v197-relic-card" style="--rc:${d.color}"><div class="head"><span class="ico">${d.icon}</span><div><h3>${d.name}</h3><small>Niveau ${lv}/3</small></div></div><p>${lv?d.levels[lv-1]:'Aucun fragment stabilisé pour cette famille.'}</p><div class="v197-pips"><i class="${lv>=1?'on':''}"></i><i class="${lv>=2?'on':''}"></i><i class="${lv>=3?'on':''}"></i></div></article>`}).join('');
+    document.getElementById('relicInventoryOverlay').classList.remove('hidden');
+  };
+
+  // Réacteur : uniquement énergie, avec coûts nettement plus élevés.
+  Game.prototype.energyTechCost=function(id){const d=ENERGY_TECH[id],lv=this.energyTech[id]||0;return{money:0,energy:Math.ceil((d.energy+d.energyStep*lv)*2.8+18+lv*9)}};
+  Game.prototype.upgradeEnergyTech=function(id){const d=ENERGY_TECH[id],lv=this.energyTech[id]||0,c=this.energyTechCost(id);if(!d||lv>=d.max||this.energy<c.energy)return;this.energy-=c.energy;this.energyTech[id]++;if(id==='capacity'){this.maxEnergy+=18;this.energy=Math.min(this.maxEnergy,this.energy+6)}else if(id==='regen')this.energyRegen+=.22;this.burst(this.path.pointAt(this.baseDistance).x,this.path.pointAt(this.baseDistance).y,'#aa76ff',18,120,'spark');this.toast(`${d.name} énergétique • niveau ${this.energyTech[id]}/${d.max}`);this.renderEnergyLab();this.updateUI(true);haptic([12,16,12])};
+  Game.prototype.renderEnergyLab=function(){const box=$('#energyLab');if(!box)return;const entries=Object.entries(ENERGY_TECH),state=entries.map(([id,d])=>{const lv=this.energyTech[id]||0,c=this.energyTechCost(id);return`${id}:${lv}:${lv>=d.max?'M':this.energy>=c.energy?'Y':'N'}`}).join('|')+`|${this.maxEnergy}|${this.energyRegen.toFixed(2)}`;if(box.dataset.state===state)return;box.dataset.state=state;box.innerHTML=`<div class="energy-lab-head"><b>⚛ RÉACTEUR DE FAILLE</b><span>${this.energyRegen.toFixed(2)}/s • max ${this.maxEnergy}</span></div><div class="energy-tech-grid">${entries.map(([id,d])=>{const lv=this.energyTech[id]||0,c=this.energyTechCost(id),max=lv>=d.max;return `<button class="energy-tech-btn" data-energy-tech="${id}" ${max||this.energy<c.energy?'disabled':''}><b>${d.icon}</b><strong>${d.name} ${lv}/${d.max}</strong><small>${d.desc}</small><em>${max?'MAX':`${c.energy} ϟ`}</em></button>`}).join('')}</div>`;box.querySelectorAll('[data-energy-tech]').forEach(b=>b.onclick=()=>this.upgradeEnergyTech(b.dataset.energyTech))};
+
+  // Construction = crédits + énergie.
+  const oldRenderList=Game.prototype.renderTowerList;
+  Game.prototype.renderTowerList=function(){oldRenderList.call(this);for(const card of $$('#towerList .tower-card')){const d=TOWERS.find(t=>t.id===card.dataset.id);if(!d||card.dataset.locked==='1')continue;let tag=card.querySelector('.v197-build-energy');if(!tag){tag=document.createElement('span');tag.className='v197-build-energy';card.appendChild(tag)}tag.textContent=`${buildEnergy(d)} ϟ`;const br=typeof v196BranchForTower==='function'?v196BranchForTower(d.id):null;const badge=card.querySelector('.rank-lock');if(br&&badge)badge.textContent=`BRANCHE ${br.id}`;else if(badge&&!badge.textContent.startsWith('RANG'))badge.textContent=`RANG ${requiredTowerRank(d.id)}`}};
+  const oldRefresh=Game.prototype.refreshTowerCards;
+  Game.prototype.refreshTowerCards=function(){oldRefresh.call(this);for(const card of $$('#towerList .tower-card')){const d=TOWERS.find(t=>t.id===card.dataset.id);if(!d)continue;const locked=this.playerRank<requiredTowerRank(d.id)||(typeof v196BranchForTower==='function'&&v196BranchForTower(d.id)&&!v196BranchUnlocked(v196BranchForTower(d.id),this.profile));if(!locked)card.disabled=this.money<Math.ceil(d.cost*this.mods.cost)||this.energy<buildEnergy(d)}};
+  const oldBegin=Game.prototype.beginPlacement;
+  Game.prototype.beginPlacement=function(id){const d=TOWERS.find(t=>t.id===id);if(d&&this.energy<buildEnergy(d)){this.toast(`${d.name} demande ${buildEnergy(d)} énergie à la construction`);return}return oldBegin.call(this,id)};
+  const oldPlace=Game.prototype.placeTower;
+  Game.prototype.placeTower=function(x,y){const d=this.placing;if(!d)return;const ec=buildEnergy(d);if(this.energy<ec){this.toast(`Énergie insuffisante • ${ec}ϟ requis`);return}const before=this.towers.length;oldPlace.call(this,x,y);if(this.towers.length>before){this.energy=Math.max(0,this.energy-ec);this.towers.at(-1).totalEnergySpent=(this.towers.at(-1).totalEnergySpent||0)+ec;this.updateUI(true)}};
+
+  // Upgrades : -25% crédits, énergie x2,6. MK2 à partir du rang 6.
+  const oldUpCost=Tower.prototype.upgradeCost,oldMkCost=Tower.prototype.mk2Cost,oldEvoCost=Tower.prototype.evolutionCost;
+  Tower.prototype.upgradeCost=function(branch){const c=oldUpCost.call(this,branch);return{money:Math.max(5,Math.ceil(c.money*MONEY_DISCOUNT)),energy:Math.max(4,Math.ceil(c.energy*UPGRADE_ENERGY_MULT))}};
+  Tower.prototype.mk2Cost=function(){const c=oldMkCost.call(this);return{money:Math.max(25,Math.ceil(c.money*MONEY_DISCOUNT)),energy:Math.max(35,Math.ceil(c.energy*UPGRADE_ENERGY_MULT))}};
+  Tower.prototype.evolutionCost=function(){const c=oldEvoCost.call(this);return{money:Math.max(35,Math.ceil(c.money*MONEY_DISCOUNT)),energy:Math.max(50,Math.ceil(c.energy*UPGRADE_ENERGY_MULT))}};
+  const oldPromote=Tower.prototype.promoteMk2;
+  Tower.prototype.promoteMk2=function(){if(this.game.playerRank<MK2_UNLOCK_RANK){this.game.toast(`Architecture MK2 débloquée au rang ${MK2_UNLOCK_RANK}`);return}return oldPromote.call(this)};
+
+  // MK2 renforcé sur tout l'arsenal + signatures universelles.
+  const MK2_TEXT={pulse:'Tirs jumeaux et dégâts anti-essaim renforcés.',gatling:'Chauffe plus vite et cadence maximale accrue.',sniper:'Critique massif et tir perforant.',rail:'Rayon élargi et dégâts de traversée renforcés.',cannon:'Double détonation secondaire.',mortar:'Impact plus large et réduction de la portée minimale.',rockets:'Salve portée à 8 missiles.',mine:'Pose deux mines et plafond actif augmenté.',cryo:'Gel plus profond et impulsions de glace.',inferno:'Cône élargi et brûlure persistante.',tesla:'Deux rebonds supplémentaires.',solar:'Montée en puissance accélérée.',gravity:'Aspiration et recul renforcés.',chrono:'Champ temporel plus large.',beacon:'Aura de soutien amplifiée.',disrupt:'Surcharge de bouclier renforcée.',spore:'Nuage toxique élargi.',leech:'Meilleure conversion économique.',portal:'Retour spatial plus violent.',drone:'Deux drones supplémentaires.',sonic:'Onde double et désorientation accrue.',bulwark:'Barricade deux fois plus résistante.',acid:'Corrosion amplifiée.',arc:'Chaîne électrique étendue.',prism:'Un rayon fractal supplémentaire.',singularity:'Effondrement gravitationnel doublé.'};
+  const oldRecalc=Tower.prototype.recalc;
+  Tower.prototype.recalc=function(){oldRecalc.call(this);if(this.mk!==2)return;this.stats.dmg*=1.28;this.stats.range*=1.12;this.stats.rate*=.82;this.stats.splash*=1.22;this.stats.crit+=.05;if(this.def.kind==='cryo'||this.def.kind==='chrono'||this.def.kind==='gravity')this.stats.range*=1.12;if(this.def.kind==='sniper')this.stats.crit+=.18;if(this.def.kind==='mine')this.stats.dmg*=1.25;if(this.def.kind==='beacon'){this.stats.range*=1.18}};
+  const oldTowerUpdate=Tower.prototype.update;
+  Tower.prototype.update=function(dt){if(this.def.kind==='singularity'){this.level=Math.min(10,1+Math.floor(this.xp/100));this.updateBuff();const g=this.game;if(g.time<this.disabledUntil)return;const frozen=g.time<this.frozenUntil?1.75:1,over=g.time<this.overdriveUntil||g.time<g.overdriveUntil?.58:1;this.cooldown-=dt/(frozen*over*this.buff.rate);const targets=this.targets(1);if(!targets.length)return;const target=targets[0];this.angle=Math.atan2(target.y-this.y,target.x-this.x);if(this.cooldown>0)return;const radius=this.stats.splash*(this.mk===2?1.35:1);g.ring(target.x,target.y,this.def.color,radius,.5);for(const e of g.enemies){const d=Math.hypot(e.x-target.x,e.y-target.y);if(d<=radius){e.hit(this.stats.dmg*(1-d/radius*.35),this,'gravity',true);e.distance=Math.max(g.entryDistance,e.distance-(this.mk===2?32:18));e.applySlow(this.mk===2?.55:.72,1.4)}}g.burst(target.x,target.y,this.def.color,22,190,'spark');this.cooldown=this.stats.rate;return}if(this.mk===2&&this.def.kind==='rockets'){
+      this.level=Math.min(10,1+Math.floor(this.xp/100));this.updateBuff();const g=this.game;if(g.time<this.disabledUntil)return;const frozen=g.time<this.frozenUntil?1.75:1,over=g.time<this.overdriveUntil||g.time<g.overdriveUntil?.58:1;this.cooldown-=dt/(frozen*over*this.buff.rate);const count=8+(this.evolution==='alpha'?2:this.evolution==='omega'?1:0),targets=this.targets(Math.min(count,8));if(!targets.length)return;this.angle=Math.atan2(targets[0].y-this.y,targets[0].x-this.x);if(this.cooldown>0)return;for(let i=0;i<count;i++)this.fireProjectile(targets[i%targets.length],{kind:'rockets',damage:this.stats.dmg*(count>8?.9:1),splash:this.stats.splash});this.cooldown=this.stats.rate;return;
+    }return oldTowerUpdate.call(this,dt)};
+  const oldInspector=Game.prototype.renderInspector;
+  Game.prototype.renderInspector=function(){oldInspector.call(this);const t=this.selected,el=$('#inspector');if(!t||!el.classList.contains('open'))return;const sig=el.querySelector('.v196-signature');if(sig)sig.innerHTML=`<b>✦ SIGNATURE ${t.mk===2?'MK2 ACTIVE':'MK2'}</b><span>${MK2_TEXT[t.def.id]||'Puissance, portée, cadence et identité tactique fortement renforcées.'}</span>`;if(this.playerRank<MK2_UNLOCK_RANK&&t.mk===1){const btn=el.querySelector('[data-mk2]');if(btn){btn.disabled=true;btn.insertAdjacentHTML('afterend',`<div class="v197-mk-lock">🔒 Architecture MK2 disponible au rang ${MK2_UNLOCK_RANK}.</div>`)}}};
+
+  // Ennemi gelé : silhouette glacée translucide.
+  const oldEnemyDraw=Enemy.prototype.draw;
+  Enemy.prototype.draw=function(){oldEnemyDraw.call(this);const frozen=this.game.time<this.stunUntil||this.slowFactor<=.28&&this.slowUntil>this.game.time;if(!frozen||this.dead)return;const s=this.size*(this.boss?1.22:1.05);ctx.save();ctx.translate(this.x,this.y);ctx.globalAlpha=.23;ctx.fillStyle='#9deaff';ctx.strokeStyle='#dffcff';ctx.lineWidth=1.6;ctx.shadowBlur=16;ctx.shadowColor='#66e7ff';ctx.beginPath();for(let i=0;i<8;i++){const a=i/8*TAU-Math.PI/8,r=s*(i%2?1.18:1.42);i?ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r):ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.globalAlpha=.72;ctx.stroke();ctx.globalAlpha=.55;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-s*.7+i*s*.55,-s);ctx.lineTo(-s*.2+i*s*.4,s);ctx.stroke()}ctx.restore()};
+
+  // Portail : bulle plus large et texte compact.
+  Game.prototype.v196DrawPortalCountdown=function(path=this.path,entry=this.entryDistance,color='#66f4ff'){if(!this.started||this.waveCountdown<=0)return;const p=path.pointAt(entry),seconds=Math.max(0,Math.ceil(this.waveCountdown));ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle='rgba(4,8,20,.88)';ctx.strokeStyle=color;ctx.lineWidth=1.4;ctx.beginPath();ctx.roundRect(-55,82,110,21,11);ctx.fill();ctx.stroke();ctx.fillStyle='#effbff';ctx.font='900 7.5px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(`VAGUE DANS ${seconds}s`,0,92.5);ctx.restore()};
+
+  // Obstacles plus propres : volume, reflets et ombres au lieu de polygones plats.
+  const oldDrawPlatforms=Game.prototype.drawResonancePlatforms;
+  Game.prototype.drawResonancePlatforms=function(){oldDrawPlatforms.call(this);for(const tile of this.tiles||[]){if(tile.type!=='rock')continue;ctx.save();ctx.translate(tile.x,tile.y);ctx.rotate(tile.rot||0);const r=tile.radius||30;const grad=ctx.createRadialGradient(-r*.35,-r*.4,2,0,0,r*1.2);grad.addColorStop(0,'rgba(210,230,255,.32)');grad.addColorStop(.3,'rgba(73,88,120,.72)');grad.addColorStop(1,'rgba(15,20,34,.92)');ctx.globalAlpha=.92;ctx.fillStyle=grad;ctx.strokeStyle='rgba(160,205,255,.35)';ctx.lineWidth=1.4;ctx.shadowBlur=18;ctx.shadowColor=this.currentTheme().accent+'55';ctx.beginPath();for(let i=0;i<9;i++){const a=i/9*TAU,r2=r*(.78+.18*Math.sin(i*2.1+(tile.rot||0)));i?ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2):ctx.moveTo(Math.cos(a)*r2,Math.sin(a)*r2)}ctx.closePath();ctx.fill();ctx.stroke();ctx.globalAlpha=.28;ctx.strokeStyle='#fff';ctx.beginPath();ctx.moveTo(-r*.45,-r*.3);ctx.lineTo(r*.2,-r*.55);ctx.lineTo(r*.5,-r*.08);ctx.stroke();ctx.restore()}};
+
+  // Feuille de route : rang 10 avec vraie récompense + rappel des paliers MK2.
+  const oldRoadmap=Game.prototype.openRoadmap;
+  Game.prototype.openRoadmap=function(){oldRoadmap.call(this);const nodes=$$('#roadmapList .v196-main-node');for(const node of nodes){const orb=node.querySelector('.v196-rank-orb');if(!orb)continue;const rank=Number(orb.textContent);const reward=node.querySelector('.v196-node-reward');if(rank===6&&reward)reward.textContent+=' • Architecture MK2 débloquée';if(rank===8&&reward)reward.textContent+=' • Signatures MK2 avancées';if(rank===10&&reward)reward.textContent='Débloque le Réacteur Singularité, +0,20 énergie/s, +1 PV et plafond technologique maximal.'}};
+
+  // Debug temporaire discret dans le menu principal.
+  const modal=document.querySelector('#startOverlay .modal');
+  if(modal&&!document.getElementById('v197Debug')){modal.insertAdjacentHTML('beforeend',`<details id="v197Debug" class="v197-debug"><summary>outils de test temporaires</summary><div class="v197-debug-actions"><button id="v197RankDebug" class="action">TOUT DÉBLOQUER</button><button id="v197MoneyDebug" class="action">1 000 000 CRÉDITS / PARTIE</button></div></details>`);document.getElementById('v197RankDebug').onclick=()=>{game.profile.xp=999999;game.profile.lifetimeTowers=99999;game.profile.lifetimeUpgrades=99999;game.profile.lifetimeEnergySpent=99999;game.profile.lifetimeKills=99999;game.profile.bossKills=9999;saveProfile(game.profile);game.playerRank=rankForXp(game.profile.xp);game.buildStartChoices();game.updateProfileUI();game.renderTowerList();game.toast('Debug : rang maximum et branches débloquées')};document.getElementById('v197MoneyDebug').onclick=()=>{localStorage.setItem('darkRiftV197Million','1');game.toast('Debug : prochaines parties à 1 000 000 crédits')}}
+  const oldReset=Game.prototype.reset;
+  Game.prototype.reset=function(){oldReset.call(this);if(storageGet('darkRiftV197Million','0')==='1')this.money=1000000};
+
+  game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
+})();
+</script>
+
+</body>
+</html>
