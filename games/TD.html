@@ -3413,7 +3413,7 @@ const v196Reset=Game.prototype.reset;
 Game.prototype.reset=function(){v196Reset.call(this);this.profile=v196EnsureProfile(this.profile||loadProfile());this.v196Relics=Object.fromEntries(Object.keys(V196_RELICS).map(id=>[id,0]));this.relics=[];v196BuildAtmosphere(this,this.v19SeedValue||1);this.v196RenderRelics()};
 const subtitle=document.querySelector('#startOverlay .subtitle');if(subtitle)subtitle.textContent='V19.6 Living Biomes — routes propres à chaque zone, progression ramifiée, reliques empilables et signatures MK2.';
 document.title=document.title.replace('V19','V19.6');
-game.profile=v196EnsureProfile(game.profile||loadProfile());game.reset();game.buildStartChoices();game.updateProfileUI();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
+game.profile=v196EnsureProfile(game.profile||loadProfile());game.reset();if($('#modeChoices')&&$('#mapChoices'))game.buildStartChoices();game.updateProfileUI();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
 })();
 </script>
 
@@ -4110,7 +4110,11 @@ const V21_BRANCHES=[
  {id:'7.1',rank:7,metric:'completedWaves',goal:60,title:'Front interminable',task:'Nettoyer 60 vagues après avoir atteint le rang 7.',reward:'Titre Sentinelle vétéran'},
  {id:'8.1',rank:8,metric:'lifetimeKills',goal:1800,title:'Moissonneur',task:'Éliminer 1 800 ennemis après avoir atteint le rang 8.',reward:'Portail renforcé'},
  {id:'8.2',rank:8,metric:'lifetimeTowers',goal:90,title:'Réseau défensif',task:'Construire 90 tourelles après avoir atteint le rang 8.',reward:'Emblème Architecte'},
- {id:'8.3',rank:8,metric:'lifetimeEnergySpent',goal:1100,title:'Flux impossible',task:'Dépenser 1 100 énergie après avoir atteint le rang 8.',reward:'Aura de réacteur avancée'}
+ {id:'8.3',rank:8,metric:'lifetimeEnergySpent',goal:1100,title:'Flux impossible',task:'Dépenser 1 100 énergie après avoir atteint le rang 8.',reward:'Aura de réacteur avancée'},
+ {id:'9.1',rank:9,metric:'bossKills',goal:8,title:'Perce-Voile',task:'Détruire 8 boss après avoir atteint le rang 9.',reward:'Débloque la Lance du Néant',tower:'voidlance'},
+ {id:'11.1',rank:11,metric:'completedWaves',goal:90,title:'Veille de l’Éclipse',task:'Nettoyer 90 vagues après avoir atteint le rang 11.',reward:'Débloque le Cœur d’Éclipse',tower:'eclipse'},
+ {id:'12.1',rank:12,metric:'lifetimeTowers',goal:145,title:'Architecture interdite',task:'Construire 145 tourelles après avoir atteint le rang 12.',reward:'Débloque la Cathédrale Abysse'},
+ {id:'13.1',rank:13,metric:'lifetimeEnergySpent',goal:2400,title:'Entropie maîtrisée',task:'Dépenser 2 400 énergie après avoir atteint le rang 13.',reward:'Débloque l’Obélisque Null',tower:'nullspire'}
 ];
 const V21_MAIN=[
  {rank:0,xp:0,title:'Recrue de la Faille',reward:'Arsenal fondamental et modes Découverte / Classique.',power:null},
@@ -4123,9 +4127,12 @@ const V21_MAIN=[
  {rank:7,xp:2300,title:'Sentinelle',reward:'+0,65 énergie/s.',power:'repair'},
  {rank:8,xp:3150,title:'Tisseur du Néant',reward:'+9 PV et signatures MK2 avancées.',power:null},
  {rank:9,xp:4300,title:'Maître de Faille',reward:'+220 crédits de départ.',power:'aegis'},
- {rank:10,xp:5800,title:'Convergence',reward:'+270 crédits, +120 énergie, +1,70/s, +18 PV et Réacteur Singularité.',power:null}
+ {rank:10,xp:5800,title:'Convergence',reward:'+270 crédits, +120 énergie, +1,70/s, +18 PV et Réacteur Singularité.',power:null},
+ {rank:11,xp:7600,title:'Veilleur d’Éclipse',reward:'+80 crédits et accès au Cœur d’Éclipse.',power:null},
+ {rank:12,xp:9600,title:'Architecte Abysse',reward:'+35 énergie, +0,35/s et Cathédrale Abysse.',power:null},
+ {rank:13,xp:12000,title:'Souverain du Néant',reward:'+6 PV, +8 % revente et Obélisque Null.',power:null}
 ];
-const V21_TOWER_BRANCH={acid:'2.1',arc:'3.1',prism:'5.1'};
+const V21_TOWER_BRANCH={acid:'2.1',arc:'3.1',prism:'5.1',voidlance:'9.1',eclipse:'11.1',nullspire:'13.1'};
 
 /* -------------------------------------------------------------------------- */
 /*  Téléphone : moins de pixels, moins de tableaux géants et ciblage spatial   */
@@ -4157,7 +4164,7 @@ function v21BuildEnemyGrid(g){
 }
 function v21TrimEffects(g){
   const perf=g.v21PerfLevel||0,quality=settings.quality,mobile=V21_MOBILE;
-  const base=quality==='high'?(mobile?420:720):quality==='medium'?(mobile?260:460):(mobile?140:250),mul=perf?0.72:1;
+  const base=settings.particles==='ultra'?(mobile?500:900):quality==='high'?(mobile?420:720):quality==='medium'?(mobile?260:460):(mobile?140:250),mul=perf?0.72:1;
   const trim=(arr,max)=>{if(arr?.length>max)arr.splice(0,arr.length-max)};
   trim(g.particles,Math.floor(base*mul));trim(g.beams,mobile?130:220);trim(g.texts,mobile?90:150);trim(g.decals,mobile?70:120);trim(g.projectiles,mobile?520:850);trim(g.areas,mobile?90:150);
   if(g.v196Atmosphere?.length>(perf?34:V21_MOBILE?56:85))g.v196Atmosphere.length=perf?34:V21_MOBILE?56:85;
@@ -4166,16 +4173,19 @@ function v21TrimEffects(g){
 /* -------------------------------------------------------------------------- */
 /*  Progression : rang 10 proche de ×3 et branches démarrant au bon moment    */
 /* -------------------------------------------------------------------------- */
+rankForXp=function(xp){let rank=0;for(const tier of V21_MAIN)if(xp>=tier.xp)rank=tier.rank;return rank};
+tierForRank=function(rank){return ROADMAP.find(t=>t.rank===rank)||ROADMAP[0]};
+nextTierForRank=function(rank){return ROADMAP.find(t=>t.rank===rank+1)||null};
 rankProgressBonuses=function(rank){
-  const r=clamp(Number(rank)||0,0,10);return{
-    money:(r>=1?40:0)+(r>=5?120:0)+(r>=9?220:0)+(r>=10?270:0),
-    energy:(r>=2?15:0)+(r>=6?45:0)+(r>=10?120:0),
-    regen:(r>=3?.25:0)+(r>=7?.65:0)+(r>=10?1.70:0),
-    lives:(r>=4?3:0)+(r>=8?9:0)+(r>=10?18:0),
-    sell:r>=10?.10:r>=8?.06:r>=5?.03:0
+  const r=clamp(Number(rank)||0,0,13);return{
+    money:(r>=1?40:0)+(r>=5?120:0)+(r>=9?220:0)+(r>=10?270:0)+(r>=11?80:0),
+    energy:(r>=2?15:0)+(r>=6?45:0)+(r>=10?120:0)+(r>=12?35:0),
+    regen:(r>=3?.25:0)+(r>=7?.65:0)+(r>=10?1.70:0)+(r>=12?.35:0),
+    lives:(r>=4?3:0)+(r>=8?9:0)+(r>=10?18:0)+(r>=13?6:0),
+    sell:r>=13?.18:r>=10?.10:r>=8?.06:r>=5?.03:0
   }
 };
-for(const node of V21_MAIN){const tier=ROADMAP.find(r=>r.rank===node.rank);if(tier){tier.title=node.title;tier.xp=node.xp;tier.description=node.reward}}
+for(const node of V21_MAIN){let tier=ROADMAP.find(r=>r.rank===node.rank);if(!tier){tier={rank:node.rank,xp:node.xp,title:node.title,description:node.reward,reward:node.reward,towers:[],modes:[],maps:[]};ROADMAP.push(tier)}tier.title=node.title;tier.xp=node.xp;tier.description=node.reward;tier.reward=node.reward}
 function v21Metric(profile,key){return Math.max(0,Number(profile?.[key])||0)}
 function v21EnsureBranchProgress(profile,rank=rankForXp(profile.xp||0)){
   profile.v21BranchBaselines=profile.v21BranchBaselines||{};profile.v21BranchComplete=profile.v21BranchComplete||{};
@@ -4316,7 +4326,7 @@ function v21UnlockNames(rank){const tier=ROADMAP.find(r=>r.rank===rank)||{},name
 Game.prototype.openRoadmap=function(){
   this.profile=v21EnsureBranchProgress(this.profile||loadProfile());saveProfile(this.profile);this.updateProfileUI();const current=this.playerRank,tier=V21_MAIN.find(x=>x.rank===current)||V21_MAIN[0],next=V21_MAIN.find(x=>x.rank===current+1),progress=next?clamp((this.profile.xp-tier.xp)/(next.xp-tier.xp)*100,0,100):100,bonus=rankProgressBonuses(current);
   const total={money:MODES.classic.money+bonus.money,energy:100+bonus.energy,regen:1.6+bonus.regen,lives:MODES.classic.lives+bonus.lives,sell:Math.round(bonus.sell*100)};
-  $('#roadmapProgress').innerHTML=`<div class="profile-line"><strong>RANG ${current}/10 • ${tier.title.toUpperCase()}</strong><span>${next?`${this.profile.xp}/${next.xp} XP`:'ASCENSION MAXIMALE'}</span></div><div class="xp-track"><i style="width:${progress}%"></i></div><div class="v21-roadmap-intro"><div class="v21-total-stat"><label>Crédits départ</label><b>${total.money}</b></div><div class="v21-total-stat"><label>Énergie max.</label><b>${total.energy}</b></div><div class="v21-total-stat"><label>Recharge</label><b>${total.regen.toFixed(2)}/s</b></div><div class="v21-total-stat"><label>PV noyau</label><b>${total.lives}</b></div><div class="v21-total-stat"><label>Revente</label><b>+${total.sell}%</b></div></div>`;
+  $('#roadmapProgress').innerHTML=`<div class="profile-line"><strong>RANG ${current}/13 • ${tier.title.toUpperCase()}</strong><span>${next?`${this.profile.xp}/${next.xp} XP`:'ASCENSION MAXIMALE'}</span></div><div class="xp-track"><i style="width:${progress}%"></i></div><div class="v21-roadmap-intro"><div class="v21-total-stat"><label>Crédits départ</label><b>${total.money}</b></div><div class="v21-total-stat"><label>Énergie max.</label><b>${total.energy}</b></div><div class="v21-total-stat"><label>Recharge</label><b>${total.regen.toFixed(2)}/s</b></div><div class="v21-total-stat"><label>PV noyau</label><b>${total.lives}</b></div><div class="v21-total-stat"><label>Revente</label><b>+${total.sell}%</b></div></div>`;
   $('#roadmapList').innerHTML=`<div class="v196-roadmap">${V21_MAIN.map(node=>{const state=node.rank<current?'done':node.rank===current?'current':'locked',unlocks=v21UnlockNames(node.rank),branches=V21_BRANCHES.filter(b=>b.rank===node.rank);return `<section class="v21-main-node ${state}"><div class="v21-rank-orb">${node.rank}</div><div class="v21-node-copy"><h3><span>${node.title}</span><em>${node.rank?node.xp+' XP':'DÉPART'}</em></h3><div class="v21-unlocks">${unlocks.length?'Déblocages : '+unlocks.join(' • '):'Palier de spécialisation permanente.'}</div><div class="v21-reward">${node.reward}</div>${node.power?`<div class="v21-power-unlock">⚡ Pouvoir débloqué : ${V21_ABILITY_NAMES[node.power]}</div>`:''}${branches.length?`<div class="v21-branches">${branches.map(b=>{const s=v21BranchState(b,this.profile),label=s.status==='waiting'?`Disponible au rang ${b.rank}`:`${Math.min(Math.floor(s.value),b.goal)}/${b.goal}`;return `<article class="v21-branch ${s.status}"><h4><span>${s.done?'✓ ':''}${b.id} • ${b.title}</span><span>${label}</span></h4><p>${b.task}</p><div class="v21-task-track"><i style="width:${s.pct}%"></i></div><small>${b.reward}</small></article>`}).join('')}</div>`:''}</div></section>`}).join('')}</div>`;
   $('#roadmapOverlay').classList.remove('hidden');
 };
@@ -4392,7 +4402,7 @@ if(window.__DARK_RIFT_V22__)return;
 window.__DARK_RIFT_V22__=true;
 document.body.classList.add('v22');
 
-const V22_NAME='V22 • REFORGED';
+const V22_NAME='V22.2 • VISUAL OVERHAUL';
 const V22_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<900;
 const V22_MP=()=>window.__DARK_RIFT_MULTI__;
 const v22ClampArray=(array,max)=>{if(array?.length>max)array.splice(0,array.length-max)};
@@ -4409,7 +4419,7 @@ function v22ResizeCanvas(){
 addEventListener('resize',v22ResizeCanvas,{passive:true});setTimeout(v22ResizeCanvas,30);
 function v22Trim(g){
   const stressed=V22_MOBILE&&(g.v21PerfLevel||g.v21FrameAvg>.025),m=stressed?.68:1;
-  v22ClampArray(g.particles,Math.floor((V22_MOBILE?300:560)*m));
+  v22ClampArray(g.particles,Math.floor((settings.particles==='ultra'?(V22_MOBILE?460:900):(V22_MOBILE?300:560))*m));
   v22ClampArray(g.projectiles,Math.floor((V22_MOBILE?210:390)*m));
   v22ClampArray(g.beams,Math.floor((V22_MOBILE?90:170)*m));
   v22ClampArray(g.texts,Math.floor((V22_MOBILE?72:130)*m));
@@ -4667,20 +4677,35 @@ function v22DrawRemoteEnemies(){
 /* -------------------------------------------------------------------------- */
 /*  Un seul bouton Multijoueur et pseudo obligatoire                          */
 /* -------------------------------------------------------------------------- */
+function v22SetText(node,text){
+  if(node&&node.textContent!==text)node.textContent=text
+}
 function v22ConfigureHome(){
-  const coop=document.querySelector('#v20Home [data-v20-mode="coop"]'),duel=document.querySelector('#v20Home [data-v20-mode="duel"]');if(coop){coop.querySelector('.ico').textContent='◫';coop.querySelector('h3').textContent='MULTIJOUEUR';coop.querySelector('p').textContent='Entre dans le Nexus, choisis ton pseudo, rejoins un salon ou crée ensuite une partie Coop ou Duel.';coop.querySelector('small').textContent='COOP OU DUEL • EN LIGNE';if(!coop.dataset.v22Bound){coop.dataset.v22Bound='1';coop.addEventListener('click',()=>setTimeout(v22ConfigureMulti,0))}}if(duel)duel.style.display='none'
+  const coop=document.querySelector('#v20Home [data-v20-mode="coop"]'),duel=document.querySelector('#v20Home [data-v20-mode="duel"]');
+  if(coop){
+    // Cet observateur surveille aussi les enfants du menu. Ne modifier le DOM
+    // que si la valeur change évite une boucle infinie de MutationObserver.
+    v22SetText(coop.querySelector('.ico'),'◫');
+    v22SetText(coop.querySelector('h3'),'MULTIJOUEUR');
+    v22SetText(coop.querySelector('p'),'Entre dans le Nexus, choisis ton pseudo, rejoins un salon ou crée ensuite une partie Coop ou Duel.');
+    v22SetText(coop.querySelector('small'),'COOP OU DUEL • EN LIGNE');
+    if(!coop.dataset.v22Bound){coop.dataset.v22Bound='1';coop.addEventListener('click',()=>setTimeout(v22ConfigureMulti,0))}
+  }
+  if(duel)duel.style.display='none'
 }
 function v22ValidPseudo(value){const v=String(value||'').trim();return v.length>=2&&v.toLowerCase()!=='pilote'}
 function v22ConfigureMulti(){
   document.getElementById('v20FixedMode')?.remove();const input=document.getElementById('mpPseudo'),intent=document.getElementById('mpIntent'),online=document.getElementById('mpOnline'),tag=document.getElementById('mpCreateTag');
   if(intent){intent.value='coop';intent.disabled=false;intent.closest('.mp-field')?.classList.add('v22-intent-field')}
-  if(tag){tag.disabled=false;tag.closest('.mp-field')?.querySelector('label')&&(tag.closest('.mp-field').querySelector('label').textContent='Mode du salon')}
-  if(input){if((input.value||'').trim().toLowerCase()==='pilote')input.value='';input.placeholder='Choisis un pseudo';let error=document.getElementById('v22PseudoError');if(!error){error=document.createElement('div');error.id='v22PseudoError';error.className='v22-pseudo-error';input.after(error)}const refresh=()=>{const ok=v22ValidPseudo(input.value);if(online)online.disabled=!ok;error.textContent=ok?'':'Pseudo obligatoire : au moins 2 caractères.'};if(!input.dataset.v22Bound){input.dataset.v22Bound='1';input.addEventListener('input',refresh)}refresh()}
+  if(tag){tag.disabled=false;v22SetText(tag.closest('.mp-field')?.querySelector('label'),'Mode du salon')}
+  if(input){if((input.value||'').trim().toLowerCase()==='pilote')input.value='';input.placeholder='Choisis un pseudo';let error=document.getElementById('v22PseudoError');if(!error){error=document.createElement('div');error.id='v22PseudoError';error.className='v22-pseudo-error';input.after(error)}const refresh=()=>{const ok=v22ValidPseudo(input.value);if(online)online.disabled=!ok;v22SetText(error,ok?'':'Pseudo obligatoire : au moins 2 caractères.')};if(!input.dataset.v22Bound){input.dataset.v22Bound='1';input.addEventListener('input',refresh)}refresh()}
   if(online&&!online.dataset.v22Guard){online.dataset.v22Guard='1';online.addEventListener('click',e=>{if(!v22ValidPseudo(input?.value)){e.preventDefault();e.stopImmediatePropagation();game.toast('Choisis un pseudo avant de rejoindre le Nexus')}},true)}
   const profile=document.querySelector('#mpProfileView .mp-card');if(profile&&!profile.querySelector('.v22-multi-note'))profile.insertAdjacentHTML('beforeend','<div class="v22-multi-note">Le mode Coop ou Duel n’est choisi qu’au moment de créer un salon. Les salons publics indiquent leur règle avec un tag avant de les rejoindre.</div>')
 }
 v22ConfigureHome();
-const v22MenuObserver=new MutationObserver(()=>{v22ConfigureHome();if(document.getElementById('v20MultiShell')?.classList.contains('active'))v22ConfigureMulti()});v22MenuObserver.observe(document.getElementById('startOverlay'),{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+// Le menu V20 est déjà construit quand la V22 se charge. Le bouton multijoueur
+// appelle v22ConfigureMulti après son gestionnaire V20 : aucun observateur global
+// du sous-arbre n'est nécessaire, et surtout aucune boucle de mutations n'est possible.
 
 /* -------------------------------------------------------------------------- */
 /*  Boucle et dessin finaux                                                    */
@@ -4691,7 +4716,7 @@ const v22Update=Game.prototype.update;
 Game.prototype.update=function(dt){
   const result=v22Update.call(this,dt);const scaled=this.started&&!this.paused?dt*this.speed:dt;this.v22Ballistics=(this.v22Ballistics||[]).filter(b=>b.update(scaled));v22ScaleObstacles(this);v22BindRelicButton();v22HookRoom();
   const mp=V22_MP();if(mp?.active&&this.multi?.enabled&&mp.isHost&&mp.room?.connected){this.v22PortalBroadcast=(this.v22PortalBroadcast||0)-dt;if(this.v22PortalBroadcast<=0){this.v22PortalBroadcast=1.3;mp.room.set('☁ v22portal',{ids:[...(this.v22PortalUsedIds||[])],ts:Date.now()})}}
-  v22Trim(this);const state=window.__DARK_RIFT_V20_STATE__;document.title=state?.mode&&state.mode!=='home'?`Dark Rift TD — V22 ${String(state.mode==='coop'?'MULTI':state.mode).toUpperCase()}`:'Dark Rift TD — V22 Reforged';return result
+  v22Trim(this);const state=window.__DARK_RIFT_V20_STATE__;document.title=state?.mode&&state.mode!=='home'?`Dark Rift TD — V22.2 ${String(state.mode==='coop'?'MULTI':state.mode).toUpperCase()}`:'Dark Rift TD — V22.2 Visual Overhaul';return result
 };
 const v22DrawWorld=Game.prototype.drawWorld;
 Game.prototype.drawWorld=function(th){
@@ -4716,8 +4741,407 @@ const homeSubtitle=document.querySelector('.v20-home-head .subtitle');if(homeSub
 const soloSubtitle=document.querySelector('#v20SoloShell .subtitle');if(soloSubtitle)soloSubtitle.textContent='V22 Reforged — stratégie d’arsenal renforcée, grands biomes et économie énergétique plus fluide.';
 for(const d of TOWERS)d.v22Identity=V22_IDENTITIES[d.id]||d.mechanic;
 v22ScaleObstacles(game);v22BindRelicButton();v22ConfigureHome();game.renderTowerList();game.renderEnergyLab();game.updateUI(true);
-document.title='Dark Rift TD — V22 Reforged';
+document.title='Dark Rift TD — V22.2 Visual Overhaul';
 console.info('Dark Rift TD V22 Reforged : arsenal, reliques, réseau, biomes et optimisations chargés.');
+})();
+</script>
+
+<style id="v22-1-desktop-style">
+#v221DesktopHelp,#v221ArsenalToggle,#v221DesktopBadge{display:none}
+@media(min-width:1000px) and (pointer:fine){
+  body.v221-desktop{--v221-left:318px;--v221-right:350px}
+  body.v221-desktop .glass{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  body.v221-desktop #game{cursor:grab}body.v221-desktop #game:active{cursor:grabbing}
+  body.v221-desktop #topbar{left:calc(50% + 26px);top:14px;gap:8px;padding:8px 10px;border-radius:20px;max-width:calc(100vw - 390px)}
+  body.v221-desktop .metric{min-width:96px;padding:8px 12px}body.v221-desktop .metric b{font-size:9px}body.v221-desktop .metric span{font-size:18px}
+  body.v221-desktop .icon-btn{width:44px;height:44px;flex-basis:44px}
+  body.v221-desktop #statusRibbon{left:calc(50% + 24px);top:84px}
+  body.v221-desktop #firstWaveCountdown{left:calc(50% + 24px);top:116px}
+  body.v221-desktop #bossBar{left:calc(50% + 24px);top:111px;width:min(650px,48vw)}
+  body.v221-desktop #toast{left:calc(50% + 24px);top:92px;font-size:12px}
+  body.v221-desktop #towerDock{left:16px;top:92px;bottom:16px;width:302px;padding:14px;border-radius:25px;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .2s ease}
+  body.v221-desktop #towerDock .panel-title{font-size:11px;margin-bottom:11px}
+  body.v221-desktop #categoryTabs{gap:6px;padding-bottom:10px}body.v221-desktop .category-btn{padding:8px 10px;font-size:9px}
+  body.v221-desktop #towerList{gap:9px}body.v221-desktop .tower-card{min-height:112px;padding:11px;border-radius:17px}
+  body.v221-desktop .tower-card .ico{font-size:28px}body.v221-desktop .tower-card strong{font-size:12px}body.v221-desktop .tower-card small{font-size:9px;line-height:1.34}
+  body.v221-desktop #abilityDock{left:334px;right:366px;bottom:18px;max-width:none;justify-content:center;gap:9px}
+  body.v221-desktop .ability-btn{min-width:152px;padding:10px 12px;border-radius:16px}body.v221-desktop .ability-btn b{font-size:11px}
+  body.v221-desktop #inspector{right:16px;top:92px;width:344px;max-height:calc(100vh - 108px);padding:15px;border-radius:25px}
+  body.v221-desktop #placementHint{bottom:92px;font-size:11px}
+  body.v221-desktop #startOverlay .modal{width:min(1180px,96vw);padding:30px}
+  body.v221-desktop #v20Home .v20-mode-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:23px 0}
+  body.v221-desktop #v20Home .v20-mode-card{min-height:190px;padding:22px;border-radius:22px}
+  body.v221-desktop #v20Home .v20-mode-card .ico{font-size:42px}body.v221-desktop #v20Home .v20-mode-card h3{font-size:20px}body.v221-desktop #v20Home .v20-mode-card p{font-size:10.5px}
+  body.v221-desktop #v20SoloShell .v20-solo-layout{gap:16px;margin:18px 0}body.v221-desktop #v20SoloShell .v20-panel{padding:17px;border-radius:20px}
+  body.v221-desktop #v20SoloShell .choice-grid{gap:10px}body.v221-desktop #v20SoloShell .choice-card{min-height:96px;padding:12px}
+  body.v221-desktop #v221DesktopBadge{display:flex;position:fixed;z-index:7;right:18px;top:18px;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(5,9,22,.72);border:1px solid rgba(102,244,255,.18);color:#bffaff;font-size:7.5px;font-weight:950;letter-spacing:.12em;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.24)}
+  body.v221-desktop #v221DesktopBadge i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+  body.v221-desktop #v221DesktopHelp{display:block;position:fixed;z-index:6;right:18px;bottom:18px;width:324px;padding:13px 14px;border-radius:18px;background:linear-gradient(145deg,rgba(9,16,35,.79),rgba(4,7,18,.72));border:1px solid rgba(102,244,255,.14);box-shadow:0 16px 45px rgba(0,0,0,.34);backdrop-filter:blur(12px);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+  body.v221-desktop #v221DesktopHelp h3{font-size:9px;letter-spacing:.16em;color:var(--cyan);margin-bottom:9px}body.v221-desktop #v221DesktopHelp .v221-keys{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+  body.v221-desktop #v221DesktopHelp p{display:flex;align-items:center;gap:7px;color:#b9d5e1;font-size:8px;line-height:1.2}body.v221-desktop #v221DesktopHelp kbd{min-width:29px;padding:3px 5px;border-radius:6px;text-align:center;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.11);color:#fff;font:900 7px system-ui;box-shadow:inset 0 -1px rgba(0,0,0,.35)}
+  body.v221-desktop #v221ArsenalToggle{display:flex;position:fixed;z-index:17;left:304px;top:50%;transform:translateY(-50%);width:30px;height:78px;padding:0;border-radius:0 12px 12px 0;align-items:center;justify-content:center;border:1px solid rgba(102,244,255,.2);border-left:0;background:rgba(7,13,29,.88);color:var(--cyan);cursor:pointer;font-size:18px;transition:left .28s cubic-bezier(.2,.8,.2,1),background .16s ease}
+  body.v221-desktop #v221ArsenalToggle:hover{background:rgba(17,32,62,.96)}
+  body.v221-desktop.v221-arsenal-hidden #towerDock{transform:translateX(calc(-100% - 24px));opacity:0}
+  body.v221-desktop.v221-arsenal-hidden #v221ArsenalToggle{left:0}
+  body.v221-desktop.v221-arsenal-hidden #abilityDock{left:58px}
+  body.v221-desktop.v221-help-hidden #v221DesktopHelp,body.v221-desktop.v19-inspecting #v221DesktopHelp{opacity:0;transform:translateY(10px)}
+}
+@media(min-width:1550px) and (pointer:fine){
+  body.v221-desktop #towerDock{width:318px}body.v221-desktop #v221ArsenalToggle{left:320px}
+  body.v221-desktop #abilityDock{left:352px;right:382px}body.v221-desktop #inspector{width:360px}
+  body.v221-desktop .ability-btn{min-width:165px}
+}
+@media(min-width:1000px) and (max-width:1240px) and (pointer:fine){
+  body.v221-desktop #towerDock{width:282px;left:10px}body.v221-desktop #v221ArsenalToggle{left:292px}
+  body.v221-desktop #abilityDock{left:308px;right:314px}body.v221-desktop #inspector{right:10px;width:298px}
+  body.v221-desktop #v221DesktopHelp{width:286px;right:11px}body.v221-desktop #topbar{max-width:calc(100vw - 315px)}
+  body.v221-desktop .ability-btn{min-width:132px}
+}
+</style>
+<script id="v22-1-desktop-script">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V221__)return;
+window.__DARK_RIFT_V221__=true;
+document.body.classList.add('v221');
+const V221_QUERY=matchMedia('(pointer:fine)');
+const v221IsDesktop=()=>V221_QUERY.matches&&innerWidth>=1180;
+
+const desktopBadge=document.createElement('div');
+desktopBadge.id='v221DesktopBadge';desktopBadge.innerHTML='<i></i>V22.1 • DESKTOP';
+const desktopHelp=document.createElement('aside');
+desktopHelp.id='v221DesktopHelp';desktopHelp.setAttribute('aria-hidden','true');desktopHelp.innerHTML='<h3>COMMANDES ORDINATEUR</h3><div class="v221-keys"><p><kbd>GLISSER</kbd>Déplacer</p><p><kbd>MOLETTE</kbd>Zoomer</p><p><kbd>1–5</kbd>Catégories</p><p><kbd>R</kbd>Recentrer</p><p><kbd>V</kbd>Vitesse</p><p><kbd>A</kbd>Arsenal</p><p><kbd>W</kbd>Wiki</p><p><kbd>ÉCHAP</kbd>Annuler</p></div>';
+const arsenalToggle=document.createElement('button');
+arsenalToggle.id='v221ArsenalToggle';arsenalToggle.type='button';arsenalToggle.textContent='‹';arsenalToggle.setAttribute('aria-label','Masquer ou afficher l’arsenal');
+document.body.append(desktopBadge,desktopHelp,arsenalToggle);
+
+function v221ResizeCanvas(){
+  if(!v221IsDesktop())return;
+  VW=innerWidth;VH=innerHeight;const maxPixels=8500000,pixelCap=Math.sqrt(maxPixels/Math.max(1,VW*VH));
+  DPR=Math.max(.75,Math.min(devicePixelRatio||1,1.65,pixelCap));canvas.width=Math.round(VW*DPR);canvas.height=Math.round(VH*DPR);canvas.style.width=VW+'px';canvas.style.height=VH+'px';ctx.setTransform(DPR,0,0,DPR,0,0)
+}
+function v221FitCamera(g){
+  if(!v221IsDesktop()||!g?.cam)return;const arsenalHidden=document.body.classList.contains('v221-arsenal-hidden'),left=arsenalHidden?70:(innerWidth>=1550?336:innerWidth<=1240?300:320),right=g.selected?(innerWidth<=1240?310:362):108,usableW=Math.max(520,VW-left-right),usableH=Math.max(420,VH-210);
+  g.cam.zoom=clamp(Math.min(usableW/WORLD.w,usableH/WORLD.h)*.98,.42,1.38);g.cam.x=WORLD.w/2-(left-right)/(2*g.cam.zoom);g.cam.y=WORLD.h/2;g.clampCamera()
+}
+function v221ToggleArsenal(force){
+  const hidden=force??!document.body.classList.contains('v221-arsenal-hidden');document.body.classList.toggle('v221-arsenal-hidden',hidden);arsenalToggle.textContent=hidden?'›':'‹';arsenalToggle.setAttribute('aria-label',hidden?'Afficher l’arsenal':'Masquer l’arsenal');if(v221IsDesktop())v221FitCamera(game)
+}
+function v221RefreshMode(){
+  const desktop=v221IsDesktop();document.body.classList.toggle('v221-desktop',desktop);if(!desktop){document.body.classList.remove('v221-arsenal-hidden','v221-help-hidden');arsenalToggle.textContent='‹'}else{v221ResizeCanvas();v221FitCamera(game)}
+}
+arsenalToggle.addEventListener('click',()=>v221ToggleArsenal());
+addEventListener('resize',v221RefreshMode,{passive:true});V221_QUERY.addEventListener?.('change',v221RefreshMode);setTimeout(v221RefreshMode,70);
+
+const v221CenterCamera=Game.prototype.centerCamera;
+Game.prototype.centerCamera=function(){if(!v221IsDesktop())return v221CenterCamera.call(this);v221FitCamera(this)};
+const v221Reset=Game.prototype.reset;
+Game.prototype.reset=function(){const result=v221Reset.call(this);this.v221LastDraw=0;if(v221IsDesktop())v221FitCamera(this);return result};
+const v221Draw=Game.prototype.draw;
+Game.prototype.draw=function(){if(!v221IsDesktop())return v221Draw.call(this);const now=performance.now();if(this.v221LastDraw&&now-this.v221LastDraw<1000/90)return;this.v221LastDraw=now;return v221Draw.call(this)};
+const v221Key=Game.prototype.key;
+Game.prototype.key=function(e){
+  const tag=e.target?.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA'||e.target?.isContentEditable)return;
+  v221Key.call(this,e);if(!v221IsDesktop())return;const k=e.key.toLowerCase();
+  if(k==='r'){this.centerCamera();this.toast('Caméra recentrée')}
+  else if(k==='v'){const speeds=[.5,1,2,4],i=speeds.indexOf(this.speed);this.speed=speeds[(i+1)%speeds.length];this.updateUI(true);this.toast(`Vitesse ×${this.speed}`)}
+  else if(k==='a')v221ToggleArsenal();
+  else if(k==='h')document.body.classList.toggle('v221-help-hidden');
+  else if(k==='+'||k==='=')this.zoomAt(VW/2,VH/2,1.15);
+  else if(k==='-')this.zoomAt(VW/2,VH/2,.87)
+};
+
+const v221RenderWiki=Game.prototype.renderWiki;
+Game.prototype.renderWiki=function(){
+  const result=v221RenderWiki.call(this);if(this.wikiTab!=='updates')return result;const timeline=document.querySelector('.v20-timeline');if(!timeline)return result;timeline.querySelectorAll('.v20-current').forEach(n=>n.classList.remove('v20-current'));let release=timeline.querySelector('[data-v221-release]');if(!release){release=document.createElement('article');release.dataset.v221Release='';release.className='v20-release v20-current';release.style.setProperty('--release-color','#66f4ff');release.innerHTML='<h4><span>V22.1 • Desktop Polish</span><span>VERSION ACTUELLE</span></h4><p>Une interface ordinateur plus lisible et un rendu adaptatif, sans retirer les contrôles mobiles.</p><ul><li>Disposition grand écran avec arsenal et inspecteur mieux équilibrés</li><li>Caméra recentrée dans la zone de jeu réellement disponible</li><li>Raccourcis clavier et aide contextuelle intégrée</li><li>Arsenal escamotable pour libérer la carte</li><li>Rendu plafonné sur les écrans haute fréquence et budget 4K maîtrisé</li></ul>';timeline.appendChild(release)}else release.classList.add('v20-current');return result
+};
+
+const versionBadge=document.querySelector('.v20-version');if(versionBadge)versionBadge.textContent='V22.1 • DESKTOP POLISH';
+const homeSubtitle=document.querySelector('.v20-home-head .subtitle');if(homeSubtitle)homeSubtitle.textContent='V22.1 Desktop Polish — la même faille sur mobile, avec une interface de commandement pensée pour clavier et souris.';
+const soloSubtitle=document.querySelector('#v20SoloShell .subtitle');if(soloSubtitle)soloSubtitle.textContent='V22.1 — carte recentrée, arsenal escamotable, raccourcis clavier et rendu adaptatif sur grand écran.';
+v221RefreshMode();if(v221IsDesktop())v221FitCamera(game);
+console.info('Dark Rift TD V22.1 Desktop Polish chargé.');
+})();
+</script>
+
+<style id="v22-2-visual-style">
+#v222RenderStyleRow{position:relative;overflow:hidden}
+#v222RenderStyleRow::after{content:"✦";position:absolute;right:14px;top:12px;color:var(--violet);font-size:18px;opacity:.35;pointer-events:none}
+body[data-v222-render="beautiful"] #settingsOverlay .modal{box-shadow:0 22px 80px rgba(65,88,255,.22),inset 0 1px rgba(255,255,255,.06)}
+body[data-v222-render="cinematic"] #settingsOverlay .modal{box-shadow:0 24px 90px rgba(170,118,255,.3),0 0 55px rgba(102,244,255,.12),inset 0 1px rgba(255,255,255,.08)}
+@media(min-width:1180px) and (pointer:fine){
+  body.v221-desktop #v221DesktopHelp{bottom:90px}
+  body.v221-desktop #statusRibbon{max-width:calc(100vw - 700px);overflow:hidden;justify-content:center}
+body.v221-desktop #firstWaveCountdown{width:min(650px,calc(100vw - 700px));max-width:calc(100vw - 700px);top:106px!important}
+  body.v221-desktop #bossBar{max-width:calc(100vw - 700px)}
+  body.v221-desktop #abilityDock{overflow:hidden}
+  body.v221-desktop .ability-btn{min-width:0;flex:1 1 0;max-width:166px}
+  body.v221-desktop.v19-inspecting #topbar{filter:saturate(.92)}
+}
+@media(min-width:1180px) and (max-width:1499px) and (pointer:fine){
+  body.v221-desktop #towerDock{left:14px;width:286px;top:88px;bottom:14px}
+  body.v221-desktop #v221ArsenalToggle{left:300px}
+  body.v221-desktop #inspector{right:14px;width:310px;top:88px;max-height:calc(100vh - 102px)}
+  body.v221-desktop #topbar{left:50%;top:12px;gap:5px;padding:6px 8px;max-width:calc(100vw - 680px)}
+  body.v221-desktop #topbar .metric{min-width:80px;padding:6px 8px}body.v221-desktop #topbar .metric span{font-size:16px}body.v221-desktop #topbar .metric small{display:none}
+  body.v221-desktop #topbar .icon-btn{width:39px;height:39px;flex-basis:39px}
+  body.v221-desktop #abilityDock{left:340px;right:340px;bottom:14px;gap:6px}
+  body.v221-desktop .ability-btn{height:52px;padding:7px 8px;border-radius:13px;font-size:8px}body.v221-desktop .ability-btn b{font-size:9px}body.v221-desktop .ability-btn small{font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.v221-desktop #v221DesktopHelp{right:14px;width:296px;bottom:82px;padding:11px 12px}
+  body.v221-desktop #v221DesktopHelp .v221-keys{gap:5px 9px}
+  body.v221-desktop #statusRibbon{left:50%;top:78px!important;max-width:calc(100vw - 680px)}
+  body.v221-desktop #firstWaveCountdown{left:50%;width:min(640px,calc(100vw - 680px));max-width:calc(100vw - 680px)}
+  body.v221-desktop #bossBar{left:50%;width:min(620px,calc(100vw - 680px));max-width:calc(100vw - 680px)}
+  body.v221-desktop #toast{left:50%}
+  body.v221-desktop.v221-arsenal-hidden #abilityDock{left:60px}
+}
+@media(min-width:1500px) and (pointer:fine){
+  body.v221-desktop #abilityDock{left:360px;right:394px}
+  body.v221-desktop #v221DesktopHelp{right:18px;bottom:92px}
+  body.v221-desktop #firstWaveCountdown{width:min(720px,calc(100vw - 780px));max-width:calc(100vw - 780px)}
+  body.v221-desktop #statusRibbon,body.v221-desktop #bossBar{max-width:calc(100vw - 780px)}
+}
+</style>
+<script id="v22-2-visual-script">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V222__)return;
+window.__DARK_RIFT_V222__=true;
+
+SETTINGS_DEFAULT.particles='high';SETTINGS_DEFAULT.renderStyle='beautiful';
+settings.particles=settings.particles||settings.quality||'high';settings.renderStyle=settings.renderStyle||'beautiful';
+settings.quality=settings.particles==='ultra'?'high':settings.particles;
+const v222ParticleLevel=()=>settings.particles||settings.quality||'high';
+const v222RenderStyle=()=>settings.renderStyle||'beautiful';
+const v222ParticleCap=()=>v222ParticleLevel()==='ultra'?(innerWidth<900?460:900):(innerWidth<900?300:560);
+
+const qualitySelect=document.getElementById('qualitySelect');
+if(qualitySelect&&!qualitySelect.querySelector('option[value="ultra"]'))qualitySelect.insertAdjacentHTML('beforeend','<option value="ultra">Extrême</option>');
+if(qualitySelect){const row=qualitySelect.closest('.setting-row');const label=row?.querySelector('label'),hint=row?.querySelector('small');if(label)label.textContent='Niveau de particules';if(hint)hint.textContent='Minimal, équilibré, spectaculaire ou extrême. Le niveau extrême reste limité automatiquement sur mobile.'}
+let renderRow=document.getElementById('v222RenderStyleRow');
+if(!renderRow&&qualitySelect){renderRow=document.createElement('div');renderRow.id='v222RenderStyleRow';renderRow.className='setting-row';renderRow.innerHTML='<label for="renderStyleSelect">Qualité du rendu</label><select id="renderStyleSelect"><option value="normal">Normal • rapide</option><option value="beautiful">Beau • détaillé</option><option value="cinematic">Cinématique • maximal</option></select><small>Ajoute détails de sprites, lueurs, profondeur et finition d’image indépendamment du nombre de particules.</small>';qualitySelect.closest('.setting-row')?.after(renderRow)}
+const renderStyleSelect=document.getElementById('renderStyleSelect');
+function v222ApplySettings(){if(qualitySelect)qualitySelect.value=v222ParticleLevel();if(renderStyleSelect)renderStyleSelect.value=v222RenderStyle();document.body.dataset.v222Render=v222RenderStyle()}
+if(qualitySelect)qualitySelect.onchange=e=>{settings.particles=e.target.value;settings.quality=e.target.value==='ultra'?'high':e.target.value;saveSettings();game?.toast(`Particules : ${e.target.options[e.target.selectedIndex].text}`)};
+if(renderStyleSelect)renderStyleSelect.onchange=e=>{settings.renderStyle=e.target.value;saveSettings();v222ApplySettings();const p=game?.path?.pointAt(game.entryDistance||0);if(p)game.burst(p.x,p.y,'#aa76ff',22,155,'spark');game?.toast(`Rendu : ${e.target.options[e.target.selectedIndex].text}`)};
+const v222ApplySettingsUI=Game.prototype.applySettingsUI;
+Game.prototype.applySettingsUI=function(){v222ApplySettingsUI.call(this);v222ApplySettings()};
+v222ApplySettings();
+
+const v222ParticleDraw=Particle.prototype.draw;
+Particle.prototype.draw=function(){
+  const style=v222RenderStyle();if(style==='normal')return v222ParticleDraw.call(this);const a=clamp(this.life/this.max,0,1),cinematic=style==='cinematic',s=this.size*(.72+.28*a);ctx.save();ctx.globalAlpha=a;ctx.translate(this.x,this.y);ctx.rotate(this.rot);ctx.fillStyle=this.color;ctx.strokeStyle=this.color;ctx.lineCap='round';
+  if(this.shape==='smoke'){ctx.globalCompositeOperation='source-over';ctx.globalAlpha=a*(cinematic?.16:.12);ctx.shadowBlur=cinematic?18:8;ctx.shadowColor=this.color;ctx.beginPath();ctx.arc(0,0,s*(2.15-a*.45),0,TAU);ctx.fill();ctx.globalAlpha=a*.28;ctx.beginPath();ctx.arc(-s*.35,-s*.2,s*(1.25-a*.2),0,TAU);ctx.fill()}
+  else{ctx.globalCompositeOperation='lighter';ctx.shadowColor=this.color;ctx.shadowBlur=cinematic?20:12;
+    if(this.shape==='line'){ctx.globalAlpha=a*.3;ctx.lineWidth=s*2.4;ctx.beginPath();ctx.moveTo(-s*3.4,0);ctx.lineTo(s*3.4,0);ctx.stroke();ctx.globalAlpha=a;ctx.strokeStyle='#fff';ctx.lineWidth=Math.max(.7,s*.45);ctx.stroke()}
+    else if(this.shape==='snow'){ctx.lineWidth=Math.max(.8,s*.45);for(let i=0;i<4;i++){ctx.rotate(Math.PI/4);ctx.beginPath();ctx.moveTo(-s*2.3,0);ctx.lineTo(s*2.3,0);ctx.stroke()}}
+    else if(this.shape==='shard'){ctx.beginPath();ctx.moveTo(s*2.8,0);ctx.lineTo(-s*.8,-s*.85);ctx.lineTo(-s*1.8,0);ctx.lineTo(-s*.8,s*.85);ctx.closePath();ctx.fill();ctx.globalAlpha=a*.7;ctx.strokeStyle='#fff';ctx.lineWidth=.55;ctx.stroke()}
+    else if(this.shape==='rune'){ctx.globalAlpha=a*.72;ctx.lineWidth=Math.max(.7,s*.42);ctx.beginPath();ctx.arc(0,0,s*1.7,0,TAU);ctx.stroke();ctx.rotate(Math.PI/4);ctx.strokeRect(-s*.72,-s*.72,s*1.44,s*1.44)}
+    else if(this.shape==='ember'){ctx.scale(1.8,.72);ctx.beginPath();ctx.arc(0,0,s,0,TAU);ctx.fill();ctx.globalAlpha=a*.9;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s*.28,0,s*.3,0,TAU);ctx.fill()}
+    else{ctx.globalAlpha=a*.34;ctx.beginPath();ctx.arc(0,0,s*1.9,0,TAU);ctx.fill();ctx.globalAlpha=a;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,Math.max(.65,s*.42),0,TAU);ctx.fill()}
+  }ctx.restore()
+};
+
+const v222Burst=Game.prototype.burst;
+Game.prototype.burst=function(x,y,color,count=12,speed=130,type='spark'){
+  v222Burst.call(this,x,y,color,count,speed,type);const level=v222ParticleLevel(),style=v222RenderStyle();if(level==='low'&&style==='normal')return;const levelMul={low:.08,medium:.18,high:.34,ultra:.68}[level]||.18,styleMul=style==='cinematic'?1.35:style==='beautiful'?1:0.62,extra=Math.ceil(count*levelMul*styleMul),room=Math.max(0,v222ParticleCap()-this.particles.length),n=Math.min(extra,room);
+  for(let i=0;i<n;i++){const shape=type==='explosion'?(Math.random()<.34?'smoke':Math.random()<.58?'shard':'ember'):type==='line'?'shard':Math.random()<.24?'rune':Math.random()<.55?'shard':'dot';this.particles.push(new Particle(x,y,color,{shape,life:type==='explosion'?rand(.55,1.15):rand(.28,.78),size:type==='explosion'?rand(2.2,6.8):rand(1.1,3.6),speed:rand(speed*.24,speed*1.05),gravity:type==='explosion'?rand(-28,48):rand(-4,24),drag:rand(.91,.97)}))}
+};
+
+const v222TowerDraw=Tower.prototype.draw;
+Tower.prototype.draw=function(){
+  v222TowerDraw.call(this);const style=v222RenderStyle();if(style==='normal')return;const col=this.def.color,g=this.game,cinematic=style==='cinematic',disabled=g.time<this.disabledUntil;ctx.save();ctx.translate(this.x,this.y);ctx.globalAlpha=disabled?.28:.78;ctx.globalCompositeOperation='lighter';ctx.strokeStyle=col;ctx.fillStyle='#fff';ctx.lineWidth=cinematic?1.35:1;
+  ctx.shadowBlur=cinematic?18:10;ctx.shadowColor=col;for(let i=0;i<4;i++){const a=i*TAU/4+Math.PI/4,r=17;ctx.beginPath();ctx.arc(Math.cos(a)*r,Math.sin(a)*r,1.25,0,TAU);ctx.fill()}
+  ctx.globalAlpha=disabled?.18:.34;ctx.setLineDash([2,5]);ctx.lineDashOffset=-g.time*12;ctx.beginPath();ctx.arc(0,0,this.mk===2?27:24,0,TAU);ctx.stroke();ctx.setLineDash([]);ctx.rotate(this.angle);ctx.globalAlpha=disabled?.2:.48;ctx.strokeStyle='#fff';ctx.beginPath();ctx.moveTo(4,-1);ctx.lineTo(this.def.kind==='sniper'||this.def.kind==='rail'?31:23,-1);ctx.stroke();ctx.restore()
+};
+
+const v222EnemyDraw=Enemy.prototype.draw;
+Enemy.prototype.draw=function(){
+  v222EnemyDraw.call(this);const style=v222RenderStyle();if(style==='normal'||this.dead)return;const col=this.boss?.color||this.def.color,s=this.size,cinematic=style==='cinematic';ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.rotation+this.game.time*(this.boss?.id==='chronophage'?1.4:.35));ctx.globalCompositeOperation='lighter';ctx.strokeStyle='#fff';ctx.fillStyle=col;ctx.lineWidth=cinematic?1.25:.9;ctx.shadowBlur=cinematic?16:9;ctx.shadowColor=col;ctx.globalAlpha=this.def.cloak&&this.game.time<this.cloakUntil?.12:.66;
+  if(this.boss){ctx.beginPath();ctx.arc(0,0,s*.5,0,TAU);ctx.stroke();for(let i=0;i<4;i++){const a=i*TAU/4+this.game.time*.35;ctx.beginPath();ctx.arc(Math.cos(a)*s*.72,Math.sin(a)*s*.72,1.8,0,TAU);ctx.fill()}}
+  else if(this.type==='runner'||this.type==='berserker'){ctx.beginPath();ctx.moveTo(-s*.25,-s*.48);ctx.lineTo(s*.56,0);ctx.lineTo(-s*.25,s*.48);ctx.stroke()}
+  else if(this.type==='tank'||this.type==='shield'){ctx.strokeRect(-s*.48,-s*.48,s*.96,s*.96);ctx.beginPath();ctx.moveTo(-s*.7,0);ctx.lineTo(s*.7,0);ctx.stroke()}
+  else if(this.type==='healer'){ctx.beginPath();ctx.moveTo(-s*.55,0);ctx.lineTo(s*.55,0);ctx.moveTo(0,-s*.55);ctx.lineTo(0,s*.55);ctx.stroke()}
+  else if(this.type==='swarm'){for(let i=0;i<3;i++){const a=i*TAU/3+this.game.time;ctx.beginPath();ctx.arc(Math.cos(a)*s*.62,Math.sin(a)*s*.62,1.2,0,TAU);ctx.fill()}}
+  else if(this.type==='phase'||this.type==='cloaked'){ctx.rotate(Math.PI/4);ctx.strokeRect(-s*.34,-s*.34,s*.68,s*.68)}
+  else{ctx.beginPath();ctx.arc(0,0,s*.38,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(0,0,Math.max(1.2,s*.11),0,TAU);ctx.fill()}
+  if(this.v22CorrosionUntil>this.game.time||this.poisonUntil>this.game.time){ctx.strokeStyle='#55ffb3';ctx.globalAlpha=.7;ctx.beginPath();ctx.arc(0,0,s*1.18,-1.2,1.9);ctx.stroke()}if(this.burnUntil>this.game.time){ctx.strokeStyle='#ff6538';ctx.beginPath();ctx.arc(0,0,s*1.12,2.1,5.2);ctx.stroke()}ctx.restore()
+};
+
+const v222ProjectileDraw=Projectile.prototype.draw;
+Projectile.prototype.draw=function(){
+  v222ProjectileDraw.call(this);const style=v222RenderStyle();if(style==='normal')return;ctx.save();ctx.translate(this.x,this.y);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=style==='cinematic'?.82:.58;ctx.fillStyle='#fff';ctx.shadowBlur=style==='cinematic'?20:12;ctx.shadowColor=this.color;ctx.beginPath();ctx.arc(0,0,this.kind==='mortar'?2.4:1.55,0,TAU);ctx.fill();if(this.kind==='rockets'){const a=Math.atan2(this.ty-this.y,this.tx-this.x);ctx.rotate(a);ctx.fillStyle='#ffb35c';ctx.beginPath();ctx.moveTo(-11,0);ctx.lineTo(-18,-3.4);ctx.lineTo(-18,3.4);ctx.closePath();ctx.fill()}ctx.restore()
+};
+
+const v222Update=Game.prototype.update;
+Game.prototype.update=function(dt){
+  const result=v222Update.call(this,dt);if(!this.started||this.paused||v222RenderStyle()==='normal')return result;const level=v222ParticleLevel(),rate=(level==='ultra'?9:level==='high'?4.5:level==='medium'?1.8:.5)*(v222RenderStyle()==='cinematic'?1.35:1);this.v222Ambient=(this.v222Ambient||0)+dt*rate;let guard=0;while(this.v222Ambient>=1&&this.particles.length<v222ParticleCap()&&guard++<8){this.v222Ambient--;let x,y,col,shape;if(this.towers.length&&Math.random()<.58){const t=pick(this.towers);x=t.x+rand(-18,18);y=t.y+rand(-18,18);col=t.def.color;shape=Math.random()<.38?'rune':'dot'}else{const d=rand(this.entryDistance,this.baseDistance),p=this.path.pointAt(d);x=p.x+rand(-42,42);y=p.y+rand(-42,42);col=this.currentTheme().accent;shape=Math.random()<.3?'shard':'dot'}this.particles.push(new Particle(x,y,col,{shape,life:rand(.45,1.1),size:rand(.7,2),speed:rand(8,28),gravity:rand(-16,-4),drag:.97}))}return result
+};
+
+const v222GameDraw=Game.prototype.draw;
+Game.prototype.draw=function(){
+  const before=this.v221LastDraw,result=v222GameDraw.call(this);if(document.body.classList.contains('v221-desktop')&&before===this.v221LastDraw)return result;const style=v222RenderStyle();if(style==='normal')return result;ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);const vignette=ctx.createRadialGradient(VW*.5,VH*.48,Math.min(VW,VH)*.22,VW*.5,VH*.48,Math.max(VW,VH)*.72);vignette.addColorStop(0,'rgba(0,0,0,0)');vignette.addColorStop(.72,style==='cinematic'?'rgba(11,3,30,.06)':'rgba(4,6,20,.035)');vignette.addColorStop(1,style==='cinematic'?'rgba(0,0,8,.42)':'rgba(0,0,8,.24)');ctx.fillStyle=vignette;ctx.fillRect(0,0,VW,VH);if(style==='cinematic'){if(!this.v222ScanPattern){const c=document.createElement('canvas');c.width=2;c.height=6;const x=c.getContext('2d');x.fillStyle='rgba(190,230,255,.09)';x.fillRect(0,0,2,1);this.v222ScanPattern=ctx.createPattern(c,'repeat')}ctx.globalAlpha=.14;ctx.fillStyle=this.v222ScanPattern;ctx.fillRect(0,0,VW,VH)}ctx.restore();return result
+};
+
+const v222RenderWiki=Game.prototype.renderWiki;
+Game.prototype.renderWiki=function(){const result=v222RenderWiki.call(this);if(this.wikiTab!=='updates')return result;const timeline=document.querySelector('.v20-timeline');if(!timeline)return result;timeline.querySelectorAll('.v20-current').forEach(n=>n.classList.remove('v20-current'));let release=timeline.querySelector('[data-v222-release]');if(!release){release=document.createElement('article');release.dataset.v222Release='';release.className='v20-release v20-current';release.style.setProperty('--release-color','#ff70d6');release.innerHTML='<h4><span>V22.2 • Visual Overhaul</span><span>VERSION ACTUELLE</span></h4><p>Sprites canvas enrichis, particules avancées et rendu configurable, avec une interface ordinateur sans chevauchement.</p><ul><li>Quatre niveaux de particules, jusqu’au mode Extrême</li><li>Rendu Normal, Beau ou Cinématique indépendant des particules</li><li>Détails lumineux propres aux tours, ennemis et projectiles</li><li>Post-traitement léger ou cinématique sans image externe</li><li>Colonnes desktop recalculées pour l’arsenal, les bannières, les capacités et l’inspecteur</li></ul>';timeline.appendChild(release)}else release.classList.add('v20-current');return result};
+
+const versionBadge222=document.querySelector('.v20-version');if(versionBadge222)versionBadge222.textContent='V22.2 • VISUAL OVERHAUL';
+const desktopBadge222=document.getElementById('v221DesktopBadge');if(desktopBadge222)desktopBadge222.innerHTML='<i></i>V22.2 • VISUAL';
+const homeSubtitle222=document.querySelector('.v20-home-head .subtitle');if(homeSubtitle222)homeSubtitle222.textContent='V22.2 Visual Overhaul — sprites canvas enrichis, quatre niveaux de particules et rendu Normal, Beau ou Cinématique.';
+const soloSubtitle222=document.querySelector('#v20SoloShell .subtitle');if(soloSubtitle222)soloSubtitle222.textContent='V22.2 — effets configurables, silhouettes plus détaillées et interface ordinateur recalibrée.';
+document.title='Dark Rift TD — V22.2 Visual Overhaul';
+console.info('Dark Rift TD V22.2 Visual Overhaul chargé.');
+})();
+</script>
+
+<style id="v23-void-front-style">
+/* DARK RIFT TD V23 — VOID FRONT */
+body.v23 .tower-card[data-id="voidlance"],body.v23 .tower-card[data-id="eclipse"],body.v23 .tower-card[data-id="nullspire"]{background:radial-gradient(circle at 78% 12%,rgba(197,111,255,.18),transparent 42%),linear-gradient(145deg,rgba(52,17,89,.72),rgba(8,5,20,.94));border-color:rgba(187,103,255,.42);box-shadow:inset 0 0 24px rgba(105,38,180,.08)}
+body.v23 .tower-card[data-id="voidlance"]:hover,body.v23 .tower-card[data-id="eclipse"]:hover,body.v23 .tower-card[data-id="nullspire"]:hover{border-color:#c77dff;box-shadow:0 10px 30px rgba(151,66,255,.19),inset 0 0 28px rgba(151,66,255,.1)}
+body.v23 .tower-card[data-id="voidlance"] .ico,body.v23 .tower-card[data-id="eclipse"] .ico,body.v23 .tower-card[data-id="nullspire"] .ico{filter:drop-shadow(0 0 12px #a84dff);transform:scale(1.18)}
+body.v23 [data-v23-perf="1"]{position:relative}
+body.v23 #v23PerfRow small{color:#b9c6dc}
+body.v23 .v23-void-map{color:#dca8ff}
+@media(max-width:760px){body.v23 .tower-card[data-id="voidlance"] .ico,body.v23 .tower-card[data-id="eclipse"] .ico,body.v23 .tower-card[data-id="nullspire"] .ico{transform:scale(1.08)}}
+</style>
+
+<script id="v23-void-front-script">
+(()=>{
+'use strict';
+if(window.__DARK_RIFT_V23__)return;
+window.__DARK_RIFT_V23__=true;
+document.body.classList.add('v23');
+
+/* -------------------------------------------------------------------------- */
+/*  V23 • progression, cartes et arsenal du Néant                             */
+/* -------------------------------------------------------------------------- */
+const V23_NAME='V23 • VOID FRONT';
+const V23_VOID_IDS=new Set(['voidlance','eclipse','nullspire']);
+const V23_MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<900;
+
+CATEGORIES.void={name:'Néant',icon:'◉',color:'#b967ff',bonus:'3 tours : dégâts du Néant +18 % et portée +6 %.'};
+DAMAGE_NAMES.void='Néant';
+THEMES.abyss={name:'Abysse violette',bg1:'#170925',bg2:'#090411',bg3:'#010104',grid:'rgba(162,84,230,.055)',path:'#3a1c51',pathGlow:'#8d35da',accent:'#c77dff',dust:'#e8c9ff'};
+PORTAL_PALETTES.void=[['#8d35da','#e8c9ff'],['#a84dff','#6f3cff'],['#6a22b8','#f0c5ff'],['#c25cff','#3c1169'],['#f0d8ff','#a84dff']];
+PORTAL_PALETTES.abyss=[['#5d1d94','#c77dff'],['#39105e','#e2b3ff'],['#7d2bc4','#9d69ff'],['#a84dff','#f6e7ff'],['#2e063f','#d88cff']];
+
+MAP_COMBAT.voidscar={name:'Résonance inversée',short:'Éléments ×0,60 • Néant ×1,50',desc:'La cicatrice absorbe les éléments ordinaires et amplifie fortement les armes du Néant.',mult:{kinetic:.6,explosive:.6,cryo:.6,fire:.6,electric:.6,solar:.6,gravity:.6,temporal:.6,disrupt:.6,toxic:.6,void:1.5}};
+MAP_COMBAT.abyss={name:'Liturgie de l’ombre',short:'Éléments ×0,72 • Néant ×1,35',desc:'Une zone plus ouverte, sombre et favorable au contrôle spatial du Néant.',mult:{kinetic:.72,explosive:.72,cryo:.72,fire:.72,electric:.72,solar:.72,gravity:.72,temporal:.72,disrupt:.82,toxic:.72,void:1.35}};
+MAPS.voidscar={name:'Cicatrice du Néant',icon:'◉',theme:'void',desc:'Éléments ×0,60. Les tourelles du Néant frappent ×1,50.',path:[[-40,535],[120,510],[260,260],[470,150],[650,370],[520,650],[760,865],[1010,790],[1160,530],[1010,300],[1270,145],[1510,280],[1400,590],[1640,820],[1840,670]]};
+MAPS.abyss={name:'Cathédrale Abysse',icon:'♢',theme:'abyss',desc:'Deux longs transepts violets : éléments ×0,72, Néant ×1,35.',path:[[-40,220],[225,210],[390,470],[235,790],[540,865],[790,690],[650,390],[900,150],[1160,260],[1035,590],[1280,850],[1530,735],[1415,420],[1670,210],[1840,430]]};
+
+function v23EnsureTier(rank){let tier=ROADMAP.find(t=>t.rank===rank);if(!tier){tier={rank,xp:0,title:`Rang ${rank}`,description:'Progression V23',towers:[],modes:[],maps:[]};ROADMAP.push(tier)}tier.towers=tier.towers||[];tier.maps=tier.maps||[];tier.modes=tier.modes||[];return tier}
+function v23AddUnique(list,value){if(!list.includes(value))list.push(value)}
+v23AddUnique(v23EnsureTier(9).towers,'voidlance');v23AddUnique(v23EnsureTier(9).maps,'voidscar');
+v23AddUnique(v23EnsureTier(11).towers,'eclipse');v23AddUnique(v23EnsureTier(12).maps,'abyss');v23AddUnique(v23EnsureTier(13).towers,'nullspire');
+Object.assign(TOWER_UNLOCK_RANK,{voidlance:9,eclipse:11,nullspire:13});Object.assign(MAP_UNLOCK_RANK,{voidscar:9,abyss:12});
+
+function v23Tower(def){if(TOWERS.some(t=>t.id===def.id))return;const original=def.cost;def.v21OriginalCost=original;def.cost=Math.round(original*.85);TOWERS.push(def)}
+v23Tower({id:'voidlance',category:'void',damageType:'void',name:'Lance du Néant',icon:'⟡',cost:245,color:'#c77dff',kind:'voidlance',dmg:138,range:315,rate:1.58,proj:1180,crit:.16,desc:'Trait perforant venu du vide',mechanic:'Condense un trait violet à très longue portée. Ses projectiles sont rares, rapides et particulièrement efficaces dans les zones du Néant.',strong:'Égides, phaseurs, boss',weak:'Essaims dispersés'});
+v23Tower({id:'eclipse',category:'void',damageType:'void',name:'Cœur d’Éclipse',icon:'◒',cost:270,color:'#9d5cff',kind:'voidfield',dmg:34,range:185,rate:.82,slow:.72,splash:120,desc:'Pulsation sombre de contrôle',mechanic:'Frappe par pulsations plutôt qu’à chaque image : ralentit, attire et blesse toutes les cibles proches sans saturer le moteur.',strong:'Groupes, phaseurs, rapides',weak:'Très longue portée'});
+v23Tower({id:'nullspire',category:'void',damageType:'void',name:'Obélisque Null',icon:'♢',cost:335,color:'#e0a6ff',kind:'voidchain',dmg:74,range:255,rate:1.12,proj:760,splash:54,multi:3,desc:'Orbes d’entropie en chaîne',mechanic:'Libère trois orbes sombres qui explosent sur des cibles différentes. Une architecture de fin de progression, puissante mais sobre en particules.',strong:'Vagues mixtes, égides',weak:'Coût et cadence'});
+const rocketDef=TOWERS.find(t=>t.id==='rockets');if(rocketDef){rocketDef.multi=3;rocketDef.mechanic='Lance trois micro-missiles guidés, puis quatre en MK2. Les modèles V23 sont plus petits et leurs traînées fortement allégées.'}
+
+/* -------------------------------------------------------------------------- */
+/*  Parties plus longues et relique régulière                                 */
+/* -------------------------------------------------------------------------- */
+Object.assign(MODES.discovery,{victory:50,relicEvery:5,desc:'50 vagues, 30 PV et pression progressive. Une relique toutes les 5 vagues.'});
+Object.assign(MODES.classic,{victory:50,relicEvery:5});
+Object.assign(MODES.extreme,{victory:55,relicEvery:5});
+Object.assign(MODES.bossrush,{victory:20,relicEvery:5});
+Object.assign(MODES.chaos,{victory:50,relicEvery:5});
+Object.assign(MODES.endless,{relicEvery:5});
+
+/* -------------------------------------------------------------------------- */
+/*  Réglage performance adaptatif                                              */
+/* -------------------------------------------------------------------------- */
+SETTINGS_DEFAULT.performanceMode='auto';settings.performanceMode=settings.performanceMode||'auto';
+const renderSettingRow=document.getElementById('v222RenderStyleRow');let perfRow=document.getElementById('v23PerfRow');
+if(!perfRow&&renderSettingRow){perfRow=document.createElement('div');perfRow.id='v23PerfRow';perfRow.className='setting-row';perfRow.innerHTML='<label for="v23PerfSelect">Stabilité des FPS</label><select id="v23PerfSelect"><option value="auto">Auto • recommandé</option><option value="quality">Qualité fixe</option><option value="performance">Performance maximale</option></select><small>Auto réduit seulement les effets secondaires quand la bataille devient lourde. Le gameplay et les dégâts ne changent pas.</small>';renderSettingRow.after(perfRow)}
+const perfSelect=document.getElementById('v23PerfSelect');if(perfSelect){perfSelect.value=settings.performanceMode;perfSelect.onchange=e=>{settings.performanceMode=e.target.value;saveSettings();game.toast(`FPS : ${e.target.options[e.target.selectedIndex].text}`)}}
+const v23ApplySettingsBase=Game.prototype.applySettingsUI;Game.prototype.applySettingsUI=function(){v23ApplySettingsBase.call(this);if(perfSelect)perfSelect.value=settings.performanceMode||'auto'};
+
+function v23ResizeCanvas(){VW=innerWidth;VH=innerHeight;const cap=V23_MOBILE?1.15:1.38;DPR=Math.min(devicePixelRatio||1,cap);canvas.width=Math.round(VW*DPR);canvas.height=Math.round(VH*DPR);canvas.style.width=VW+'px';canvas.style.height=VH+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',v23ResizeCanvas,{passive:true});setTimeout(v23ResizeCanvas,80);
+
+function v23RoundLife(value){const n=Number(value);return Number.isFinite(n)?Math.round(n*10)/10:0}
+function v23LifeLabel(value){const n=v23RoundLife(value);return Number.isInteger(n)?String(n):n.toFixed(1)}
+
+/* Une position calculée une seule fois remplace des dizaines de recherches de segment. */
+const v23EnemyX=Object.getOwnPropertyDescriptor(Enemy.prototype,'x'),v23EnemyY=Object.getOwnPropertyDescriptor(Enemy.prototype,'y');
+Object.defineProperty(Enemy.prototype,'x',{configurable:true,get(){return this.v23Pos?.x??v23EnemyX.get.call(this)}});
+Object.defineProperty(Enemy.prototype,'y',{configurable:true,get(){return this.v23Pos?.y??v23EnemyY.get.call(this)}});
+function v23CacheEnemy(enemy){const path=enemy.pathRef||enemy.game.path;enemy.v23Pos=path.pointAt(enemy.distance)}
+
+/* Les bonus de balise et le tri des cibles ne sont plus recalculés 60 fois/s. */
+const v23UpdateBuffBase=Tower.prototype.updateBuff;Tower.prototype.updateBuff=function(){if((this.v23BuffUntil||0)>this.game.time)return;v23UpdateBuffBase.call(this);this.v23BuffUntil=this.game.time+.18+(this.x%7)*.006};
+const v23TargetsBase=Tower.prototype.targets;Tower.prototype.targets=function(count=1,range=this.stats.range){const now=this.game.time,cache=this.v23TargetCache;if(cache&&cache.count===count&&Math.abs(cache.range-range)<1&&cache.until>now){const alive=cache.list.filter(e=>!e.dead&&Math.hypot(e.x-this.x,e.y-this.y)<=range);if(alive.length||!cache.list.length)return alive.slice(0,count)}const list=v23TargetsBase.call(this,count,range);this.v23TargetCache={count,range,list,until:now+.07};return list};
+
+/* Traînées bornées, sans création d’un objet par projectile à chaque image. */
+Projectile.prototype.update=function(dt){
+  this.life-=dt;if(this.life<=0)return false;
+  if(this.kind==='mortar'){this.t+=dt/this.duration;this.x=lerp(this.startX,this.tx,this.t);this.y=lerp(this.startY,this.ty,this.t)-Math.sin(Math.PI*this.t)*125;if(this.t>=1){this.x=this.tx;this.y=this.ty;this.impact();return false}return true}
+  if(!this.target||this.target.dead)return false;this.tx=this.target.x;this.ty=this.target.y;const a=Math.atan2(this.ty-this.y,this.tx-this.x),step=this.speed*dt;
+  this.v23TrailClock=(this.v23TrailClock||0)-dt;const trailOn=settings.performanceMode!=='performance'&&settings.particles!=='low';if(trailOn&&this.v23TrailClock<=0){this.v23TrailClock=this.kind==='rockets'?.075:.055;this.trail.push({x:this.x,y:this.y,life:.18});if(this.trail.length>3)this.trail.shift()}
+  for(let i=this.trail.length-1;i>=0;i--){this.trail[i].life-=dt;if(this.trail[i].life<=0)this.trail.splice(i,1)}
+  this.x+=Math.cos(a)*step;this.y+=Math.sin(a)*step;if(Math.hypot(this.tx-this.x,this.ty-this.y)<Math.max(10,step)){this.x=this.tx;this.y=this.ty;this.impact();return false}return true
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Comportement des trois tourelles Void et missiles corrigés                */
+/* -------------------------------------------------------------------------- */
+function v23TowerTick(t,dt){t.level=Math.min(13,1+Math.floor(t.xp/100));t.updateBuff();const g=t.game;if(g.time<t.disabledUntil)return null;const frozen=g.time<t.frozenUntil?1.75:1,over=(g.time<t.overdriveUntil||g.time<g.overdriveUntil)?.58:1;t.cooldown-=dt/(frozen*over*t.buff.rate);return g}
+const v23TowerRecalcBase=Tower.prototype.recalc;Tower.prototype.recalc=function(){v23TowerRecalcBase.call(this);if(this.game.categoryCounts.void>=3){this.stats.dmg*=1.18;this.stats.range*=1.06}};
+const v23TowerUpdateBase=Tower.prototype.update;
+Tower.prototype.update=function(dt){
+  if(this.def.kind==='rockets'){const g=v23TowerTick(this,dt);if(!g)return;const count=this.mk===2?4:3,targets=this.targets(Math.min(count,4));if(!targets.length)return;this.angle=Math.atan2(targets[0].y-this.y,targets[0].x-this.x);if(this.cooldown>0)return;for(let i=0;i<count;i++)this.fireProjectile(targets[i%targets.length],{kind:'rockets',damage:this.stats.dmg*(this.mk===2?1.12:1),splash:this.stats.splash});this.cooldown=this.stats.rate;return}
+  if(this.def.kind==='voidlance'){const g=v23TowerTick(this,dt);if(!g)return;const target=this.targets(1)[0];if(!target)return;this.angle=Math.atan2(target.y-this.y,target.x-this.x);if(this.cooldown>0)return;this.fireProjectile(target,{kind:'voidlance',speed:this.stats.proj,damage:this.stats.dmg,effects:{damageType:'void'}});g.beams.push(new Beam(this.x,this.y,target.x,target.y,'#8d35da',2.2,.08));this.cooldown=this.stats.rate;return}
+  if(this.def.kind==='voidfield'){const g=v23TowerTick(this,dt);if(!g)return;this.auraPulse+=dt;if(this.cooldown>0)return;const targets=this.validTargets();for(const e of targets){e.hit(this.stats.dmg,this,'void',true);e.applySlow(this.def.slow,.95);e.distance=Math.max(g.entryDistance,e.distance-(e.boss?5:13))}if(targets.length){g.ring(this.x,this.y,this.def.color,this.stats.range,.36);g.burst(this.x,this.y,this.def.color,8,70,'spark')}this.cooldown=this.stats.rate;return}
+  if(this.def.kind==='voidchain'){const g=v23TowerTick(this,dt);if(!g)return;const targets=this.targets(3);if(!targets.length)return;this.angle=Math.atan2(targets[0].y-this.y,targets[0].x-this.x);if(this.cooldown>0)return;for(const target of targets)this.fireProjectile(target,{kind:'voidorb',damage:this.stats.dmg,splash:this.stats.splash,color:this.def.color,effects:{damageType:'void'}});this.cooldown=this.stats.rate;return}
+  const result=v23TowerUpdateBase.call(this,dt);this.level=Math.min(13,1+Math.floor(this.xp/100));return result
+};
+
+const v23ProjectileDrawBase=Projectile.prototype.draw;Projectile.prototype.draw=function(){
+  if(this.kind==='rockets'){const a=Math.atan2(this.ty-this.y,this.tx-this.x);ctx.save();for(const q of this.trail){ctx.globalAlpha=q.life/.18*.14;ctx.fillStyle='#ffb35c';ctx.beginPath();ctx.arc(q.x,q.y,1.25,0,TAU);ctx.fill()}ctx.globalAlpha=1;ctx.translate(this.x,this.y);ctx.rotate(a);ctx.shadowBlur=6;ctx.shadowColor=this.color;ctx.fillStyle=this.color;ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-5,-2.8);ctx.lineTo(-3,0);ctx.lineTo(-5,2.8);ctx.closePath();ctx.fill();ctx.restore();return}
+  if(this.kind==='voidlance'||this.kind==='voidorb'){ctx.save();for(const q of this.trail){ctx.globalAlpha=q.life/.18*.22;ctx.strokeStyle=this.color;ctx.lineWidth=this.kind==='voidlance'?1.5:2.4;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(this.x,this.y);ctx.stroke()}ctx.globalAlpha=.9;ctx.fillStyle=this.color;ctx.shadowBlur=12;ctx.shadowColor=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.kind==='voidlance'?3:6,0,TAU);ctx.fill();ctx.globalAlpha=.9;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(this.x,this.y,this.kind==='voidlance'?1:2,0,TAU);ctx.fill();ctx.restore();return}
+  return v23ProjectileDrawBase.call(this)
+};
+
+/* Particules générales ×0,6 ; silhouettes Void dessinées à ×1,5. */
+const v23BurstBase=Game.prototype.burst;Game.prototype.burst=function(x,y,color,count=12,speed=130,type='spark'){return v23BurstBase.call(this,x,y,color,Math.max(1,Math.ceil(count*.6)),speed,type)};
+const v23TowerDrawBase=Tower.prototype.draw;Tower.prototype.draw=function(){const saved=settings.renderStyle;if(this.game.v23Stress)settings.renderStyle='normal';try{v23TowerDrawBase.call(this)}finally{settings.renderStyle=saved}if(!V23_VOID_IDS.has(this.def.id))return;ctx.save();ctx.translate(this.x,this.y);ctx.scale(1.5,1.5);ctx.rotate(-this.game.time*.24);ctx.globalCompositeOperation='lighter';ctx.strokeStyle=this.def.color;ctx.fillStyle=this.def.color;ctx.shadowBlur=16;ctx.shadowColor=this.def.color;ctx.globalAlpha=.72;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,19,0,TAU);ctx.stroke();for(let i=0;i<3;i++){const a=i*TAU/3;ctx.beginPath();ctx.moveTo(Math.cos(a)*11,Math.sin(a)*11);ctx.lineTo(Math.cos(a)*20,Math.sin(a)*20);ctx.stroke()}ctx.rotate(this.game.time*.48);ctx.globalAlpha=.86;ctx.beginPath();ctx.arc(0,0,5,0,TAU);ctx.fill();ctx.restore()};
+const v23EnemyDrawBase=Enemy.prototype.draw;Enemy.prototype.draw=function(){const saved=settings.renderStyle;if(this.game.v23Stress)settings.renderStyle='normal';try{return v23EnemyDrawBase.call(this)}finally{settings.renderStyle=saved}};
+
+/* -------------------------------------------------------------------------- */
+/*  Boucle adaptative : simulation ≤60 Hz, cache spatial et budgets bornés    */
+/* -------------------------------------------------------------------------- */
+function v23ParticleCap(g){const level=settings.particles||settings.quality||'medium',base=V23_MOBILE?{low:55,medium:100,high:165,ultra:250}:{low:80,medium:145,high:240,ultra:360},factor=g.v23Stress?.58:1;return Math.floor((base[level]||base.medium)*factor)}
+function v23Trim(g){const cap=v23ParticleCap(g),trim=(arr,max)=>{if(arr?.length>max)arr.splice(0,arr.length-max)};trim(g.particles,cap);trim(g.projectiles,V23_MOBILE?180:300);trim(g.v22Ballistics,V23_MOBILE?85:145);trim(g.beams,V23_MOBILE?70:115);trim(g.texts,V23_MOBILE?55:90);trim(g.decals,V23_MOBILE?55:90);trim(g.areas,V23_MOBILE?45:75)}
+const v23GameUpdateBase=Game.prototype.update;Game.prototype.update=function(rawDt){
+  this.v23FrameAvg=(this.v23FrameAvg||rawDt)*.94+rawDt*.06;this.v23Accumulator=(this.v23Accumulator||0)+rawDt;if(this.v23Accumulator<1/64)return;const dt=Math.min(.033,this.v23Accumulator);this.v23Accumulator=0;
+  for(const e of this.enemies||[])v23CacheEnemy(e);const forced=settings.performanceMode==='performance',auto=settings.performanceMode!=='quality',load=(this.enemies?.length||0)>88+(V23_MOBILE?-20:0)||(this.projectiles?.length||0)>190||(this.particles?.length||0)>260||this.v23FrameAvg>.023;this.v23Stress=forced||(auto&&load);document.body.dataset.v23Perf=this.v23Stress?'1':'0';
+  const saved=settings.renderStyle;if(this.v23Stress)settings.renderStyle='normal';let result;try{result=v23GameUpdateBase.call(this,dt)}finally{settings.renderStyle=saved}
+  for(const e of this.enemies||[])v23CacheEnemy(e);this.lives=v23RoundLife(this.lives);if(this.multi?.players)for(const p of this.multi.players)p.lives=v23RoundLife(p.lives);v23Trim(this);document.title='Dark Rift TD — V23 Void Front';return result
+};
+const v23GameDrawBase=Game.prototype.draw;Game.prototype.draw=function(){const now=performance.now();if(this.v23LastDraw&&now-this.v23LastDraw<16.2)return;this.v23LastDraw=now;const saved=settings.renderStyle;if(this.v23Stress)settings.renderStyle='normal';try{return v23GameDrawBase.call(this)}finally{settings.renderStyle=saved}};
+
+const v23ResetBase=Game.prototype.reset;Game.prototype.reset=function(){const result=v23ResetBase.call(this);this.categoryCounts.void=0;this.v23Accumulator=0;this.v23FrameAvg=1/60;this.v23Stress=false;this.v23LastDraw=0;return result};
+game.categoryCounts.void=game.categoryCounts.void||0;
+
+/* PV affichés proprement et réparation sans 19.899999. */
+const v23UseAbilityBase=Game.prototype.useAbility;Game.prototype.useAbility=function(id){const result=v23UseAbilityBase.call(this,id);if(id==='repair'){this.lives=v23RoundLife(this.lives);if(this.multi?.players)for(const p of this.multi.players)p.lives=v23RoundLife(p.lives);this.updateUI(true)}return result};
+const v23UpdateUIBase=Game.prototype.updateUI;Game.prototype.updateUI=function(force=false){const result=v23UpdateUIBase.call(this,force);const lives=document.getElementById('lives');if(lives)lives.textContent=`${v23LifeLabel(Math.max(0,this.lives))}/${v23LifeLabel(this.maxLives)}`;return result};
+const v23ProfileUIBase=Game.prototype.updateProfileUI;Game.prototype.updateProfileUI=function(){const result=v23ProfileUIBase.call(this);for(const id of['profileRank','rankMiniName']){const el=document.getElementById(id);if(el)el.textContent=el.textContent.replace('/10','/13').replace('/99','/13')}const next=document.getElementById('profileNext');if(next&&!nextTierForRank(this.playerRank))next.textContent='Rang maximal 13 • Souverain du Néant';return result};
+
+const v23RenderWikiBase=Game.prototype.renderWiki;Game.prototype.renderWiki=function(){const result=v23RenderWikiBase.call(this);if(this.wikiTab!=='updates')return result;const timeline=document.querySelector('.v20-timeline');if(!timeline)return result;timeline.querySelectorAll('.v20-current').forEach(n=>n.classList.remove('v20-current'));let release=timeline.querySelector('[data-v23-release]');if(!release){release=document.createElement('article');release.dataset.v23Release='';release.className='v20-release v20-current';release.style.setProperty('--release-color','#b967ff');release.innerHTML='<h4><span>V23 • Void Front</span><span>VERSION ACTUELLE</span></h4><p>Une campagne plus longue, trois armes du Néant et une boucle de rendu pensée pour rester stable pendant les grosses vagues.</p><ul><li>Simulation plafonnée, ciblage et positions mis en cache</li><li>Particules réduites à 60 % et mode adaptatif automatique</li><li>Missiles deux fois plus légers visuellement et moins nombreux</li><li>Cicatrice du Néant et Cathédrale Abysse</li><li>Lance du Néant, Cœur d’Éclipse et Obélisque Null</li><li>Progression étendue au rang 13 avec quatre nouvelles branches</li><li>Campagnes de 50 vagues environ et relique toutes les 5 vagues</li><li>PV arrondis au dixième après Égide et réparation</li></ul>';timeline.appendChild(release)}else release.classList.add('v20-current');return result};
+
+const versionBadge23=document.querySelector('.v20-version');if(versionBadge23)versionBadge23.textContent=V23_NAME;
+const desktopBadge23=document.getElementById('v221DesktopBadge');if(desktopBadge23)desktopBadge23.innerHTML='<i></i>V23 • VOID FRONT';
+const homeSubtitle23=document.querySelector('.v20-home-head .subtitle');if(homeSubtitle23)homeSubtitle23.textContent='V23 Void Front — 50 vagues, deux cartes obscures, trois tourelles du Néant et FPS adaptatifs.';
+const soloSubtitle23=document.querySelector('#v20SoloShell .subtitle');if(soloSubtitle23)soloSubtitle23.textContent='V23 — effets allégés, missiles corrigés, rang 13 et nouvelles branches Void.';
+game.buildStartChoices();game.renderCategories();game.renderTowerList();game.updateProfileUI();game.updateUI(true);document.title='Dark Rift TD — V23 Void Front';
+console.info('Dark Rift TD V23 Void Front chargé.');
 })();
 </script>
 
