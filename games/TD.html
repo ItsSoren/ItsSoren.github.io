@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070914">
-<link rel="apple-touch-icon" href="darkrift.PNG">
-<title>Dark Rift TD — V2.06 </title>
+<title>Dark Rift TD — V22 Reforged</title>
 <style>
 :root{
   --cyan:#66f4ff;--violet:#aa76ff;--pink:#ff4e9b;--gold:#ffd166;--green:#55ffb3;--red:#ff5c74;
@@ -1236,6 +1235,7 @@ function resetDarkRiftAccount() {
     for (const modeId of Object.keys(MODES)) {
       localStorage.removeItem('darkRiftCodexBest_' + modeId);
     }
+    localStorage.removeItem('darkRiftV197Million');
   } catch {}
 
   game.profile = { ...PROFILE_DEFAULT };
@@ -4540,7 +4540,7 @@ home.innerHTML=`
     <button class="v20-mode-card" data-v20-mode="duel" style="--mode-color:#ff4e9b"><span class="ico">⚔</span><h3>DUEL</h3><p>La première base détruite perd. Les deux joueurs peuvent construire partout, mais gardent la propriété de leurs tours.</p><small>PREMIER NOYAU DÉTRUIT</small></button>
     <button class="v20-mode-card" data-v20-mode="sandbox" style="--mode-color:#ffd166"><span class="ico">⚙</span><h3>SANDBOX</h3><p>Laboratoire local : argent libre, rang simulé, apparition d’ennemis, boss au choix et contrôle direct des vagues.</p><small>TEST & ÉQUILIBRAGE</small></button>
   </div>
-  <div class="v20-home-actions"><button id="v20HistoryBtn" class="action">🗺 UPDATE MAP</button><button id="v20WikiBtn" class="action">AIDE & WIKI</button><button id="v20RoadmapBtn" class="action">PROGRESSION</button></div>
+  <div class="v20-home-actions"><button id="v20HistoryBtn" class="action">🗺 UPDATE MAP</button><button id="v20WikiBtn" class="action">AIDE & WIKI</button><button id="v20RoadmapBtn" class="action">PROGRESSION</button><button id="v20ResetBtn" class="action">RESET COMPTE</button></div>
   <details class="v20-debug"><summary>outils de test temporaires</summary><div><button id="v20UnlockDebug" class="action">TOUT DÉBLOQUER</button><button id="v20MoneyDebug" class="action">1 000 000 CRÉDITS / PARTIE</button></div></details>`;
 
 const soloShell=document.createElement('section');soloShell.id='v20SoloShell';soloShell.className='v20-shell';
@@ -4579,7 +4579,7 @@ for(const card of home.querySelectorAll('[data-v20-mode]'))card.onclick=()=>{con
 for(const button of modal.querySelectorAll('[data-v20-home]'))button.onclick=showHome;
 document.getElementById('startBtn').onclick=()=>{V20.mode='solo';game.multi={enabled:false};game.startGame();setBodyMode('solo')};
 document.getElementById('startRoadmapBtn').onclick=()=>game.openRoadmap();document.getElementById('v20SoloWiki').onclick=()=>game.openWiki('start');
-document.getElementById('v20HistoryBtn').onclick=()=>game.openWiki('updates');document.getElementById('v20WikiBtn').onclick=()=>game.openWiki('start');document.getElementById('v20RoadmapBtn').onclick=()=>game.openRoadmap();
+document.getElementById('v20HistoryBtn').onclick=()=>game.openWiki('updates');document.getElementById('v20WikiBtn').onclick=()=>game.openWiki('start');document.getElementById('v20RoadmapBtn').onclick=()=>game.openRoadmap();document.getElementById('v20ResetBtn').onclick=()=>{if(confirm('Réinitialiser complètement la progression et le compte ?')){resetDarkRiftAccount();location.reload()}};
 const mpReturn=document.getElementById('mpReturnSolo');if(mpReturn)mpReturn.onclick=showHome;
 
 const mapSelect=document.getElementById('v20SandboxMap');mapSelect.innerHTML=Object.entries(MAPS).map(([id,m])=>`<option value="${id}">${m.icon} ${m.name}</option>`).join('');
@@ -5980,7 +5980,7 @@ function v24BindMenus(){
  const home=document.getElementById('v20Home');home?.querySelector('[data-v20-mode="solo"]')?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();v24ShowSolo()},true);home?.querySelector('[data-v20-mode="sandbox"]')?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();v24ShowSandbox()},true);
  document.querySelectorAll('[data-v20-home]').forEach(button=>button.onclick=v24ShowHome);
  const start=document.getElementById('startBtn');if(start)start.onclick=()=>{const state=window.__DARK_RIFT_V20_STATE__;if(state)state.mode='solo';game.multi={enabled:false};game.startGame();v24BodyMode('solo')};
- const binds={startRoadmapBtn:()=>game.openRoadmap(),v20RoadmapBtn:()=>game.openRoadmap(),rankMini:()=>game.openRoadmap(),v20WikiBtn:()=>game.openWiki('start'),v20SoloWiki:()=>game.openWiki('start'),v20HistoryBtn:()=>game.openWiki('updates'),wikiBtn:()=>game.openWiki('ui'),settingsBtn:()=>document.getElementById('settingsOverlay')?.classList.remove('hidden')};for(const[id,fn]of Object.entries(binds)){const el=document.getElementById(id);if(el)el.onclick=fn}
+ const binds={startRoadmapBtn:()=>game.openRoadmap(),v20RoadmapBtn:()=>game.openRoadmap(),rankMini:()=>game.openRoadmap(),v20WikiBtn:()=>game.openWiki('start'),v20SoloWiki:()=>game.openWiki('start'),v20HistoryBtn:()=>game.openWiki('updates'),v20ResetBtn:()=>{if(confirm('Réinitialiser complètement la progression et le compte ?')){resetDarkRiftAccount();location.reload()}},wikiBtn:()=>game.openWiki('ui'),settingsBtn:()=>document.getElementById('settingsOverlay')?.classList.remove('hidden')};for(const[id,fn]of Object.entries(binds)){const el=document.getElementById(id);if(el)el.onclick=fn}
  document.querySelectorAll('[data-close]').forEach(button=>button.onclick=()=>document.getElementById(button.dataset.close)?.classList.add('hidden'));
  document.querySelectorAll('[data-ability]').forEach(button=>button.onclick=()=>game.useAbility(button.dataset.ability));
 }
