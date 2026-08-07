@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CESTUS CONTROL">
+  <meta name="description" content="Cestus Control — Jeu de défense et gestion néo-futuriste. Construisez, améliorez et défendez votre noyau.">
+  <title>CESTUS CONTROL</title>
+  <link rel="stylesheet" href="css/style.css?v=40">
+</head>
+<body>
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+</div>
+
+<!-- START SCREEN -->
+<div id="startScreen">
+  <div class="menu-orbit orbit-a"></div><div class="menu-orbit orbit-b"></div>
+  <div class="menu-shell">
+    <div class="menu-eyebrow">HELIOS DEFENSE NETWORK // SECTEUR C-07</div>
+    <h1><span>CESTUS</span><small>CONTROL</small></h1>
+    <p>Déployez une forteresse solaire vivante. Brisez des fronts mouvants, spécialisez votre réseau et survivez aux anomalies.</p>
+
+    <div class="menu-feature-strip">
+      <div><b>10×</b><span>RAIDS SIMULTANÉS</span></div>
+      <div><b>56</b><span>MODULES À DÉPLOYER</span></div>
+      <div><b>∞</b><span>FRONTS ÉVOLUTIFS</span></div>
+    </div>
+  
+    <div id="startButtons">
+      <!-- Buttons injected via JS -->
+      <button class="btn-start" onclick="startGame()">▶ INITIALISER SYSTÈME</button>
+    </div>
+
+    <div id="highScoreDisplay">MEILLEUR SCORE <span id="maxKillsValue">0</span> KILLS</div>
+  
+    <div class="menu-debug">CTRL+ALT+S — LABORATOIRE +100 / CATÉGORIE</div>
+  </div>
+</div>
+
+<!-- TOP HUD -->
+<div id="topHud">
+  <div id="titleBadge">CESTUS</div>
+  <div class="hud-stat">
+    <span class="hud-icon">⚡</span>
+    <div>
+      <div class="hud-label">Énergie</div>
+      <div class="hud-value" id="hudEnergy" style="color:var(--neon-yellow)">100%</div>
+      <div class="hud-energy-track"><i id="hudEnergyFill"></i></div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">●</span>
+    <div>
+      <div class="hud-label">Pétrole</div>
+      <div class="hud-value" id="hudOil" style="color:var(--neon-amber)">0/0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">�💛</span>
+    <div>
+      <div class="hud-label">Crédits</div>
+      <div class="hud-value" id="hudCredits" style="color:var(--neon-yellow)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">🔬</span>
+    <div>
+      <div class="hud-label">Échantillons</div>
+      <div class="hud-value" id="hudSamples" style="color:var(--neon-purple)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">✦</span>
+    <div>
+      <div class="hud-label">XP</div>
+      <div class="hud-value" id="hudXP" style="color:var(--neon-cyan)">0/100</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">★</span>
+    <div>
+      <div class="hud-label">Super Pts</div>
+      <div class="hud-value" id="hudSP" style="color:var(--neon-purple)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">🌊</span>
+    <div>
+      <div class="hud-label">Vague</div>
+      <div class="hud-value" id="hudWave" style="color:var(--neon-orange)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <span class="hud-icon">💀</span>
+    <div>
+      <div class="hud-label">Kills</div>
+      <div class="hud-value" id="hudKills" style="color:var(--neon-red)">0</div>
+    </div>
+  </div>
+  <div class="hud-stat">
+    <div class="wave-alert" id="waveAlert" style="display:none">⚠ VAGUE EN COURS</div>
+  </div>
+</div>
+
+<!-- WAVE CONTROLS -->
+<div id="waveControls">
+  <span style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text-dim);letter-spacing:1.5px;">VITESSE:</span>
+  <button class="speed-btn" id="spd05" onclick="setSpeed(0.1)">×0.1</button>
+  <button class="speed-btn active" id="spd1" onclick="setSpeed(1)">×1</button>
+  <button class="speed-btn" id="spd2" onclick="setSpeed(2)">×2</button>
+  <button class="speed-btn" id="spd4" onclick="setSpeed(4)">×4</button>
+  <button id="startWaveBtn" onclick="triggerNextWave()" aria-label="Lancer la prochaine vague">⚡ LANCER VAGUE</button>
+</div>
+
+<!-- WAVE PREVIEW -->
+<div id="wavePreview">
+  <div class="wp-title">PROCHAINE VAGUE</div>
+  <div class="wp-wave" id="wpWave">Vague 1</div>
+  <div style="font-size:12px;color:var(--text-dim);margin-top:3px;" id="wpInfo">16 ennemis · 1 front</div>
+</div>
+
+<!-- CURRENT RIFT CONTRACT -->
+<div id="directiveBadge" aria-live="polite"></div>
+<button id="audioToggleBtn" onclick="toggleGameAudio()" title="Activer ou couper le son" aria-label="Activer ou couper le son">♪</button>
+<button id="graphicsSettingsBtn" onclick="togglePause()" title="Réglages graphiques & Pause" aria-label="Ouvrir les paramètres et la pause">⚙</button>
+
+<!-- RIFT DIRECTIVE CHOICE -->
+<div id="directiveOverlay" role="dialog" aria-modal="true" aria-labelledby="directiveTitle">
+  <div class="directive-shell">
+    <div class="directive-kicker">PROTOCOLE DE FAILLE // CHOIX IRRÉVERSIBLE</div>
+    <h2 id="directiveTitle">CHOISISSEZ VOTRE ANOMALIE</h2>
+    <p>Chaque vague impose un risque différent. Plus la menace est forte, plus la récompense façonne votre run.</p>
+    <div class="raid-selector" aria-label="Nombre de vagues simultanées">
+      <div><small>AMPLIFICATION DU RAID</small><strong id="raidSelectorInfo">×1 · risque et gains normaux</strong></div>
+      <div id="raidMultiplierButtons">
+        <button class="active" onclick="setDirectiveBatchSize(1)">×1</button>
+        <button onclick="setDirectiveBatchSize(2)">×2</button>
+        <button onclick="setDirectiveBatchSize(3)">×3</button>
+        <button onclick="setDirectiveBatchSize(5)">×5</button>
+        <button onclick="setDirectiveBatchSize(10)">×10</button>
+      </div>
+    </div>
+    <div id="directiveChoices" class="directive-choices"></div>
+    <div class="directive-hint">Le temps tactique est suspendu pendant votre choix.</div>
+  </div>
+</div>
+
+<!-- BOSS CINEMATIC -->
+<div id="bossStaging" aria-live="assertive">
+  <span>RUPTURE CRITIQUE</span>
+  <strong id="bossStagingTitle">SIGNATURE COLOSSALE DÉTECTÉE</strong>
+</div>
+
+<!-- ENERGY WARNINGS -->
+<div id="energyWarn">⚡ ÉNERGIE INSUFFISANTE — PERFORMANCES RÉDUITES</div>
+<div id="overclockInfo">🔥 OVERCLOCK PASSIF — <span id="overclockVal">+0%</span> CADENCE</div>
+
+<!-- LEFT-SIDE ENERGY COMMAND STACK -->
+<div id="leftUtilityStack">
+  <div id="energyDashboard">
+    <div><small>RÉSEAU</small><b id="energyGridState">STABLE</b></div>
+    <span id="energyGridDetail">100 réserve · 0 charge</span>
+    <button id="energyPolicyBtn" onclick="cycleEnergyPolicy()">MODE ÉQUILIBRÉ</button>
+  </div>
+
+  <div id="overclockPanel">
+    <div id="overclockTooltip" class="custom-tooltip"></div>
+    <button id="overclockBtn" onclick="toggleOverclock()">⚡ SURCHARGE</button>
+    <div id="overclockHeatContainer">
+      <div id="overclockHeatBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULE INFO PANEL -->
+<div id="moduleInfo">
+  <button id="closeInfo">✕</button>
+  <div class="info-title" id="infoTitle">MODULE</div>
+  <div class="info-stat"><span class="info-stat-label">Type</span><span class="info-stat-value" id="infoType">—</span></div>
+  <div class="info-stat"><span class="info-stat-label">Niveau</span><span class="info-stat-value" id="infoLevel">1/33</span></div>
+  <div class="info-stat"><span class="info-stat-label">MK</span><span class="info-stat-value" id="infoMK">MK1</span></div>
+  <div style="font-size:12px;color:var(--text-dim);margin:6px 0 2px;">VIE</div>
+  <div class="info-bar"><div class="info-bar-fill hp" id="infoHpBar" style="width:100%"></div></div>
+  <div class="info-stat"><span class="info-stat-label">PV</span><span class="info-stat-value" id="infoHp">—</span></div>
+  <div style="margin-top:12px;" id="infoActions"></div>
+  <div id="infoExtraStats"></div>
+</div>
+
+<!-- BOTTOM PANEL -->
+<div id="bottomPanel">
+  <button id="mobilePanelGrip" onclick="toggleMobilePanel()" aria-expanded="false" aria-label="Ouvrir ou fermer le panneau de construction"><b>⌃</b><span>BUILD</span></button>
+  <div id="tabBar">
+    <div class="tab active" data-tab="shop" onclick="activateMainTab(this,'shop')">🏪 MODULES</div>
+    <div class="tab" data-tab="upgrades" onclick="activateMainTab(this,'upgrades')">⬆ AMÉLIORATIONS</div>
+    <div class="tab" data-tab="superpoints" onclick="activateMainTab(this,'superpoints')">★ SUPER POINTS</div>
+  </div>
+  <div id="tabContent"></div>
+</div>
+
+<!-- MULTI-PLACEMENT STOP BUTTON (mobile) -->
+<button id="multiPlaceStopBtn" onclick="stopMultiPlacement()" aria-label="Arrêter le placement multiple">✕ STOP</button>
+
+<!-- NOTIFICATIONS -->
+<div id="notifContainer"></div>
+
+<!-- OVERLAY (Game Over) -->
+<div id="overlay">
+  <div class="overlay-title" id="overlayTitle" style="color:var(--neon-red)">SYSTÈME DÉTRUIT</div>
+  <div class="overlay-sub" id="overlaySub">Votre noyau principal a été anéanti.</div>
+  <div style="font-family:'Share Tech Mono';font-size:15px;color:var(--text-dim);" id="overlayStats"></div>
+  <button class="btn-restart" onclick="initGame()">↺ REDÉMARRER</button>
+</div>
+
+<!-- PAUSE & SETTINGS MENU -->
+<div id="pauseOverlay">
+  <div class="graphics-settings-card">
+    <div class="graphics-settings-head">
+      <div>
+        <small>CESTUS // HELIOS NETWORK</small>
+        <h2>PARAMÈTRES SYSTÈME & PAUSE</h2>
+      </div>
+      <button onclick="togglePause(false)">✕</button>
+    </div>
+
+    <div class="settings-mode-tabs">
+      <button class="active" data-pane="pause" onclick="showSettingsPane('pause')">❚❚ PAUSE</button>
+      <button data-pane="render" onclick="showSettingsPane('render')">⚙ RENDU</button>
+      <button data-pane="balance" onclick="showSettingsPane('balance')">⚖ VAGUES & ÉCONOMIE</button>
+    </div>
+
+    <!-- PANE 1: PAUSE & GENERAL -->
+    <div id="settingsPanePause" class="settings-pane active">
+      <div class="pause-buttons" style="margin-bottom: 20px;">
+        <button class="btn-resume" onclick="togglePause(false)">▶ REPRENDRE</button>
+        <button class="btn-bestiary" onclick="toggleBestiary()">📖 BESTIAIRE</button>
+      </div>
+
+      <div class="pause-shortcuts">
+        <div class="pause-section-title">RACCOURCIS CLAVIER & COMMANDES</div>
+        <div class="shortcut-row"><span class="shortcut-key">P / ECHAP / ⚙</span><span>Pause & Paramètres</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">ESPACE</span><span>Surcharge</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">N</span><span>Lancer vague</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">R</span><span>Vendre module sélectionné</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">1-4</span><span>Vitesse (×1 à ×5)</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">CLIC DROIT</span><span>Annuler placement</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">MOLETTE / PINCH</span><span>Zoom</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">APPUI LONG (MOBILE)</span><span>Placement continu</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">CTRL+ALT+S</span><span>Mode debug</span></div>
+      </div>
+
+      <div class="pause-debug-row">
+        <button id="debugCheatBtn" class="btn-debug-cheat" onclick="activateDebugCheat()" title="Mode développeur">🔧</button>
+      </div>
+    </div>
+
+    <!-- PANE 2: GRAPHICS RENDER -->
+    <div id="settingsPaneRender" class="settings-pane">
+      <div class="preset-row">
+        <label>PRÉRÉGLAGE</label>
+        <select id="graphicsPreset" onchange="if(this.value!=='custom')setGraphicsPreset(this.value)">
+          <option value="performance">Performance</option>
+          <option value="balanced">Équilibré</option>
+          <option value="ultra">Ultra</option>
+          <option value="cinematic">Cinématique</option>
+          <option value="custom">Personnalisé</option>
+        </select>
+      </div>
+      <div id="graphicsSettingsGrid"></div>
+    </div>
+
+    <!-- PANE 3: BALANCE -->
+    <div id="settingsPaneBalance" class="settings-pane">
+      <div class="balance-settings-intro">
+        <div><b>ÉQUILIBRAGE PERSONNALISÉ</b><span>Les valeurs par défaut correspondent au rythme classique.</span></div>
+        <button onclick="resetBalanceSettings()">VALEURS PAR DÉFAUT</button>
+      </div>
+      <div id="balanceSettingsGrid"></div>
+    </div>
+
+    <div class="graphics-settings-foot">
+      <button onclick="resetGraphicsSettings()">RÉINITIALISER RENDU</button>
+      <span>Les réglages sont sauvegardés automatiquement.</span>
+      <button class="primary" onclick="togglePause(false)">REPRENDRE</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- BESTIARY OVERLAY -->
+<div id="bestiaryOverlay">
+  <div class="bestiary-header">CATALOGUE DES ENTITÉS</div>
+  <div class="bestiary-grid" id="bestiaryGrid"></div>
+  <button class="btn-resume" style="margin-top: 30px;" onclick="toggleBestiary()">FERMER</button>
+</div>
+
+<!-- SCRIPTS (ordered by dependency) -->
+<script src="js/config.js?v=31"></script>
+<script src="js/content-expansion.js?v=31"></script>
+<script src="js/balance.js?v=31"></script>
+<script src="js/state.js?v=31"></script>
+<script src="js/audio.js?v=37"></script>
+<script src="js/directives.js?v=31"></script>
+<script src="js/graphics.js?v=31"></script>
+<script src="js/responsive.js?v=36"></script>
+<script src="js/spatial.js?v=31"></script>
+<script src="js/grid.js?v=31"></script>
+<script src="js/energy.js?v=40"></script>
+<script src="js/camera.js?v=31"></script>
+<script src="js/particles.js?v=31"></script>
+<script src="js/modules.js?v=40"></script>
+<script src="js/enemies.js?v=31"></script>
+<script src="js/combat.js?v=40"></script>
+<script src="js/waves.js?v=31"></script>
+<script src="js/patrol.js?v=31"></script>
+<script src="js/renderer.js?v=40"></script>
+<script src="js/ui.js?v=36"></script>
+<script src="js/input.js?v=34"></script>
+<script src="js/main.js?v=36"></script>
+<script>
+  // GitHub Pages / iOS standalone: the service worker owns the app after the first online visit.
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {}), { once: true });
+  }
+</script>
+</body>
+</html>
