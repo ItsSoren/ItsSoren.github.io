@@ -18,7 +18,7 @@ button,input{font:inherit}button{touch-action:manipulation;-webkit-tap-highlight
 .small{font-size:9px}.text-secondary{color:#9ba1a4!important}.text-warning{color:var(--orange)!important}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.align-items-center{align-items:center}.gap-3{gap:10px}.mt-1{margin-top:3px}.mt-2{margin-top:6px}.mt-3{margin-top:10px}.mb-2{margin-bottom:6px}.py-2{padding-top:6px;padding-bottom:6px}.d-grid{display:grid}
 .hud{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:4px}.pill{position:relative;background:#363b40;border:2px solid #0d0f10;padding:3px 4px;font-size:8px;box-shadow:inset 2px 2px #5b6268,inset -2px -2px #1c1f22}.pill:after{content:"";position:absolute;right:2px;bottom:2px;width:3px;height:3px;background:var(--lime)}.pill strong{display:block;color:#f0ede1;font-size:11px}
 main{position:relative;min-height:0;background:#1b1e20}canvas{width:100%;height:100%;display:block;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;background:#09121c}.overlay{position:absolute;inset:0;pointer-events:none}
-.depth{position:absolute;right:5px;top:5px;width:36px;height:59%;border:3px solid #090b0c;background:#282c30;overflow:hidden;box-shadow:3px 3px #0008}.depth:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 9px,#ffffff12 9px 10px);z-index:2}.depthFill{position:absolute;left:0;right:0;top:0;height:0;background:repeating-linear-gradient(45deg,var(--orange) 0 5px,#b85c25 5px 10px)}.depthShip{position:absolute;left:1px;right:1px;height:4px;background:var(--lime);box-shadow:0 2px #243816;z-index:3}
+.depth{position:absolute;right:5px;top:5px;width:36px;height:59%;border:3px solid #090b0c;background:#282c30;overflow:hidden;box-shadow:3px 3px #0008}.depth:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 9px,#ffffff12 9px 10px);z-index:2}.depthFill{position:absolute;left:0;right:0;top:0;height:0;background:repeating-linear-gradient(45deg,var(--orange) 0 5px,#b85c25 5px 10px)}.depthShip{position:absolute;left:1px;right:1px;height:4px;background:var(--lime);box-shadow:0 2px #243816;z-index:3}.layerTag{position:absolute;left:6px;top:6px;background:#12171b;border:2px solid #050708;padding:3px 5px;font-size:7px;color:#dfe3da;box-shadow:2px 2px #0008;letter-spacing:.04em}
 .toastx{position:absolute;left:50%;top:10%;transform:translateX(-50%);background:#30353a;border:3px solid #0b0d0e;padding:6px 9px;font-weight:900;font-size:10px;opacity:0;transition:.1s;box-shadow:4px 4px #0008;color:var(--lime)}
 .bottom{padding:5px 4px calc(5px + env(safe-area-inset-bottom));background:#24282b;border-top:4px solid #0b0d0e;display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
 .navb,.btnx,.bigbtn{position:relative;border:2px solid #0b0d0e;background:#3a4045;color:#e9e6da;border-radius:0;box-shadow:inset 2px 2px #626970,inset -2px -2px #202326;padding:9px 4px;font-weight:900;text-transform:uppercase;min-height:48px}
@@ -66,7 +66,7 @@ main{position:relative;min-height:0;background:#1b1e20}canvas{width:100%;height:
 </header>
 <main>
  <canvas id="game"></canvas>
- <div class="overlay"><div class="depth"><div id="depthFill" class="depthFill"></div><div id="depthShip" class="depthShip"></div></div><div id="toast" class="toastx"></div></div>
+ <div class="overlay"><div id="layerTag" class="layerTag">SURFACE</div><div class="depth"><div id="depthFill" class="depthFill"></div><div id="depthShip" class="depthShip"></div></div><div id="toast" class="toastx"></div></div>
  <section id="hangar" class="screen"></section>
  <section id="planets" class="screen"></section>
  <section id="codex" class="screen"></section>
@@ -258,7 +258,7 @@ function shipStats(){
 function resetRun(){
  const s=shipStats();
  if(!s.valid){notify("BUILD INVALIDE : DRILL + MOTEUR + REACTEUR");return}
- ship={x:0,y:0,vx:0,vy:0,angle:Math.PI/2,hp:s.hp,maxHp:s.hp,en:s.energy,maxEn:s.energy,speed:0,blocks:0,loot:0,alive:true,shock:0,time:0};
+ ship={x:0,y:-12,vx:0,vy:0,angle:Math.PI/2,hp:s.hp,maxHp:s.hp,en:s.energy,maxEn:s.energy,speed:0,blocks:0,loot:0,alive:true,shock:0,time:0};
  chunks.clear();particles=[];running=true;save.stats.runs++;save.run++;notify("DESCENTE #"+save.run);
 }
 function noise(x,y,seed=save.seed){let n=Math.sin(x*12.9898+y*78.233+seed*.0001)*43758.5453;return n-Math.floor(n)}
@@ -293,50 +293,180 @@ function zoneForDepth(d){
 }
 function drawOrePixels(cell,wx,wy,px,py,s){
  if(cell.m.id==="stone")return;
- const q=Math.max(1,Math.floor(s/4)), c=cell.m.c;
- ctx.fillStyle=c;ctx.globalAlpha=.98;
- const id=cell.m.id;
- if(id==="iron"){ctx.fillRect(px+q,py+q,2*q,2*q);ctx.fillRect(px+2*q,py+2*q,q,q)}
- else if(id==="copper"){ctx.fillRect(px+q,py+q,q,2*q);ctx.fillRect(px+2*q,py+2*q,2*q,q)}
- else if(id==="coal"){ctx.fillStyle="#202226";ctx.fillRect(px+q,py+q,q,q);ctx.fillRect(px+2*q,py+2*q,q,q);ctx.fillRect(px+3*q,py+q,q,q)}
- else if(id==="quartz"){ctx.fillRect(px+2*q,py,q, q,3*q);ctx.fillRect(px+q,py+2*q,q,2*q);ctx.fillRect(px+3*q,py+2*q,q,2*q)}
- else if(id==="titanium"){ctx.fillRect(px+q,py+q,3*q,q);ctx.fillRect(px+2*q,py+2*q,q,2*q)}
- else if(id==="cobalt"){ctx.fillRect(px+2*q,py+q,q,3*q);ctx.fillRect(px+q,py+2*q,3*q,q)}
- else if(id==="uranium"){ctx.fillRect(px+2*q,py+q,q,3*q);ctx.fillRect(px+q,py+2*q,3*q,q);ctx.fillStyle="#d8ff7a";ctx.fillRect(px+2*q,py+2*q,q,q)}
- else if(id==="iridium"){ctx.fillRect(px+q,py+3*q,q,q);ctx.fillRect(px+2*q,py+2*q,q,q);ctx.fillRect(px+3*q,py+q,q,q)}
- else if(id==="xenite"){ctx.fillRect(px+q,py+q,3*q,q);ctx.fillRect(px+2*q,py+2*q,q,2*q);ctx.fillStyle="#b0fff8";ctx.fillRect(px+q,py+3*q,q,q)}
- else if(id==="core"){ctx.fillRect(px+q,py+q,3*q,3*q);ctx.fillStyle="#fff2a7";ctx.fillRect(px+2*q,py+2*q,q,q)}
+ const id=cell.m.id,c=cell.m.c,q=Math.max(1,Math.floor(s/4));
+ ctx.globalAlpha=.98;ctx.fillStyle=c;
+ if(id==="iron"){
+   ctx.fillRect(px+2,py+2,3,2);ctx.fillRect(px+s-4,py+s-4,2,2);
+ }else if(id==="copper"){
+   ctx.fillRect(px+2,py+s-4,4,1);ctx.fillRect(px+4,py+s-6,1,3);
+ }else if(id==="coal"){
+   ctx.fillStyle="#16181b";ctx.fillRect(px+2,py+2,2,2);ctx.fillRect(px+s-4,py+4,2,2);ctx.fillRect(px+4,py+s-4,2,2);
+ }else if(id==="quartz"){
+   ctx.fillRect(px+2,py+s-3,2,2);ctx.fillRect(px+4,py+2,2,s-4);ctx.fillRect(px+s-3,py+4,1,3);
+   ctx.fillStyle="#fff8ff";ctx.fillRect(px+5,py+3,1,2);
+ }else if(id==="titanium"){
+   ctx.fillRect(px+2,py+2,s-4,2);ctx.fillRect(px+s-4,py+4,2,3);
+ }else if(id==="cobalt"){
+   ctx.fillRect(px+Math.floor(s/2),py+2,2,s-4);ctx.fillRect(px+2,py+Math.floor(s/2),s-4,2);
+ }else if(id==="uranium"){
+   ctx.fillRect(px+Math.floor(s/2)-1,py+2,3,s-4);ctx.fillRect(px+2,py+Math.floor(s/2)-1,s-4,3);
+   ctx.fillStyle="#e7ff8f";ctx.fillRect(px+Math.floor(s/2),py+Math.floor(s/2),1,1);
+ }else if(id==="iridium"){
+   ctx.fillRect(px+2,py+s-3,2,1);ctx.fillRect(px+4,py+s-5,2,2);ctx.fillRect(px+s-3,py+2,1,2);
+ }else if(id==="xenite"){
+   ctx.fillRect(px+2,py+2,s-4,1);ctx.fillRect(px+Math.floor(s/2),py+3,1,s-5);
+   ctx.fillStyle="#d8fffb";ctx.fillRect(px+s-3,py+s-3,1,1);
+ }else if(id==="core"){
+   ctx.fillRect(px+2,py+2,s-4,s-4);ctx.fillStyle="#fff3aa";ctx.fillRect(px+Math.floor(s/2)-1,py+Math.floor(s/2)-1,2,2);
+ }
  ctx.globalAlpha=1;
 }
 function drawBlockTexture(cell,wx,wy,px,py,s){
- const pal=planetPalette(),d=wy/planet.radius,zone=cell.zone||zoneForDepth(d),n=noise(wx,wy,440);
- const rockBase=cell.m.id==="stone"?(d>.48?pal.deep:pal.rock):pal.rock;
- ctx.globalAlpha=1;ctx.fillStyle=rockBase;ctx.fillRect(px,py,s,s);
- ctx.fillStyle=pal.edge;ctx.fillRect(px,py,s,1);ctx.fillRect(px,py,1,s);
- ctx.fillStyle=pal.dust;ctx.globalAlpha=.18;
- if(cell.tex===0){for(let i=2;i<s-1;i+=4)ctx.fillRect(px+i,py+2,1,1);ctx.fillRect(px+2,py+s-4,3,1)}
- if(cell.tex===1){ctx.fillRect(px+2,py+2,2,2);ctx.fillRect(px+s-5,py+3,2,2);ctx.fillRect(px+Math.floor(s*.5),py+s-5,2,2)}
- if(cell.tex===2){for(let i=2;i<s-2;i+=3)ctx.fillRect(px+i,py+((i+wx)&3)+2,1,1)}
- if(cell.tex===3){ctx.fillRect(px+2,py+2,Math.max(2,Math.floor(s*.35)),1);ctx.fillRect(px+s-4,py+s-6,1,3)}
+ const pal=planetPalette(),d=wy/planet.radius,zone=cell.zone||zoneForDepth(d),geo=geologyAt(wy);
  ctx.globalAlpha=1;
- if(zone.startsWith("barrier")){ctx.fillStyle=pal.accent;ctx.globalAlpha=.38;for(let k=-s;k<s*2;k+=5)ctx.fillRect(px+k,py+((k+wx*2)%s+s)%s,3,1);ctx.globalAlpha=1}
- if(zone==="core"){ctx.fillStyle=pal.accent;ctx.globalAlpha=.26;ctx.fillRect(px+1,py+1,s-2,s-2);ctx.globalAlpha=1}
+ let base=geo.base, edge=geo.edge;
+
+ // Planet type lightly tints the geology, but does not repaint everything as ore.
+ if(planet.type==="Volcanique" && wy>200)base=geo.id==="mantle"?"#4a2925":base;
+ if(planet.type==="Glacee" && wy<300)base=geo.id==="regolith"?"#60717a":base;
+ if(planet.type==="Metallique" && wy>80)base=geo.id==="basalt"?"#485057":base;
+
+ ctx.fillStyle=base;ctx.fillRect(px,py,s,s);
+ ctx.fillStyle=edge;ctx.fillRect(px,py,s,1);ctx.fillRect(px,py,1,s);
+
+ // Different geological fabrics instead of the same speckle everywhere.
+ if(geo.id==="regolith"){
+   ctx.fillStyle="#8a7357";ctx.globalAlpha=.45;
+   if(cell.tex&1)ctx.fillRect(px+2,py+2,2,1);
+   if(cell.tex>1)ctx.fillRect(px+s-4,py+s-3,2,1);
+ }else if(geo.id==="sediment"){
+   ctx.fillStyle="#77716a";ctx.globalAlpha=.28;
+   ctx.fillRect(px+1,py+Math.floor(s*.45),s-2,1);
+   if(cell.tex===2)ctx.fillRect(px+3,py+2,1,2);
+ }else if(geo.id==="basalt"){
+   ctx.fillStyle="#747b80";ctx.globalAlpha=.20;
+   ctx.fillRect(px+2,py+2,2,2); if(cell.tex===3)ctx.fillRect(px+s-4,py+s-4,2,2);
+ }else if(geo.id==="granite"){
+   ctx.fillStyle="#92919a";ctx.globalAlpha=.20;
+   ctx.fillRect(px+2,py+2,1,1);ctx.fillRect(px+s-3,py+3,1,1);ctx.fillRect(px+Math.floor(s/2),py+s-3,1,1);
+ }else if(geo.id==="deep"){
+   ctx.fillStyle="#68707b";ctx.globalAlpha=.16;
+   for(let i=2;i<s-1;i+=3)ctx.fillRect(px+i,py+((i+wx)&2)+2,1,1);
+ }else if(geo.id==="compressed"){
+   ctx.fillStyle="#777d86";ctx.globalAlpha=.15;
+   ctx.fillRect(px+1,py+2,s-2,1);ctx.fillRect(px+1,py+s-3,s-2,1);
+ }else if(geo.id==="mantle"){
+   ctx.fillStyle="#7a4938";ctx.globalAlpha=.20;
+   ctx.fillRect(px+2,py+2,s-4,1);ctx.fillRect(px+Math.floor(s*.55),py+4,1,s-5);
+ }
+ ctx.globalAlpha=1;
+
+ if(zone.startsWith("barrier")){
+   ctx.fillStyle=pal.accent;ctx.globalAlpha=.26;
+   for(let k=-s;k<s*2;k+=5)ctx.fillRect(px+k,py+((k+wx)%s+s)%s,3,1);
+   ctx.globalAlpha=1;
+ }
+ if(zone==="core"){ctx.fillStyle=pal.accent;ctx.globalAlpha=.22;ctx.fillRect(px+1,py+1,s-2,s-2);ctx.globalAlpha=1}
+
  drawOrePixels(cell,wx,wy,px,py,s);
+
  const dmg=cell.max?1-clamp(cell.hp/cell.max,0,1):0;
- if(dmg>.22){ctx.fillStyle="#0a0b0c";ctx.globalAlpha=.75;ctx.fillRect(px+Math.floor(s*.50),py+1,1,Math.floor(s*(.32+dmg*.4)));if(dmg>.55)ctx.fillRect(px+2,py+Math.floor(s*.6),Math.floor(s*.5),1);ctx.globalAlpha=1}
+ if(dmg>.30){
+   ctx.fillStyle="#090a0b";ctx.globalAlpha=.72;
+   ctx.fillRect(px+Math.floor(s*.5),py+1,1,Math.max(2,Math.floor(s*(.25+dmg*.35))));
+   if(dmg>.65)ctx.fillRect(px+2,py+Math.floor(s*.62),Math.floor(s*.45),1);
+   ctx.globalAlpha=1;
+ }
+}
+
+
+function hashGrid(x,y,seed=0){
+ let n=(Math.imul((x|0)^seed,374761393)+Math.imul((y|0)+seed,668265263))|0;
+ n=(n^(n>>>13)); n=Math.imul(n,1274126177); n=(n^(n>>>16));
+ return (n>>>0)/4294967295;
+}
+function smoothstep01(t){return t*t*(3-2*t)}
+function valueNoise(x,y,scale=10,seed=0){
+ let fx=x/scale, fy=y/scale, x0=Math.floor(fx), y0=Math.floor(fy);
+ let tx=smoothstep01(fx-x0), ty=smoothstep01(fy-y0);
+ let a=hashGrid(x0,y0,seed), b=hashGrid(x0+1,y0,seed), c=hashGrid(x0,y0+1,seed), d=hashGrid(x0+1,y0+1,seed);
+ let ab=a+(b-a)*tx, cd=c+(d-c)*tx;
+ return ab+(cd-ab)*ty;
+}
+function geologyAt(y){
+ if(y<0)return {id:"sky",name:"ESPACE",base:"#07121d",edge:"#07121d",hard:.0};
+ if(y<18)return {id:"regolith",name:"REGOLITHE",base:"#605341",edge:"#3b3228",hard:.72};
+ if(y<75)return {id:"sediment",name:"CROUTE TENDRE",base:"#5a5550",edge:"#393633",hard:.92};
+ if(y<240)return {id:"basalt",name:"BASALTE",base:"#41474b",edge:"#282d30",hard:1.15};
+ if(y<620)return {id:"granite",name:"GRANITE",base:"#4a4b52",edge:"#2c2d32",hard:1.42};
+ if(y<1250)return {id:"deep",name:"ROCHE PROFONDE",base:"#383b43",edge:"#202329",hard:1.78};
+ if(y<2200)return {id:"compressed",name:"STRATE COMPRIMEE",base:"#32353d",edge:"#1b1e23",hard:2.25};
+ return {id:"mantle",name:"MANTEAU",base:"#392d2a",edge:"#211816",hard:2.75};
+}
+function oreForCell(wx,wy,d){
+ const depth=Math.max(0,wy);
+ // Coherent veins: broad field + fine breakup.
+ const v1=valueNoise(wx,wy,12,save.seed+111);
+ const v2=valueNoise(wx,wy,6,save.seed+333);
+ const v3=valueNoise(wx,wy,22,save.seed+777);
+ const richness=Math.min(1.35,planet.rich);
+
+ // Early crust: mostly rock, occasional iron/copper/coal veins.
+ if(depth<220){
+   if(v1>.84/richness && v2>.50)return minerals[1]; // iron
+   if(v1<.16*richness && v2>.56)return minerals[2]; // copper
+   if(v3>.88/richness && v2<.48)return minerals[3]; // carbon
+   return minerals[0];
+ }
+ if(depth<650){
+   if(v1>.88/richness && v2>.58)return minerals[4]; // quartz
+   if(v3>.91/richness && v2>.52)return minerals[5]; // titanium
+   if(v1<.105*richness && v2>.60)return minerals[6]; // cobalt
+   if(v2>.965/richness)return minerals[1];
+   return minerals[0];
+ }
+ if(depth<1400){
+   if(v1>.92/richness && v2>.60)return minerals[5];
+   if(v3>.94/richness && v2>.58)return minerals[6];
+   if(v1<.075*richness && v2>.67)return minerals[7];
+   if(v2>.978/richness)return minerals[4];
+   return minerals[0];
+ }
+ if(depth<2400){
+   if(v1>.95/richness && v2>.64)return minerals[7];
+   if(v3>.965/richness && v2>.63)return minerals[8];
+   if(v1<.048*richness && v2>.72)return minerals[9];
+   return minerals[0];
+ }
+ if(v1>.965/richness && v2>.67)return minerals[8];
+ if(v3>.975/richness && v2>.70)return minerals[9];
+ if(d>.82 && v1<.035*richness && v2>.75)return minerals[10];
+ return minerals[0];
 }
 
 function genChunk(cx,cy,S){
- let a=new Array(S*S),depth=(cy*S)/planet.radius;
+ let a=new Array(S*S);
  for(let y=0;y<S;y++)for(let x=0;x<S;x++){
-  let wx=cx*S+x,wy=cy*S+y,d=wy/planet.radius,n=noise(wx*.12,wy*.12),cave=noise(wx*.035,wy*.035,99);
-  if(cave<planet.cave*(1+Math.sin(wy*.015)*.25)){a[y*S+x]=null;continue}
-  let roll=noise(wx,wy,313)*planet.rich*(has("prospector")?1.18:1),m=minerals[0];
-  if(roll>.985&&d>.68)m=minerals[10];else if(roll>.965&&d>.52)m=minerals[9];else if(roll>.94&&d>.42)m=minerals[8];else if(roll>.90&&d>.32)m=minerals[7];else if(roll>.84&&d>.22)m=minerals[6];else if(roll>.76&&d>.14)m=minerals[5];else if(roll>.68)m=minerals[4];else if(roll>.57)m=minerals[1+Math.floor(noise(wx,wy,88)*3)];
-  let zone=zoneForDepth(d),barrier=1;
-  if(zone==="barrier1")barrier=2.4;if(zone==="barrier2")barrier=3.4;if(zone==="barrier3")barrier=4.8;if(zone==="barrier4")barrier=6.5;if(zone==="core")barrier=8;
-  let hp=m.hard*barrier*(1+d*2.2)*planet.danger;
-  a[y*S+x]={m,hp,max:hp,zone,tex:Math.floor(noise(wx,wy,554)*4)};
+  let wx=cx*S+x, wy=cy*S+y, d=Math.max(0,wy)/planet.radius;
+  const geo=geologyAt(wy);
+
+  // No cave near the surface. Caverns become more common only deeper down.
+  let caveField=valueNoise(wx,wy,26,save.seed+909);
+  let caveDetail=valueNoise(wx,wy,10,save.seed+919);
+  let caveChance=wy<90?0:(.028+Math.min(.045,d*.05));
+  if(wy>90 && caveField<caveChance && caveDetail<.48){a[y*S+x]=null;continue}
+
+  let m=oreForCell(wx,wy,d);
+  let zone=zoneForDepth(d), barrier=1;
+  if(zone==="barrier1")barrier=2.4;
+  if(zone==="barrier2")barrier=3.4;
+  if(zone==="barrier3")barrier=4.8;
+  if(zone==="barrier4")barrier=6.5;
+  if(zone==="core")barrier=8;
+
+  // Early terrain is deliberately softer and readable.
+  let hp=m.hard*geo.hard*barrier*(1+d*1.7)*planet.danger;
+  a[y*S+x]={m,hp,max:hp,zone,tex:Math.floor(hashGrid(wx,wy,save.seed+707)*4),geo:geo.id};
  }
  return a;
 }
@@ -350,9 +480,11 @@ function destroyAround(wx,wy,r,power,dt){
    let value=cell.m.v*shipStats().refine*(has("crystal")&&["quartz","xenite"].includes(cell.m.id)?1.5:1);
    ship.loot+=value;ship.blocks++;save.stats.blocks++;save.stats.ores++;addXP(cell.m.id==="stone"?.15:1.2);save.found[cell.m.id]=(save.found[cell.m.id]||0)+1;
    cell.hp=-999;destroyed++;
-   if(save.settings.particles)for(let i=0;i<(save.settings.lowPower?1:2);i++)particles.push({x:xx,y:yy,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,t:1,c:cell.m.c});
+   if(save.settings.particles && particles.length<72 && Math.random()<(cell.m.id==="stone"?.12:.28)){
+     particles.push({x:xx,y:yy,vx:(Math.random()-.5)*1.7,vy:(Math.random()-.5)*1.7,t:.55,c:cell.m.c});
+   }
    if(has("recycler")&&Math.random()<.08)ship.en=Math.min(ship.maxEn,ship.en+2);
-   if(has("chain")&&cell.m.id!=="stone"&&Math.random()<.07)destroyAround(xx,yy,2.5,power*2,.4);
+   if(has("chain")&&cell.m.id!=="stone"&&Math.random()<.025)destroyAround(xx,yy,1.6,power*1.45,.26);
   }
  }
  return destroyed;
@@ -367,12 +499,12 @@ function update(dt){
  ship.vy+=(target-ship.vy)*dt*1.7;ship.speed=Math.hypot(ship.vx,ship.vy);
  ship.x+=ship.vx*dt/9;ship.y+=ship.vy*dt/9;
  let pow=s.drill*(impact?4:1)*(has("compress")?1+depth*.9:1)*(has("last")&&ship.hp<ship.maxHp*.2?2:1);
- let radius=impact?4.4:1.7+save.upgrades.drill*.06;
+ let radius=impact?2.5:clamp(1.15+layoutCounts().drill*.07,1.15,2.15);
  let hit=destroyAround(ship.x,ship.y+2,radius,pow*6,dt);
  ship.en-=dt*(2.8+hit*.11)/s.cool;ship.en+=s.regen*dt;ship.en=clamp(ship.en,0,ship.maxEn);
  if(ship.en<=.1){ship.hp-=13*dt;save.stats.damage+=13*dt}
  if(hit>5){let dmg=(hit-4)*.13*planet.danger*dt;ship.hp-=dmg;save.stats.damage+=dmg}
- if(hit>0)shake=Math.min(7,shake+hit*.08);if(!questDone&&activeQuest&&activeQuest[1]()){questDone=true;save.credits+=activeQuest[3];addXP(activeQuest[3]/8);notify("MISSION  +"+fmt(activeQuest[3])+" CR");buzz([30,30,30])} ship.shock+=hit;if(has("shock")&&ship.shock>250){ship.shock=0;destroyAround(ship.x,ship.y,8,pow*25,.3);notify("ONDE DE CHOC")}
+ if(hit>0)shake=Math.min(7,shake+hit*.08);if(!questDone&&activeQuest&&activeQuest[1]()){questDone=true;save.credits+=activeQuest[3];addXP(activeQuest[3]/8);notify("MISSION  +"+fmt(activeQuest[3])+" CR");buzz([30,30,30])} ship.shock+=hit;if(has("shock")&&ship.shock>420){ship.shock=0;destroyAround(ship.x,ship.y,4.2,pow*10,.22);notify("ONDE DE CHOC")}
  save.stats.meters+=Math.max(0,ship.vy*dt/9);save.stats.bestDepth=Math.max(save.stats.bestDepth,ship.y);save.stats.bestSpeed=Math.max(save.stats.bestSpeed,ship.speed);
  if(ship.y>=planet.radius){save.stats.cores++;notify("NOYAU TRAVERSE ! +50 000");ship.loot+=50000*(1+save.planetIndex*.3);endRun(true)}
  if(ship.hp<=0)endRun(false);if(Math.random()<dt*.004*(1+depth)){save.anomalies++;ship.loot+=Math.floor(400*(1+depth*8));notify("ANOMALIE  BONUS");buzz(35)}
@@ -389,7 +521,7 @@ function draw(){
  let W=canvas.width,H=canvas.height;ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,W,H);ctx.save();if(save.settings.shake&&shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.86}
  const pal=planetPalette();
  if(!ship){ctx.fillStyle="#09121c";ctx.fillRect(0,0,W,H);for(let i=0;i<28;i++){ctx.fillStyle=i%7?"#16314c":"#2e8bd3";ctx.fillRect((i*37+save.seed)%W,(i*59+save.seed)%H,i%6?1:2,i%6?1:2)}ctx.restore();requestAnimationFrame(draw);return}
- const cellPx=8, camX=Math.floor(ship.x), camY=Math.floor(ship.y)-10, centerX=Math.floor(W/2), centerY=Math.floor(H*0.38), cols=Math.ceil(W/cellPx)+8, rows=Math.ceil(H/cellPx)+8;
+ const cellPx=10, camX=Math.floor(ship.x), camY=Math.floor(ship.y)-10, centerX=Math.floor(W/2), centerY=Math.floor(H*0.38), cols=Math.ceil(W/cellPx)+8, rows=Math.ceil(H/cellPx)+8;
  ctx.fillStyle=pal.sky;ctx.fillRect(0,0,W,H);
  if(ship.y<200){for(let i=0;i<30;i++){ctx.fillStyle=i%8?"#1f3f5e":pal.accent;ctx.fillRect((i*37+save.seed)%W,(i*53+save.seed)%Math.floor(H*0.35),i%5?1:2,i%5?1:2)}}
  ctx.fillStyle="#4d3d2b";ctx.fillRect(0,centerY-6,W,6);ctx.fillStyle="#7b5e3b";ctx.fillRect(0,centerY-2,W,2);
@@ -401,7 +533,7 @@ function draw(){
   if(!cell||cell.hp<0){if(wy>=0){ctx.fillStyle="#06111a";ctx.fillRect(px,py,cellPx,cellPx);ctx.fillStyle="#0f2430";if(((wx+wy)&3)===0)ctx.fillRect(px+2,py+2,1,1)}continue;}
   drawBlockTexture(cell,wx,wy,px,py,cellPx);
  }
- for(let p of particles){p.x+=p.vx*.1;p.y+=p.vy*.1;p.t-=.04;ctx.globalAlpha=Math.max(0,p.t);ctx.fillStyle=p.c;ctx.fillRect(centerX+Math.floor((p.x-camX)*cellPx),centerY+Math.floor((p.y-camY)*cellPx),2,2)}particles=particles.filter(p=>p.t>0);ctx.globalAlpha=1;
+ for(let p of particles){p.x+=p.vx*.1;p.y+=p.vy*.1;p.t-=.06;ctx.globalAlpha=Math.max(0,p.t);ctx.fillStyle=p.c;ctx.fillRect(centerX+Math.floor((p.x-camX)*cellPx),centerY+Math.floor((p.y-camY)*cellPx),2,2)}particles=particles.filter(p=>p.t>0);ctx.globalAlpha=1;
  ctx.save();ctx.translate(centerX,centerY);ctx.rotate(Math.atan2(ship.vy,ship.vx)-Math.PI/2);
  ctx.fillStyle="#0e1012";ctx.fillRect(-9,-9,18,12);ctx.fillStyle="#4e555c";ctx.fillRect(-7,-12,14,16);ctx.fillStyle="#7d2a1f";ctx.fillRect(-8,-4,16,6);ctx.fillStyle="#d8dbe1";ctx.fillRect(-4,-10,8,6);ctx.fillStyle="#a0d64b";ctx.fillRect(-3,-8,6,3);ctx.fillStyle="#111315";ctx.fillRect(-10,-5,2,8);ctx.fillRect(8,-5,2,8);ctx.fillStyle="#f08d33";ctx.fillRect(-5,4,10,3);ctx.fillStyle="#dadde2";ctx.beginPath();ctx.moveTo(-8,7);ctx.lineTo(0,18);ctx.lineTo(8,7);ctx.fill();ctx.fillStyle="#9ea4a9";ctx.beginPath();ctx.moveTo(-4,8);ctx.lineTo(0,14);ctx.lineTo(4,8);ctx.fill();
  if(ship.vy>5){ctx.fillStyle="#ffb441";ctx.fillRect(-6,-15,4,4);ctx.fillRect(2,-15,4,4);ctx.fillStyle="#ffd86d";ctx.fillRect(-5,-18,2,3);ctx.fillRect(3,-18,2,3)}
@@ -409,7 +541,7 @@ function draw(){
  ctx.restore();requestAnimationFrame(draw);
 }
 function updateHUD(){
- if(!ship)return;$("#credits").textContent=fmt(save.credits);$("#lvl").textContent="LV."+save.level;$("#depth").textContent=fmt(ship.y)+" m";$("#hp").textContent=Math.max(0,ship.hp/ship.maxHp*100).toFixed(0)+"%";$("#energy").textContent=(ship.en/ship.maxEn*100).toFixed(0)+"%";$("#planetName").textContent=planet.name;
+ if(!ship)return;$("#credits").textContent=fmt(save.credits);$("#lvl").textContent="LV."+save.level;$("#depth").textContent=fmt(Math.max(0,ship.y))+" m";$("#hp").textContent=Math.max(0,ship.hp/ship.maxHp*100).toFixed(0)+"%";$("#energy").textContent=(ship.en/ship.maxEn*100).toFixed(0)+"%";$("#planetName").textContent=planet.name;$("#layerTag").textContent=geologyAt(ship.y).name;
  let p=clamp(ship.y/planet.radius*100,0,100);$("#depthFill").style.height=p+"%";$("#depthShip").style.top=`calc(${p}% - 2px)`;
 }
 let toastTimer;function notify(t){let e=$("#toast");e.textContent=t;e.style.opacity=1;clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.style.opacity=0,1300)}
