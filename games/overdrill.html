@@ -291,92 +291,62 @@ function zoneForDepth(d){
  if(d>.22)return "lower";
  return "crust";
 }
-function drawOrePixels(cell,wx,wy,px,py,s){
- if(cell.m.id==="stone")return;
- const id=cell.m.id,c=cell.m.c,q=Math.max(1,Math.floor(s/4));
- ctx.globalAlpha=.98;ctx.fillStyle=c;
- if(id==="iron"){
-   ctx.fillRect(px+2,py+2,3,2);ctx.fillRect(px+s-4,py+s-4,2,2);
- }else if(id==="copper"){
-   ctx.fillRect(px+2,py+s-4,4,1);ctx.fillRect(px+4,py+s-6,1,3);
- }else if(id==="coal"){
-   ctx.fillStyle="#16181b";ctx.fillRect(px+2,py+2,2,2);ctx.fillRect(px+s-4,py+4,2,2);ctx.fillRect(px+4,py+s-4,2,2);
- }else if(id==="quartz"){
-   ctx.fillRect(px+2,py+s-3,2,2);ctx.fillRect(px+4,py+2,2,s-4);ctx.fillRect(px+s-3,py+4,1,3);
-   ctx.fillStyle="#fff8ff";ctx.fillRect(px+5,py+3,1,2);
- }else if(id==="titanium"){
-   ctx.fillRect(px+2,py+2,s-4,2);ctx.fillRect(px+s-4,py+4,2,3);
- }else if(id==="cobalt"){
-   ctx.fillRect(px+Math.floor(s/2),py+2,2,s-4);ctx.fillRect(px+2,py+Math.floor(s/2),s-4,2);
- }else if(id==="uranium"){
-   ctx.fillRect(px+Math.floor(s/2)-1,py+2,3,s-4);ctx.fillRect(px+2,py+Math.floor(s/2)-1,s-4,3);
-   ctx.fillStyle="#e7ff8f";ctx.fillRect(px+Math.floor(s/2),py+Math.floor(s/2),1,1);
- }else if(id==="iridium"){
-   ctx.fillRect(px+2,py+s-3,2,1);ctx.fillRect(px+4,py+s-5,2,2);ctx.fillRect(px+s-3,py+2,1,2);
- }else if(id==="xenite"){
-   ctx.fillRect(px+2,py+2,s-4,1);ctx.fillRect(px+Math.floor(s/2),py+3,1,s-5);
-   ctx.fillStyle="#d8fffb";ctx.fillRect(px+s-3,py+s-3,1,1);
- }else if(id==="core"){
-   ctx.fillRect(px+2,py+2,s-4,s-4);ctx.fillStyle="#fff3aa";ctx.fillRect(px+Math.floor(s/2)-1,py+Math.floor(s/2)-1,2,2);
- }
- ctx.globalAlpha=1;
+
+function rotatePoint(px,py,r){
+ if(r===1)return [py,6-px];
+ if(r===2)return [6-px,6-py];
+ if(r===3)return [6-py,px];
+ return [px,py];
 }
+function codexRectsFor(id){
+ if(id==="stone")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="iron")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="copper")return [[1,2,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="coal")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="quartz")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="titanium")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="cobalt")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="uranium")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="iridium")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="xenite")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ if(id==="core")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+ return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+}
+function drawCodexTexture(id,px,py,s,rot=0){
+ const scale=s/7;
+ const baseMap={stone:'#4b4540',iron:'#4b4540',copper:'#4b4540',coal:'#4b4540',quartz:'#4b4540',titanium:'#4b4540',cobalt:'#4b4540',uranium:'#4b4540',iridium:'#4b4540',xenite:'#4b4540',core:'#4b4540'};
+ const oreMap={stone:'#707780',iron:'#b6bbc0',copper:'#ce7747',coal:'#22272b',quartz:'#e1d3ff',titanium:'#a9c4d3',cobalt:'#4778db',uranium:'#91e34b',iridium:'#bd7dff',xenite:'#59f4e3',core:'#ffd45d'};
+ ctx.fillStyle=baseMap[id]||'#4b4540';ctx.fillRect(px,py,s,s);
+ ctx.fillStyle='#746b61';ctx.fillRect(px,py,s,Math.max(1,scale*.45));ctx.fillRect(px,py,Math.max(1,scale*.45),s);
+ ctx.fillStyle='#292621';ctx.fillRect(px+s-Math.max(1,scale*.55),py,Math.max(1,scale*.55),s);ctx.fillRect(px,py+s-Math.max(1,scale*.55),s,Math.max(1,scale*.55));
+ ctx.fillStyle=oreMap[id]||'#aaa';
+ for(const rect of codexRectsFor(id)){
+   let [rx,ry,rw,rh]=rect;
+   let [rrx,rry]=rotatePoint(rx,ry,rot);
+   ctx.fillRect(Math.floor(px+rrx*scale),Math.floor(py+rry*scale),Math.max(1,Math.ceil(rw*scale)),Math.max(1,Math.ceil(rh*scale)));
+ }
+}
+
+function drawOrePixels(cell,wx,wy,px,py,s){return;}
 function drawBlockTexture(cell,wx,wy,px,py,s){
- const pal=planetPalette(),d=wy/planet.radius,zone=cell.zone||zoneForDepth(d),geo=geologyAt(wy);
- ctx.globalAlpha=1;
- let base=geo.base, edge=geo.edge;
-
- // Planet type lightly tints the geology, but does not repaint everything as ore.
- if(planet.type==="Volcanique" && wy>200)base=geo.id==="mantle"?"#4a2925":base;
- if(planet.type==="Glacee" && wy<300)base=geo.id==="regolith"?"#60717a":base;
- if(planet.type==="Metallique" && wy>80)base=geo.id==="basalt"?"#485057":base;
-
- ctx.fillStyle=base;ctx.fillRect(px,py,s,s);
- ctx.fillStyle=edge;ctx.fillRect(px,py,s,1);ctx.fillRect(px,py,1,s);
-
- // Different geological fabrics instead of the same speckle everywhere.
- if(geo.id==="regolith"){
-   ctx.fillStyle="#8a7357";ctx.globalAlpha=.45;
-   if(cell.tex&1)ctx.fillRect(px+2,py+2,2,1);
-   if(cell.tex>1)ctx.fillRect(px+s-4,py+s-3,2,1);
- }else if(geo.id==="sediment"){
-   ctx.fillStyle="#77716a";ctx.globalAlpha=.28;
-   ctx.fillRect(px+1,py+Math.floor(s*.45),s-2,1);
-   if(cell.tex===2)ctx.fillRect(px+3,py+2,1,2);
- }else if(geo.id==="basalt"){
-   ctx.fillStyle="#747b80";ctx.globalAlpha=.20;
-   ctx.fillRect(px+2,py+2,2,2); if(cell.tex===3)ctx.fillRect(px+s-4,py+s-4,2,2);
- }else if(geo.id==="granite"){
-   ctx.fillStyle="#92919a";ctx.globalAlpha=.20;
-   ctx.fillRect(px+2,py+2,1,1);ctx.fillRect(px+s-3,py+3,1,1);ctx.fillRect(px+Math.floor(s/2),py+s-3,1,1);
- }else if(geo.id==="deep"){
-   ctx.fillStyle="#68707b";ctx.globalAlpha=.16;
-   for(let i=2;i<s-1;i+=3)ctx.fillRect(px+i,py+((i+wx)&2)+2,1,1);
- }else if(geo.id==="compressed"){
-   ctx.fillStyle="#777d86";ctx.globalAlpha=.15;
-   ctx.fillRect(px+1,py+2,s-2,1);ctx.fillRect(px+1,py+s-3,s-2,1);
- }else if(geo.id==="mantle"){
-   ctx.fillStyle="#7a4938";ctx.globalAlpha=.20;
-   ctx.fillRect(px+2,py+2,s-4,1);ctx.fillRect(px+Math.floor(s*.55),py+4,1,s-5);
- }
- ctx.globalAlpha=1;
-
- if(zone.startsWith("barrier")){
-   ctx.fillStyle=pal.accent;ctx.globalAlpha=.26;
-   for(let k=-s;k<s*2;k+=5)ctx.fillRect(px+k,py+((k+wx)%s+s)%s,3,1);
-   ctx.globalAlpha=1;
- }
- if(zone==="core"){ctx.fillStyle=pal.accent;ctx.globalAlpha=.22;ctx.fillRect(px+1,py+1,s-2,s-2);ctx.globalAlpha=1}
-
- drawOrePixels(cell,wx,wy,px,py,s);
-
+ const d=wy/planet.radius, zone=cell.zone||zoneForDepth(d), geo=geologyAt(wy);
+ // Pick a material identity for the rock itself, then use codex texture with rotation.
+ let matId='stone';
+ if(geo.id==='regolith')matId='copper';
+ else if(geo.id==='sediment')matId='stone';
+ else if(geo.id==='basalt')matId='iron';
+ else if(geo.id==='granite')matId='titanium';
+ else if(geo.id==='deep')matId='coal';
+ else if(geo.id==='compressed')matId='cobalt';
+ else if(geo.id==='mantle')matId='copper';
+ drawCodexTexture(matId,px,py,s,cell.tex&3);
+ // Actual ore overlays replace the base identity.
+ if(cell.m.id!=='stone')drawCodexTexture(cell.m.id,px,py,s,(cell.tex+1)&3);
+ if(zone.startsWith('barrier')){ctx.fillStyle='rgba(255,180,80,.18)';ctx.fillRect(px,py,s,s)}
+ if(zone==='core'){ctx.fillStyle='rgba(255,220,90,.22)';ctx.fillRect(px,py,s,s)}
  const dmg=cell.max?1-clamp(cell.hp/cell.max,0,1):0;
- if(dmg>.30){
-   ctx.fillStyle="#090a0b";ctx.globalAlpha=.72;
-   ctx.fillRect(px+Math.floor(s*.5),py+1,1,Math.max(2,Math.floor(s*(.25+dmg*.35))));
-   if(dmg>.65)ctx.fillRect(px+2,py+Math.floor(s*.62),Math.floor(s*.45),1);
-   ctx.globalAlpha=1;
- }
+ if(dmg>.18){ctx.fillStyle='rgba(10,11,12,.55)';ctx.fillRect(px+Math.floor(s*.5),py+1,1,Math.max(2,Math.floor(s*(.18+dmg*.28))));}
+ if(dmg>.48){ctx.fillRect(px+2,py+Math.floor(s*.62),Math.max(1,Math.floor(s*.34)),1)}
 }
 
 
@@ -470,46 +440,64 @@ function genChunk(cx,cy,S){
  }
  return a;
 }
-function destroyAround(wx,wy,r,power,dt){
+
+function damageCell(wx,wy,power,dt){
+ let cell=getCell(wx,wy); if(!cell||cell.hp<0)return {hit:0,destroyed:0};
+ cell.hp-=power*dt;
  let destroyed=0;
- for(let yy=Math.floor(wy-r);yy<=wy+r;yy++)for(let xx=Math.floor(wx-r);xx<=wx+r;xx++){
-  if((xx-wx)**2+(yy-wy)**2>r*r)continue;
-  let cell=getCell(xx,yy);if(!cell)continue;
-  cell.hp-=power*dt;
-  if(cell.hp<=0){
+ if(cell.hp<=0){
    let value=cell.m.v*shipStats().refine*(has("crystal")&&["quartz","xenite"].includes(cell.m.id)?1.5:1);
-   ship.loot+=value;ship.blocks++;save.stats.blocks++;save.stats.ores++;addXP(cell.m.id==="stone"?.15:1.2);save.found[cell.m.id]=(save.found[cell.m.id]||0)+1;
-   cell.hp=-999;destroyed++;
-   if(save.settings.particles && particles.length<72 && Math.random()<(cell.m.id==="stone"?.12:.28)){
-     particles.push({x:xx,y:yy,vx:(Math.random()-.5)*1.7,vy:(Math.random()-.5)*1.7,t:.55,c:cell.m.c});
-   }
-   if(has("recycler")&&Math.random()<.08)ship.en=Math.min(ship.maxEn,ship.en+2);
-   if(has("chain")&&cell.m.id!=="stone"&&Math.random()<.025)destroyAround(xx,yy,1.6,power*1.45,.26);
-  }
+   ship.loot+=value; ship.blocks++; save.stats.blocks++; save.stats.ores++; addXP(cell.m.id==="stone"?.15:1.2); save.found[cell.m.id]=(save.found[cell.m.id]||0)+1;
+   cell.hp=-999; destroyed=1;
+   if(save.settings.particles && particles.length<36 && Math.random()<(cell.m.id==="stone"?.10:.18))particles.push({x:wx,y:wy,vx:(Math.random()-.5)*1.0,vy:(Math.random()-.5)*1.0,t:.34,c:cell.m.c});
+   if(has("recycler")&&Math.random()<.05)ship.en=Math.min(ship.maxEn,ship.en+1.4);
+   if(has("chain")&&cell.m.id!=="stone"&&Math.random()<.01)damageCell(wx+(Math.random()<.5?-1:1),wy+(Math.random()<.5?-1:1),power*.55,dt*.85);
  }
- return destroyed;
+ return {hit:1,destroyed};
+}
+function mineAtTip(tipX,tipY,power,dt,impact){
+ const rad=impact?0.85:0.62;
+ let hit=0,destroyed=0;
+ for(let yy=Math.floor(tipY-rad); yy<=Math.floor(tipY+rad); yy++)for(let xx=Math.floor(tipX-rad); xx<=Math.floor(tipX+rad); xx++){
+   const dx=(xx+.5-tipX), dy=(yy+.5-tipY);
+   if(dx*dx+dy*dy>rad*rad)continue;
+   const res=damageCell(xx,yy,power*(1-Math.min(.55,(dx*dx+dy*dy))),dt);
+   hit+=res.hit; destroyed+=res.destroyed;
+ }
+ return {hit,destroyed};
 }
 function update(dt){
  if(!running||!ship?.alive)return;
  ship.time+=dt;save.stats.play+=dt;
- const s=shipStats(), impact=has("impact")&&ship.time<3, depth=ship.y/planet.radius;
+ const s=shipStats(), impact=has("impact")&&ship.time<2.2, depth=Math.max(0,ship.y)/planet.radius;
  let steer=pointer.down?(pointer.x-canvas.clientWidth/2)/(canvas.clientWidth/2):0;
- ship.vx+=steer*90*dt;ship.vx*=Math.pow(.88,dt*10);
- let target=s.speed*(impact?2.7:1)*(has("heat")?(1+(1-ship.en/ship.maxEn)*.45):1);
- ship.vy+=(target-ship.vy)*dt*1.7;ship.speed=Math.hypot(ship.vx,ship.vy);
- ship.x+=ship.vx*dt/9;ship.y+=ship.vy*dt/9;
- let pow=s.drill*(impact?4:1)*(has("compress")?1+depth*.9:1)*(has("last")&&ship.hp<ship.maxHp*.2?2:1);
- let radius=impact?2.5:clamp(1.15+layoutCounts().drill*.07,1.15,2.15);
- let hit=destroyAround(ship.x,ship.y+2,radius,pow*6,dt);
- ship.en-=dt*(2.8+hit*.11)/s.cool;ship.en+=s.regen*dt;ship.en=clamp(ship.en,0,ship.maxEn);
- if(ship.en<=.1){ship.hp-=13*dt;save.stats.damage+=13*dt}
- if(hit>5){let dmg=(hit-4)*.13*planet.danger*dt;ship.hp-=dmg;save.stats.damage+=dmg}
- if(hit>0)shake=Math.min(7,shake+hit*.08);if(!questDone&&activeQuest&&activeQuest[1]()){questDone=true;save.credits+=activeQuest[3];addXP(activeQuest[3]/8);notify("MISSION  +"+fmt(activeQuest[3])+" CR");buzz([30,30,30])} ship.shock+=hit;if(has("shock")&&ship.shock>420){ship.shock=0;destroyAround(ship.x,ship.y,4.2,pow*10,.22);notify("ONDE DE CHOC")}
- save.stats.meters+=Math.max(0,ship.vy*dt/9);save.stats.bestDepth=Math.max(save.stats.bestDepth,ship.y);save.stats.bestSpeed=Math.max(save.stats.bestSpeed,ship.speed);
+ ship.vx+=steer*72*dt; ship.vx*=Math.pow(.9,dt*10);
+ let target=s.speed*(impact?1.55:1)*(has("heat")?(1+(1-ship.en/ship.maxEn)*.22):1);
+ ship.vy+=(target-ship.vy)*dt*1.08; ship.speed=Math.hypot(ship.vx,ship.vy);
+ ship.x+=ship.vx*dt/9; ship.y+=ship.vy*dt/9;
+ const dirLen=Math.max(.001,Math.hypot(ship.vx,ship.vy));
+ const dirX=ship.vx/dirLen, dirY=ship.vy/dirLen;
+ ship.angle=Math.atan2(ship.vy,ship.vx)-Math.PI/2;
+ const tipX=ship.x+dirX*1.55, tipY=ship.y+dirY*1.55;
+ let pow=s.drill*(impact?1.45:1)*(has("compress")?1+depth*.35:1)*(has("last")&&ship.hp<ship.maxHp*.2?1.65:1);
+ let mined=mineAtTip(tipX,tipY,pow*1.28,dt,impact);
+ ship.en-=dt*(2.2+mined.hit*.08)/s.cool; ship.en+=s.regen*dt; ship.en=clamp(ship.en,0,ship.maxEn);
+ if(ship.en<=.1){ship.hp-=8*dt;save.stats.damage+=8*dt}
+ if(mined.hit>0){
+   ship.vy*=Math.pow(.76,Math.min(1.6,mined.hit*.22));
+   let dmg=Math.max(0,mined.hit-1)*.06*planet.danger*dt;
+   ship.hp-=dmg; save.stats.damage+=dmg;
+   shake=Math.min(4.5,shake+mined.hit*.035);
+ }
+ if(!questDone&&activeQuest&&activeQuest[1]()){questDone=true;save.credits+=activeQuest[3];addXP(activeQuest[3]/8);notify("MISSION  +"+fmt(activeQuest[3])+" CR");buzz([30,30,30])}
+ ship.shock+=mined.destroyed;
+ if(has("shock")&&ship.shock>520){ship.shock=0;mineAtTip(tipX,tipY,pow*1.8,.18,true);notify("ONDE DE CHOC")}
+ save.stats.meters+=Math.max(0,ship.vy*dt/9);save.stats.bestDepth=Math.max(save.stats.bestDepth,Math.max(0,ship.y));save.stats.bestSpeed=Math.max(save.stats.bestSpeed,ship.speed);
  if(ship.y>=planet.radius){save.stats.cores++;notify("NOYAU TRAVERSE ! +50 000");ship.loot+=50000*(1+save.planetIndex*.3);endRun(true)}
- if(ship.hp<=0)endRun(false);if(Math.random()<dt*.004*(1+depth)){save.anomalies++;ship.loot+=Math.floor(400*(1+depth*8));notify("ANOMALIE  BONUS");buzz(35)}
+ if(ship.hp<=0)endRun(false); if(Math.random()<dt*.0014*(1+depth*.35)){save.anomalies++;ship.loot+=Math.floor(220*(1+depth*6));notify("ANOMALIE  BONUS");buzz(35)}
  updateHUD();
 }
+
 function endRun(success){
  if(!ship.alive)return;ship.alive=false;running=false;
  let gain=Math.floor(ship.loot);save.credits+=gain;save.stats.credits+=gain;persist();
@@ -534,9 +522,9 @@ function draw(){
   drawBlockTexture(cell,wx,wy,px,py,cellPx);
  }
  for(let p of particles){p.x+=p.vx*.1;p.y+=p.vy*.1;p.t-=.06;ctx.globalAlpha=Math.max(0,p.t);ctx.fillStyle=p.c;ctx.fillRect(centerX+Math.floor((p.x-camX)*cellPx),centerY+Math.floor((p.y-camY)*cellPx),2,2)}particles=particles.filter(p=>p.t>0);ctx.globalAlpha=1;
- ctx.save();ctx.translate(centerX,centerY);ctx.rotate(Math.atan2(ship.vy,ship.vx)-Math.PI/2);
+ ctx.save();ctx.translate(centerX,centerY);ctx.rotate(ship.angle||0);
  ctx.fillStyle="#0e1012";ctx.fillRect(-9,-9,18,12);ctx.fillStyle="#4e555c";ctx.fillRect(-7,-12,14,16);ctx.fillStyle="#7d2a1f";ctx.fillRect(-8,-4,16,6);ctx.fillStyle="#d8dbe1";ctx.fillRect(-4,-10,8,6);ctx.fillStyle="#a0d64b";ctx.fillRect(-3,-8,6,3);ctx.fillStyle="#111315";ctx.fillRect(-10,-5,2,8);ctx.fillRect(8,-5,2,8);ctx.fillStyle="#f08d33";ctx.fillRect(-5,4,10,3);ctx.fillStyle="#dadde2";ctx.beginPath();ctx.moveTo(-8,7);ctx.lineTo(0,18);ctx.lineTo(8,7);ctx.fill();ctx.fillStyle="#9ea4a9";ctx.beginPath();ctx.moveTo(-4,8);ctx.lineTo(0,14);ctx.lineTo(4,8);ctx.fill();
- if(ship.vy>5){ctx.fillStyle="#ffb441";ctx.fillRect(-6,-15,4,4);ctx.fillRect(2,-15,4,4);ctx.fillStyle="#ffd86d";ctx.fillRect(-5,-18,2,3);ctx.fillRect(3,-18,2,3)}
+ if(ship.vy>5){ctx.fillStyle="#ffb441";ctx.fillRect(-6,-15,4,4);ctx.fillRect(2,-15,4,4);ctx.fillStyle="#ffd86d";ctx.fillRect(-5,-18,2,3);ctx.fillRect(3,-18,2,3)}ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(-1,18,2,1)
  ctx.restore();
  ctx.restore();requestAnimationFrame(draw);
 }
