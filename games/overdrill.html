@@ -98,7 +98,7 @@ main{position:relative;min-height:0;background:#1b1e20}canvas{width:100%;height:
 @media(max-width:430px){.moduleVariantCard{grid-template-columns:36px minmax(0,1fr) 76px;gap:6px}.moduleVariantRaster{transform:scale(.95)}}
 
 
-/* --- V0.20 : mondes, camera, protocoles, profondeur --- */
+/* --- V0.20.1 : mondes, camera, protocoles, profondeur --- */
 .protocolHeader{display:flex;justify-content:space-between;align-items:end;gap:8px;margin:12px 0 6px}.protocolGrid{display:grid;gap:6px}.protocolCard{display:grid;grid-template-columns:38px minmax(0,1fr);gap:8px;align-items:start}.protocolIcon{width:38px;height:38px;display:grid;place-items:center;background:#1b2024;border:3px solid #090b0c;box-shadow:inset 2px 2px #4e575e;font-size:19px;color:#e7c46d}.protocolCard.locked{opacity:.55}.protocolCard.equipped{border-left:6px solid var(--lime)}.protocolTop{display:flex;justify-content:space-between;gap:7px;align-items:center}.protocolTop b{font-size:11px}.protocolPips{display:flex;gap:3px;margin-top:5px}.protocolPips i{width:14px;height:5px;border:1px solid #090b0c;background:#181c1f}.protocolPips i.on{background:var(--orange);box-shadow:inset 1px 1px #f4ad60}.protocolEffect{font-size:8px;color:#b7bec2;margin-top:4px;line-height:1.3}.protocolActions{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}.protocolActions .btnx{min-height:34px;padding:4px 7px;font-size:8px}.protocolSlots{font-size:8px;background:#12171a;border:2px solid #080a0b;padding:4px 6px;color:var(--lime)}
 .metricRows{display:grid;gap:5px;margin-top:8px}.metricRow{display:grid;grid-template-columns:75px 1fr 30px;gap:5px;align-items:center;font-size:8px}.metricSegments{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}.metricSegments i{height:8px;background:#1a1f22;border:1px solid #090b0c}.metricSegments i.on{background:var(--metric,#9fcf4a);box-shadow:inset 1px 1px #ffffff22}.metricRow b{text-align:right;color:#dce1e3;font-size:8px}.planetBiome{color:var(--orange);font-weight:900;font-size:9px}.planetDiameter{font-size:13px;color:var(--lime);font-weight:900}.planetNode{width:var(--node,46px)!important;height:var(--node,46px)!important}.planetNode canvas{width:calc(var(--node,46px) - 4px)!important;height:calc(var(--node,46px) - 4px)!important}.planetNode.current:after{top:calc(var(--node,46px) - 2px)!important}.systemLegend{display:flex;justify-content:space-between;gap:8px;font-size:7px;color:#8f999f;margin-top:4px}
 .depth{width:48px!important;height:61%!important;background:#0d1114!important;border:3px solid #050708!important}.depthPreview{inset:3px!important;border:1px solid #343b40}.depthPreview:after{background:repeating-linear-gradient(0deg,transparent 0 15px,#ffffff13 15px 16px),linear-gradient(90deg,#ffffff0d,transparent 30%,transparent 72%,#00000031)!important}.depthPreview .depthSeg span{display:none!important}.depthSeg{border-bottom:1px solid #0a0b0c!important}.depthShip{width:18px!important;height:9px!important;background:#353c42!important;border:2px solid #090b0c!important;box-shadow:0 2px #000!important}.depthShip:before{border-left-width:7px!important;border-right-width:7px!important;border-top:7px solid #d9dde0!important;top:7px!important}.depthShip:after{left:3px!important;right:3px!important;top:-4px!important;height:3px!important;background:var(--orange)!important}.depthPct{right:auto!important;left:-37px!important;top:50%!important;transform:translateY(-50%);background:#0b1115;border:2px solid #050708;padding:3px 4px;color:#78dcea!important;font-size:8px!important}.depthTick{position:absolute;left:1px;right:1px;height:1px;background:#ffffff28;z-index:2}.depthCoreGlow{position:absolute;left:2px;right:2px;bottom:2px;height:9%;background:linear-gradient(0deg,#df5b24aa,transparent);z-index:2;pointer-events:none}
@@ -249,6 +249,27 @@ function ensureSystem(force=false){
  return save.systemSeeds;
 }
 function systemPlanet(slot){const seeds=ensureSystem();return makePlanetFromSeed(seeds[slot],slot)}
+
+// Runtime state. Keep these explicitly declared: Safari/WebKit does not create
+// implicit globals reliably, and several systems read them before the first run.
+ensureSystem();
+let planet=makePlanet();
+let running=false, ship=null;
+let particles=[], floaters=[], enemies=[];
+let chunks=new Map(), blockMemory=new Map();
+let last=performance.now(), shake=0, lastRunResult=null;
+let enemySpawnTimer=0, enemySeq=0, chunkPruneClock=0, hudClock=0;
+const pointer={down:false,x:0};
+const cameraState={x:0,y:0,ready:false};
+let toastTimer=null;
+function notify(t){
+ const e=$("#toast");
+ if(!e)return;
+ e.textContent=t;
+ e.style.opacity=1;
+ clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>{e.style.opacity=0},1300);
+}
 function travelCostTo(slot){return 0}
 function travelToSystemPlanet(slot){
  const seeds=ensureSystem();if(slot<0||slot>=seeds.length)return;save.systemSlot=slot;save.seed=seeds[slot];save.planetIndex=slot;planet=makePlanet();save.stats.planets++;save.stats.planetTravels=(save.stats.planetTravels||0)+1;chunks.clear();blockMemory.clear();rebuildSpriteCache();persist();renderPlanets(slot);renderDepthMeter();renderPreflight();updateHUD();notify("ORBITE : "+planet.name);
@@ -667,7 +688,7 @@ function renderStats(){
  $("#stats").innerHTML=`<h4>STATISTIQUES</h4><div class="cardx goodx"><b>Niveau ${save.level}</b><div class="small text-secondary">${fmt(save.xp)} / ${fmt(xpNeed())} XP  â¢  ${save.skillPoints} point(s) de protocole</div><div class="bar mt-2"><i style="width:${save.xp/xpNeed()*100}%"></i></div></div><div class="cardx quest"><b>Mission : ${activeQuest[0]}</b><div class="small text-secondary">${activeQuest[2]}  â¢  ${fmt(activeQuest[3])} CR</div></div>${fold('VUE DâENSEMBLE',overview,true)}${fold('MINAGE',mining)}${fold('FOREUSE',machine)}${fold('EXPLORATION / COMBAT',explore)}<div class="cardx"><div class="small text-secondary">Seed actuelle : ${save.seed}</div><button id="wipe" class="btnx mt-2">EFFACER LA SAUVEGARDE</button></div>`;$("#wipe").onpointerup=e=>{e.preventDefault();if(confirm("Supprimer toute la progression ?")){localStorage.removeItem("odk_save");location.reload()}};
 }
 function renderSettings(){
- $("#settings").innerHTML=`<h4>REGLAGES</h4><div class="cardx"><b>Mobile</b><div class="small text-secondary mb-2">Optimisations tactiles et visuelles.</div>${[["particles","Particules"],["haptics","Vibrations"],["lowPower","Mode economie"]].map(x=>`<div class="switchx py-2"><span>${x[1]}</span><button class="btnx setting" data-k="${x[0]}">${save.settings[x[0]]?"ON":"OFF"}</button></div>`).join("")}</div><div class="cardx"><b>Console de test</b><p class="small text-secondary">Code developpeur pour tester le contenu sans grinder.</p><input id="cheatInput" type="text" autocapitalize="off" placeholder="Code developpeur"><button id="cheatGo" class="btnx mt-2">VALIDER</button><div id="devPanel" class="mt-2">${save.settings.dev?devHTML():""}</div></div><div class="cardx"><b>Overdrill Kill V0.20</b><div class="small text-secondary">Mobile-first  sauvegarde locale automatique</div></div>`;
+ $("#settings").innerHTML=`<h4>REGLAGES</h4><div class="cardx"><b>Mobile</b><div class="small text-secondary mb-2">Optimisations tactiles et visuelles.</div>${[["particles","Particules"],["haptics","Vibrations"],["lowPower","Mode economie"]].map(x=>`<div class="switchx py-2"><span>${x[1]}</span><button class="btnx setting" data-k="${x[0]}">${save.settings[x[0]]?"ON":"OFF"}</button></div>`).join("")}</div><div class="cardx"><b>Console de test</b><p class="small text-secondary">Code developpeur pour tester le contenu sans grinder.</p><input id="cheatInput" type="text" autocapitalize="off" placeholder="Code developpeur"><button id="cheatGo" class="btnx mt-2">VALIDER</button><div id="devPanel" class="mt-2">${save.settings.dev?devHTML():""}</div></div><div class="cardx"><b>Overdrill Kill V0.20.1</b><div class="small text-secondary">Mobile-first  sauvegarde locale automatique</div></div>`;
  document.querySelectorAll(".setting").forEach(b=>b.onpointerup=(ev)=>{ev.preventDefault();let k=b.dataset.k;save.settings[k]=!save.settings[k];persist();renderSettings()});
  $("#cheatGo").onpointerup=(ev)=>{ev.preventDefault();if($("#cheatInput").value.trim().toUpperCase()==="COREBREAKER"){save.settings.dev=true;persist();notify("MODE TEST ACTIVE");renderSettings()}else notify("CODE INVALIDE")};bindDev()
 }
@@ -675,7 +696,6 @@ function devHTML(){return `<div class="small text-warning mb-2">MODE TEST ACTIF<
 function bindDev(){document.querySelectorAll(".dev").forEach(b=>b.onpointerup=(ev)=>{ev.preventDefault();let a=b.dataset.a;if(a==="money")save.credits+=1e7;if(a==="max"){save.ownedModules=Object.keys(moduleVariants);for(const id of save.ownedModules)save.moduleLevels[id]=25;}if(a==="level"){save.level+=10;save.skillPoints+=10}if(a==="chassis"){save.level=Math.max(save.level,60);save.skillPoints+=10}if(a==="core"&&ship)ship.y=planet.radius*.94;if(a==="heal"&&ship){ship.hp=ship.maxHp;ship.en=ship.maxEn}if(a==="next"){changeStarSystem()}persist();updateHUD();notify("TEST APPLIQUE");renderSettings()})}
 
 function persist(){localStorage.setItem("odk_save",JSON.stringify(save))}
-ensureSystem();
 function openTab(s){if(running)return;document.querySelectorAll(".navb").forEach(x=>x.classList.toggle("active",x.dataset.screen===s));document.querySelectorAll(".screen").forEach(x=>x.classList.remove("show"));$("#preflight").classList.remove("show");$("#runResult").classList.remove("show");$("#depthMeter").style.display="none";$("#layerTag").style.display="none";$("#runControls").classList.remove("show");if(s==="game"){showGamePrep();return}$("#"+s).classList.add("show");({hangar:renderHangar,planets:renderPlanets,codex:renderCodex,stats:renderStats,settings:renderSettings}[s])()}
 document.querySelectorAll(".navb").forEach(b=>b.onpointerup=ev=>{ev.preventDefault();openTab(b.dataset.screen)});
 $("#play").onpointerup=ev=>{ev.preventDefault();$("#start").style.display="none";renderDepthMeter();showGamePrep()};
