@@ -350,6 +350,10 @@ function systemPlanet(slot){const seeds=ensureSystem();return makePlanetFromSeed
 ensureSystem();
 let planet=makePlanet();
 let running=false, ship=null;
+// Each descent gets its own terrain seed. The planet identity stays the same,
+// but minerals, geodes, hazards and local geology are regenerated on replay.
+let runSeed=(save.seed>>>0);
+function terrainSeed(){return (runSeed||save.seed)>>>0}
 let particles=[], floaters=[], enemies=[], nests=[], bonuses=[];
 let chunks=new Map(), blockMemory=new Map();
 let last=performance.now(), shake=0, lastRunResult=null;
@@ -378,7 +382,7 @@ function addXP(n){n*=1+[0,.05,.10,.16,.23,.30][skillLevel("xp")];save.xp+=n;whil
 function buzz(p=25){if(save.settings.haptics&&navigator.vibrate)navigator.vibrate(p)}
 function randomQuest(){const q=[["Pulverisateur",()=>ship&&ship.blocks>=180,"Detruire 180 blocs en une descente",1500],["Plongeur",()=>ship&&ship.y>=planet.radius*.20,"Atteindre 20% de la planete",2200],["Prospecteur",()=>ship&&ship.loot>=3500,"Extraire 3 500 CR en une descente",2600],["Survivant",()=>ship&&ship.hp<ship.maxHp*.35&&ship.y>planet.radius*.14,"Atteindre 14% avec moins de 35% coque",3800]];return q[Math.floor(Math.random()*q.length)]}
 let activeQuest=randomQuest(),questDone=false;
-const ODK_VERSION="1.1";
+const ODK_VERSION="1.1.1";
 const canvas=$("#game"),ctx=canvas.getContext("2d");
 function resize(){
  const cssW=Math.max(1,Math.floor(canvas.clientWidth)), cssH=Math.max(1,Math.floor(canvas.clientHeight));
@@ -511,10 +515,14 @@ function boostReady(){return ship&&ship.boostCooldown<=0&&ship.boostTimer<=0&&sh
 function triggerBoost(){if(!running||!ship?.alive||!boostReady())return;const s=ship.buildStats||shipStats(),cp=activeProtocolLevel("capacitor");ship.boostTimer=s.boostDuration;ship.boostCooldown=s.boostCooldown;ship.boostCooldownMax=s.boostCooldown;ship.boost=true;ship.en=Math.max(0,ship.en-ship.maxEn*(.07-cp*.006));save.stats.boosts=(save.stats.boosts||0)+1;buzz([25,20,45]);AudioBus.boost();notify("BOOST")}
 function resetRun(){
  const s=shipStats();if(!s.valid){notify("BUILD INVALIDE : DRILL + MOTEUR + REACTEUR");showGamePrep();return}
+ // New deterministic variant for every descent on the same planet.
+ // Replaying therefore gives a fresh mine without rerolling the planet itself.
+ const descentNo=(save.run||0)+1;
+ runSeed=(save.seed ^ Math.imul(descentNo,0x9E3779B1) ^ Math.imul((save.planetIndex||0)+1,0x85EBCA6B))>>>0;
  ship={x:0,y:-18,vx:0,vy:0,angle:0,targetAngle:0,hp:s.hp,maxHp:s.hp,en:s.energy,maxEn:s.energy,speed:0,blocks:0,loot:0,alive:true,shock:0,time:0,combo:0,comboTimer:0,contact:false,boost:false,boostTimer:0,boostCooldown:0,boostCooldownMax:s.boostCooldown,refine:s.refine,maxDepth:0,oreBonus:s.oreBonus,buildStats:s,echoTimer:0,introTimer:6.4,introDuration:6.4,impactTimer:0,overdriveTimer:0,prismTimer:0,shieldTimer:0,surgeTimer:0,furyTimer:0,luckTimer:0,phaseburstTimer:0};
  cameraState.x=ship.x;cameraState.y=-10;cameraState.ready=true;chunks.clear();blockMemory.clear();particles=[];floaters=[];enemies=[];nests=[];bonuses=[];enemySpawnTimer=4.5;running=true;save.stats.runs++;save.run++;setRunUI(true);renderDepthMeter();updateHUD();notify("DESCENTE #"+save.run);
 }
-function noise(x,y,seed=save.seed){let n=Math.sin(x*12.9898+y*78.233+seed*.0001)*43758.5453;return n-Math.floor(n)}
+function noise(x,y,seed=terrainSeed()){let n=Math.sin(x*12.9898+y*78.233+seed*.0001)*43758.5453;return n-Math.floor(n)}
 function getCell(wx,wy){
  if(wy<0)return null;
  const size=34,cx=Math.floor(wx/size),cy=Math.floor(wy/size),key=cx+","+cy;
@@ -607,7 +615,7 @@ function drawBlockTexture(cell,wx,wy,px,py,s){
    else{
     // The simulation is still cell based, but a damaged cell is rendered as 4x4 micro-fragments.
     // This removes the hard "one square disappears" feeling without multiplying world memory by 16.
-    const N=4,cut=Math.min(15,Math.floor(dmg*17)),seed=(Math.imul(wx,73856093)^Math.imul(wy,19349663)^save.seed)>>>0;
+    const N=4,cut=Math.min(15,Math.floor(dmg*17)),seed=(Math.imul(wx,73856093)^Math.imul(wy,19349663)^terrainSeed())>>>0;
     for(let iy=0;iy<N;iy++)for(let ix=0;ix<N;ix++){
      const rank=((ix*7+iy*11+(seed&15))&15);if(rank<cut)continue;
      const sx=ix*ATLAS_TILE/N,sy=iy*ATLAS_TILE/N,sw=ATLAS_TILE/N,sh=ATLAS_TILE/N,dx=px+ix*s/N,dy=py+iy*s/N;
@@ -636,14 +644,14 @@ function geologyAt(x,y){
  if(y===undefined){y=x;x=0}
  if(y<0)return {id:"sky",name:"ESPACE",base:"#07121d",edge:"#07121d",hard:.0};
  const profile=geologyProfileFor(planet);
- const noiseA=valueNoise(x+save.seed*0.0017,y*.28,44,save.seed+515)-.5;
- const noiseB=valueNoise(x-save.seed*0.0012,y*.14,18,save.seed+516)-.5;
- const noiseC=valueNoise(x+3000,y*.065,96,save.seed+811)-.5;
+ const noiseA=valueNoise(x+terrainSeed()*0.0017,y*.28,44,terrainSeed()+515)-.5;
+ const noiseB=valueNoise(x-terrainSeed()*0.0012,y*.14,18,terrainSeed()+516)-.5;
+ const noiseC=valueNoise(x+3000,y*.065,96,terrainSeed()+811)-.5;
  const surface=(noiseA*120 + noiseB*42 + noiseC*84)*(planet.type==='Tellurique'?1.18:planet.type==='Glacee'?1.0:.85);
  const yy=Math.max(0,y+surface);
- const shift1=(valueNoise(x*.7,12,52,save.seed+901)-.5)*14;
- const shift2=(valueNoise(x*.25,24,84,save.seed+902)-.5)*38;
- const shift3=(valueNoise(x*.14,48,128,save.seed+903)-.5)*82;
+ const shift1=(valueNoise(x*.7,12,52,terrainSeed()+901)-.5)*14;
+ const shift2=(valueNoise(x*.25,24,84,terrainSeed()+902)-.5)*38;
+ const shift3=(valueNoise(x*.14,48,128,terrainSeed()+903)-.5)*82;
  const b0=profile.bands[0]+shift1;
  const b1=profile.bands[1]+shift2;
  const b2=profile.bands[2]+shift3;
@@ -659,7 +667,7 @@ function geologyAt(x,y){
  return {id:"core",name:"NOYAU",base:"#a96a2d",edge:"#734621",hard:2.9};
 }
 function oreForCell(wx,wy,d){
- const depth=Math.max(0,d)*6000,v1=valueNoise(wx,wy,2.35,save.seed+111),v2=valueNoise(wx,wy,1.75,save.seed+333),v3=valueNoise(wx,wy,3.35,save.seed+777),r=clamp(planet.rich*(1+(running&&ship?ship.oreBonus||0:0))*(ship?.luckTimer>0?1.18:1),.55,2.05),M=id=>mineralById[id],jack=skillLevel("jackpot")&&hashGrid(wx,wy,save.seed+2201)>.9993-skillLevel("jackpot")*.00008;
+ const depth=Math.max(0,d)*6000,v1=valueNoise(wx,wy,2.35,terrainSeed()+111),v2=valueNoise(wx,wy,1.75,terrainSeed()+333),v3=valueNoise(wx,wy,3.35,terrainSeed()+777),r=clamp(planet.rich*(1+(running&&ship?ship.oreBonus||0:0))*(ship?.luckTimer>0?1.18:1),.55,2.05),M=id=>mineralById[id],jack=skillLevel("jackpot")&&hashGrid(wx,wy,terrainSeed()+2201)>.9993-skillLevel("jackpot")*.00008;
  const oreSkill=1+skillLevel("prospector")*.035,rr=r*.20*oreSkill;if(jack)return M(depth>1800?"iridium":depth>800?"gold":"silver");const hot=(v,t)=>v>1-(1-t)*rr,cold=(v,t)=>v<(1-t)*rr;
  if(depth<220){if(hot(v1,.82)&&v2>.52)return M("iron");if(cold(v1,.18)&&v2>.55)return M("copper");if(hot(v3,.91)&&v2<.56)return M("coal");if(hot(v2,.965))return M("aluminium");return M("stone")}
  if(depth<650){if(hot(v1,.88)&&v2>.58)return M("titanium");if(hot(v3,.91)&&v2>.57)return M("nickel");if(cold(v1,.10)&&v2>.60)return M("lead");if(hot(v2,.972))return M("iron");return M("stone")}
@@ -669,7 +677,7 @@ function oreForCell(wx,wy,d){
  if(hot(v1,.965)&&v2>.71)return M("platinum");if(hot(v3,.973)&&v2>.73)return M("iridium");if(cold(v1,.018)&&v2>.76)return M("xenite");if(hot(v2,.993))return M("uranium");return M("stone")
 }
 function geodeField(wx,wy){
- if(wy<80)return null;const density=clamp(planet.cave,.02,.12),cell=36, gx=Math.floor(wx/cell),gy=Math.floor(wy/cell),seed=(planet.seed||save.seed)+909;
+ if(wy<80)return null;const density=clamp(planet.cave,.02,.12),cell=36, gx=Math.floor(wx/cell),gy=Math.floor(wy/cell),seed=terrainSeed()+909;
  for(let oy=-1;oy<=1;oy++)for(let ox=-1;ox<=1;ox++){const cx=gx+ox,cy=gy+oy,h=hashGrid(cx,cy,seed);if(h<1-density*1.7)continue;const rx=cx*cell+7+hashGrid(cx,cy,seed+11)*(cell-14),ry=cy*cell+9+hashGrid(cx,cy,seed+22)*(cell-18),rad=4.4+hashGrid(cx,cy,seed+33)*3.8+(planet.type==='Cristalline'?1.5:0),dx=wx+.5-rx,dy=wy+.5-ry,q=(dx*dx)/(rad*rad)+(dy*dy)/((rad*.72)*(rad*.72));if(q<1.18)return {cx:rx,cy:ry,rad,q,dx,dy};}
  return null;
 }
@@ -681,11 +689,11 @@ function genChunk(cx,cy,S){
  let a=new Array(S*S);const caveDensity=clamp(planet.cave,.02,.12);
  for(let y=0;y<S;y++)for(let x=0;x<S;x++){
   let wx=cx*S+x,wy=cy*S+y,d=Math.max(0,wy)/planet.radius,geo=geologyAt(wx,wy);if(geodeOpenAt(wx,wy)){a[y*S+x]=null;continue}
-  const crystalBias=planet.type==='Cristalline'?.18:.06,crystalRoll=hashGrid(wx,wy,save.seed+1249);
+  const crystalBias=planet.type==='Cristalline'?.18:.06,crystalRoll=hashGrid(wx,wy,terrainSeed()+1249);
   const wallDir=wy>80?geodeWallDirection(wx,wy):-1,crystal=wallDir>=0&&crystalRoll>(.60-crystalBias);
   let m=crystal?mineralById[["silver","cobalt","gold","uranium","iridium","platinum","xenite"][Math.min(6,Math.floor(d*7))]]:oreForCell(wx,wy,d),zone=zoneForDepth(d),barrier=1;if(zone==="barrier1")barrier=2;if(zone==="barrier2")barrier=2.8;if(zone==="barrier3")barrier=3.7;if(zone==="barrier4")barrier=4.8;if(zone==="core")barrier=6.2;
-  let hp=m.hard*geo.hard*barrier*(1+d*1.45)*planet.danger*(crystal?.58:1.35),hazard=!crystal&&wy>120&&hashGrid(wx,wy,save.seed+1777)>(.995-planet.instability*.012)&&zone!=="core",hazardType=hazard?Math.floor(hashGrid(wx,wy,save.seed+1889)*8):0;
-  a[y*S+x]={m,hp,max:hp,zone,tex:Math.floor(hashGrid(wx,wy,save.seed+707)*3),geo:geo.id,crystal,crystalShape:crystal?Math.floor(hashGrid(wx,wy,save.seed+1291)*8):0,crystalDir:wallDir,caveCrystal:crystal,geodeCrystal:crystal,hazard,hazardType};
+  let hp=m.hard*geo.hard*barrier*(1+d*1.45)*planet.danger*(crystal?.58:1.35),hazard=!crystal&&wy>120&&hashGrid(wx,wy,terrainSeed()+1777)>(.995-planet.instability*.012)&&zone!=="core",hazardType=hazard?Math.floor(hashGrid(wx,wy,terrainSeed()+1889)*8):0;
+  a[y*S+x]={m,hp,max:hp,zone,tex:Math.floor(hashGrid(wx,wy,terrainSeed()+707)*3),geo:geo.id,crystal,crystalShape:crystal?Math.floor(hashGrid(wx,wy,terrainSeed()+1291)*8):0,crystalDir:wallDir,caveCrystal:crystal,geodeCrystal:crystal,hazard,hazardType};
  }
  return a;
 }
@@ -809,7 +817,7 @@ function drawSkyBackground(W,H,camY,pal){
 function drawSurfaceDecor(surfaceY,cellPx,camX,W){
  if(surfaceY<-30||surfaceY>canvas.height+30)return;const pal=planetPalette(),style=planet.surfaceStyle,count=Math.ceil(W/cellPx)+8;ctx.save();
  if(style==='ocean'){ctx.globalAlpha=.70;ctx.fillStyle=pal.ocean;ctx.fillRect(0,surfaceY-10,W,10);ctx.fillStyle=brightenHex(pal.ocean,.35);for(let x=0;x<W;x+=10)ctx.fillRect(x+(Math.floor(performance.now()/180)%10),surfaceY-9,5,1);ctx.globalAlpha=1}
- for(let i=-4;i<count;i++){const wx=Math.floor(camX+i-count/2),h=hashGrid(wx,0,save.seed+4301),x=Math.floor(W/2+(wx-camX)*cellPx),y=Math.floor(surfaceY-1),s=Math.max(1,Math.floor(cellPx*.16));if(h<.55)continue;
+ for(let i=-4;i<count;i++){const wx=Math.floor(camX+i-count/2),h=hashGrid(wx,0,terrainSeed()+4301),x=Math.floor(W/2+(wx-camX)*cellPx),y=Math.floor(surfaceY-1),s=Math.max(1,Math.floor(cellPx*.16));if(h<.55)continue;
   if(style==='forest'||style==='alienForest'||style==='toxic'){const tall=3+Math.floor(h*6);ctx.fillStyle=darkenHex(pal.surface,.25);ctx.fillRect(x,y-s*tall,s,s*tall);ctx.fillStyle=style==='alienForest'?pal.accent:brightenHex(pal.surface,.12);ctx.fillRect(x-s*2,y-s*tall,s*5,s*2);ctx.fillRect(x-s,y-s*(tall+2),s*3,s*3)}
   else if(style==='spikes'||style==='wasteland'){ctx.fillStyle=pal.rock;for(let k=0;k<2+(h>.86);k++){ctx.beginPath();ctx.moveTo(x+k*s*2,y);ctx.lineTo(x+s+k*s*2,y-s*(3+k));ctx.lineTo(x+s*2+k*s*2,y);ctx.fill()}}
   else if(style==='crystals'){ctx.fillStyle=pal.accent;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+s,y-s*(4+Math.floor(h*3)));ctx.lineTo(x+s*2,y);ctx.fill();if(h>.82){ctx.fillStyle=brightenHex(pal.accent,.35);ctx.fillRect(x+s,y-s*3,s,2)}}
@@ -818,25 +826,46 @@ function drawSurfaceDecor(surfaceY,cellPx,camX,W){
   else if(style==='metal'){ctx.fillStyle=pal.dust;ctx.fillRect(x-s,y-s*2,s*3,s);ctx.fillRect(x,y-s*5,s,s*3)}
  }
  // large biome landmarks
- const tt=performance.now()*.001;for(let k=0;k<4;k++){const wx=Math.floor(camX+(k-1.5)*9),hh=hashGrid(wx,2,save.seed+8801),x=Math.floor(W/2+(wx-camX)*cellPx),y=Math.floor(surfaceY-1),u=Math.max(1,cellPx*.22);if(hh<.56)continue;if(style==='forest'||style==='alienForest'||style==='toxic'){ctx.fillStyle=darkenHex(pal.surface,.32);ctx.fillRect(x-u,y-u*10,u*1.5,u*10);ctx.fillStyle=style==='alienForest'?pal.accent:brightenHex(pal.surface,.18);ctx.beginPath();ctx.arc(x,y-u*11,u*4,0,Math.PI*2);ctx.fill()}else if(style==='wasteland'||style==='spikes'){ctx.fillStyle=darkenHex(pal.rock,.08);ctx.beginPath();ctx.moveTo(x-u*2,y);ctx.lineTo(x,y-u*(9+hh*8));ctx.lineTo(x+u*2,y);ctx.fill()}else if(style==='ice'){ctx.fillStyle=brightenHex(pal.cloud,.08);ctx.beginPath();ctx.moveTo(x-u*2,y);ctx.lineTo(x,y-u*(8+hh*7));ctx.lineTo(x+u*2,y);ctx.fill()}else if(style==='crystals'){ctx.shadowColor=pal.accent;ctx.shadowBlur=5;ctx.fillStyle=brightenHex(pal.accent,.18);ctx.beginPath();ctx.moveTo(x-u*2,y);ctx.lineTo(x,y-u*(9+hh*8));ctx.lineTo(x+u*2,y);ctx.fill();ctx.shadowBlur=0}}
+ const tt=performance.now()*.001;for(let k=0;k<4;k++){const wx=Math.floor(camX+(k-1.5)*9),hh=hashGrid(wx,2,terrainSeed()+8801),x=Math.floor(W/2+(wx-camX)*cellPx),y=Math.floor(surfaceY-1),u=Math.max(1,cellPx*.22);if(hh<.56)continue;if(style==='forest'||style==='alienForest'||style==='toxic'){ctx.fillStyle=darkenHex(pal.surface,.32);ctx.fillRect(x-u,y-u*10,u*1.5,u*10);ctx.fillStyle=style==='alienForest'?pal.accent:brightenHex(pal.surface,.18);ctx.beginPath();ctx.arc(x,y-u*11,u*4,0,Math.PI*2);ctx.fill()}else if(style==='wasteland'||style==='spikes'){ctx.fillStyle=darkenHex(pal.rock,.08);ctx.beginPath();ctx.moveTo(x-u*2,y);ctx.lineTo(x,y-u*(9+hh*8));ctx.lineTo(x+u*2,y);ctx.fill()}else if(style==='ice'){ctx.fillStyle=brightenHex(pal.cloud,.08);ctx.beginPath();ctx.moveTo(x-u*2,y);ctx.lineTo(x,y-u*(8+hh*7));ctx.lineTo(x+u*2,y);ctx.fill()}else if(style==='crystals'){ctx.shadowColor=pal.accent;ctx.shadowBlur=5;ctx.fillStyle=brightenHex(pal.accent,.18);ctx.beginPath();ctx.moveTo(x-u*2,y);ctx.lineTo(x,y-u*(9+hh*8));ctx.lineTo(x+u*2,y);ctx.fill();ctx.shadowBlur=0}}
  ctx.restore();
 }
 function drawWeather(W,H){if(!running||!planet)return;const w=planet.weather,t=performance.now()*.001,seed=planet.seed;ctx.save();if(w.includes('Pluie')){ctx.strokeStyle=brightenHex(planetPalette().ocean,.45);ctx.globalAlpha=.42;for(let i=0;i<38;i++){const x=(i*43+seed+t*150)%W,y=(i*67+seed+t*260)%H;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-2,y+8);ctx.stroke()}}else if(w.includes('Neige')||w.includes('Blizzard')){ctx.fillStyle='#eaf8ff';ctx.globalAlpha=.65;for(let i=0;i<34;i++){const x=(i*53+seed+Math.sin(t+i)*20)%W,y=(i*71+seed+t*28)%H;ctx.fillRect(x,y,i%5?1:2,i%5?1:2)}}else if(w.includes('Cendres')||w.includes('Braises')){ctx.fillStyle=w.includes('Braises')?planetPalette().accent:'#9b8b82';ctx.globalAlpha=.50;for(let i=0;i<30;i++){const x=(i*41+seed+t*20)%W,y=(i*83+seed+t*35)%H;ctx.fillRect(x,y,1+(i%7===0),1+(i%7===0))}}else if(w.includes('Spores')){ctx.fillStyle=planetPalette().accent;ctx.globalAlpha=.42;for(let i=0;i<26;i++){const x=(i*59+seed+Math.sin(t*.8+i)*28)%W,y=(i*47+seed-t*12+H*4)%H;ctx.fillRect(x,y,2,2)}}else if(w.includes('Orage')){if(((t*2)|0)%13===0){ctx.fillStyle='#ffffff';ctx.globalAlpha=.10;ctx.fillRect(0,0,W,H)}}ctx.restore()}
 function drawDropCarrier(W,H){
- if(!ship?.introTimer||ship.introTimer<=0)return;const t=1-ship.introTimer/ship.introDuration,pal=planetPalette();let x=W/2,y=H*.20,scale=1;if(t<.30){x=W*(1.18-t*.60);y=H*(.11+t*.22);scale=.62+t*.75}else if(t<.55){x=W/2;y=H*.22;scale=1.08}else{x=W/2;y=H*.17;scale=1.05-(t-.55)*.35}
- ctx.save();ctx.translate(x,y);if(mothershipReady){const w=180*scale,h=90*scale;ctx.drawImage(mothershipImg,-w/2,-h/2,w,h)}else{ctx.fillStyle='#1a222b';ctx.fillRect(-70*scale,-18*scale,140*scale,36*scale)}if(t>.36&&t<.78){ctx.globalAlpha=clamp((t-.36)*4,0,1);ctx.fillStyle='#071017';ctx.fillRect(-28*scale,10*scale,56*scale,25*scale);ctx.strokeStyle=pal.accent;ctx.strokeRect(-29*scale,9*scale,58*scale,27*scale)}ctx.restore();const cap=$("#dropCaption");if(cap){cap.classList.add('show');cap.textContent=t<.30?`APPROCHE • ${planet.theme}`:t<.52?'OUVERTURE DE LA SOUTE':t<.80?'LARGAGE DE LA FOREUSE':'VERROUILLAGE CAMÉRA'}}
+ if(!ship?.introTimer||ship.introTimer<=0)return;
+ const t=1-ship.introTimer/ship.introDuration,pal=planetPalette();
+ let x=W/2,y=H*.18,scale=1;
+ // Apparent size now follows distance: tiny far away, huge near the drop point.
+ if(t<.42){
+  const u=clamp(t/.42,0,1),e=1-Math.pow(1-u,3);
+  x=W*(1.23-.73*e);
+  y=H*(.045+.155*e-.025*Math.sin(e*Math.PI));
+  scale=.16+1.42*e;
+ }else if(t<.58){
+  const u=(t-.42)/.16;
+  x=W/2;y=H*(.20-.025*u);scale=1.58-.10*u;
+ }else{
+  const u=(t-.58)/.42;
+  x=W/2-W*.04*u;y=H*(.175-.09*u);scale=1.48-.62*u;
+ }
+ ctx.save();ctx.translate(x,y);
+ if(mothershipReady){const w=190*scale,h=95*scale;ctx.drawImage(mothershipImg,-w/2,-h/2,w,h)}
+ else{ctx.fillStyle='#1a222b';ctx.fillRect(-78*scale,-21*scale,156*scale,42*scale)}
+ if(t>.36&&t<.78){ctx.globalAlpha=clamp((t-.36)*4,0,1);ctx.fillStyle='#071017';ctx.fillRect(-29*scale,10*scale,58*scale,27*scale);ctx.strokeStyle=pal.accent;ctx.strokeRect(-30*scale,9*scale,60*scale,29*scale)}
+ ctx.restore();
+ const cap=$("#dropCaption");if(cap){cap.classList.add('show');cap.textContent=t<.30?`APPROCHE • ${planet.theme}`:t<.52?'OUVERTURE DE LA SOUTE':t<.80?'LARGAGE DE LA FOREUSE':'VERROUILLAGE CAMÉRA'}
+}
 
 function draw(){
  let W=canvas.width,H=canvas.height;ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,W,H);ctx.save();if(save.settings.shake&&shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.86}const pal=planetPalette();
  if(!ship){ctx.fillStyle="#09121c";ctx.fillRect(0,0,W,H);for(let i=0;i<36;i++){ctx.fillStyle=i%8?"#16314c":pal.accent;ctx.globalAlpha=i%8?.38:.75;ctx.fillRect((i*37+save.seed)%W,(i*59+save.seed)%H,i%7?1:2,i%7?1:2)}ctx.globalAlpha=1;ctx.restore();requestAnimationFrame(draw);return}
- const introP=ship.introTimer>0?1-ship.introTimer/ship.introDuration:1,introZoom=ship.introTimer>0?(2.55-1.55*clamp((introP-.42)/.58,0,1)):1,viewBlocks=viewBlockCount()*introZoom,cellPx=W/viewBlocks,centerX=W/2,centerY=H/2;
+ const introP=ship.introTimer>0?1-ship.introTimer/ship.introDuration:1,introU=clamp((introP-.42)/.58,0,1),introEase=introU*introU*(3-2*introU),introZoom=ship.introTimer>0?(5.2-4.2*introEase):1,viewBlocks=viewBlockCount()*introZoom,cellPx=W/viewBlocks,centerX=W/2,centerY=H/2;
  if(!cameraState.ready){cameraState.x=ship.x;cameraState.y=ship.y;cameraState.ready=true}const camErrX=ship.x-cameraState.x,camErrY=ship.y-cameraState.y,follow=clamp(.30+(ship.speed||0)/9000,.30,.78);cameraState.x+=camErrX*follow;cameraState.y+=camErrY*follow;const maxLag=Math.max(.08,1.05/cellPx);if(Math.abs(ship.x-cameraState.x)>maxLag)cameraState.x=ship.x-Math.sign(ship.x-cameraState.x)*maxLag;if(Math.abs(ship.y-cameraState.y)>maxLag)cameraState.y=ship.y-Math.sign(ship.y-cameraState.y)*maxLag;const camX=cameraState.x,camY=cameraState.y,shipPX=centerX+(ship.x-camX)*cellPx,shipPY=centerY+(ship.y-camY)*cellPx,cols=Math.ceil(W/cellPx)+4,rows=Math.ceil(H/cellPx)+4;
  drawSkyBackground(W,H,camY,pal);
  const surfaceY=centerY+(0-camY)*cellPx;if(surfaceY>-10&&surfaceY<H+10){ctx.fillStyle=pal.surface;ctx.fillRect(0,Math.floor(surfaceY)-6,W,6);ctx.fillStyle=brightenHex(pal.surface,.18);ctx.globalAlpha=.48;ctx.fillRect(0,Math.floor(surfaceY)-2,W,2);ctx.globalAlpha=1;drawSurfaceDecor(surfaceY,cellPx,camX,W)}
  const minX=Math.floor(camX-cols/2),maxX=Math.ceil(camX+cols/2),minY=Math.floor(camY-rows/2),maxY=Math.ceil(camY+rows/2);for(let wy=minY;wy<=maxY;wy++)for(let wx=minX;wx<=maxX;wx++){const px=centerX+(wx-camX)*cellPx,py=centerY+(wy-camY)*cellPx;if(wy<0||px<-cellPx||py<-cellPx||px>W+cellPx||py>H+cellPx)continue;const cell=getCell(wx,wy);if(!cell||cell.hp<0){if(wy>=0){ctx.fillStyle="#07111a";ctx.fillRect(Math.floor(px),Math.floor(py),Math.ceil(cellPx+.3),Math.ceil(cellPx+.3));ctx.fillStyle="#0d1d29";if(((wx+wy)&15)===0)ctx.fillRect(Math.floor(px+2),Math.floor(py+2),1,1)}continue}drawBlockTexture(cell,wx,wy,px,py,cellPx)}
  drawNests(centerX,centerY,camX,camY,cellPx);drawEnemies(centerX,centerY,camX,camY,cellPx);drawBonuses(centerX,centerY,camX,camY,cellPx);for(let pp of particles){pp.x+=pp.vx*.1;pp.y+=pp.vy*.1;pp.t-=.05;ctx.globalAlpha=Math.max(0,pp.t);ctx.fillStyle=pp.c;const ps=Math.max(1,Math.round(pp.size||1));ctx.fillRect(centerX+Math.floor((pp.x-camX)*cellPx),centerY+Math.floor((pp.y-camY)*cellPx),ps,ps)}particles=particles.filter(pp=>pp.t>0);ctx.globalAlpha=1;for(const f of floaters){f.y-=.018;f.t-=.018}floaters=floaters.filter(f=>f.t>0);
  if(planet.atmosphere){ctx.globalAlpha=.045+planet.instability*.025;ctx.fillStyle=planet.atmosphere;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}drawDropCarrier(W,H);
- if(!(ship.introTimer>0&&introP<.52)){ctx.save();ctx.translate(Math.round(shipPX),Math.round(shipPY));ctx.rotate(-(ship.angle||0));const size=shipRenderSize();drawShipComposite(ctx,size,ship.boost,1-ship.hp/ship.maxHp);const spin=(ship.time*(ship.contact?18:7))%(Math.PI*2),ds=size*.20;ctx.save();ctx.translate(0,size*.39);ctx.rotate(spin);ctx.strokeStyle=brightenHex(strongestModule("drill")?.color||"#aeb7bd",.20);ctx.lineWidth=2;for(let k=0;k<4;k++){ctx.rotate(Math.PI/2);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(ds,0);ctx.stroke()}ctx.restore();if(ship.contact){ctx.fillStyle=((ship.time*24)|0)&1?'#ffd96a':'#f08a2f';ctx.fillRect(-3,size*.46,3,3);ctx.fillRect(3,size*.47,2,2)}ctx.restore()}
+ if(!(ship.introTimer>0&&introP<.52)){ctx.save();ctx.translate(Math.round(shipPX),Math.round(shipPY));ctx.rotate(-(ship.angle||0));const distanceScale=ship.introTimer>0?clamp(1/introZoom,.16,1):1,size=shipRenderSize()*distanceScale;drawShipComposite(ctx,size,ship.boost,1-ship.hp/ship.maxHp);const spin=(ship.time*(ship.contact?18:7))%(Math.PI*2),ds=size*.20;ctx.save();ctx.translate(0,size*.39);ctx.rotate(spin);ctx.strokeStyle=brightenHex(strongestModule("drill")?.color||"#aeb7bd",.20);ctx.lineWidth=2;for(let k=0;k<4;k++){ctx.rotate(Math.PI/2);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(ds,0);ctx.stroke()}ctx.restore();if(ship.contact){ctx.fillStyle=((ship.time*24)|0)&1?'#ffd96a':'#f08a2f';ctx.fillRect(-3,size*.46,3,3);ctx.fillRect(3,size*.47,2,2)}ctx.restore()}
  for(const f of floaters){ctx.save();ctx.globalAlpha=clamp(.55+f.t*.45,.72,1);ctx.fillStyle=f.c;ctx.strokeStyle="#111";ctx.lineWidth=2;ctx.font=`900 ${f.big?14:10}px Arial`;ctx.textAlign="center";const fx=Math.round(centerX+(f.x-camX)*cellPx),fy=Math.round(centerY+(f.y-camY)*cellPx);ctx.strokeText(f.text,fx,fy);ctx.fillText(f.text,fx,fy);ctx.restore()}
  const st=ship.buildStats||shipStats(),dep=clamp(Math.max(0,ship.y)/planet.radius,0,1),lr=Math.max(55,st.lightRadius*cellPx);ctx.save();const darkness=clamp(.10+dep*.50,0,.62),lg=ctx.createRadialGradient(shipPX,shipPY,lr*.20,shipPX,shipPY,lr);lg.addColorStop(0,'rgba(0,0,0,0)');lg.addColorStop(.58,'rgba(0,0,0,'+(darkness*.16)+')');lg.addColorStop(1,'rgba(0,0,0,'+darkness+')');ctx.fillStyle=lg;ctx.fillRect(0,0,W,H);ctx.restore();if(ship.impactTimer>0){ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=.55;const rr=shipRenderSize()*.62+Math.sin(ship.time*18)*3,fg=ctx.createRadialGradient(shipPX,shipPY,4,shipPX,shipPY,rr);fg.addColorStop(0,'#fff3a0');fg.addColorStop(.35,'#ff9a30');fg.addColorStop(1,'rgba(255,70,10,0)');ctx.fillStyle=fg;ctx.fillRect(shipPX-rr,shipPY-rr,rr*2,rr*2);ctx.restore()}
  drawWeather(W,H);ctx.restore();requestAnimationFrame(draw);
@@ -856,7 +885,7 @@ function paintHangarShipPreview(){const c=$("#hangarShipPreview");if(!c)return;c
 function renderPreflight(){const s=shipStats(),c=layoutCounts(),ch=chassis(),dr=strongestModule("drill"),en=strongestModule("engine"),re=strongestModule("reactor");$("#preflight").innerHTML=`<div class="preflightBox"><h4>PREPARATION DE LA DESCENTE</h4><div class="cardx preflightHero"><canvas id="preflightShip" class="preflightShip" width="64" height="64"></canvas><div><b>${ch.name} ${ch.grid}x${ch.grid}</b><div class="small text-secondary">${planet.name}  •  ${planet.biome}</div><div class="planetPills mt-2"><span class="planetPill">Ø ${fmt(planet.diameterKm)} km</span><span class="planetPill">Forage ${s.drill.toFixed(1)}</span><span class="planetPill">Énergie ${Math.round(s.energy)}</span><span class="planetPill">Vue ${viewBlockCount()} blocs</span><span class="planetPill">Turn ${Math.round(s.turnSpeed)}°/s</span></div></div></div><div class="cardx"><b>BUILD EQUIPE</b><div class="small text-secondary mt-1">${dr?dr.name+' MK'+dr.level:'Aucune foreuse'}  •  ${en?en.name+' MK'+en.level:'Aucun moteur'}  •  ${re?re.name+' MK'+re.level:'Aucun reacteur'}</div><div class="small mt-2">${buildSummary()}</div><div class="small mt-2">Compétences : ${Object.values(save.skillLevels||{}).filter(v=>v>0).length} débloquées  •  ${save.skillPoints} PT disponibles</div></div><button id="launchRun" class="launchBtn">LANCER LA DESCENTE</button></div>`;paintPreflightShip();$("#launchRun").onpointerup=e=>{e.preventDefault();resetRun()}}
 function setRunUI(active){$("#app").classList.toggle('runMode',active);$("#preflight").classList.remove('show');$("#runResult").classList.remove('show');$("#runControls").classList.toggle('show',active);$("#depthMeter").style.display=active?'block':'none';$("#layerTag").style.display=active?'block':'none';document.querySelector('.bottom').style.display=active?'none':'grid'}
 function showGamePrep(){running=false;setRunUI(false);document.querySelectorAll('.screen').forEach(x=>x.classList.remove('show'));document.querySelectorAll('.navb').forEach(x=>x.classList.toggle('active',x.dataset.screen==='game'));renderPreflight();$("#preflight").classList.add('show');$("#game").style.display='block';}
-function showRunResult(r){setRunUI(false);document.querySelector('.bottom').style.display='none';const record=r.depth>=save.stats.bestDepth-1;$("#runResult").innerHTML=`<div class="resultBox cardx"><h3>${r.success?'NOYAU TRAVERSÉ':r.aborted?'DESCENTE TERMINÉE':'FOREUSE DÉTRUITE'}</h3>${record?'<div class="planetThemeBadge">NOUVEAU RECORD</div>':''}<div class="resultGrid mt-2"><div><small>Crédits</small><b>+${fmt(r.gain)}</b></div><div><small>Profondeur</small><b>${fmt(r.depth)} m</b></div><div><small>Blocs</small><b>${fmt(r.blocks)}</b></div><div><small>Énergie</small><b>${r.energy}%</b></div><div><small>Combo max</small><b>x${fmt(save.stats.maxCombo||0)}</b></div><div><small>Bonus</small><b>${fmt(save.stats.bonuses||0)}</b></div></div><button id="replayRun" class="bigbtn mt-3">REJOUER</button><button id="backWorkshop" class="btnx mt-2">RETOUR ATELIER</button></div>`;$("#runResult").classList.add('show');$("#replayRun").onpointerup=e=>{e.preventDefault();resetRun()};$("#backWorkshop").onpointerup=e=>{e.preventDefault();showGamePrep()}}function variantStatsText(id){const v=moduleVariants[id],s=v.stats||{},sc=moduleScale(id),a=[];if(s.drill)a.push("Forage +"+(s.drill*sc).toFixed(1));if(s.speed)a.push("Vitesse +"+Math.round(s.speed*sc));if(s.energy)a.push("Énergie +"+Math.round(s.energy*sc));if(s.regen)a.push("Prod. +"+(s.regen*sc).toFixed(1)+"/s");if(s.hp)a.push("Coque +"+Math.round(s.hp*sc));if(s.refine)a.push("Raff. +"+Math.round(s.refine*sc*100)+"%");if(s.scan)a.push("Scan +"+Math.round(s.scan*sc*100)+"%");if(s.cooling)a.push("Froid +"+Math.round(s.cooling*sc*100)+"%");if(s.boostPower)a.push("Boost +"+Math.round(s.boostPower*sc*100)+"%");if(s.boostDuration)a.push("Boost +"+(s.boostDuration*sc).toFixed(1)+"s");if(s.repair)a.push("Répare "+(s.repair*sc).toFixed(2)+"/s");if(s.stability)a.push("Stabilite +"+Math.round(s.stability*sc*100)+"%");return a.slice(0,3).join("  •  ")||"Module utilitaire"}
+function showRunResult(r){setRunUI(false);document.querySelector('.bottom').style.display='none';const record=r.depth>=save.stats.bestDepth-1;$("#runResult").innerHTML=`<div class="resultBox cardx"><h3>${r.success?'NOYAU TRAVERSÉ':r.aborted?'DESCENTE TERMINÉE':'FOREUSE DÉTRUITE'}</h3>${record?'<div class="planetThemeBadge">NOUVEAU RECORD</div>':''}<div class="resultGrid mt-2"><div><small>Crédits</small><b>+${fmt(r.gain)}</b></div><div><small>Profondeur</small><b>${fmt(r.depth)} m</b></div><div><small>Blocs</small><b>${fmt(r.blocks)}</b></div><div><small>Énergie</small><b>${r.energy}%</b></div><div><small>Combo max</small><b>x${fmt(save.stats.maxCombo||0)}</b></div><div><small>Bonus</small><b>${fmt(save.stats.bonuses||0)}</b></div></div><button id="replayRun" class="bigbtn mt-3">REJOUER</button><button id="backWorkshop" class="btnx mt-2">RETOUR ATELIER</button></div>`;$("#runResult").classList.add('show');$("#replayRun").onpointerup=e=>{e.preventDefault();resetRun();notify("NOUVEAU FORAGE • TERRAIN RÉGÉNÉRÉ")};$("#backWorkshop").onpointerup=e=>{e.preventDefault();showGamePrep()}}function variantStatsText(id){const v=moduleVariants[id],s=v.stats||{},sc=moduleScale(id),a=[];if(s.drill)a.push("Forage +"+(s.drill*sc).toFixed(1));if(s.speed)a.push("Vitesse +"+Math.round(s.speed*sc));if(s.energy)a.push("Énergie +"+Math.round(s.energy*sc));if(s.regen)a.push("Prod. +"+(s.regen*sc).toFixed(1)+"/s");if(s.hp)a.push("Coque +"+Math.round(s.hp*sc));if(s.refine)a.push("Raff. +"+Math.round(s.refine*sc*100)+"%");if(s.scan)a.push("Scan +"+Math.round(s.scan*sc*100)+"%");if(s.cooling)a.push("Froid +"+Math.round(s.cooling*sc*100)+"%");if(s.boostPower)a.push("Boost +"+Math.round(s.boostPower*sc*100)+"%");if(s.boostDuration)a.push("Boost +"+(s.boostDuration*sc).toFixed(1)+"s");if(s.repair)a.push("Répare "+(s.repair*sc).toFixed(2)+"/s");if(s.stability)a.push("Stabilite +"+Math.round(s.stability*sc*100)+"%");return a.slice(0,3).join("  •  ")||"Module utilitaire"}
 function renderLayoutCell(cell,i){const p=placementAt(i),filled=!!p;return `<button class="slot ${filled?'hasModule':'empty'}" data-slot="${i}"><span class="slotDot">${filled?'':'·'}</span></button>`}
 function renderPlacedModule(p,g,cell){
  const d=moduleDims(p.v,p.rot),x=p.index%g,y=Math.floor(p.index/g),gap=3,w=d.w*cell+(d.w-1)*gap,h=d.h*cell+(d.h-1)*gap,icon=Math.max(26,Math.min(72,Math.min(w,h)-8)),name=p.v.name.replace('Foreuse ','').replace('Reacteur ','').replace('Moteur ','');
@@ -905,7 +934,7 @@ function renderStats(){
  $("#stats").innerHTML=`<h4>STATISTIQUES</h4><div class="cardx goodx"><b>Niveau ${save.level}</b><div class="small text-secondary">${fmt(save.xp)} / ${fmt(xpNeed())} XP  •  ${save.skillPoints} point(s) de compétence</div><div class="bar mt-2"><i style="width:${save.xp/xpNeed()*100}%"></i></div></div><div class="cardx quest"><b>Mission : ${activeQuest[0]}</b><div class="small text-secondary">${activeQuest[2]}  •  ${fmt(activeQuest[3])} CR</div></div>${fold('VUE D’ENSEMBLE',overview,true)}${fold('MINAGE',mining)}${fold('FOREUSE',machine)}${fold('EXPLORATION / COMBAT',explore)}<div class="cardx"><div class="small text-secondary">Seed actuelle : ${save.seed}</div><button id="wipe" class="btnx mt-2">EFFACER LA SAUVEGARDE</button></div>`;$("#wipe").onpointerup=e=>{e.preventDefault();if(confirm("Supprimer toute la progression ?")){localStorage.removeItem("odk_save");location.reload()}};
 }
 function renderSettings(){
- $("#settings").innerHTML=`<h4>REGLAGES</h4><div class="cardx"><b>Mobile</b><div class="small text-secondary mb-2">Optimisations tactiles et visuelles.</div>${[["particles","Particules"],["haptics","Vibrations"],["sound","Sons"],["lowPower","Mode economie"]].map(x=>`<div class="switchx py-2"><span>${x[1]}</span><button class="btnx setting" data-k="${x[0]}">${save.settings[x[0]]?"ON":"OFF"}</button></div>`).join("")}</div><div class="cardx"><b>Console de test</b><p class="small text-secondary">Code developpeur pour tester le contenu sans grinder.</p><input id="cheatInput" type="text" autocapitalize="off" placeholder="Code developpeur"><button id="cheatGo" class="btnx mt-2">VALIDER</button><div id="devPanel" class="mt-2">${save.settings.dev?devHTML():""}</div></div><div class="cardx"><b>Overdrill Kill V1.1</b><div class="small text-secondary">Mobile-first  sauvegarde locale automatique</div></div>`;
+ $("#settings").innerHTML=`<h4>REGLAGES</h4><div class="cardx"><b>Mobile</b><div class="small text-secondary mb-2">Optimisations tactiles et visuelles.</div>${[["particles","Particules"],["haptics","Vibrations"],["sound","Sons"],["lowPower","Mode economie"]].map(x=>`<div class="switchx py-2"><span>${x[1]}</span><button class="btnx setting" data-k="${x[0]}">${save.settings[x[0]]?"ON":"OFF"}</button></div>`).join("")}</div><div class="cardx"><b>Console de test</b><p class="small text-secondary">Code developpeur pour tester le contenu sans grinder.</p><input id="cheatInput" type="text" autocapitalize="off" placeholder="Code developpeur"><button id="cheatGo" class="btnx mt-2">VALIDER</button><div id="devPanel" class="mt-2">${save.settings.dev?devHTML():""}</div></div><div class="cardx"><b>Overdrill Kill V1.1.1</b><div class="small text-secondary">Mobile-first  sauvegarde locale automatique</div></div>`;
  document.querySelectorAll(".setting").forEach(b=>b.onpointerup=(ev)=>{ev.preventDefault();let k=b.dataset.k;save.settings[k]=!save.settings[k];persist();if(k==="lowPower")resize();renderSettings()});
  $("#cheatGo").onpointerup=(ev)=>{ev.preventDefault();if($("#cheatInput").value.trim().toUpperCase()==="COREBREAKER"){save.settings.dev=true;persist();notify("MODE TEST ACTIVE");renderSettings()}else notify("CODE INVALIDE")};bindDev()
 }
