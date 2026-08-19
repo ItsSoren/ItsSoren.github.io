@@ -328,30 +328,46 @@ function rotate16(src,r){
  if(r===0)return src;
  const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.translate(8,8);x.rotate(r*Math.PI/2);x.drawImage(src,-8,-8);return c;
 }
-function getAtlasTile(col,row){
- const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(atlasCanvas,col*16,row*16,16,16,0,0,16,16);return c;
+function getAtlasTile(col,row,inset=0){
+ const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+ const sx=col*16+inset, sy=row*16+inset, sw=16-inset*2, sh=16-inset*2;
+ x.drawImage(atlasCanvas,sx,sy,sw,sh,0,0,16,16);return c;
+}
+function softenBaseTile(src){
+ const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(src,0,0);
+ const im=x.getImageData(0,0,16,16),d=im.data;
+ for(let i=0;i<d.length;i+=4){
+  const lum=(d[i]+d[i+1]+d[i+2])/3;
+  const tgt=96+(lum-96)*0.52;
+  d[i]=Math.max(38,Math.min(210,tgt + (d[i]-lum)*0.35));
+  d[i+1]=Math.max(38,Math.min(210,tgt + (d[i+1]-lum)*0.35));
+  d[i+2]=Math.max(38,Math.min(210,tgt + (d[i+2]-lum)*0.35));
+  d[i+3]=255;
+ }
+ x.putImageData(im,0,0);
+ return c;
 }
 function tintBaseTile(idx,geoId){
- const c=getAtlasTile(idx,0),x=c.getContext('2d');
+ const c=softenBaseTile(getAtlasTile(idx,0,1)),x=c.getContext('2d');
  const im=x.getImageData(0,0,16,16),d=im.data;
- const tint={regolith:[118,98,74,.16],sediment:[104,100,92,.12],basalt:[78,90,102,.10],granite:[90,90,104,.09],deep:[52,58,72,.14],compressed:[76,62,90,.16],mantle:[122,74,45,.18],core:[190,120,45,.20]}[geoId];
+ const tint={regolith:[118,98,74,.14],sediment:[104,100,92,.08],basalt:[78,90,102,.08],granite:[90,90,104,.07],deep:[52,58,72,.12],compressed:[76,62,90,.14],mantle:[122,74,45,.16],core:[190,120,45,.18]}[geoId];
  if(tint){const [tr,tg,tb,a]=tint;for(let i=0;i<d.length;i+=4){d[i]=Math.min(255,d[i]*(1-a)+tr*a);d[i+1]=Math.min(255,d[i+1]*(1-a)+tg*a);d[i+2]=Math.min(255,d[i+2]*(1-a)+tb*a);}}
  x.putImageData(im,0,0);return c;
 }
 function tintOreOverlay(index,color){
- const src=getAtlasTile(index,1), c=document.createElement('canvas'); c.width=c.height=16; const x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(src,0,0);
+ const src=getAtlasTile(index,1,1), c=document.createElement('canvas'); c.width=c.height=16; const x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(src,0,0);
  const im=x.getImageData(0,0,16,16),d=im.data,[cr,cg,cb]=hexRgb(color);
  for(let i=0;i<d.length;i+=4){
    const lum=(d[i]+d[i+1]+d[i+2])/3;
-   const mask=Math.max(0,Math.min(1,(lum-88)/145));
-   if(mask<.08){d[i+3]=0; continue;}
-   const shade=.55+lum/330;
-   d[i]=Math.min(255,cr*shade); d[i+1]=Math.min(255,cg*shade); d[i+2]=Math.min(255,cb*shade); d[i+3]=Math.min(255,80+mask*220);
+   const mask=Math.max(0,Math.min(1,(lum-98)/130));
+   if(mask<.10){d[i+3]=0; continue;}
+   const shade=.62+lum/360;
+   d[i]=Math.min(255,cr*shade); d[i+1]=Math.min(255,cg*shade); d[i+2]=Math.min(255,cb*shade); d[i+3]=Math.min(255,50+mask*170);
  }
  x.putImageData(im,0,0); return c;
 }
 function tintCrystalSource(shape,color){
- const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(atlasCanvas,shape*16,32,16,16,0,0,16,16);
+ const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(atlasCanvas,shape*16+1,32+1,14,14,0,0,16,16);
  const im=x.getImageData(0,0,16,16),d=im.data,[cr,cg,cb]=hexRgb(color);
  for(let i=0;i<d.length;i+=4){if(d[i+3]<8)continue;let lum=(d[i]+d[i+1]+d[i+2])/3/255,shade=.42+lum*.92;d[i]=Math.min(255,cr*shade);d[i+1]=Math.min(255,cg*shade);d[i+2]=Math.min(255,cb*shade)}x.putImageData(im,0,0);return c;
 }
@@ -359,10 +375,15 @@ function scaledCanvas(src,size){const c=document.createElement('canvas');c.width
 function rebuildSpriteCache(){
  if(!atlasReady)return;
  spriteCache={base:[],base10:[],ore:{},ore10:{},crystal:[],crystal10:[],crack:[],crack10:[]};
- for(let i=0;i<12;i++){spriteCache.base[i]=[0,1,2,3].map(r=>rotate16(getAtlasTile(i,0),r));spriteCache.base10[i]=spriteCache.base[i].map(x=>scaledCanvas(x,10));}
+ const geoCycle=['regolith','sediment','sediment','granite','granite','granite','basalt','deep','deep','compressed','core','mantle'];
+ for(let i=0;i<12;i++){
+   const raw=tintBaseTile(i,geoCycle[i]);
+   spriteCache.base[i]=[0,1,2,3].map(r=>rotate16(raw,r));
+   spriteCache.base10[i]=spriteCache.base[i].map(x=>scaledCanvas(x,10));
+ }
  atlasOrder.forEach((id,i)=>{const m=mineralById[id]||{c:'#888'},raw=tintOreOverlay(i,m.c);spriteCache.ore[id]=[0,1,2,3].map(r=>rotate16(raw,r));spriteCache.ore10[id]=spriteCache.ore[id].map(x=>scaledCanvas(x,10));});
  const cp=planetCrystalPalette();for(let s=0;s<8;s++){const raw=tintCrystalSource(s,cp[s]);spriteCache.crystal[s]=[0,1,2,3].map(r=>rotate16(raw,r));spriteCache.crystal10[s]=spriteCache.crystal[s].map(x=>scaledCanvas(x,10));}
- for(let i=0;i<4;i++){spriteCache.crack[i]=getAtlasTile(8+i,2);spriteCache.crack10[i]=scaledCanvas(spriteCache.crack[i],10);}
+ for(let i=0;i<4;i++){spriteCache.crack[i]=getAtlasTile(8+i,2,1);spriteCache.crack10[i]=scaledCanvas(spriteCache.crack[i],10);}
  paintCodexSprites();
 }
 atlasImg.onload=()=>{atlasCanvas=document.createElement('canvas');atlasCanvas.width=256;atlasCanvas.height=48;atlasCtx=atlasCanvas.getContext('2d');atlasCtx.imageSmoothingEnabled=false;atlasCtx.drawImage(atlasImg,0,0);atlasReady=true;rebuildSpriteCache();};
@@ -392,7 +413,7 @@ function drawBlockTexture(cell,wx,wy,px,py,s){
  if(dmg>.18){const ci=dmg>.78?3:dmg>.58?2:dmg>.34?1:0;const crack=s===10?spriteCache.crack10[ci]:spriteCache.crack[ci];if(crack)ctx.drawImage(crack,Math.floor(px),Math.floor(py),s,s)}
  if(zone.startsWith('barrier')){ctx.fillStyle='rgba(255,166,70,.08)';ctx.fillRect(px,py,s,s)}
  if(zone==='core'){ctx.fillStyle='rgba(255,220,80,.09)';ctx.fillRect(px,py,s,s)}
- if(cell.hazard&&enemyAtlasReady){ctx.globalAlpha=.62;ctx.drawImage(enemyAtlasImg,(cell.hazardType||0)*32,0,32,32,px+1,py+1,s-2,s-2);ctx.globalAlpha=1}
+ if(cell.hazard&&enemyAtlasReady){ctx.globalAlpha=.50;ctx.drawImage(enemyAtlasImg,(cell.hazardType||0)*32,0,32,32,Math.floor(px+1),Math.floor(py+1),Math.max(1,s-2),Math.max(1,s-2));ctx.globalAlpha=1}
 }
 
 
@@ -472,12 +493,15 @@ function damageCell(wx,wy,power,dt){
  return {hit:1,destroyed};
 }
 function mineAtTip(tipX,tipY,power,dt,impact){
- const rad=impact?0.58:0.34;
- let hit=0,destroyed=0;
- for(let yy=Math.floor(tipY-rad); yy<=Math.floor(tipY+rad); yy++)for(let xx=Math.floor(tipX-rad); xx<=Math.floor(tipX+rad); xx++){
-   const dx=(xx+.5-tipX), dy=(yy+.5-tipY), dist=dx*dx+dy*dy;
-   if(dist>rad*rad)continue;
-   const res=damageCell(xx,yy,power*(1-Math.min(.48,dist*.9)),dt);
+ const targets=[
+  [Math.floor(tipX),Math.floor(tipY),1],
+  [Math.floor(tipX+(tipX%1>.5?.18:-.18)),Math.floor(tipY),.42],
+  [Math.floor(tipX),Math.floor(tipY+(tipY%1>.5?.18:-.18)),.42]
+ ];
+ let hit=0,destroyed=0,seen={};
+ for(const [tx,ty,mul] of targets){
+   const key=tx+','+ty; if(seen[key])continue; seen[key]=1;
+   const res=damageCell(tx,ty,power*mul,dt);
    hit+=res.hit; destroyed+=res.destroyed;
  }
  return {hit,destroyed};
@@ -519,11 +543,11 @@ function update(dt){
  let steer=pointer.down?(pointer.x-canvas.clientWidth/2)/(canvas.clientWidth/2):0;ship.vx+=steer*68*dt;ship.vx*=Math.pow(.9,dt*10);
  let target=s.speed*(impact?1.38:1)*(has("heat")?(1+(1-ship.en/ship.maxEn)*.20):1);ship.vy+=(target-ship.vy)*dt*.92;ship.speed=Math.hypot(ship.vx,ship.vy);
  const len=Math.hypot(ship.vx,ship.vy),dirX=len>.25?ship.vx/len:0,dirY=len>.25?ship.vy/len:1;ship.angle=Math.atan2(dirY,dirX)-Math.PI/2;
- const dx=ship.vx*dt/9,dy=ship.vy*dt/9,tipDist=1.30,tipX=ship.x+dirX*tipDist,tipY=ship.y+dirY*tipDist;
+ const dx=ship.vx*dt/9,dy=ship.vy*dt/9,tipDist=1.04,tipX=ship.x+dirX*tipDist,tipY=ship.y+dirY*tipDist;
  let pow=s.drill*(impact?1.65:1)*(has("compress")?1+depth*.30:1)*(has("last")&&ship.hp<ship.maxHp*.2?1.55:1);
- let mined=mineAtTip(tipX,tipY,pow*.90,dt,impact);ship.contact=mined.hit>0;updateEnemies(dt,tipX,tipY,pow);
- let moveScale=mined.hit?(mined.destroyed?.62:(impact?.24:.045)):1;ship.x+=dx*moveScale;ship.y+=dy*moveScale;
- if(mined.hit&&!mined.destroyed){ship.vy*=Math.pow(.88,dt*60);ship.vx*=Math.pow(.92,dt*60)}
+ let mined=mineAtTip(tipX,tipY,pow*.82,dt,impact);ship.contact=mined.hit>0;updateEnemies(dt,tipX,tipY,pow);
+ let moveScale=mined.hit?(mined.destroyed?(impact?.18:.12):(impact?.03:.008)):1;ship.x+=dx*moveScale;ship.y+=dy*moveScale;
+ if(mined.hit&&!mined.destroyed){ship.vy*=Math.pow(.76,dt*60);ship.vx*=Math.pow(.86,dt*60)}
  ship.en-=dt*(1.95+mined.hit*.10)/s.cool;ship.en+=s.regen*dt;ship.en=clamp(ship.en,0,ship.maxEn);
  if(ship.en<=.1){ship.hp-=7*dt;save.stats.damage+=7*dt}
  if(mined.hit){let dmg=Math.max(0,mined.hit-1)*.042*planet.danger*dt;ship.hp-=dmg;save.stats.damage+=dmg;shake=Math.min(2.7,shake+mined.hit*.015)}
@@ -548,13 +572,14 @@ function draw(){
  const cellPx=10, camX=Math.floor(ship.x), camY=Math.floor(ship.y)-10, centerX=Math.floor(W/2), centerY=Math.floor(H*0.38), cols=Math.ceil(W/cellPx)+8, rows=Math.ceil(H/cellPx)+8;
  ctx.fillStyle=pal.sky;ctx.fillRect(0,0,W,H);
  if(ship.y<200){for(let i=0;i<30;i++){ctx.fillStyle=i%8?"#1f3f5e":pal.accent;ctx.fillRect((i*37+save.seed)%W,(i*53+save.seed)%Math.floor(H*0.35),i%5?1:2,i%5?1:2)}}
- ctx.fillStyle="#4d3d2b";ctx.fillRect(0,centerY-6,W,6);ctx.fillStyle="#7b5e3b";ctx.fillRect(0,centerY-2,W,2);
+ const surfaceY=centerY+(0-camY)*cellPx;
+ if(surfaceY>-8&&surfaceY<H+8){ctx.fillStyle="#4d3d2b";ctx.fillRect(0,Math.floor(surfaceY)-6,W,6);ctx.fillStyle="#7b5e3b";ctx.fillRect(0,Math.floor(surfaceY)-2,W,2);}
  for(let sy=-3;sy<rows;sy++)for(let sx=-4;sx<cols;sx++){
   let wx=Math.floor(camX+(sx-cols/2)), wy=Math.floor(camY+(sy-rows*0.34));
   let px=centerX+(wx-camX)*cellPx, py=centerY+(wy-camY)*cellPx;
   if(wy<0||px<-cellPx||py<-cellPx||px>W+cellPx||py>H+cellPx)continue;
   let cell=getCell(wx,wy);
-  if(!cell||cell.hp<0){if(wy>=0){ctx.fillStyle="#06111a";ctx.fillRect(px,py,cellPx,cellPx);ctx.fillStyle="#0f2430";if(((wx+wy)&3)===0)ctx.fillRect(px+2,py+2,1,1)}continue;}
+  if(!cell||cell.hp<0){if(wy>=0){ctx.fillStyle="#07111a";ctx.fillRect(px,py,cellPx,cellPx);ctx.fillStyle="#0d1d29";if(((wx+wy)&7)===0)ctx.fillRect(px+2,py+2,1,1)}continue;}
   drawBlockTexture(cell,wx,wy,px,py,cellPx);
  }
  drawEnemies(centerX,centerY,camX,camY,cellPx);
