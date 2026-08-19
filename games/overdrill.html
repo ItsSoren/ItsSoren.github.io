@@ -47,7 +47,7 @@ main{position:relative;min-height:0;background:#1b1e20}canvas{width:100%;height:
 .primaryStats{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.primaryStat{background:#24292d;border:2px solid #101214;box-shadow:inset 2px 2px #454c52;padding:7px}.primaryStat small{display:block;font-size:8px;color:#aab0b3}.primaryStat b{display:block;font-size:18px;color:var(--lime);line-height:1.1}.primaryStat em{font-style:normal;font-size:7px;color:#7f888d}.advanced summary{cursor:pointer;color:var(--orange);font-size:10px;font-weight:900;padding:5px 0}
 .oreTile{width:42px;height:42px;position:relative;border:3px solid #0b0d0e;background:#4b4540;box-shadow:inset 2px 2px #746b61,inset -2px -2px #292621;flex:none}.oreTile:before,.oreTile:after,.oreTile i{content:"";position:absolute;width:7px;height:7px;background:var(--ore,#aaa)}.oreTile:before{left:7px;top:8px}.oreTile:after{right:7px;bottom:7px}.oreTile i:nth-child(1){left:20px;top:14px}.oreTile i:nth-child(2){left:10px;bottom:7px;width:5px;height:5px}.oreTile i:nth-child(3){right:8px;top:6px;width:4px;height:4px}.oreTile.unknown{filter:grayscale(1);opacity:.35}.ore-stone{--ore:#707780}.ore-iron{--ore:#b6bbc0}.ore-copper{--ore:#ce7747}.ore-coal{--ore:#22272b}.ore-quartz{--ore:#e1d3ff}.ore-titanium{--ore:#a9c4d3}.ore-cobalt{--ore:#4778db}.ore-uranium{--ore:#91e34b}.ore-iridium{--ore:#bd7dff}.ore-xenite{--ore:#59f4e3}.ore-core{--ore:#ffd45d}
 .planetPreview{width:66px;height:66px;flex:none;border:4px solid #0b0d0e;background:#584a3c;box-shadow:inset 4px 4px #806c54,inset -4px -4px #31291f;position:relative;background-image:linear-gradient(90deg,#ffffff0b 25%,transparent 25% 75%,#00000018 75%),linear-gradient(#ffffff08 25%,transparent 25% 75%,#00000016 75%);background-size:12px 12px}.planetPreview i{position:absolute;background:var(--orange);width:9px;height:9px}.planetPreview i:nth-child(1){left:9px;top:13px}.planetPreview i:nth-child(2){right:11px;top:28px;width:13px}.planetPreview i:nth-child(3){left:25px;bottom:8px;width:7px;height:13px}.planetPreview.type-volcanique{background-color:#552c25}.planetPreview.type-cristalline{background-color:#394765}.planetPreview.type-metallique{background-color:#4a555b}.planetPreview.type-glacee{background-color:#477087}.planetPreview.type-irradiee{background-color:#40503d}
-.spriteWrap{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:none}.spriteWrap.big{width:34px;height:34px}.spriteSvg{width:100%;height:100%;display:block;shape-rendering:crispEdges;image-rendering:pixelated}.eraseBadge{width:100%;height:100%;display:grid;place-items:center;background:#4a2d2d;border:2px solid #0b0d0e;color:#ffc3b8;font-weight:900}.slot .spriteWrap{width:22px;height:22px}.slot .spriteWrap.big{width:22px;height:22px}
+.codexSprite{width:44px;height:44px;image-rendering:pixelated;background:#111315;border:3px solid #08090a;flex:none}.codexSprite.unknown{filter:grayscale(1);opacity:.32}.crystalBadge{font-size:8px;color:#aeb4b7}.spriteWrap{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:none}.spriteWrap.big{width:34px;height:34px}.spriteSvg{width:100%;height:100%;display:block;shape-rendering:crispEdges;image-rendering:pixelated}.eraseBadge{width:100%;height:100%;display:grid;place-items:center;background:#4a2d2d;border:2px solid #0b0d0e;color:#ffc3b8;font-weight:900}.slot .spriteWrap{width:22px;height:22px}.slot .spriteWrap.big{width:22px;height:22px}
 
 
 @media(max-width:390px){.brand{font-size:14px}.pill{font-size:7px}.pill strong{font-size:10px}.navb{font-size:7px;padding:8px 2px;min-height:46px}.screen{padding:5px}.logo{font-size:25px}.cardx{padding:6px}.layoutGrid{gap:4px}.slot{min-height:54px}}
@@ -93,25 +93,32 @@ document.addEventListener("pointerup",e=>{if(e.target.closest("button"))AudioBus
 const $=s=>document.querySelector(s), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), fmt=n=>n>=1e9?(n/1e9).toFixed(2)+"B":n>=1e6?(n/1e6).toFixed(2)+"M":n>=1e3?(n/1e3).toFixed(1)+"k":Math.floor(n).toLocaleString("fr-FR");
 function rng(seed){let s=seed|0;return()=>((s=Math.imul(48271,s)%2147483647)&2147483647)/2147483647}
 const minerals=[
- {id:"stone",name:"Roche",c:"#596273",v:1,hard:1},
- {id:"iron",name:"Fer",c:"#a6a6a6",v:4,hard:1.2},
- {id:"copper",name:"Cuivre",c:"#c77a45",v:7,hard:1.3},
- {id:"coal",name:"Carbone",c:"#333b47",v:9,hard:1.2},
- {id:"quartz",name:"Quartz",c:"#e5d9ff",v:18,hard:1.6},
- {id:"titanium",name:"Titane",c:"#9db7c8",v:34,hard:2.1},
- {id:"cobalt",name:"Cobalt",c:"#4079db",v:55,hard:2.4},
- {id:"uranium",name:"Uranium",c:"#8cff55",v:95,hard:3},
- {id:"iridium",name:"Iridium",c:"#b87cff",v:180,hard:3.7},
- {id:"xenite",name:"Xenite",c:"#55fff1",v:420,hard:4.8},
- {id:"core",name:"Fragment de noyau",c:"#ffd75c",v:1100,hard:7}
+ {id:"stone",name:"Roche",c:"#81878c",v:1,hard:1.00},
+ {id:"iron",name:"Fer",c:"#c8cdd1",v:4,hard:1.18},
+ {id:"titanium",name:"Titane",c:"#a8c6d7",v:14,hard:1.55},
+ {id:"aluminium",name:"Aluminium",c:"#d9e0e5",v:9,hard:1.30},
+ {id:"copper",name:"Cuivre",c:"#d47a43",v:7,hard:1.25},
+ {id:"lead",name:"Plomb",c:"#8290a2",v:20,hard:1.70},
+ {id:"nickel",name:"Nickel",c:"#c4d5c6",v:28,hard:1.82},
+ {id:"chrome",name:"Chrome",c:"#e0e8ef",v:42,hard:2.05},
+ {id:"cobalt",name:"Cobalt",c:"#4e83e8",v:58,hard:2.35},
+ {id:"silver",name:"Argent",c:"#e8edf1",v:92,hard:2.15},
+ {id:"gold",name:"Or",c:"#f3c14c",v:145,hard:2.00},
+ {id:"platinum",name:"Platine",c:"#dbe6ed",v:235,hard:2.75},
+ {id:"iridium",name:"Iridium",c:"#bd83ff",v:380,hard:3.45},
+ {id:"uranium",name:"Uranium",c:"#9ce74d",v:520,hard:3.80},
+ {id:"coal",name:"Carbone",c:"#34383e",v:10,hard:1.12},
+ {id:"xenite",name:"Xenite",c:"#56f4e4",v:980,hard:5.00}
 ];
+const mineralById=Object.fromEntries(minerals.map(m=>[m.id,m]));
+const crystalNames=["Pointe","Prisme","Cluster","Etoile","Octaedre","Cube","Lame","Geode"];
 const perks=[
  ["impact","Impact orbital","Depart surpuissant : vitesse et rayon fortement augmentes pendant quelques secondes."],
  ["chain","Reaction en chaine","Les minerais peuvent faire exploser leurs voisins."],
  ["greed","Cupidite","+35% valeur des ressources, coque maximale reduite."],
  ["last","Dernier souffle","Sous 20% de coque, puissance de forage doublee."],
  ["compress","Compression","La puissance augmente avec la profondeur."],
- ["crystal","Cristallisation","Les cristaux rares valent davantage."],
+ ["crystal","Cristallisation","Les cristaux speciaux valent +50%."],
  ["heat","Surchauffe volontaire","Plus l'energie baisse, plus la foreuse accelere."],
  ["recycler","Recycleur","Les minerais rendent parfois de l'energie."],
  ["shock","Onde de choc","Explosion periodique apres assez de blocs detruits."],
@@ -123,7 +130,7 @@ const defaults=()=>({
  version:2,credits:0,planetIndex:0,seed:Math.floor(Math.random()*2e9),run:0,
  upgrades:{drill:1,engine:1,reactor:1,battery:1,armor:1,cooling:1,scanner:1,refinery:1},
  equipped:["impact"], unlocked:["impact","chain","greed","last","compress","crystal","heat","recycler","shock","prospector","armor","magnet"],
- found:{}, inventory:{}, stats:{blocks:0,meters:0,credits:0,runs:0,planets:1,bestDepth:0,bestSpeed:0,damage:0,ores:0,play:0,cores:0},
+ found:{}, inventory:{}, stats:{blocks:0,meters:0,credits:0,runs:0,planets:1,bestDepth:0,bestSpeed:0,damage:0,ores:0,play:0,cores:0,crystals:0},
  achievements:{},level:1,xp:0,skillPoints:0,settings:{particles:true,shake:true,haptics:true,lowPower:false,dev:false},anomalies:0,bossKills:0,
  chassisId:"c3",builds:{},layout:["drill","engine","engine","reactor","battery","armor","cooling","scanner","refinery","battery",null,null]
 });
@@ -292,63 +299,68 @@ function zoneForDepth(d){
  return "crust";
 }
 
-function rotatePoint(px,py,r){
- if(r===1)return [py,6-px];
- if(r===2)return [6-px,6-py];
- if(r===3)return [6-py,px];
- return [px,py];
+const ATLAS_SRC="data:image/png;base64,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";
+const atlasImg=new Image();
+let atlasReady=false, spriteCache={ore:{},crystal:[]}, atlasCanvas=null, atlasCtx=null;
+const atlasOrder=["stone","iron","titanium","aluminium","copper","lead","nickel","chrome","cobalt","silver","gold","platinum","iridium","uranium","coal","xenite"];
+function hexRgb(hex){hex=hex.replace('#','');return [parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)]}
+function planetCrystalPalette(){
+ const sets={
+  "Tellurique":["#ecf7ff","#8ddcff","#b591ff","#ffd56a","#72e5b4","#ff9588","#76a7ff","#dc88ff"],
+  "Volcanique":["#fff0d1","#ffbe69","#ff8068","#ffd45f","#ff9a5b","#ffe19a","#ff6758","#d778ff"],
+  "Cristalline":["#f5f3ff","#83e8ff","#b99cff","#fff37a","#76ffe0","#ff8fd3","#83a9ff","#c87dff"],
+  "Metallique":["#eef7ff","#a9d1e8","#c2c7ff","#e7ef91","#9ce6d2","#d7cad0","#9bb8e8","#b9a1dc"],
+  "Glacee":["#ffffff","#b7efff","#d2c4ff","#e8fbff","#aef8ef","#c8e5ff","#9fd4ff","#d8bfff"],
+  "Irradiee":["#efffd4","#baff7a","#8ee7a0","#e7ff69","#75ffc7","#d6ff8f","#9cc7ff","#c58aff"]
+ }; return sets[planet.type]||sets.Tellurique;
 }
-function codexRectsFor(id){
- if(id==="stone")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="iron")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="copper")return [[1,2,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="coal")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="quartz")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="titanium")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="cobalt")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="uranium")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="iridium")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="xenite")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- if(id==="core")return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
- return [[1,1,1,1],[4,1,1,1],[3,2,1,1],[1,4,1,1],[4,4,1,1]];
+function rotate16(src,r){
+ if(r===0)return src;
+ const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.translate(8,8);x.rotate(r*Math.PI/2);x.drawImage(src,-8,-8);return c;
 }
-function drawCodexTexture(id,px,py,s,rot=0){
- const scale=s/7;
- const baseMap={stone:'#4b4540',iron:'#4b4540',copper:'#4b4540',coal:'#4b4540',quartz:'#4b4540',titanium:'#4b4540',cobalt:'#4b4540',uranium:'#4b4540',iridium:'#4b4540',xenite:'#4b4540',core:'#4b4540'};
- const oreMap={stone:'#707780',iron:'#b6bbc0',copper:'#ce7747',coal:'#22272b',quartz:'#e1d3ff',titanium:'#a9c4d3',cobalt:'#4778db',uranium:'#91e34b',iridium:'#bd7dff',xenite:'#59f4e3',core:'#ffd45d'};
- ctx.fillStyle=baseMap[id]||'#4b4540';ctx.fillRect(px,py,s,s);
- ctx.fillStyle='#746b61';ctx.fillRect(px,py,s,Math.max(1,scale*.45));ctx.fillRect(px,py,Math.max(1,scale*.45),s);
- ctx.fillStyle='#292621';ctx.fillRect(px+s-Math.max(1,scale*.55),py,Math.max(1,scale*.55),s);ctx.fillRect(px,py+s-Math.max(1,scale*.55),s,Math.max(1,scale*.55));
- ctx.fillStyle=oreMap[id]||'#aaa';
- for(const rect of codexRectsFor(id)){
-   let [rx,ry,rw,rh]=rect;
-   let [rrx,rry]=rotatePoint(rx,ry,rot);
-   ctx.fillRect(Math.floor(px+rrx*scale),Math.floor(py+rry*scale),Math.max(1,Math.ceil(rw*scale)),Math.max(1,Math.ceil(rh*scale)));
- }
+function tintOreSource(index,color,id){
+ const sx=(index%8)*16,sy=Math.floor(index/8)*16;
+ const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(atlasCanvas,sx,sy,16,16,0,0,16,16);
+ const im=x.getImageData(0,0,16,16),d=im.data,[cr,cg,cb]=hexRgb(color);
+ for(let i=0;i<d.length;i+=4){
+   let lum=(d[i]+d[i+1]+d[i+2])/3;
+   if(id==='stone'){let k=.82+lum/900;d[i]=lum*k;d[i+1]=lum*k;d[i+2]=lum*k;continue}
+   let mask=Math.max(0,Math.min(1,(lum-92)/125));
+   if(mask>.05){let shade=.50+lum/340;d[i]=d[i]*(1-mask)+cr*shade*mask;d[i+1]=d[i+1]*(1-mask)+cg*shade*mask;d[i+2]=d[i+2]*(1-mask)+cb*shade*mask;}
+ } x.putImageData(im,0,0);return c;
 }
+function tintCrystalSource(shape,color){
+ const c=document.createElement('canvas');c.width=c.height=16;const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(atlasCanvas,shape*16,32,16,16,0,0,16,16);
+ const im=x.getImageData(0,0,16,16),d=im.data,[cr,cg,cb]=hexRgb(color);
+ for(let i=0;i<d.length;i+=4){if(d[i+3]<8)continue;let lum=(d[i]+d[i+1]+d[i+2])/3/255,shade=.35+lum*.92;d[i]=Math.min(255,cr*shade);d[i+1]=Math.min(255,cg*shade);d[i+2]=Math.min(255,cb*shade)}x.putImageData(im,0,0);return c;
+}
+function rebuildSpriteCache(){
+ if(!atlasReady)return;
+ spriteCache={ore:{},crystal:[]};
+ atlasOrder.forEach((id,i)=>{const m=mineralById[id],base=tintOreSource(i,m.c,id);spriteCache.ore[id]=[0,1,2,3].map(r=>rotate16(base,r));});
+ const cp=planetCrystalPalette();for(let s=0;s<8;s++){const base=tintCrystalSource(s,cp[s]);spriteCache.crystal[s]=[0,1,2,3].map(r=>rotate16(base,r));}
+ paintCodexSprites();
+}
+atlasImg.onload=()=>{atlasCanvas=document.createElement('canvas');atlasCanvas.width=128;atlasCanvas.height=48;atlasCtx=atlasCanvas.getContext('2d');atlasCtx.imageSmoothingEnabled=false;atlasCtx.drawImage(atlasImg,0,0);atlasReady=true;rebuildSpriteCache();};
+atlasImg.src=ATLAS_SRC;
+function drawMaterialSprite(id,px,py,s,rot=0){const sp=spriteCache.ore[id]?.[rot&3];if(sp)ctx.drawImage(sp,Math.floor(px),Math.floor(py),s,s);else{ctx.fillStyle=mineralById[id]?.c||'#555';ctx.fillRect(px,py,s,s)}}
+function drawCrystalSprite(shape,px,py,s,rot=0){const sp=spriteCache.crystal[shape]?.[rot&3];if(sp)ctx.drawImage(sp,Math.floor(px),Math.floor(py),s,s);else{ctx.fillStyle='#eef';ctx.fillRect(px+2,py+2,s-4,s-4)}}
 
 function drawOrePixels(cell,wx,wy,px,py,s){return;}
 function drawBlockTexture(cell,wx,wy,px,py,s){
- const d=wy/planet.radius, zone=cell.zone||zoneForDepth(d), geo=geologyAt(wy);
- // Pick a material identity for the rock itself, then use codex texture with rotation.
- let matId='stone';
- if(geo.id==='regolith')matId='copper';
- else if(geo.id==='sediment')matId='stone';
- else if(geo.id==='basalt')matId='iron';
- else if(geo.id==='granite')matId='titanium';
- else if(geo.id==='deep')matId='coal';
- else if(geo.id==='compressed')matId='cobalt';
- else if(geo.id==='mantle')matId='copper';
- drawCodexTexture(matId,px,py,s,cell.tex&3);
- // Actual ore overlays replace the base identity.
- if(cell.m.id!=='stone')drawCodexTexture(cell.m.id,px,py,s,(cell.tex+1)&3);
- if(zone.startsWith('barrier')){ctx.fillStyle='rgba(255,180,80,.18)';ctx.fillRect(px,py,s,s)}
- if(zone==='core'){ctx.fillStyle='rgba(255,220,90,.22)';ctx.fillRect(px,py,s,s)}
+ const d=wy/planet.radius,zone=cell.zone||zoneForDepth(d),geo=geologyAt(wy);
+ if(cell.crystal){ctx.fillStyle="#06111a";ctx.fillRect(px,py,s,s);drawCrystalSprite(cell.crystalShape,px,py,s,cell.tex&3);return}
+ drawMaterialSprite(cell.m.id,px,py,s,cell.tex&3);
+ if(cell.m.id==="stone"){
+  const tint={regolith:"rgba(130,95,55,.15)",sediment:"rgba(150,140,120,.08)",basalt:"rgba(45,58,68,.12)",granite:"rgba(115,110,125,.08)",deep:"rgba(30,35,52,.16)",compressed:"rgba(55,50,70,.15)",mantle:"rgba(120,55,35,.18)"}[geo.id];
+  if(tint){ctx.fillStyle=tint;ctx.fillRect(px,py,s,s)}
+ }
+ if(zone.startsWith("barrier")){ctx.fillStyle="rgba(255,166,70,.14)";ctx.fillRect(px,py,s,s)}
+ if(zone==="core"){ctx.fillStyle="rgba(255,220,80,.18)";ctx.fillRect(px,py,s,s)}
  const dmg=cell.max?1-clamp(cell.hp/cell.max,0,1):0;
- if(dmg>.18){ctx.fillStyle='rgba(10,11,12,.55)';ctx.fillRect(px+Math.floor(s*.5),py+1,1,Math.max(2,Math.floor(s*(.18+dmg*.28))));}
- if(dmg>.48){ctx.fillRect(px+2,py+Math.floor(s*.62),Math.max(1,Math.floor(s*.34)),1)}
+ if(dmg>.18){ctx.fillStyle="rgba(8,9,10,.68)";ctx.fillRect(px+Math.floor(s*.5),py+1,1,Math.max(2,Math.floor(s*(.18+dmg*.30))))}
+ if(dmg>.52){ctx.fillStyle="rgba(8,9,10,.68)";ctx.fillRect(px+2,py+Math.floor(s*.63),Math.max(1,Math.floor(s*.36)),1)}
 }
-
 
 function hashGrid(x,y,seed=0){
  let n=(Math.imul((x|0)^seed,374761393)+Math.imul((y|0)+seed,668265263))|0;
@@ -374,69 +386,31 @@ function geologyAt(y){
  return {id:"mantle",name:"MANTEAU",base:"#392d2a",edge:"#211816",hard:2.75};
 }
 function oreForCell(wx,wy,d){
- const depth=Math.max(0,wy);
- // Coherent veins: broad field + fine breakup.
- const v1=valueNoise(wx,wy,12,save.seed+111);
- const v2=valueNoise(wx,wy,6,save.seed+333);
- const v3=valueNoise(wx,wy,22,save.seed+777);
- const richness=Math.min(1.35,planet.rich);
-
- // Early crust: mostly rock, occasional iron/copper/coal veins.
- if(depth<220){
-   if(v1>.84/richness && v2>.50)return minerals[1]; // iron
-   if(v1<.16*richness && v2>.56)return minerals[2]; // copper
-   if(v3>.88/richness && v2<.48)return minerals[3]; // carbon
-   return minerals[0];
- }
- if(depth<650){
-   if(v1>.88/richness && v2>.58)return minerals[4]; // quartz
-   if(v3>.91/richness && v2>.52)return minerals[5]; // titanium
-   if(v1<.105*richness && v2>.60)return minerals[6]; // cobalt
-   if(v2>.965/richness)return minerals[1];
-   return minerals[0];
- }
- if(depth<1400){
-   if(v1>.92/richness && v2>.60)return minerals[5];
-   if(v3>.94/richness && v2>.58)return minerals[6];
-   if(v1<.075*richness && v2>.67)return minerals[7];
-   if(v2>.978/richness)return minerals[4];
-   return minerals[0];
- }
- if(depth<2400){
-   if(v1>.95/richness && v2>.64)return minerals[7];
-   if(v3>.965/richness && v2>.63)return minerals[8];
-   if(v1<.048*richness && v2>.72)return minerals[9];
-   return minerals[0];
- }
- if(v1>.965/richness && v2>.67)return minerals[8];
- if(v3>.975/richness && v2>.70)return minerals[9];
- if(d>.82 && v1<.035*richness && v2>.75)return minerals[10];
- return minerals[0];
+ const depth=Math.max(0,wy),v1=valueNoise(wx,wy,13,save.seed+111),v2=valueNoise(wx,wy,7,save.seed+333),v3=valueNoise(wx,wy,24,save.seed+777),r=Math.min(1.3,planet.rich);
+ const M=id=>mineralById[id];
+ if(depth<180){if(v1>.91/r&&v2>.57)return M("iron");if(v1<.085*r&&v2>.62)return M("copper");if(v3>.94/r&&v2<.42)return M("coal");if(v2>.982/r)return M("aluminium");return M("stone")}
+ if(depth<520){if(v1>.93/r&&v2>.60)return M("titanium");if(v3>.945/r&&v2>.58)return M("nickel");if(v1<.065*r&&v2>.65)return M("lead");if(v2>.978/r)return M("iron");return M("stone")}
+ if(depth<1050){if(v1>.945/r&&v2>.63)return M("chrome");if(v3>.955/r&&v2>.61)return M("cobalt");if(v1<.052*r&&v2>.69)return M("silver");if(v2>.985/r)return M("titanium");return M("stone")}
+ if(depth<1750){if(v1>.956/r&&v2>.66)return M("silver");if(v3>.964/r&&v2>.65)return M("gold");if(v1<.042*r&&v2>.72)return M("uranium");if(v2>.989/r)return M("cobalt");return M("stone")}
+ if(depth<2700){if(v1>.965/r&&v2>.69)return M("gold");if(v3>.973/r&&v2>.69)return M("platinum");if(v1<.033*r&&v2>.75)return M("iridium");if(v2>.991/r)return M("uranium");return M("stone")}
+ if(v1>.974/r&&v2>.72)return M("platinum");if(v3>.981/r&&v2>.73)return M("iridium");if(v1<.025*r&&v2>.79)return M("xenite");if(v2>.993/r)return M("uranium");return M("stone")
 }
 
 function genChunk(cx,cy,S){
  let a=new Array(S*S);
  for(let y=0;y<S;y++)for(let x=0;x<S;x++){
-  let wx=cx*S+x, wy=cy*S+y, d=Math.max(0,wy)/planet.radius;
-  const geo=geologyAt(wy);
-
-  // No cave near the surface. Caverns become more common only deeper down.
-  let caveField=valueNoise(wx,wy,26,save.seed+909);
-  let caveDetail=valueNoise(wx,wy,10,save.seed+919);
-  let caveChance=wy<90?0:(.028+Math.min(.045,d*.05));
-  if(wy>90 && caveField<caveChance && caveDetail<.48){a[y*S+x]=null;continue}
-
-  let m=oreForCell(wx,wy,d);
-  let zone=zoneForDepth(d), barrier=1;
-  if(zone==="barrier1")barrier=2.4;
-  if(zone==="barrier2")barrier=3.4;
-  if(zone==="barrier3")barrier=4.8;
-  if(zone==="barrier4")barrier=6.5;
-  if(zone==="core")barrier=8;
-
-  // Early terrain is deliberately softer and readable.
-  let hp=m.hard*geo.hard*barrier*(1+d*1.7)*planet.danger;
-  a[y*S+x]={m,hp,max:hp,zone,tex:Math.floor(hashGrid(wx,wy,save.seed+707)*4),geo:geo.id};
+  let wx=cx*S+x,wy=cy*S+y,d=Math.max(0,wy)/planet.radius,geo=geologyAt(wy);
+  let caveField=valueNoise(wx,wy,28,save.seed+909),caveDetail=valueNoise(wx,wy,11,save.seed+919),caveChance=wy<95?0:(.025+Math.min(.038,d*.045));
+  if(wy>95&&caveField<caveChance&&caveDetail<.47){
+    let cs=valueNoise(wx,wy,9,save.seed+1211),cluster=valueNoise(wx,wy,21,save.seed+1223);
+    if(wy>150&&cs>.78&&cluster>.59&&hashGrid(wx,wy,save.seed+1249)>.73){
+      const shape=Math.floor(hashGrid(wx,wy,save.seed+1291)*8),pool=wy<700?["silver","cobalt"]:wy<1600?["cobalt","uranium","gold"]:wy<2600?["uranium","iridium","platinum"]:["iridium","xenite","platinum"],m=mineralById[pool[Math.floor(hashGrid(wx,wy,save.seed+1301)*pool.length)]];
+      let hp=m.hard*geo.hard*.92*(1+d*1.2)*planet.danger;a[y*S+x]={m,hp,max:hp,zone:zoneForDepth(d),tex:Math.floor(hashGrid(wx,wy,save.seed+707)*4),geo:geo.id,crystal:true,crystalShape:shape};
+    }else a[y*S+x]=null;
+    continue;
+  }
+  let m=oreForCell(wx,wy,d),zone=zoneForDepth(d),barrier=1;if(zone==="barrier1")barrier=2.4;if(zone==="barrier2")barrier=3.4;if(zone==="barrier3")barrier=4.8;if(zone==="barrier4")barrier=6.5;if(zone==="core")barrier=8;
+  let hp=m.hard*geo.hard*barrier*(1+d*1.6)*planet.danger*1.55;a[y*S+x]={m,hp,max:hp,zone,tex:Math.floor(hashGrid(wx,wy,save.seed+707)*4),geo:geo.id,crystal:false};
  }
  return a;
 }
@@ -446,8 +420,8 @@ function damageCell(wx,wy,power,dt){
  cell.hp-=power*dt;
  let destroyed=0;
  if(cell.hp<=0){
-   let value=cell.m.v*shipStats().refine*(has("crystal")&&["quartz","xenite"].includes(cell.m.id)?1.5:1);
-   ship.loot+=value; ship.blocks++; save.stats.blocks++; save.stats.ores++; addXP(cell.m.id==="stone"?.15:1.2); save.found[cell.m.id]=(save.found[cell.m.id]||0)+1;
+   let value=cell.m.v*(ship.refine||1)*(cell.crystal?(has("crystal")?2.25:1.5):1);
+   ship.loot+=value; ship.blocks++; save.stats.blocks++; save.stats.ores++; addXP(cell.m.id==="stone"?.15:1.2); save.found[cell.m.id]=(save.found[cell.m.id]||0)+1;if(cell.crystal){let ck="crystal_"+cell.crystalShape;save.found[ck]=(save.found[ck]||0)+1;save.stats.crystals=(save.stats.crystals||0)+1;}
    cell.hp=-999; destroyed=1;
    if(save.settings.particles && particles.length<36 && Math.random()<(cell.m.id==="stone"?.10:.18))particles.push({x:wx,y:wy,vx:(Math.random()-.5)*1.0,vy:(Math.random()-.5)*1.0,t:.34,c:cell.m.c});
    if(has("recycler")&&Math.random()<.05)ship.en=Math.min(ship.maxEn,ship.en+1.4);
@@ -456,7 +430,7 @@ function damageCell(wx,wy,power,dt){
  return {hit:1,destroyed};
 }
 function mineAtTip(tipX,tipY,power,dt,impact){
- const rad=impact?0.85:0.62;
+ const rad=impact?0.68:0.46;
  let hit=0,destroyed=0;
  for(let yy=Math.floor(tipY-rad); yy<=Math.floor(tipY+rad); yy++)for(let xx=Math.floor(tipX-rad); xx<=Math.floor(tipX+rad); xx++){
    const dx=(xx+.5-tipX), dy=(yy+.5-tipY);
@@ -466,38 +440,30 @@ function mineAtTip(tipX,tipY,power,dt,impact){
  }
  return {hit,destroyed};
 }
+let chunkPruneClock=0,hudClock=0;
+function pruneChunkCache(dt){chunkPruneClock+=dt;if(chunkPruneClock<1.1||chunks.size<28)return;chunkPruneClock=0;const S=34,cx=Math.floor(ship.x/S),cy=Math.floor(Math.max(0,ship.y)/S);for(const k of chunks.keys()){const [x,y]=k.split(",").map(Number);if(Math.abs(x-cx)>3||y<cy-3||y>cy+5)chunks.delete(k)}}
 function update(dt){
  if(!running||!ship?.alive)return;
  ship.time+=dt;save.stats.play+=dt;
- const s=shipStats(), impact=has("impact")&&ship.time<2.2, depth=Math.max(0,ship.y)/planet.radius;
- let steer=pointer.down?(pointer.x-canvas.clientWidth/2)/(canvas.clientWidth/2):0;
- ship.vx+=steer*72*dt; ship.vx*=Math.pow(.9,dt*10);
- let target=s.speed*(impact?1.55:1)*(has("heat")?(1+(1-ship.en/ship.maxEn)*.22):1);
- ship.vy+=(target-ship.vy)*dt*1.08; ship.speed=Math.hypot(ship.vx,ship.vy);
- ship.x+=ship.vx*dt/9; ship.y+=ship.vy*dt/9;
- const dirLen=Math.max(.001,Math.hypot(ship.vx,ship.vy));
- const dirX=ship.vx/dirLen, dirY=ship.vy/dirLen;
- ship.angle=Math.atan2(ship.vy,ship.vx)-Math.PI/2;
- const tipX=ship.x+dirX*1.55, tipY=ship.y+dirY*1.55;
- let pow=s.drill*(impact?1.45:1)*(has("compress")?1+depth*.35:1)*(has("last")&&ship.hp<ship.maxHp*.2?1.65:1);
- let mined=mineAtTip(tipX,tipY,pow*1.28,dt,impact);
- ship.en-=dt*(2.2+mined.hit*.08)/s.cool; ship.en+=s.regen*dt; ship.en=clamp(ship.en,0,ship.maxEn);
- if(ship.en<=.1){ship.hp-=8*dt;save.stats.damage+=8*dt}
- if(mined.hit>0){
-   ship.vy*=Math.pow(.76,Math.min(1.6,mined.hit*.22));
-   let dmg=Math.max(0,mined.hit-1)*.06*planet.danger*dt;
-   ship.hp-=dmg; save.stats.damage+=dmg;
-   shake=Math.min(4.5,shake+mined.hit*.035);
- }
+ const s=shipStats(),impact=has("impact")&&ship.time<2.0,depth=Math.max(0,ship.y)/planet.radius;ship.refine=s.refine;
+ let steer=pointer.down?(pointer.x-canvas.clientWidth/2)/(canvas.clientWidth/2):0;ship.vx+=steer*68*dt;ship.vx*=Math.pow(.9,dt*10);
+ let target=s.speed*(impact?1.45:1)*(has("heat")?(1+(1-ship.en/ship.maxEn)*.20):1);ship.vy+=(target-ship.vy)*dt*.92;ship.speed=Math.hypot(ship.vx,ship.vy);
+ const len=Math.hypot(ship.vx,ship.vy),dirX=len>.25?ship.vx/len:0,dirY=len>.25?ship.vy/len:1;ship.angle=Math.atan2(dirY,dirX)-Math.PI/2;
+ const dx=ship.vx*dt/9,dy=ship.vy*dt/9,proposedX=ship.x+dx,proposedY=ship.y+dy,tipDist=1.82,tipX=proposedX+dirX*tipDist,tipY=proposedY+dirY*tipDist;
+ let pow=s.drill*(impact?1.75:1)*(has("compress")?1+depth*.30:1)*(has("last")&&ship.hp<ship.maxHp*.2?1.55:1);
+ let mined=mineAtTip(tipX,tipY,pow*.92,dt,impact);ship.contact=mined.hit>0;
+ let moveScale=mined.hit?(mined.destroyed?.58:(impact?.28:.075)):1;ship.x+=dx*moveScale;ship.y+=dy*moveScale;
+ if(mined.hit&&!mined.destroyed){ship.vy*=Math.pow(.90,dt*60);ship.vx*=Math.pow(.94,dt*60)}
+ ship.en-=dt*(2.05+mined.hit*.10)/s.cool;ship.en+=s.regen*dt;ship.en=clamp(ship.en,0,ship.maxEn);
+ if(ship.en<=.1){ship.hp-=7*dt;save.stats.damage+=7*dt}
+ if(mined.hit){let dmg=Math.max(0,mined.hit-1)*.045*planet.danger*dt;ship.hp-=dmg;save.stats.damage+=dmg;shake=Math.min(3.3,shake+mined.hit*.025)}
  if(!questDone&&activeQuest&&activeQuest[1]()){questDone=true;save.credits+=activeQuest[3];addXP(activeQuest[3]/8);notify("MISSION  +"+fmt(activeQuest[3])+" CR");buzz([30,30,30])}
- ship.shock+=mined.destroyed;
- if(has("shock")&&ship.shock>520){ship.shock=0;mineAtTip(tipX,tipY,pow*1.8,.18,true);notify("ONDE DE CHOC")}
- save.stats.meters+=Math.max(0,ship.vy*dt/9);save.stats.bestDepth=Math.max(save.stats.bestDepth,Math.max(0,ship.y));save.stats.bestSpeed=Math.max(save.stats.bestSpeed,ship.speed);
- if(ship.y>=planet.radius){save.stats.cores++;notify("NOYAU TRAVERSE ! +50 000");ship.loot+=50000*(1+save.planetIndex*.3);endRun(true)}
- if(ship.hp<=0)endRun(false); if(Math.random()<dt*.0014*(1+depth*.35)){save.anomalies++;ship.loot+=Math.floor(220*(1+depth*6));notify("ANOMALIE  BONUS");buzz(35)}
- updateHUD();
+ ship.shock+=mined.destroyed;if(has("shock")&&ship.shock>650){ship.shock=0;mineAtTip(tipX,tipY,pow*1.4,.12,true);notify("ONDE DE CHOC")}
+ save.stats.meters+=Math.max(0,dy*moveScale);save.stats.bestDepth=Math.max(save.stats.bestDepth,Math.max(0,ship.y));save.stats.bestSpeed=Math.max(save.stats.bestSpeed,ship.speed);
+ if(ship.y>=planet.radius){save.stats.cores++;notify("NOYAU TRAVERSE ! +50 000");ship.loot+=50000*(1+save.planetIndex*.3);endRun(true)}if(ship.hp<=0)endRun(false);
+ if(Math.random()<dt*.001*(1+depth*.25)){save.anomalies++;ship.loot+=Math.floor(220*(1+depth*6));notify("ANOMALIE  BONUS");buzz(35)}
+ pruneChunkCache(dt);hudClock+=dt;if(hudClock>.085){hudClock=0;updateHUD()}
 }
-
 function endRun(success){
  if(!ship.alive)return;ship.alive=false;running=false;
  let gain=Math.floor(ship.loot);save.credits+=gain;save.stats.credits+=gain;persist();
@@ -524,7 +490,7 @@ function draw(){
  for(let p of particles){p.x+=p.vx*.1;p.y+=p.vy*.1;p.t-=.06;ctx.globalAlpha=Math.max(0,p.t);ctx.fillStyle=p.c;ctx.fillRect(centerX+Math.floor((p.x-camX)*cellPx),centerY+Math.floor((p.y-camY)*cellPx),2,2)}particles=particles.filter(p=>p.t>0);ctx.globalAlpha=1;
  ctx.save();ctx.translate(centerX,centerY);ctx.rotate(ship.angle||0);
  ctx.fillStyle="#0e1012";ctx.fillRect(-9,-9,18,12);ctx.fillStyle="#4e555c";ctx.fillRect(-7,-12,14,16);ctx.fillStyle="#7d2a1f";ctx.fillRect(-8,-4,16,6);ctx.fillStyle="#d8dbe1";ctx.fillRect(-4,-10,8,6);ctx.fillStyle="#a0d64b";ctx.fillRect(-3,-8,6,3);ctx.fillStyle="#111315";ctx.fillRect(-10,-5,2,8);ctx.fillRect(8,-5,2,8);ctx.fillStyle="#f08d33";ctx.fillRect(-5,4,10,3);ctx.fillStyle="#dadde2";ctx.beginPath();ctx.moveTo(-8,7);ctx.lineTo(0,18);ctx.lineTo(8,7);ctx.fill();ctx.fillStyle="#9ea4a9";ctx.beginPath();ctx.moveTo(-4,8);ctx.lineTo(0,14);ctx.lineTo(4,8);ctx.fill();
- if(ship.vy>5){ctx.fillStyle="#ffb441";ctx.fillRect(-6,-15,4,4);ctx.fillRect(2,-15,4,4);ctx.fillStyle="#ffd86d";ctx.fillRect(-5,-18,2,3);ctx.fillRect(3,-18,2,3)}ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(-1,18,2,1)
+ if(ship.vy>5){ctx.fillStyle="#ffb441";ctx.fillRect(-6,-15,4,4);ctx.fillRect(2,-15,4,4);ctx.fillStyle="#ffd86d";ctx.fillRect(-5,-18,2,3);ctx.fillRect(3,-18,2,3)}ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(-1,18,2,1);if(ship.contact){ctx.fillStyle='#ffad39';ctx.fillRect(-3,18,2,1);ctx.fillRect(2,19,1,1)}
  ctx.restore();
  ctx.restore();requestAnimationFrame(draw);
 }
@@ -572,15 +538,19 @@ function renderPlanets(){
  $("#planets").innerHTML=`<h4>PLANETE ACTUELLE</h4><div class="cardx planet"><div class="d-flex gap-3 align-items-center"><div class="planetPreview type-${planet.type.toLowerCase().replace('e','e').replace('e','e')}"><i></i><i></i><i></i></div><div><h3>${planet.name}</h3><div class="text-secondary">${planet.type}  ${planet.trait}</div></div></div><div class="statgrid mt-3">
  ${[["Rayon",fmt(planet.radius)+" m"],["Gravite",planet.gravity+" g"],["Richesse",(planet.rich*100).toFixed(0)+"%"],["Danger",(planet.danger*100).toFixed(0)+"%"]].map(x=>`<div class="stat"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("")}</div></div>
  <div class="cardx"><b>Quitter definitivement ce monde</b><p class="small text-secondary">Une nouvelle planete plus difficile sera generee. La seed actuelle sera perdue.</p><button id="newPlanet" class="btnx">SAUT HYPERSPATIAL ${fmt(5000*Math.pow(1.45,save.planetIndex))} CR</button></div>`;
- $("#newPlanet").onpointerup=(ev)=>{ev.preventDefault();let c=Math.floor(5000*Math.pow(1.45,save.planetIndex));if(save.credits<c)return notify("Credits insuffisants");save.credits-=c;save.planetIndex++;save.seed=Math.floor(Math.random()*2e9);save.stats.planets++;planet=makePlanet();persist();renderPlanets();resetRun()};
+ $("#newPlanet").onpointerup=(ev)=>{ev.preventDefault();let c=Math.floor(5000*Math.pow(1.45,save.planetIndex));if(save.credits<c)return notify("Credits insuffisants");save.credits-=c;save.planetIndex++;save.seed=Math.floor(Math.random()*2e9);save.stats.planets++;planet=makePlanet();rebuildSpriteCache();persist();renderPlanets();resetRun()};
 }
+function paintCodexSprites(){if(!atlasReady)return;document.querySelectorAll("canvas.codexSprite").forEach(c=>{let x=c.getContext("2d");x.imageSmoothingEnabled=false;x.clearRect(0,0,c.width,c.height);if(c.dataset.mat){let sp=spriteCache.ore[c.dataset.mat]?.[0];if(sp)x.drawImage(sp,0,0,32,32)}else{let sh=+c.dataset.crystal,sp=spriteCache.crystal[sh]?.[0];if(sp)x.drawImage(sp,0,0,32,32)}})}
 function renderCodex(){
- let h="<h4>CODEX GEOLOGIQUE</h4><div class='small text-secondary mb-2'>Les textures ci-dessous sont celles utilisees dans le terrain.</div>";
- for(let m of minerals){let n=save.found[m.id]||0;h+=`<div class="cardx d-flex align-items-center gap-3"><div class="oreTile ore-${m.id} ${n?"":"unknown"}"><i></i><i></i><i></i></div><div><b>${n?m.name:"???"}</b><div class="small text-secondary">${n?fmt(n)+" extraits  valeur "+m.v+" CR":"Non decouvert"}</div></div></div>`}$("#codex").innerHTML=h;
+ let h="<h4>CODEX GEOLOGIQUE</h4><div class='small text-secondary mb-2'>Le terrain utilise exactement ces sprites 16x16, avec rotation 0/90/180/270.</div>";
+ for(let m of minerals){let n=save.found[m.id]||0;h+=`<div class="cardx d-flex align-items-center gap-3"><canvas width="32" height="32" class="codexSprite ${n?"":"unknown"}" data-mat="${m.id}"></canvas><div><b>${n?m.name:"???"}</b><div class="small text-secondary">${n?fmt(n)+" extraits  valeur "+m.v+" CR":"Non decouvert"}</div></div></div>`}
+ h+=`<h5 class="mt-3">CRISTAUX SPECIAUX</h5><div class="small text-secondary mb-2">8 formes sans roche. Leur couleur depend de la planete.</div>`;
+ crystalNames.forEach((name,i)=>{let n=save.found["crystal_"+i]||0;h+=`<div class="cardx d-flex align-items-center gap-3"><canvas width="32" height="32" class="codexSprite ${n?"":"unknown"}" data-crystal="${i}"></canvas><div><b>${n?name:"???"}</b><div class="small text-secondary">${n?fmt(n)+" cristaux extraits":"Non decouvert"}</div></div></div>`});
+ $("#codex").innerHTML=h;paintCodexSprites();
 }
 function renderStats(){
  let s=save.stats;$("#stats").innerHTML=`<h4>STATISTIQUES</h4><div class="cardx goodx"><b>Niveau ${save.level}</b><div class="small text-secondary">${fmt(save.xp)} / ${fmt(xpNeed())} XP  ${save.skillPoints} point(s)</div><div class="bar mt-2"><i style="width:${save.xp/xpNeed()*100}%"></i></div></div><div class="cardx quest"><b>Mission : ${activeQuest[0]}</b><div class="small text-secondary">${activeQuest[2]}  ${fmt(activeQuest[3])} CR</div></div><div class="statgrid">${[
- ["Temps de jeu",Math.floor(s.play/3600)+"h "+Math.floor(s.play/60%60)+"m"],["Descentes",fmt(s.runs)],["Blocs pulverises",fmt(s.blocks)],["Minerais extraits",fmt(s.ores)],["Distance foree",fmt(s.meters)+" m"],["Record profondeur",fmt(s.bestDepth)+" m"],["Vitesse max",fmt(s.bestSpeed)+" u/s"],["Credits gagnes",fmt(s.credits)],["Degats encaisses",fmt(s.damage)],["Planetes visitees",fmt(s.planets)],["Noyaux traverses",fmt(s.cores)],["Seed",save.seed]
+ ["Temps de jeu",Math.floor(s.play/3600)+"h "+Math.floor(s.play/60%60)+"m"],["Descentes",fmt(s.runs)],["Blocs pulverises",fmt(s.blocks)],["Minerais extraits",fmt(s.ores)],["Distance foree",fmt(s.meters)+" m"],["Record profondeur",fmt(s.bestDepth)+" m"],["Vitesse max",fmt(s.bestSpeed)+" u/s"],["Credits gagnes",fmt(s.credits)],["Degats encaisses",fmt(s.damage)],["Planetes visitees",fmt(s.planets)],["Noyaux traverses",fmt(s.cores)],["Cristaux speciaux",fmt(s.crystals||0)],["Seed",save.seed]
  ].map(x=>`<div class="stat"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("")}</div>
  <div class="cardx mt-3"><b>Progression globale</b><div class="small text-secondary">Le prototype conserve automatiquement ta partie dans le navigateur.</div><button id="wipe" class="btnx mt-2">EFFACER LA SAUVEGARDE</button></div>`;
  $("#wipe").onpointerup=(ev)=>{ev.preventDefault();if(confirm("Supprimer toute la progression ?")){localStorage.removeItem("odk_save");location.reload()}};
@@ -592,13 +562,13 @@ function renderSettings(){
  $("#cheatGo").onpointerup=(ev)=>{ev.preventDefault();if($("#cheatInput").value.trim().toUpperCase()==="COREBREAKER"){save.settings.dev=true;persist();notify("MODE TEST ACTIVE");renderSettings()}else notify("CODE INVALIDE")};bindDev()
 }
 function devHTML(){return `<div class="small text-warning mb-2">MODE TEST ACTIF</div><div class="d-grid gap-2"><button class="btnx dev" data-a="money">+10M CREDITS</button><button class="btnx dev" data-a="max">MODULES MK25</button><button class="btnx dev" data-a="level">NIVEAU +10</button><button class="btnx dev" data-a="chassis">DEBLOQUER CHASSIS</button><button class="btnx dev" data-a="core">TELEPORTER A 94%</button><button class="btnx dev" data-a="heal">REPARER / RECHARGER</button><button class="btnx dev" data-a="next">NOUVELLE PLANETE GRATUITE</button></div>`}
-function bindDev(){document.querySelectorAll(".dev").forEach(b=>b.onpointerup=(ev)=>{ev.preventDefault();let a=b.dataset.a;if(a==="money")save.credits+=1e7;if(a==="max")for(let k in save.upgrades)save.upgrades[k]=25;if(a==="level"){save.level+=10;save.skillPoints+=10}if(a==="chassis"){save.level=Math.max(save.level,60);save.skillPoints+=10}if(a==="core"&&ship)ship.y=planet.radius*.94;if(a==="heal"&&ship){ship.hp=ship.maxHp;ship.en=ship.maxEn}if(a==="next"){save.planetIndex++;save.seed=Math.floor(Math.random()*2e9);planet=makePlanet();resetRun()}persist();updateHUD();notify("TEST APPLIQUE");renderSettings()})}
+function bindDev(){document.querySelectorAll(".dev").forEach(b=>b.onpointerup=(ev)=>{ev.preventDefault();let a=b.dataset.a;if(a==="money")save.credits+=1e7;if(a==="max")for(let k in save.upgrades)save.upgrades[k]=25;if(a==="level"){save.level+=10;save.skillPoints+=10}if(a==="chassis"){save.level=Math.max(save.level,60);save.skillPoints+=10}if(a==="core"&&ship)ship.y=planet.radius*.94;if(a==="heal"&&ship){ship.hp=ship.maxHp;ship.en=ship.maxEn}if(a==="next"){save.planetIndex++;save.seed=Math.floor(Math.random()*2e9);planet=makePlanet();rebuildSpriteCache();resetRun()}persist();updateHUD();notify("TEST APPLIQUE");renderSettings()})}
 
 function persist(){localStorage.setItem("odk_save",JSON.stringify(save))}
 document.querySelectorAll(".navb").forEach(b=>b.onpointerup=(ev)=>{ev.preventDefault();document.querySelectorAll(".navb").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".screen").forEach(x=>x.classList.remove("show"));let s=b.dataset.screen;if(s!=="game"){$("#"+s).classList.add("show");({hangar:renderHangar,planets:renderPlanets,codex:renderCodex,stats:renderStats,settings:renderSettings}[s])()}});
 $("#play").onpointerup=(ev)=>{ev.preventDefault();$("#start").style.display="none";resetRun()};
 setInterval(()=>{persist()},10000);
-function loop(t){let dt=Math.min(.04,(t-last)/1000);last=t;update(dt);requestAnimationFrame(loop)}requestAnimationFrame(loop);requestAnimationFrame(draw);updateHUD();
+let accumulator=0;function loop(t){let frame=Math.min(.09,(t-last)/1000);last=t;accumulator+=frame;const step=1/60;let n=0;while(accumulator>=step&&n<4){update(step);accumulator-=step;n++}requestAnimationFrame(loop)}requestAnimationFrame(loop);requestAnimationFrame(draw);updateHUD();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script></body></html>
