@@ -43,6 +43,13 @@ h1,h2,h3,h4,h5,p{margin:0}h3{font-size:15px}h4{font-size:12px;color:var(--orange
 @media(max-width:520px){.skillTreeCanvas{transform-origin:top left;transform:scale(.82);margin-bottom:-105px}.tree{min-height:560px}}
 
 </style>
+
+<style id="v223-hotfix-style">
+.navIcon{display:block;width:22px;height:22px;margin:0 auto 2px;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAAAYCAYAAAAVpXQNAAAC7ElEQVR4nO2av4sTQRzF34qFCClikcREweLghKvkBAM2KgSExT8gKKSLHF6K2+Lg8CxEJSCyQXIipgsi29hJqgW56ohge+DBFYIa12ssAofdWOgkm2V2M7PZ7E725lNlZ2Ynw+yb77z5ASgUCkVSaEGZzXaH8FSy1agH1pN2fvbvMPvpfPlD6vvldNINUCwOg0eXRwOl+OSLBgCnkmtOMui2wxVVFXxwRaDakclM7+aMmRswbZqMYnrUbYcsZzZwMGyNngFgObMBs2xJNc28e/A1sD9unrsd+D6NDHHBFFA2XyIA8PzpYwBArZ5hvkzzafnfv35I9THcQqHiodA03W4RAOhVClK1ncX6++sAgH2f7xElXl/n5+di90BUbGHL84qURzxujH6VhI1GtHOpR4g7CiRJIibaPYK6AmVXOkOh/+EVzzjNEqp/nlx7eGbi+dOzPxPPx2u7E89nX9+Yc4vYxCog6ne6GPsqP3/lpZszsLkNACDTfFE2XyJ791axBwBYncgLStNth/BMZUa/yoyiL2i+foWZL5vfigKmgNzTRLPdIX5RYnM7vMltfL8lVP5qLsy/LC7eiOMlyojjHRAiQk/NPtDhIJrl+cv/9SwV/SORWbY02unuzmZ5IFa5NCGFgHbuf2Omr7+5GHNL5EF5oJhxRwy67+NHkLFehOW8TEwVEPU43ikiKMTLDM+qTAbm5YG8O/GzDhgpIlDUU1VQ9PGWExHPxC7xW5rWJHdfXWJ+BN12yMGQ/m6N3k1TlJNCQFFjli3NPdJ494PS9GHjIlYBbTXqWjZfIvv1DD5DbBlfOzKx0hkKH5eIbCb2hFqkABKMQO0LH+daf69S0Ix+lfCKJ63L7HmTiIBEjyTC8k8UVuC5WK9S0FTkCQ/3qDscOIQ6/+O13YVdhc2C31ULaqK9G4l+d4/Ceq1Zbz3w3jDlga7OuSPQUrGg0Q46ieIBxkLxw3sKH7Upl+26DJDSVZiCzUm/u66QkL8TxUU/dHnBbAAAAABJRU5ErkJggg==);background-size:132px 22px;background-repeat:no-repeat;image-rendering:pixelated}
+.ni0{background-position:0 0}.ni1{background-position:-22px 0}.ni2{background-position:-44px 0}.ni3{background-position:-66px 0}.ni4{background-position:-88px 0}.ni5{background-position:-110px 0}
+#start .btn,.bottom .nav{touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+#start{z-index:80}
+</style>
 </head>
 <body>
 <div id="app">
@@ -54,12 +61,13 @@ h1,h2,h3,h4,h5,p{margin:0}h3{font-size:15px}h4{font-size:12px;color:var(--orange
     <section id="skills" class="screen"></section>
     <section id="codex" class="screen"></section>
     <section id="stats" class="screen"></section>
-    <div id="start"><div class="startBox"><canvas class="startPlanet" id="startPlanet" width="180" height="180"></canvas><div class="logo">OVERDRILL<br><b>KILL V2.2.2</b></div><div class="sub">REFERENCE TEXTURE PASS · 32×32 · MINERAIS EN MASQUES · GEODES · BUILDS</div><div class="startActions"><button class="btn orange" id="continueBtn">COMMENCER</button><button class="btn" id="newSaveBtn">NOUVELLE SAUVEGARDE</button></div></div></div>
+    <div id="start"><div class="startBox"><canvas class="startPlanet" id="startPlanet" width="180" height="180"></canvas><div class="logo">OVERDRILL<br><b>KILL V2.2.3</b></div><div class="sub">STABLE TEXTURE PASS · 32×32 · MINERAIS EN MASQUES · GEODES · BUILDS</div><div class="startActions"><button class="btn orange" id="continueBtn">COMMENCER</button><button class="btn" id="newSaveBtn">NOUVELLE SAUVEGARDE</button></div></div></div>
   </main>
-  <nav class="bottom"><button class="nav active" data-screen="game"><span>⛏</span>FORAGE</button><button class="nav" data-screen="hangar"><span>▣</span>HANGAR</button><button class="nav" data-screen="system"><span>◎</span>SYSTEME</button><button class="nav" data-screen="skills"><span>✦</span>ARBRE</button><button class="nav" data-screen="codex"><span>◇</span>CODEX</button><button class="nav" data-screen="stats"><span>▥</span>STATS</button></nav>
+  <nav class="bottom"><button class="nav active" data-screen="game"><span class="navIcon ni0"></span>FORAGE</button><button class="nav" data-screen="hangar"><span class="navIcon ni1"></span>HANGAR</button><button class="nav" data-screen="system"><span class="navIcon ni2"></span>SYSTEME</button><button class="nav" data-screen="skills"><span class="navIcon ni3"></span>ARBRE</button><button class="nav" data-screen="codex"><span class="navIcon ni4"></span>CODEX</button><button class="nav" data-screen="stats"><span class="navIcon ni5"></span>STATS</button></nav>
 </div>
 <script>
 'use strict';
+window.addEventListener('error',e=>{try{const sub=document.querySelector('.sub');if(sub&&document.querySelector('#start')?.offsetParent!==null)sub.textContent='ERREUR JS · '+(e.message||'inconnue')}catch(_){}});
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
 const fmt=n=>{n=Math.floor(n||0);return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':String(n)};
 const hash=(x,y,s=1)=>{let h=(x*374761393+y*668265263+s*69069)|0;h=(h^(h>>>13))*1274126177|0;return ((h^(h>>>16))>>>0)/4294967295};
@@ -211,6 +219,46 @@ function renderSkills(){
  $('#skills').innerHTML=h;paintSkillIcons();$$('[data-branch]').forEach(b=>b.onclick=()=>{skillBranch=b.dataset.branch;renderSkills()});$$('[data-skill]').forEach(b=>b.onclick=()=>{selectedSkill=b.dataset.skill;renderSkills()});$('#buySkill').onclick=()=>buySkill(sel.id);$('#respec').onclick=()=>respecSkills()
 }
 function paintSkillIcons(){const rows={forage:0,mobility:1,survival:2,economy:3,tech:4};$$('[data-skill-icon]').forEach(c=>{const x=c.getContext('2d'),r=rows[c.dataset.skillIcon]??0,t=clamp((+c.dataset.skillTier||1)-1,0,3);x.imageSmoothingEnabled=false;x.clearRect(0,0,40,40);if(assetReady('skills'))x.drawImage(V22_IMG.skills,t*32,r*32,32,32,0,0,40,40)})}
+/* ---------- V2.2.3 RESTORED CORE ---------- */
+function buySkill(id){const s=skillById[id],lvl=save.skills[id]||0,c=skillCost(id);if(!canSkill(s)||lvl>=s.max||save.skillPoints<c)return;save.skillPoints-=c;save.skills[id]=lvl+1;persist();renderSkills()}
+function respecSkills(){const cost=500*save.level;if(save.credits<cost)return toast('CREDITS INSUFFISANTS');let pts=0;for(const [id,lvl] of Object.entries(save.skills))for(let i=0;i<lvl;i++)pts+=i>=2?2:1;save.credits-=cost;save.skillPoints+=pts;save.skills={};persist();renderSkills();updateTop()}
+
+/* ---------- SYSTEM UI ---------- */
+let systemSelected=0;
+function renderSystem(){const seeds=ensureSystem();systemSelected=clamp(systemSelected,0,seeds.length-1);const center=systemSelected;let nodes='';for(let i=0;i<seeds.length;i++){const p=systemPlanet(i),relative=((i-center)%seeds.length+seeds.length)%seeds.length,angle=-Math.PI/2+(relative/seeds.length)*Math.PI*2,ring=70+i*15,x=50+Math.cos(angle)*ring/3.1,y=50+Math.sin(angle)*ring/3.5,size=28+Math.round(p.diameter/50000*28)+(i===center?8:0);nodes+=`<div class="orbit" style="width:${ring*2}px;height:${ring*1.1}px;--rot:${center*18}deg"></div><button class="planetBtn ${i===center?'selected':''} ${i===save.systemSlot?'current':''}" data-planet="${i}" style="left:${clamp(x,12,88)}%;top:${clamp(y,12,88)}%"><canvas width="${size}" height="${size}" data-pcanvas="${i}"></canvas></button>`}const p=systemPlanet(center),m=missionSet(p),fam=familyDefs[p.family];$('#system').innerHTML=`<h4>SYSTEME ${systemName()}</h4><div class="systemWrap"><div class="card titleRow"><div><b>${seeds.length} MONDES</b><div class="small muted">Systemes infinis · chaque saut regenere une nouvelle etoile</div></div><button class="btn" id="jumpSystem">HYPERFLIGHT</button></div><div class="systemMap"><div class="star"></div>${nodes}</div><div class="card planetPanel"><div class="planetHero"><canvas id="heroPlanet" width="86" height="86"></canvas><div><h3>${p.name}</h3><div class="small" style="color:${p.arch.accent}">${p.arch.name}</div><div class="small muted">Ø ${fmt(p.diameter)} km · ${p.gravity} g ${p.bonus?'· PLANETE BONUS':''}</div><div class="pill" style="color:${fam.c}">${fam.name}</div>${p.oneShot?'<div class="pill" style="color:#ffd25a">UNE SEULE TENTATIVE</div>':''}</div></div>${seg('RICHESSE',p.rich/1.8,'#d7bd43',Math.round(p.rich*100)+'%')}${seg('DANGER',p.danger/1.8,'#dc5c46',Math.round(p.danger*100)+'%')}${seg('GEODES',p.geode/.42,'#a979df',Math.round(p.geode*100)+'%')}${seg('HOSTILITE',p.hostility,'#d65d72',Math.round(p.hostility*100)+'%')}<div class="small muted">${p.mods.length?p.mods.map(x=>x[0]).join(' · '):'Aucun modificateur majeur'}</div><div class="planetMissions">${m.map(x=>`<div class="mission ${x.done?'done':''}">${x.label}<span style="float:right">${x.done?'TERMINE':'+'+fmt(x.reward)+' CR'}</span></div>`).join('')}</div><div class="planetAction"><button class="btn orange" id="travelBtn">${center===save.systemSlot?'PLANETE ACTUELLE':'VOYAGER'}</button><button class="btn" id="rerollPlanet">SCAN</button></div></div></div>`;$$('[data-pcanvas]').forEach(c=>paintPlanet(c,systemPlanet(+c.dataset.pcanvas),+c.dataset.pcanvas===center));paintPlanet($('#heroPlanet'),p,true);$$('[data-planet]').forEach(b=>b.onclick=()=>{systemSelected=+b.dataset.planet;renderSystem()});$('#travelBtn').onclick=()=>travelPlanet(center);$('#jumpSystem').onclick=()=>hyperflight();$('#rerollPlanet').onclick=()=>toast('SCAN : '+p.arch.weather+' · '+familyDefs[p.family].name)}
+function travelPlanet(i){if(i===save.systemSlot)return openScreen('game');save.systemSlot=i;save.stats.planets++;persist();systemSelected=i;renderSystem();toast('VOYAGE VERS '+currentPlanet().name)}
+function hyperflight(){save.systemSeed=(Math.random()*2e9)|0;save.systemSeeds=null;save.systemSlot=0;save.systemIndex++;save.stats.systems++;ensureSystem();persist();systemSelected=0;renderSystem();toast('NOUVEAU SYSTEME : '+systemName())}
+
+/* ---------- GAME WORLD ---------- */
+const canvas=$('#gameCanvas'),ctx=canvas.getContext('2d');let run=null,keys={},pointer={down:false,x:0};
+function resizeCanvas(){const r=canvas.getBoundingClientRect(),dpr=Math.min(1.55,window.devicePixelRatio||1);canvas.width=Math.max(320,Math.round(r.width*dpr));canvas.height=Math.max(520,Math.round(r.height*dpr));ctx.imageSmoothingEnabled=false}addEventListener('resize',resizeCanvas);
+function layerProfile(p){const R=p.gameplayRadius;return[
+ {a:0,b:.08,name:'SURFACE',c:p.arch.surface,hard:.65},
+ {a:.08,b:.25,name:'CROUTE',c:mixHex(p.arch.base,'#777777',.12),hard:.9},
+ {a:.25,b:.42,name:'SOUS-CROUTE',c:mixHex(p.arch.base,p.arch.deep,.45),hard:1.18},
+ {a:.42,b:.48,name:'COUCHE DENSE',c:mixHex(p.arch.deep,'#6a3030',.35),hard:2.2,danger:true},
+ {a:.48,b:.66,name:'MANTEAU',c:p.arch.deep,hard:1.6},
+ {a:.66,b:.76,name:'SOUS-NOYAU',c:mixHex(p.arch.deep,'#a95332',.48),hard:2.55,danger:true},
+ {a:.76,b:1,name:'NOYAU',c:mixHex(p.arch.deep,'#de7b32',.66),hard:3.0,core:true}
+ ]}
+function phasePct(progress,p){const total=p.gameplayRadius*2;return clamp(progress/total,0,1)}
+function localDepth(progress,p){return progress<=p.gameplayRadius?progress:p.gameplayRadius*2-progress}
+function layerAt(depth,p){const q=clamp(depth/p.gameplayRadius,0,1),layers=layerProfile(p);return layers.find(l=>q>=l.a&&q<l.b)||layers.at(-1)}
+function worldSeed(){return run?.seed||currentPlanet().seed}
+function terrainCell(wx,wy){if(!run)return null;const p=run.planet,depth=localDepth(wy,p);if(depth<0)return null;const q=clamp(depth/p.gameplayRadius,0,1),lay=layerAt(depth,p),n=noise(wx,wy,9,worldSeed()+77),n2=noise(wx,wy,19,worldSeed()+99);let mat='stone';const r=p.rich*(1+run.stats.rare*.25),rareBonus=run.stats.rare;
+ // vein sizes depend by mineral type
+ if(q<.18){if(n>.77/r)mat='copper';else if(n<.13*r)mat='coal';else if(n2>.91/r)mat='iron'}
+ else if(q<.38){if(n>.86/r)mat='iron';else if(n<.10*r)mat='nickel';else if(n2>.93/r)mat='titanium'}
+ else if(q<.60){if(n>.91/r)mat='cobalt';else if(n<.065*r)mat='silver';else if(n2>.955/r)mat='gold'}
+ else if(q<.80){if(n>.945/(r+rareBonus))mat='uranium';else if(n<.04*r)mat='platinum';else if(n2>.97/r)mat='iridium'}
+ else {if(n>.965/(r+rareBonus))mat='iridium';else if(n<.026*r)mat='xenite';else if(n2>.983/r)mat='uranium'}
+ // geodes replace caves
+ const geode=geodeAt(wx,wy,p);if(geode&&geode.inside)return geode.crystal?{empty:false,crystal:true,shape:geode.shape,mat:geode.mat,geodeId:geode.id,hp:8+q*14,lay}:{empty:true,geodeId:geode.id};
+ // structures / special pockets
+ const special=specialAt(wx,wy,p);if(special?.empty)return {empty:true,special};
+ const M=mineralById[mat],hp=(1+M.v/180)*lay.hard*(.8+p.danger*.35);return{empty:false,mat,hp,max:hp,lay,danger:lay.danger,special};
+}
+
 function geodeAt(wx,wy,p){const cell=58, gx=Math.floor(wx/cell),gy=Math.floor(wy/cell),r=rng((gx*92821+gy*31337+worldSeed())|0),chance=p.geode+run.stats.geode,spawn=r()<chance*.42;if(!spawn)return null;const cx=gx*cell+8+r()*(cell-16),cy=gy*cell+10+r()*(cell-20),rx=5+r()*6,ry=4+r()*5,dx=(wx-cx)/rx,dy=(wy-cy)/ry,d=Math.sqrt(dx*dx+dy*dy);if(d>1.2)return null;if(d<.72){const wall=d>.48,cr=wall&&hash(wx,wy,worldSeed()+440)>.42;const shape=Math.floor(hash(wx,wy,worldSeed()+441)*8),pool=p.arch.id==='ice'?['silver','cobalt','platinum']:p.arch.id==='volcanic'?['gold','uranium','iridium']:p.arch.id==='opal'?['iridium','xenite','platinum']:['cobalt','gold','iridium'];return{inside:true,crystal:cr,shape,mat:pool[Math.floor(hash(wx,wy,worldSeed()+442)*pool.length)],id:gx+','+gy}}return null}
 function specialAt(wx,wy,p){const band=Math.floor(wy/140),r=hash(Math.floor(wx/18),band,worldSeed()+702);if(r>.992&&wy>120){const cx=Math.floor(wx/18)*18+9,cy=band*140+70,d=Math.hypot(wx-cx,(wy-cy)*.55);if(d<8)return{empty:d<5,type:p.arch.structures}}return null}
 function cellKey(x,y){return x+','+y}function getCell(x,y){const k=cellKey(x,y);if(run.cells.has(k))return run.cells.get(k);const c=terrainCell(x,y);if(c&&run.damage.has(k)&&!c.empty)c.hp=run.damage.get(k);run.cells.set(k,c);return c}
@@ -312,7 +360,7 @@ function bindStartUI(){
  bindTap(n,()=>enterApp(true));
 }
 function boot(){
- console.log('ODK V2.2.2 REFERENCE TEXTURE PASS');
+ console.log('ODK V2.2.3 STABLE TEXTURE PASS');
  bindStartUI();
  try{ensureSystem();updateTop();paintPlanet($('#startPlanet'),currentPlanet(),false);resizeCanvas();renderDepthMeter()}
  catch(err){console.error('Boot visuel partiel',err);const sub=document.querySelector('.sub');if(sub)sub.textContent='MODE DE SECOURS · APPUIE SUR COMMENCER'}
