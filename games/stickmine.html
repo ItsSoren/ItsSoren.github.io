@@ -208,7 +208,7 @@ html,body{background:#2a1c11;font-family:ui-monospace,SFMono-Regular,Menlo,Conso
     <div class="menuFooter">
       <button class="secondaryBtn" id="importBtn">Importer une sauvegarde</button>
       <button class="secondaryBtn" id="helpBtn">Contrôles</button>
-      <span class="version">Stickmine V3.0 · Survival Pixel</span>
+      <span class="version">Stickmine V3.2 · Build & Decor</span>
     </div>
   </div>
 </section>
@@ -311,7 +311,12 @@ const BLOCK={
   POT:20, FLOWER_RED:21, FLOWER_BLUE:22, BEDROCK:23, TORCH:24, GLASS:25, CHEST:26,
   WATER1:27,WATER2:28,WATER3:29,WATER4:30,LAVA1:31,LAVA2:32,LAVA3:33,
   OAK_SAPLING:34,BIRCH_SAPLING:35,FARMLAND:36,WHEAT1:37,WHEAT2:38,WHEAT3:39,WHEAT4:40,
-  CARROT1:41,CARROT2:42,CARROT3:43,CARROT4:44
+  CARROT1:41,CARROT2:42,CARROT3:43,CARROT4:44,
+  OAK_STAIRS_R:45,OAK_STAIRS_L:46,STONE_STAIRS_R:47,STONE_STAIRS_L:48,
+  OAK_SLAB:49,STONE_SLAB:50,OAK_FENCE:51,BIRCH_FENCE:52,
+  OAK_DOOR_B:53,OAK_DOOR_T:54,OAK_DOOR_OPEN_B:55,OAK_DOOR_OPEN_T:56,
+  BIRCH_DOOR_B:57,BIRCH_DOOR_T:58,BIRCH_DOOR_OPEN_B:59,BIRCH_DOOR_OPEN_T:60,
+  BOOKSHELF:61,LANTERN:62,SIGN:63,BARREL:64,TABLE:65,CHAIR:66
 };
 
 const blockDefs={
@@ -360,6 +365,28 @@ const blockDefs={
   42:{name:"Carotte - jeune",solid:false,hard:.06,drop:"carrot",crop:"carrot",stage:2},
   43:{name:"Carotte - presque mûre",solid:false,hard:.06,drop:"carrot",crop:"carrot",stage:3},
   44:{name:"Carottes mûres",solid:false,hard:.06,drop:"carrot",crop:"carrot",stage:4},
+  45:{name:"Escalier chêne",solid:true,hard:.5,drop:"oak_stairs",tool:"axe",shape:"stairR"},
+  46:{name:"Escalier chêne",solid:true,hard:.5,drop:"oak_stairs",tool:"axe",shape:"stairL"},
+  47:{name:"Escalier pierre",solid:true,hard:1.1,drop:"stone_stairs",tool:"pickaxe",shape:"stairR"},
+  48:{name:"Escalier pierre",solid:true,hard:1.1,drop:"stone_stairs",tool:"pickaxe",shape:"stairL"},
+  49:{name:"Dalle chêne",solid:true,hard:.45,drop:"oak_slab",tool:"axe",shape:"slab"},
+  50:{name:"Dalle pierre",solid:true,hard:1.0,drop:"stone_slab",tool:"pickaxe",shape:"slab"},
+  51:{name:"Barrière chêne",solid:true,hard:.55,drop:"oak_fence",tool:"axe",shape:"fence"},
+  52:{name:"Barrière bouleau",solid:true,hard:.55,drop:"birch_fence",tool:"axe",shape:"fence"},
+  53:{name:"Porte chêne",solid:true,hard:.55,drop:"oak_door",tool:"axe",shape:"door",door:"oak",half:"bottom",open:false},
+  54:{name:"Porte chêne",solid:true,hard:.55,drop:null,tool:"axe",shape:"door",door:"oak",half:"top",open:false},
+  55:{name:"Porte chêne ouverte",solid:false,hard:.55,drop:"oak_door",tool:"axe",door:"oak",half:"bottom",open:true},
+  56:{name:"Porte chêne ouverte",solid:false,hard:.55,drop:null,tool:"axe",door:"oak",half:"top",open:true},
+  57:{name:"Porte bouleau",solid:true,hard:.55,drop:"birch_door",tool:"axe",shape:"door",door:"birch",half:"bottom",open:false},
+  58:{name:"Porte bouleau",solid:true,hard:.55,drop:null,tool:"axe",shape:"door",door:"birch",half:"top",open:false},
+  59:{name:"Porte bouleau ouverte",solid:false,hard:.55,drop:"birch_door",tool:"axe",door:"birch",half:"bottom",open:true},
+  60:{name:"Porte bouleau ouverte",solid:false,hard:.55,drop:null,tool:"axe",door:"birch",half:"top",open:true},
+  61:{name:"Bibliothèque",solid:true,hard:.75,drop:"bookshelf",tool:"axe"},
+  62:{name:"Lanterne",solid:false,hard:.15,drop:"lantern"},
+  63:{name:"Panneau",solid:false,hard:.2,drop:"sign",tool:"axe"},
+  64:{name:"Tonneau",solid:true,hard:.65,drop:"barrel",tool:"axe"},
+  65:{name:"Table",solid:true,hard:.55,drop:"table",tool:"axe",shape:"table"},
+  66:{name:"Chaise",solid:true,hard:.45,drop:"chair",tool:"axe",shape:"chair"},
 };
 
 const itemDefs={
@@ -379,7 +406,14 @@ const itemDefs={
   wood_pickaxe:{name:"Pioche en bois",tool:"pickaxe",material:"wood",speed:1.8}, stone_pickaxe:{name:"Pioche en pierre",tool:"pickaxe",material:"stone",speed:2.6}, iron_pickaxe:{name:"Pioche en fer",tool:"pickaxe",material:"iron",speed:3.6},
   wood_axe:{name:"Hache en bois",tool:"axe",material:"wood",speed:1.9}, stone_axe:{name:"Hache en pierre",tool:"axe",material:"stone",speed:2.7}, iron_axe:{name:"Hache en fer",tool:"axe",material:"iron",speed:3.7},
   wood_shovel:{name:"Pelle en bois",tool:"shovel",material:"wood",speed:2.0}, stone_shovel:{name:"Pelle en pierre",tool:"shovel",material:"stone",speed:2.9}, iron_shovel:{name:"Pelle en fer",tool:"shovel",material:"iron",speed:4.0},
-  wood_hoe:{name:"Houe en bois",tool:"hoe",material:"wood",speed:1.0}, stone_hoe:{name:"Houe en pierre",tool:"hoe",material:"stone",speed:1.0}, iron_hoe:{name:"Houe en fer",tool:"hoe",material:"iron",speed:1.0}
+  wood_hoe:{name:"Houe en bois",tool:"hoe",material:"wood",speed:1.0}, stone_hoe:{name:"Houe en pierre",tool:"hoe",material:"stone",speed:1.0}, iron_hoe:{name:"Houe en fer",tool:"hoe",material:"iron",speed:1.0},
+  oak_stairs:{name:"Escaliers en chêne",block:BLOCK.OAK_STAIRS_R,directional:"stairs"},
+  stone_stairs:{name:"Escaliers en pierre",block:BLOCK.STONE_STAIRS_R,directional:"stairs"},
+  oak_slab:{name:"Dalles en chêne",block:BLOCK.OAK_SLAB},stone_slab:{name:"Dalles en pierre",block:BLOCK.STONE_SLAB},
+  oak_fence:{name:"Barrières en chêne",block:BLOCK.OAK_FENCE},birch_fence:{name:"Barrières en bouleau",block:BLOCK.BIRCH_FENCE},
+  oak_door:{name:"Porte en chêne",block:BLOCK.OAK_DOOR_B,door:"oak"},birch_door:{name:"Porte en bouleau",block:BLOCK.BIRCH_DOOR_B,door:"birch"},
+  bookshelf:{name:"Bibliothèque",block:BLOCK.BOOKSHELF},lantern:{name:"Lanterne",block:BLOCK.LANTERN},sign:{name:"Panneau",block:BLOCK.SIGN},
+  barrel:{name:"Tonneau",block:BLOCK.BARREL},table:{name:"Table",block:BLOCK.TABLE},chair:{name:"Chaise",block:BLOCK.CHAIR}
 };
 
 const rarityData={
@@ -466,7 +500,14 @@ const recipes=[
   {out:"iron_pickaxe",qty:1,in:{iron_ore:3,stick:2},name:"Pioche fer"},{out:"iron_axe",qty:1,in:{iron_ore:3,stick:2},name:"Hache fer"},
   {out:"iron_shovel",qty:1,in:{iron_ore:1,stick:2},name:"Pelle fer"},{out:"iron_hoe",qty:1,in:{iron_ore:2,stick:2},name:"Houe fer"},{out:"iron_sword",qty:1,in:{iron_ore:2,stick:1},name:"Épée fer"},
   {gear:"helmet",material:"iron",in:{iron_ore:5},name:"Casque fer"},{gear:"chestplate",material:"iron",in:{iron_ore:8},name:"Plastron fer"},
-  {gear:"leggings",material:"iron",in:{iron_ore:7},name:"Jambières fer"},{gear:"boots",material:"iron",in:{iron_ore:4},name:"Bottes fer"}
+  {gear:"leggings",material:"iron",in:{iron_ore:7},name:"Jambières fer"},{gear:"boots",material:"iron",in:{iron_ore:4},name:"Bottes fer"},
+  {out:"oak_stairs",qty:4,in:{planks:6},name:"4 Escaliers chêne"},{out:"stone_stairs",qty:4,in:{cobble:6},name:"4 Escaliers pierre"},
+  {out:"oak_slab",qty:6,in:{planks:3},name:"6 Dalles chêne"},{out:"stone_slab",qty:6,in:{cobble:3},name:"6 Dalles pierre"},
+  {out:"oak_fence",qty:3,in:{planks:4,stick:2},name:"3 Barrières chêne"},{out:"birch_fence",qty:3,in:{planks:4,stick:2},name:"3 Barrières bouleau"},
+  {out:"oak_door",qty:1,in:{planks:6},name:"Porte chêne"},{out:"birch_door",qty:1,in:{planks:4,birch_log:1},name:"Porte bouleau"},
+  {out:"bookshelf",qty:1,in:{planks:6,wheat:3},name:"Bibliothèque"},{out:"lantern",qty:1,in:{torch:1,iron_ore:1},name:"Lanterne"},
+  {out:"sign",qty:3,in:{planks:6,stick:1},name:"3 Panneaux"},{out:"barrel",qty:1,in:{planks:6},name:"Tonneau"},
+  {out:"table",qty:1,in:{planks:4,stick:2},name:"Table"},{out:"chair",qty:1,in:{planks:3,stick:2},name:"Chaise"}
 ];
 
 const materialMult={wood:1,stone:1.5,iron:2.1,gold:1.8,diamond:3.15};
@@ -476,7 +517,7 @@ let player=createDefaultPlayer();
 
 function createDefaultPlayer(){
   return {
-    x:0,y:0,vx:0,vy:0,w:18,h:42,onGround:false,facing:1,hp:100,maxHp:100,hunger:100,maxHunger:100,level:1,xp:0,
+    x:0,y:0,vx:0,vy:0,w:20,h:60,onGround:false,facing:1,hp:100,maxHp:100,hunger:100,maxHunger:100,level:1,xp:0,
     inv:Array.from({length:36},()=>null),
     gearBag:[],
     equip:{weapon:null,pickaxe:null,head:null,chest:null,legs:null,boots:null},
@@ -549,7 +590,21 @@ function makeTextures(){
   setVariants(BLOCK.FARMLAND,variants((g,v)=>{noisy(g,"#5d3924",["#4a2c1b","#71472b","#7f5232"],150+v,30);for(let x=1;x<16;x+=4)px(g,"#3b2417",x,2,1,13);px(g,"#8b5c38",0,0,16,2)}));
   setVariants(BLOCK.WHEAT1,[tex(g=>cropTex(g,"wheat",1))]);setVariants(BLOCK.WHEAT2,[tex(g=>cropTex(g,"wheat",2))]);setVariants(BLOCK.WHEAT3,[tex(g=>cropTex(g,"wheat",3))]);setVariants(BLOCK.WHEAT4,[tex(g=>cropTex(g,"wheat",4))]);
   setVariants(BLOCK.CARROT1,[tex(g=>cropTex(g,"carrot",1))]);setVariants(BLOCK.CARROT2,[tex(g=>cropTex(g,"carrot",2))]);setVariants(BLOCK.CARROT3,[tex(g=>cropTex(g,"carrot",3))]);setVariants(BLOCK.CARROT4,[tex(g=>cropTex(g,"carrot",4))]);
+  const oakSR=tex(g=>{g.clearRect(0,0,16,16);px(g,"#b37b43",0,8,16,8);px(g,"#8d5d32",0,8,16,1);px(g,"#b37b43",8,0,8,8);px(g,"#d09a5d",8,0,8,1)}),oakSL=tex(g=>{g.clearRect(0,0,16,16);px(g,"#b37b43",0,8,16,8);px(g,"#8d5d32",0,8,16,1);px(g,"#b37b43",0,0,8,8);px(g,"#d09a5d",0,0,8,1)});
+  setVariants(BLOCK.OAK_STAIRS_R,[oakSR]);setVariants(BLOCK.OAK_STAIRS_L,[oakSL]);
+  const stoneSR=tex(g=>{g.clearRect(0,0,16,16);px(g,"#74787d",0,8,16,8);px(g,"#5d6166",0,8,16,1);px(g,"#74787d",8,0,8,8);px(g,"#999da2",8,0,8,1)}),stoneSL=tex(g=>{g.clearRect(0,0,16,16);px(g,"#74787d",0,8,16,8);px(g,"#5d6166",0,8,16,1);px(g,"#74787d",0,0,8,8);px(g,"#999da2",0,0,8,1)});
+  setVariants(BLOCK.STONE_STAIRS_R,[stoneSR]);setVariants(BLOCK.STONE_STAIRS_L,[stoneSL]);
+  setVariants(BLOCK.OAK_SLAB,[tex(g=>{g.clearRect(0,0,16,16);px(g,"#b37b43",0,8,16,8);px(g,"#d09a5d",0,8,16,1);px(g,"#7d522c",0,12,16,1)})]);setVariants(BLOCK.STONE_SLAB,[tex(g=>{g.clearRect(0,0,16,16);px(g,"#777b80",0,8,16,8);px(g,"#9a9ea3",0,8,16,1);px(g,"#5c6065",0,13,16,1)})]);
+  setVariants(BLOCK.OAK_FENCE,[tex(g=>fenceTex(g,"#8a592f","#c28b50"))]);setVariants(BLOCK.BIRCH_FENCE,[tex(g=>fenceTex(g,"#cfc7b2","#f0ead8"))]);
+  setVariants(BLOCK.OAK_DOOR_B,[tex(g=>doorTex(g,"oak","bottom",false))]);setVariants(BLOCK.OAK_DOOR_T,[tex(g=>doorTex(g,"oak","top",false))]);setVariants(BLOCK.OAK_DOOR_OPEN_B,[tex(g=>doorTex(g,"oak","bottom",true))]);setVariants(BLOCK.OAK_DOOR_OPEN_T,[tex(g=>doorTex(g,"oak","top",true))]);
+  setVariants(BLOCK.BIRCH_DOOR_B,[tex(g=>doorTex(g,"birch","bottom",false))]);setVariants(BLOCK.BIRCH_DOOR_T,[tex(g=>doorTex(g,"birch","top",false))]);setVariants(BLOCK.BIRCH_DOOR_OPEN_B,[tex(g=>doorTex(g,"birch","bottom",true))]);setVariants(BLOCK.BIRCH_DOOR_OPEN_T,[tex(g=>doorTex(g,"birch","top",true))]);
+  setVariants(BLOCK.BOOKSHELF,[tex(g=>{px(g,"#8d5c34",0,0,16,16);px(g,"#5f3e24",1,1,14,14);for(let y=2;y<15;y+=6){px(g,"#bd824b",1,y+4,14,1);const c=["#c9554a","#4f8ec4","#d2a33f","#6daa58","#9b63b2"];for(let x=2;x<14;x+=3)px(g,c[(x+y)%c.length],x,y,2,4)}})]);
+  setVariants(BLOCK.LANTERN,[tex(g=>{g.clearRect(0,0,16,16);px(g,"#4d3a27",7,0,2,3);px(g,"#6e5435",5,3,6,2);px(g,"#f4b83f",4,5,8,8);px(g,"#ffe99b",6,6,4,6);px(g,"#765126",4,5,2,8);px(g,"#765126",10,5,2,8);px(g,"#5c4024",5,13,6,2)})]);
+  setVariants(BLOCK.SIGN,[tex(g=>{g.clearRect(0,0,16,16);px(g,"#a97443",2,3,12,7);px(g,"#d29d60",3,4,10,1);px(g,"#76502d",7,10,2,6)})]);setVariants(BLOCK.BARREL,[tex(g=>{px(g,"#8d5a31",2,1,12,14);px(g,"#b77b45",3,1,10,14);px(g,"#63401f",2,3,12,2);px(g,"#63401f",2,11,12,2);px(g,"#d19a5c",4,2,8,1)})]);
+  setVariants(BLOCK.TABLE,[tex(g=>{g.clearRect(0,0,16,16);px(g,"#a36f3c",0,3,16,4);px(g,"#d09b5c",0,3,16,1);px(g,"#7a4f2a",2,7,3,9);px(g,"#7a4f2a",11,7,3,9)})]);setVariants(BLOCK.CHAIR,[tex(g=>{g.clearRect(0,0,16,16);px(g,"#9d6a3a",3,7,11,4);px(g,"#c38b50",3,7,11,1);px(g,"#744a28",4,11,3,5);px(g,"#744a28",11,1,3,15);px(g,"#a97543",8,2,3,2);px(g,"#a97543",8,5,3,2)})]);
 }
+function fenceTex(g,dark,light){g.clearRect(0,0,TEX,TEX);px(g,dark,6,0,4,16);px(g,light,7,0,2,16);px(g,dark,0,4,16,3);px(g,light,0,4,16,1);px(g,dark,0,11,16,3);px(g,light,0,11,16,1)}
+function doorTex(g,type,half,open){g.clearRect(0,0,TEX,TEX);const birch=type==="birch",base=birch?"#d9d2bc":"#a66f3d",dark=birch?"#716c61":"#714722",hi=birch?"#f5efdc":"#cf9657";if(open){px(g,dark,1,0,3,16);px(g,hi,1,0,1,16);return}px(g,base,2,0,12,16);px(g,dark,2,0,1,16);px(g,dark,13,0,1,16);if(half==="top"){px(g,dark,4,3,8,5);px(g,"#92cbe3",5,4,6,3);px(g,hi,5,4,4,1)}else{px(g,dark,4,2,8,11);px(g,hi,5,3,6,1);px(g,"#e6bc5f",11,7,1,1)}}
 function flowerTex(g,col){g.clearRect(0,0,TEX,TEX);px(g,"#3f913d",7,5,2,11);px(g,"#3f913d",5,10,3,1);px(g,"#3f913d",8,12,3,1);px(g,col,5,2,2,2);px(g,col,9,2,2,2);px(g,col,7,0,2,2);px(g,col,7,4,2,2);px(g,"#ffd65a",7,2,2,2)}
 function saplingTex(g,dark,light){g.clearRect(0,0,TEX,TEX);px(g,"#72502c",7,9,2,7);px(g,dark,4,6,4,3);px(g,light,8,4,4,4);px(g,dark,9,8,4,3);px(g,"#d3ec8a",9,5,1,1)}
 function cropTex(g,kind,stage){g.clearRect(0,0,TEX,TEX);const h=[4,7,11,14][stage-1];const stems=stage<3?2:3;for(let i=0;i<stems;i++){let x=4+i*4;px(g,kind==="wheat"?"#659e3c":"#4f9a3b",x,16-h,1,h);px(g,"#7fc34b",x+1,18-h,1,h-2);if(stage>=2){px(g,"#81b849",x-2,12-i,3,1);px(g,"#86c651",x+1,10+i,3,1)}if(stage===4&&kind==="wheat"){px(g,"#d8b548",x-1,2+i%2,3,4);px(g,"#f1d46a",x,2+i%2,1,3)}if(stage===4&&kind==="carrot"){px(g,"#e36d2f",x-1,12,3,4);px(g,"#97d65d",x-2,7,4,5)}}}
@@ -642,6 +697,18 @@ function getBlock(x,y){
 }
 function isSolid(id){return !!blockDefs[id]?.solid}
 function isLiquid(id){return blockDefs[id]?.liquid}
+function blockCollisionRects(id,tx,ty){
+  const d=blockDefs[id];if(!d?.solid)return [];const x=tx*TILE,y=ty*TILE;
+  if(d.shape==="slab")return [{x,y:y+16,w:32,h:16}];
+  if(d.shape==="fence")return [{x:x+11,y,w:10,h:32}];
+  if(d.shape==="door")return [{x:x+12,y,w:8,h:32}];
+  if(d.shape==="stairR")return [{x,y:y+16,w:32,h:16},{x:x+16,y,w:16,h:16}];
+  if(d.shape==="stairL")return [{x,y:y+16,w:32,h:16},{x,y,w:16,h:16}];
+  if(d.shape==="table")return [{x,y:y+7,w:32,h:7},{x:x+3,y:y+7,w:5,h:25},{x:x+24,y:y+7,w:5,h:25}];
+  if(d.shape==="chair")return [{x:x+4,y:y+14,w:22,h:10},{x:x+5,y:y+22,w:6,h:10},{x:x+21,y:y+2,w:5,h:30}];
+  return [{x,y,w:32,h:32}];
+}
+function rectsOverlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
 function setBlockLocal(x,y,id){
   const k=pkey(x,y);patches[k]=id;
   if(isLiquid(id)||isLiquid(getBlock(x,y-1))||isLiquid(getBlock(x-1,y))||isLiquid(getBlock(x+1,y)))fluidQueue.add(k);
@@ -654,7 +721,7 @@ async function setBlockWorld(x,y,id){
 }
 
 function findSpawn(){
-  if(currentWorld?.mode==="skyblock")return {x:0*TILE+7,y:25*TILE-42};
+  if(currentWorld?.mode==="skyblock")return {x:0*TILE+6,y:25*TILE-60};
   const sy=surfaceY(0,currentWorld?.seed||1);
   return {x:7,y:(sy-2)*TILE};
 }
@@ -703,8 +770,11 @@ function weaponDamage(){
 }
 
 function rectCollides(x,y,w,h){
-  const x0=Math.floor(x/TILE),x1=Math.floor((x+w-1)/TILE),y0=Math.floor(y/TILE),y1=Math.floor((y+h-1)/TILE);
-  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++)if(isSolid(getBlock(tx,ty)))return true;
+  const x0=Math.floor(x/TILE),x1=Math.floor((x+w-1)/TILE),y0=Math.floor(y/TILE),y1=Math.floor((y+h-1)/TILE),me={x,y,w,h};
+  for(let ty=y0;ty<=y1;ty++)for(let tx=x0;tx<=x1;tx++){
+    const id=getBlock(tx,ty);if(!isSolid(id))continue;
+    for(const r of blockCollisionRects(id,tx,ty))if(rectsOverlap(me,r))return true;
+  }
   return false;
 }
 function movePlayer(dt){
@@ -730,9 +800,12 @@ function movePlayer(dt){
   // horizontal
   let nx=player.x+player.vx*dt;
   if(!rectCollides(nx,player.y,player.w,player.h))player.x=nx;else{
-    const step=Math.sign(player.vx);
-    for(let i=0;i<Math.abs(player.vx*dt);i++){if(!rectCollides(player.x+step,player.y,player.w,player.h))player.x+=step;else break}
-    player.vx=0;
+    const canStep=player.onGround&&!rectCollides(nx,player.y-16,player.w,player.h);
+    if(canStep){player.y-=16;player.x=nx}else{
+      const step=Math.sign(player.vx);
+      for(let i=0;i<Math.abs(player.vx*dt);i++){if(!rectCollides(player.x+step,player.y,player.w,player.h))player.x+=step;else break}
+      player.vx=0;
+    }
   }
   // vertical
   player.onGround=false;
@@ -801,7 +874,12 @@ function mineHeld(dt,forceAuto=false){
 }
 function resetMining(){mining.key=null;mining.progress=0}
 async function breakBlock(x,y,id){
-  const def=blockDefs[id];await setBlockWorld(x,y,BLOCK.AIR);sound("mine");
+  const def=blockDefs[id];
+  if(def?.door){
+    const bottomY=def.half==="top"?y+1:y,topY=bottomY-1,drop=def.door==="oak"?"oak_door":"birch_door";
+    await setBlockWorld(x,bottomY,BLOCK.AIR);await setBlockWorld(x,topY,BLOCK.AIR);sound("mine");addItem(drop,1);gainXp(.25);return;
+  }
+  await setBlockWorld(x,y,BLOCK.AIR);sound("mine");
   if(def?.crop){
     if(def.crop==="wheat"){if(def.stage>=4){addItem("wheat",1+Math.floor(Math.random()*2));addItem("wheat_seeds",1+Math.floor(Math.random()*3))}else addItem("wheat_seeds",1)}
     else if(def.crop==="carrot"){addItem("carrot",def.stage>=4?2+Math.floor(Math.random()*3):1)}
@@ -813,9 +891,17 @@ async function breakBlock(x,y,id){
   if(id===BLOCK.FLOWER_RED||id===BLOCK.FLOWER_BLUE)unlockCosmetic("head_flower");
   const findChance=id===BLOCK.DIAMOND?.22:id===BLOCK.GOLD?.09:id===BLOCK.IRON?.035:id===BLOCK.COAL?.012:0;if(findChance)tryCosmeticFind(findChance);
 }
+async function toggleDoorAt(x,y,id){
+  const d=blockDefs[id];if(!d?.door)return false;const bottomY=d.half==="top"?y+1:y,topY=bottomY-1,opening=!d.open;
+  if(d.door==="oak"){await setBlockWorld(x,bottomY,opening?BLOCK.OAK_DOOR_OPEN_B:BLOCK.OAK_DOOR_B);await setBlockWorld(x,topY,opening?BLOCK.OAK_DOOR_OPEN_T:BLOCK.OAK_DOOR_T)}
+  else{await setBlockWorld(x,bottomY,opening?BLOCK.BIRCH_DOOR_OPEN_B:BLOCK.BIRCH_DOOR_B);await setBlockWorld(x,topY,opening?BLOCK.BIRCH_DOOR_OPEN_T:BLOCK.BIRCH_DOOR_T)}
+  sound("mine");return true;
+}
 function interactTarget(forceAuto=false){
-  const t=forceAuto?autoTarget():{x:mouse.tileX,y:mouse.tileY};if(!validReach(t.x,t.y,4.6))return false;
-  if(getBlock(t.x,t.y)===BLOCK.CRAFT){toggleInventory(true,"craft");return true}return false;
+  const t=forceAuto?autoTarget():{x:mouse.tileX,y:mouse.tileY};if(!validReach(t.x,t.y,4.6))return false;const id=getBlock(t.x,t.y);
+  if(id===BLOCK.CRAFT){toggleInventory(true,"craft");return true}
+  if(blockDefs[id]?.door){toggleDoorAt(t.x,t.y,id);return true}
+  return false;
 }
 function eatSelected(){
   const st=selectedItem();if(!st)return false;const d=itemDefs[st.id];if(!d?.food)return false;if(player.hunger>=player.maxHunger-.5){toast("Tu n'as pas faim");return true}
@@ -838,8 +924,17 @@ function placeSelected(forceAuto=false){
   let t=forceAuto?autoTarget():{x:mouse.tileX,y:mouse.tileY};if(getBlock(t.x,t.y)!==BLOCK.AIR){const ox=t.x,oy=t.y;t={x:ox+player.facing,y:oy};if(getBlock(t.x,t.y)!==BLOCK.AIR)t={x:ox,y:oy-1}}
   if(!validReach(t.x,t.y)||getBlock(t.x,t.y)!==BLOCK.AIR)return;const below=getBlock(t.x,t.y+1);
   if((d.block===BLOCK.OAK_SAPLING||d.block===BLOCK.BIRCH_SAPLING)&&![BLOCK.GRASS,BLOCK.DIRT,BLOCK.FARMLAND].includes(below)){toast("Une pousse a besoin de terre");return}
+  if(d.door){
+    if(getBlock(t.x,t.y-1)!==BLOCK.AIR){toast("Il faut 2 blocs de hauteur pour une porte");return}
+    const bx=t.x*TILE,by=(t.y-1)*TILE;if(!(bx+TILE<player.x||bx>player.x+player.w||by+TILE*2<player.y||by>player.y+player.h))return;
+    if(d.door==="oak"){setBlockWorld(t.x,t.y,BLOCK.OAK_DOOR_B);setBlockWorld(t.x,t.y-1,BLOCK.OAK_DOOR_T)}
+    else{setBlockWorld(t.x,t.y,BLOCK.BIRCH_DOOR_B);setBlockWorld(t.x,t.y-1,BLOCK.BIRCH_DOOR_T)}
+    consumeSelected(1);sound("mine");return;
+  }
+  let placeId=d.block;
+  if(d.directional==="stairs")placeId=st.id==="oak_stairs"?(player.facing>0?BLOCK.OAK_STAIRS_R:BLOCK.OAK_STAIRS_L):(player.facing>0?BLOCK.STONE_STAIRS_R:BLOCK.STONE_STAIRS_L);
   const bx=t.x*TILE,by=t.y*TILE;if(!(bx+TILE<player.x||bx>player.x+player.w||by+TILE<player.y||by>player.y+player.h))return;
-  setBlockWorld(t.x,t.y,d.block);consumeSelected(1);sound("mine");
+  setBlockWorld(t.x,t.y,placeId);consumeSelected(1);sound("mine");
 }
 function attack(){
   if(player.attackCd>0||paused||inventoryOpen)return;
@@ -982,18 +1077,44 @@ function draw(){
 }
 function drawBlock(id,sx,sy,x,y){
   const d=blockDefs[id],t=getBlockTexture(id,x,y);if(!t)return;
-  if(d?.liquid){const level=d.level||0,wobble=Math.sin(performance.now()/260+x*.8)*1.1,h=level?Math.max(8,TILE-level*5):TILE,srcH=Math.max(1,Math.round(TEX*h/TILE));ctx.globalAlpha=d.liquid==="water"?.88:.96;ctx.drawImage(t,0,TEX-srcH,TEX,srcH,Math.floor(sx),Math.floor(sy+TILE-h+wobble),TILE,h);ctx.globalAlpha=1;return}
+  if(d?.liquid){
+    const level=d.level||0;
+    const above=blockDefs[getBlock(x,y-1)]?.liquid===d.liquid;
+    const below=blockDefs[getBlock(x,y+1)]?.liquid===d.liquid;
+    const left=blockDefs[getBlock(x-1,y)]?.liquid===d.liquid;
+    const right=blockDefs[getBlock(x+1,y)]?.liquid===d.liquid;
+    const h=above?TILE:(level?Math.max(10,TILE-level*5):TILE);
+    const srcH=Math.max(1,Math.round(TEX*h/TILE));
+    const topY=Math.floor(sy+TILE-h);
+    ctx.globalAlpha=d.liquid==="water"?.9:.97;
+    ctx.drawImage(t,0,TEX-srcH,TEX,srcH,Math.floor(sx),topY,TILE,h);
+    ctx.globalAlpha=1;
+    if(!above){
+      const surf=Math.sin(performance.now()/260+x*.85)*0.8;
+      ctx.fillStyle=d.liquid==="water"?"rgba(210,249,255,.55)":"rgba(255,240,150,.36)";
+      ctx.fillRect(Math.floor(sx)+2,topY+2+surf,TILE-4,2);
+    }
+    if(!below){
+      ctx.fillStyle=d.liquid==="water"?"rgba(28,92,170,.18)":"rgba(105,28,7,.18)";
+      ctx.fillRect(Math.floor(sx),Math.floor(sy)+TILE-2,TILE,2);
+    }
+    if(!left||!right){
+      ctx.fillStyle=d.liquid==="water"?"rgba(255,255,255,.05)":"rgba(255,220,80,.05)";
+      if(!left)ctx.fillRect(Math.floor(sx),topY+1,1,h-1);
+      if(!right)ctx.fillRect(Math.floor(sx)+TILE-1,topY+1,1,h-1);
+    }
+    return;
+  }
   ctx.drawImage(t,0,0,TEX,TEX,Math.floor(sx),Math.floor(sy),TILE,TILE);
 }
 function drawStick(g,x,y,scale=1,facing=1,body="#171b21",accent="#e8edf2",walk=0){
-  g.save();g.translate(x,y);g.scale(facing*scale,scale);
-  g.strokeStyle=body;g.lineWidth=3;g.lineCap="round";
-  const swing=Math.sin(walk)*5;
-  g.beginPath();g.arc(0,-24,6,0,Math.PI*2);g.stroke();
-  g.beginPath();g.moveTo(0,-18);g.lineTo(0,-3);g.moveTo(0,-13);g.lineTo(8+swing*.3,-5);g.moveTo(0,-13);g.lineTo(-8-swing*.3,-6);
-  g.moveTo(0,-3);g.lineTo(7+swing,11);g.moveTo(0,-3);g.lineTo(-7-swing,11);g.stroke();
-  if(accent){g.fillStyle=accent;g.fillRect(2,-26,2,2)}
-  g.restore();
+  g.save();g.translate(x,y);g.scale(facing*scale,scale);g.lineCap="round";g.lineJoin="round";
+  const time=performance.now()/155,moving=Math.abs(walk)>.01,step=moving?Math.sin(walk):Math.sin(time*.8)*.10,bob=moving?Math.sin(walk*2)*1.2:Math.sin(time*.65)*.55;
+  const hip={x:-1+step*.6,y:-3+bob},chest={x:-3+step*.35,y:-19+bob*.45},neck={x:-2.5+step*.2,y:-28+bob*.28},head={x:1.5+step*.35,y:-35+bob*.22};
+  const armF={elx:3+step*4,ely:-18+bob*.2,hx:9+step*7,hy:-9+bob*.1},armB={elx:-8-step*3,ely:-17+bob*.15,hx:-11-step*6,hy:-8+bob*.05};
+  const legF={kx:3+step*5,ky:5+bob*.15,fx:8+step*8,fy:15},legB={kx:-5-step*5,ky:5+bob*.1,fx:-8-step*8,fy:15};
+  function path(col,w){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(hip.x,hip.y);g.quadraticCurveTo(chest.x-3,-12+bob*.4,chest.x,chest.y);g.quadraticCurveTo(neck.x-1,-24+bob*.3,neck.x,neck.y);g.stroke();g.beginPath();g.moveTo(chest.x,chest.y);g.lineTo(armF.elx,armF.ely);g.lineTo(armF.hx,armF.hy);g.stroke();g.beginPath();g.moveTo(chest.x,chest.y);g.lineTo(armB.elx,armB.ely);g.lineTo(armB.hx,armB.hy);g.stroke();g.beginPath();g.moveTo(hip.x,hip.y);g.lineTo(legF.kx,legF.ky);g.lineTo(legF.fx,legF.fy);g.stroke();g.beginPath();g.moveTo(hip.x,hip.y);g.lineTo(legB.kx,legB.ky);g.lineTo(legB.fx,legB.fy);g.stroke();g.beginPath();g.arc(head.x,head.y,6.5,0,Math.PI*2);g.stroke()}
+  path("#0c0c0c",5);path(body,3);if(accent){g.fillStyle=accent;g.fillRect(head.x+1,head.y-2,2,2);g.fillRect(head.x-4,head.y-2,2,2)}g.restore();
 }
 function drawAura(g,x,y,scale,style,time=performance.now()){
   const aura=style?.aura||"aura_none";if(aura==="aura_none")return;
@@ -1050,23 +1171,22 @@ function drawStyledStick(g,x,y,scale=1,facing=1,style=defaultStyle(),walk=0,time
   style=normalizeLook(style);drawAura(g,x,y,scale,style,time);drawBackCosmetic(g,x,y,scale,facing,style);
   const eye=style.face==="face_classic"?"#f4f7fb":null;drawStick(g,x,y,scale,facing,style.bodyColor,eye,walk);drawFrontCosmetics(g,x,y,scale,facing,style);
 }
-function drawHeldItem(g,x,y,facing,itemId,attack=0){
-  if(!itemId||!itemDefs[itemId])return;const t=getItemTex(itemId);g.save();g.translate(x,y);g.scale(facing,1);g.translate(7,-13);g.rotate(-.45-attack*.55);g.imageSmoothingEnabled=false;g.drawImage(t,-2,-9,18,18);g.restore();
+function drawHeldItem(g,x,y,facing,itemId,attack=0,scale=1){
+  if(!itemId||!itemDefs[itemId])return;const t=getItemTex(itemId);g.save();g.translate(x,y);g.scale(facing*scale,scale);g.translate(7,-18);g.rotate(-.42-attack*.58);g.imageSmoothingEnabled=false;g.drawImage(t,-2,-9,18,18);g.restore();
 }
 function drawPlayer(){
-  const x=player.x+player.w/2-cam.x,y=player.y+player.h-4-cam.y,walk=(performance.now()/90)*(Math.abs(player.vx)>15?1:0);
-  drawStyledStick(ctx,x,y,1,player.facing,player.style,walk);drawGearOverlay(ctx,x,y,player);drawHeldItem(ctx,x,y,player.facing,selectedItem()?.id,player.attackCd>0?.8:0);
+  const x=player.x+player.w/2-cam.x,y=player.y+player.h-4-cam.y,walk=(performance.now()/95)*(Math.abs(player.vx)>15?1:0),sc=1.12;
+  drawStyledStick(ctx,x,y,sc,player.facing,player.style,walk);drawGearOverlay(ctx,x,y,player,sc);drawHeldItem(ctx,x,y,player.facing,selectedItem()?.id,player.attackCd>0?.8:0,sc);
 }
-function drawGearOverlay(g,x,y,p){
-  if(p.equip.head){g.fillStyle=rarityColor(p.equip.head.rarity);g.fillRect(x-7,y-35,14,3)}
-  if(p.equip.weapon){g.strokeStyle=rarityColor(p.equip.weapon.rarity);g.lineWidth=2;g.beginPath();g.moveTo(x+p.facing*7,y-17);g.lineTo(x+p.facing*15,y-28);g.stroke()}
+function drawGearOverlay(g,x,y,p,sc=1){
+  if(p.equip.head){g.fillStyle=rarityColor(p.equip.head.rarity);g.fillRect(x-10*sc,y-48*sc,20*sc,3)}
 }
 function rarityColor(r){return {common:"#9ba5af",uncommon:"#6ee56d",rare:"#62aaff",epic:"#bd6aff",legendary:"#ffc052"}[r]||"#fff"}
 function drawRemotePlayers(){
   for(const [uid,rp] of Object.entries(remotePlayers)){
     if(uid===user?.uid)continue;
-    const x=rp.x+9-cam.x,y=rp.y+38-cam.y;
-    drawStyledStick(ctx,x,y,1,rp.facing||1,rp.look||rp.style||defaultStyle(),performance.now()/120);drawHeldItem(ctx,x,y,rp.facing||1,rp.held,0);
+    const x=rp.x+10-cam.x,y=rp.y+56-cam.y,sc=1.12;
+    drawStyledStick(ctx,x,y,sc,rp.facing||1,rp.look||rp.style||defaultStyle(),performance.now()/120);drawHeldItem(ctx,x,y,rp.facing||1,rp.held,0,sc);
     ctx.font="10px monospace";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.fillText(rp.pseudo||"Joueur",x,y-43);
   }
 }
