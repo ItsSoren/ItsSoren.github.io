@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sören's Games</title>
 
-  <!-- Thème appliqué avant l'affichage pour éviter un flash -->
   <script>
     const THEMES = ['acid','blood','ice','amber','violet'];
     document.documentElement.setAttribute(
@@ -90,15 +89,8 @@
       --font-title:'Raleway',sans-serif;
     }
 
-    *,*::before,*::after {
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-    }
-
-    html {
-      scroll-behavior:smooth;
-    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
 
     body {
       background:var(--bg);
@@ -160,10 +152,7 @@
       white-space:nowrap;
     }
 
-    .theme-badge b {
-      color:var(--accent);
-      font-weight:500;
-    }
+    .theme-badge b { color:var(--accent); font-weight:500; }
 
     .theme-dot {
       width:5px;
@@ -182,14 +171,8 @@
       color:var(--text);
     }
 
-    [data-theme="blood"] h1 {
-      letter-spacing:.02em;
-    }
-
-    h1 span {
-      display:block;
-      color:var(--accent);
-    }
+    [data-theme="blood"] h1 { letter-spacing:.02em; }
+    h1 span { display:block; color:var(--accent); }
 
     .header-sub {
       margin-top:20px;
@@ -266,38 +249,17 @@
       border:1px solid var(--border);
     }
 
-    @media(max-width:900px) {
-      .grid {
-        --cols:2;
-      }
-    }
+    @media(max-width:900px) { .grid { --cols:2; } }
 
     @media(max-width:540px) {
-      .projects-wrap {
-        padding-left:0;
-        padding-right:0;
-      }
-
-      .section-head {
-        margin-left:16px;
-        margin-right:16px;
-      }
-
-      .grid {
-        --cols:1;
-        border-left:0;
-        border-right:0;
-      }
+      .projects-wrap { padding-left:0; padding-right:0; }
+      .section-head { margin-left:16px; margin-right:16px; }
+      .grid { --cols:1; border-left:0; border-right:0; }
     }
 
     @media(min-width:1600px) {
-      :root {
-        --max-w:1500px;
-      }
-
-      .grid {
-        --cols:4;
-      }
+      :root { --max-w:1500px; }
+      .grid { --cols:4; }
     }
 
     .card {
@@ -325,26 +287,13 @@
       transition:transform .3s ease;
     }
 
-    .card:hover {
-      background:var(--surface2);
-    }
-
-    .card:hover::before {
-      transform:scaleX(1);
-    }
-
-    .card-featured {
-      grid-column:span 2;
-    }
-
-    .card-featured .card-title {
-      font-size:clamp(1.4rem,3vw,2.1rem);
-    }
+    .card:hover { background:var(--surface2); }
+    .card:hover::before { transform:scaleX(1); }
+    .card-featured { grid-column:span 2; }
+    .card-featured .card-title { font-size:clamp(1.4rem,3vw,2.1rem); }
 
     @media(max-width:540px) {
-      .card-featured {
-        grid-column:span 1;
-      }
+      .card-featured { grid-column:span 1; }
     }
 
     .card-index {
@@ -362,9 +311,7 @@
       line-height:1.1;
     }
 
-    [data-theme="blood"] .card-title {
-      letter-spacing:.04em;
-    }
+    [data-theme="blood"] .card-title { letter-spacing:.04em; }
 
     .badge {
       display:inline-flex;
@@ -387,25 +334,11 @@
       background:currentColor;
     }
 
-    .badge-beta {
-      background:var(--accent-bg);
-      color:var(--accent);
-    }
-
-    .badge-broken {
-      background:rgba(255,50,50,.1);
-      color:#ff5555;
-    }
-
-    .badge-paused {
-      background:rgba(255,180,0,.1);
-      color:#ffb700;
-    }
-
-    .badge-abandoned {
-      background:rgba(120,120,140,.13);
-      color:#7a7a9a;
-    }
+    .badge-beta { background:var(--accent-bg); color:var(--accent); }
+    .badge-broken { background:rgba(255,50,50,.1); color:#ff5555; }
+    .badge-paused { background:rgba(255,180,0,.1); color:#ffb700; }
+    .badge-abandoned { background:rgba(120,120,140,.13); color:#7a7a9a; }
+    .badge-released { background:rgba(80,210,130,.10); color:#58d991; }
 
     .card-desc {
       color:var(--muted);
@@ -428,6 +361,30 @@
       border-radius:2px;
       font-size:12px;
       letter-spacing:.06em;
+    }
+
+    .player-stats {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-height:20px;
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .player-stats strong {
+      color:var(--text);
+      font-weight:500;
+    }
+
+    .player-stats .dot {
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:var(--card-color,var(--accent));
+      box-shadow:0 0 10px var(--card-color,var(--accent));
     }
 
     .card-link-wrap {
@@ -463,19 +420,9 @@
       transition:opacity .18s;
     }
 
-    .card-link:hover {
-      gap:16px;
-      transform:translateY(-1px);
-    }
-
-    .card-link:hover::after {
-      opacity:1;
-    }
-
-    .card-link:active {
-      transform:translateY(0);
-      opacity:.85;
-    }
+    .card-link:hover { gap:16px; transform:translateY(-1px); }
+    .card-link:hover::after { opacity:1; }
+    .card-link:active { transform:translateY(0); opacity:.85; }
 
     .card-link svg {
       width:12px;
@@ -509,10 +456,7 @@
       transform:translateX(-50%) translateY(0);
     }
 
-    #toast b {
-      color:var(--accent);
-      font-weight:500;
-    }
+    #toast b { color:var(--accent); font-weight:500; }
 
     footer {
       max-width:var(--max-w);
@@ -527,6 +471,27 @@
       color:var(--muted);
       font-size:11px;
       letter-spacing:.08em;
+    }
+
+    .footer-right {
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:14px;
+    }
+
+    .site-counters {
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:12px;
+      padding-right:14px;
+      border-right:1px solid var(--border);
+    }
+
+    .site-counters strong {
+      color:var(--text);
+      font-weight:500;
     }
 
     .footer-dot {
@@ -570,154 +535,202 @@
   <footer>
     <span>© 2026 Sören — Tous droits réservés</span>
 
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="footer-dot"></div>
-      <span>Projets actifs</span>
+    <div class="footer-right">
+      <div class="site-counters">
+        <span>👁 <strong id="site-visits">—</strong> visits</span>
+        <span>👤 <strong id="site-visitors">—</strong> visitors</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="footer-dot"></div>
+        <span>Projets actifs</span>
+      </div>
     </div>
   </footer>
 
   <div id="toast"></div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+    // Firebase sert ici aux STATS DE LA GALERIE.
+    // Les compteurs sont volontairement isolés sous /galleryStats/.
+    const firebaseConfig = {
+      apiKey: "AIzaSyCoLA2gAWkq01_RZ32kx0DdAmfm5OhKAJE",
+      authDomain: "stickmine-f0821.firebaseapp.com",
+      databaseURL: "https://stickmine-f0821-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "stickmine-f0821",
+      storageBucket: "stickmine-f0821.firebasestorage.app",
+      messagingSenderId: "1002684364137",
+      appId: "1:1002684364137:web:e7f3ede75d6d057f2379f8",
+      measurementId: "G-Y6D0F89FBP"
+    };
+
     const CATEGORIES = [
       {
-        id: 'games',
-        kicker: 'Sélection principale',
-        title: 'Games',
-        desc: 'Les jeux et expériences suffisamment avancés pour être présentés comme de vrais projets.'
+        id:'games',
+        kicker:'Sélection principale',
+        title:'Games',
+        desc:'Les jeux et expériences suffisamment avancés pour être présentés comme de vrais projets.'
       },
       {
-        id: 'tests',
-        kicker: 'Archives & prototypes',
-        title: 'Test Files',
-        desc: 'Anciens essais, prototypes techniques et versions conservées pour les tests.'
+        id:'tests',
+        kicker:'Archives & prototypes',
+        title:'Test Files',
+        desc:'Anciens essais, prototypes techniques et versions conservées pour les tests.'
       }
     ];
 
     const PROJECTS = [
       {
-        category: 'games',
-        featured: true,
-        index: '001',
-        title: 'CESTUS',
-        status: 'beta',
-        statusLabel: 'New Beta',
-        desc: 'Tower defense néon intense. Tu es au centre du chaos — construis, optimise et résiste à des vagues d’ennemis de plus en plus violentes. Le projet le plus ambitieux à ce jour.',
-        tags: ['Tower Defense','IA Made','Neon','Survival','3k+ Prompt Words'],
-        link: 'games/CESTUS/index.html',
-        linkLabel: 'Jouer maintenant',
-        color: 'var(--accent)'
+        category:'games',
+        featured:true,
+        index:'001',
+        slug:'cestus',
+        title:'CESTUS',
+        status:'beta',
+        statusLabel:'New Beta',
+        desc:'Tower defense néon intense. Tu es au centre du chaos — construis, optimise et résiste à des vagues d’ennemis de plus en plus violentes. Le projet le plus ambitieux à ce jour.',
+        tags:['Tower Defense','IA Made','Neon','Survival','3k+ Prompt Words'],
+        link:'games/CESTUS/index.html',
+        linkLabel:'Jouer maintenant',
+        color:'var(--accent)'
       },
       {
-        category: 'games',
-        featured: true,
-        index: '002',
-        title: 'Neon Defense',
-        status: 'beta',
-        statusLabel: 'Beta',
-        desc: 'Tower defense au style néon réalisé avec IA. Une première version publique améliorée au fil des mises à jour.',
-        tags: ['Tower Defense','IA Made','1.5k+ Prompts'],
-        link: 'games/TD.html',
-        linkLabel: 'Tester',
-        color: '#33aaff'
+        category:'games',
+        featured:true,
+        index:'002',
+        slug:'neon-defense',
+        title:'Neon Defense',
+        status:'beta',
+        statusLabel:'Beta',
+        desc:'Tower defense au style néon réalisé avec IA. Une première version publique améliorée au fil des mises à jour.',
+        tags:['Tower Defense','IA Made','1.5k+ Prompts'],
+        link:'games/TD.html',
+        linkLabel:'Tester',
+        color:'#33aaff'
       },
       {
-        category: 'games',
-        index: '003',
-        title: 'FluidEntities',
-        status: 'beta',
-        statusLabel: 'Beta',
-        desc: 'Tu contrôles des cercles bleus et tu dois battre les rouges. Une expérience simple, satisfaisante et néon créée sur Scratch.',
-        tags: ['Scratch','Satisfying','Neon'],
-        link: 'games/Clones.html',
-        linkLabel: 'Tester',
-        color: '#aa55ff'
+        category:'games',
+        index:'003',
+        slug:'fluid-entities',
+        title:'FluidEntities',
+        status:'beta',
+        statusLabel:'Beta',
+        desc:'Tu contrôles des cercles bleus et tu dois battre les rouges. Une expérience simple, satisfaisante et néon créée sur Scratch.',
+        tags:['Scratch','Satisfying','Neon'],
+        link:'games/Clones.html',
+        linkLabel:'Tester',
+        color:'#aa55ff'
       },
       {
-        category: 'games',
-        index: '004',
-        title: 'SN@KE',
-        status: 'broken',
-        statusLabel: 'Non fonctionnel',
-        desc: 'Le classique revisité sur Scratch avec contre-la-montre, classement local et couleurs vives. Le projet reste accessible en attendant une correction.',
-        tags: ['Solo','Contre-la-montre','Leaderboard','Scratch'],
-        link: 'games/SN@KE.html',
-        linkLabel: 'Voir quand même',
-        color: '#ff5533'
+        category:'games',
+        index:'004',
+        slug:'snake',
+        title:'SN@KE',
+        status:'broken',
+        statusLabel:'Non fonctionnel',
+        desc:'Le classique revisité sur Scratch avec contre-la-montre, classement local et couleurs vives. Le projet reste accessible en attendant une correction.',
+        tags:['Solo','Contre-la-montre','Leaderboard','Scratch'],
+        link:'games/SN@KE.html',
+        linkLabel:'Voir quand même',
+        color:'#ff5533'
       },
       {
-        category: 'games',
-        index: '005',
-        title: 'Project Coming Soon',
-        status: 'paused',
-        statusLabel: 'En pause',
-        desc: 'Combats de vaisseaux dans une galaxie infinie, personnalisation et mode solo. Un projet très ambitieux actuellement suspendu.',
-        tags: ['Solo','Spaceships','Galaxy','Scratch'],
-        link: 'games/Project%20coming%20soon.html',
-        linkLabel: 'Pré-Alpha',
-        color: '#ffb700'
+        category:'games',
+        index:'005',
+        slug:'project-coming-soon',
+        title:'Project Coming Soon',
+        status:'paused',
+        statusLabel:'En pause',
+        desc:'Combats de vaisseaux dans une galaxie infinie, personnalisation et mode solo. Un projet très ambitieux actuellement suspendu.',
+        tags:['Solo','Spaceships','Galaxy','Scratch'],
+        link:'games/Project%20coming%20soon.html',
+        linkLabel:'Pré-Alpha',
+        color:'#ffb700'
       },
       {
-        category: 'games',
-        featured: true,
-        index: '006',
-        title: 'Pixel Trail',
-        status: 'beta',
-        statusLabel: 'Online Beta',
-        desc: 'Jeu multijoueur rapide sur une grille infinie. Déplace ton pixel, laisse une trace, traverse les bords de la carte et affronte les autres joueurs grâce aux variables cloud TurboWarp.',
-        tags: ['Multijoueur','Cloud Vars','TurboWarp','Pixel','Online'],
-        link: 'games/test.html',
-        linkLabel: 'Jouer',
-        color: '#45d6c8'
+        category:'games',
+        featured:true,
+        index:'006',
+        slug:'pixel-trail',
+        title:'Pixel Trail',
+        status:'beta',
+        statusLabel:'Online Beta',
+        desc:'Jeu multijoueur rapide sur une grille infinie. Déplace ton pixel, laisse une trace, traverse les bords de la carte et affronte les autres joueurs grâce aux variables cloud TurboWarp.',
+        tags:['Multijoueur','Cloud Vars','TurboWarp','Pixel','Online'],
+        link:'games/test.html',
+        linkLabel:'Jouer',
+        color:'#45d6c8'
       },
       {
-        category: 'games',
-        featured: true,
-        index: '007',
-        title: 'Party Games',
-        status: 'beta',
-        statusLabel: 'Multiplayer Beta',
-        desc: 'Une salle de jeux multijoueur avec salons, chat et plusieurs mini-jeux jouables entre amis depuis mobile ou ordinateur.',
-        tags: ['Party Game','Multijoueur','Salons','Chat','TurboWarp'],
-        link: 'games/Encoreuntest.html',
-        linkLabel: 'Créer un salon',
-        color: '#ff6b9d'
+        category:'games',
+        featured:true,
+        index:'007',
+        slug:'party-games',
+        title:'Party Games',
+        status:'beta',
+        statusLabel:'Multiplayer Beta',
+        desc:'Une salle de jeux multijoueur avec salons, chat et plusieurs mini-jeux jouables entre amis depuis mobile ou ordinateur.',
+        tags:['Party Game','Multijoueur','Salons','Chat','TurboWarp'],
+        link:'games/Encoreuntest.html',
+        linkLabel:'Créer un salon',
+        color:'#ff6b9d'
       },
       {
-        category: 'tests',
-        index: 'T-001',
-        title: 'Algo Test Mouse',
-        status: 'paused',
-        statusLabel: 'Test technique',
-        desc: 'Prototype conservé pour tester des comportements liés à la souris, aux déplacements et aux interactions avant intégration dans un jeu complet.',
-        tags: ['Prototype','Mouse','Algorithm','HTML'],
-        link: 'games/AlgoTestMouse.html',
-        linkLabel: 'Ouvrir le test',
-        color: '#8a95a8'
-      },
-            {
-        category: 'tests',
-        index: 'T-003',
-        title: 'OLD NEON DEFENSE',
-        status: 'released',
-        statusLabel: '',
-        desc: 'ancienne version conservé pour analyser la difference entre Neon defense 1 et 2',
-        tags: ['old version','neon','tower defense','HTML'],
-        link: 'games/old_TD.html',
-        linkLabel: 'Ouvrir le test',
-        color: '#8a95d8'
+        category:'games',
+        featured:true,
+        index:'008',
+        slug:'stickmine',
+        title:'STICKMINE',
+        status:'beta',
+        statusLabel:'Active Dev',
+        desc:'Survie 2D, minage profond, craft, exploration, équipement RPG, enchantements et multijoueur. Pensé pour mobile et ordinateur.',
+        tags:['Survival','2D Sandbox','Mining','RPG','Multiplayer'],
+        link:'/game/stickmine.html',
+        linkLabel:'Jouer à Stickmine',
+        color:'#74d86c'
       },
       {
-        category: 'tests',
-        index: 'T-002',
-        title: 'SN@KE Old',
-        status: 'abandoned',
-        statusLabel: 'Archive',
-        desc: 'Ancienne version de SN@KE gardée comme archive pour comparer les mécaniques et récupérer d’anciens éléments du projet.',
-        tags: ['Archive','Old Version','Scratch','Snake'],
-        link: 'games/SN@KEold.html',
-        linkLabel: 'Voir l’archive',
-        color: '#74748a'
+        category:'tests',
+        index:'T-001',
+        slug:'algo-test-mouse',
+        title:'Algo Test Mouse',
+        status:'paused',
+        statusLabel:'Test technique',
+        desc:'Prototype conservé pour tester des comportements liés à la souris, aux déplacements et aux interactions avant intégration dans un jeu complet.',
+        tags:['Prototype','Mouse','Algorithm','HTML'],
+        link:'games/AlgoTestMouse.html',
+        linkLabel:'Ouvrir le test',
+        color:'#8a95a8'
+      },
+      {
+        category:'tests',
+        index:'T-003',
+        slug:'old-neon-defense',
+        title:'OLD NEON DEFENSE',
+        status:'released',
+        statusLabel:'Archive',
+        desc:'Ancienne version conservée pour analyser la différence entre Neon Defense 1 et 2.',
+        tags:['Old Version','Neon','Tower Defense','HTML'],
+        link:'games/old_TD.html',
+        linkLabel:'Ouvrir le test',
+        color:'#8a95d8'
+      },
+      {
+        category:'tests',
+        index:'T-002',
+        slug:'snake-old',
+        title:'SN@KE Old',
+        status:'abandoned',
+        statusLabel:'Archive',
+        desc:'Ancienne version de SN@KE gardée comme archive pour comparer les mécaniques et récupérer d’anciens éléments du projet.',
+        tags:['Archive','Old Version','Scratch','Snake'],
+        link:'games/SN@KEold.html',
+        linkLabel:'Voir l’archive',
+        color:'#74748a'
       }
     ];
 
@@ -727,49 +740,47 @@
       </svg>
     `;
 
+    const fmt = new Intl.NumberFormat('en-US');
+
     function escapeHTML(value) {
       return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
     }
 
     function btnTextColor(color) {
-      if (!color || color.startsWith('var')) {
-        return '#000';
-      }
+      if (!color || color.startsWith('var')) return '#000';
 
-      const hex = color.replace('#','');
+      const hex=color.replace('#','');
 
-      if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
-        return '#000';
-      }
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) return '#000';
 
-      const r = parseInt(hex.slice(0,2),16);
-      const g = parseInt(hex.slice(2,4),16);
-      const b = parseInt(hex.slice(4,6),16);
-      const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      const r=parseInt(hex.slice(0,2),16);
+      const g=parseInt(hex.slice(2,4),16);
+      const b=parseInt(hex.slice(4,6),16);
+      const brightness=(0.299*r+0.587*g+0.114*b)/255;
 
-      return brightness > 0.55 ? '#000' : '#fff';
+      return brightness>0.55?'#000':'#fff';
     }
 
     function renderCard(project) {
-      const tags = project.tags
-        .map(tag => `<span class="tag">${escapeHTML(tag)}</span>`)
+      const tags=project.tags
+        .map(tag=>`<span class="tag">${escapeHTML(tag)}</span>`)
         .join('');
 
-      const buttonText = btnTextColor(project.color);
+      const buttonText=btnTextColor(project.color);
 
       return `
         <article
-          class="card${project.featured ? ' card-featured' : ''}"
+          class="card${project.featured?' card-featured':''}"
           style="--card-color:${project.color}"
         >
           <span class="card-index">
             ${escapeHTML(project.index)}
-            ${project.featured ? ' — FEATURED' : ''}
+            ${project.featured?' — FEATURED':''}
           </span>
 
           <h3 class="card-title">${escapeHTML(project.title)}</h3>
@@ -782,10 +793,17 @@
 
           <div class="card-tags">${tags}</div>
 
+          <div class="player-stats" title="Players = navigateurs uniques ayant lancé le jeu depuis cette galerie. Launches = nombre total de clics.">
+            <span class="dot"></span>
+            <span><strong data-players="${escapeHTML(project.slug)}">—</strong> players</span>
+            <span><strong data-launches="${escapeHTML(project.slug)}">—</strong> launches</span>
+          </div>
+
           <div class="card-link-wrap">
             <a
               href="${escapeHTML(project.link)}"
               class="card-link"
+              data-game-link="${escapeHTML(project.slug)}"
               style="--btn-text:${buttonText}"
             >
               ${escapeHTML(project.linkLabel)}
@@ -797,11 +815,11 @@
     }
 
     function render() {
-      const root = document.getElementById('projects');
+      const root=document.getElementById('projects');
 
-      root.innerHTML = CATEGORIES.map(category => {
-        const projects = PROJECTS.filter(
-          project => project.category === category.id
+      root.innerHTML=CATEGORIES.map(category=>{
+        const projects=PROJECTS.filter(
+          project=>project.category===category.id
         );
 
         return `
@@ -816,7 +834,7 @@
               </div>
 
               <span class="section-count">
-                ${projects.length} fichier${projects.length > 1 ? 's' : ''}
+                ${projects.length} fichier${projects.length>1?'s':''}
               </span>
             </div>
 
@@ -828,7 +846,7 @@
       }).join('');
     }
 
-    const THEME_NAMES = {
+    const THEME_NAMES={
       acid:'ACID',
       blood:'BLOOD',
       ice:'ICE',
@@ -836,62 +854,214 @@
       violet:'VIOLET'
     };
 
-    let themeIndex = THEMES.indexOf(
+    let themeIndex=THEMES.indexOf(
       document.documentElement.getAttribute('data-theme')
     );
 
     function setTheme(name) {
-      document.documentElement.setAttribute('data-theme', name);
-      document.getElementById('theme-label').textContent = THEME_NAMES[name];
+      document.documentElement.setAttribute('data-theme',name);
+      document.getElementById('theme-label').textContent=THEME_NAMES[name];
     }
 
     function showToast(name) {
-      const toast = document.getElementById('toast');
+      const toast=document.getElementById('toast');
 
-      toast.innerHTML = `Thème <b>${THEME_NAMES[name]}</b>`;
+      toast.innerHTML=`Thème <b>${THEME_NAMES[name]}</b>`;
       toast.classList.add('show');
 
       clearTimeout(toast._hide);
 
-      toast._hide = setTimeout(
-        () => toast.classList.remove('show'),
+      toast._hide=setTimeout(
+        ()=>toast.classList.remove('show'),
         1400
       );
     }
 
-    let cycling = false;
+    let cycling=false;
 
     function cycleNext() {
-      themeIndex = (themeIndex + 1) % THEMES.length;
-      const name = THEMES[themeIndex];
+      themeIndex=(themeIndex+1)%THEMES.length;
+      const name=THEMES[themeIndex];
 
       setTheme(name);
       showToast(name);
     }
 
-    document.addEventListener('keydown', event => {
+    document.addEventListener('keydown',event=>{
       if (
         event.ctrlKey &&
         event.altKey &&
-        event.key.toLowerCase() === 's'
+        event.key.toLowerCase()==='s'
       ) {
         event.preventDefault();
 
-        if (cycling) {
-          return;
-        }
+        if (cycling) return;
 
-        cycling = true;
+        cycling=true;
         cycleNext();
 
-        setTimeout(() => {
-          cycling = false;
-        }, 1000);
+        setTimeout(()=>{
+          cycling=false;
+        },1000);
       }
     });
 
+    // ======================================================
+    // STATS DU SITE VITRINE
+    // ======================================================
+    //
+    // /galleryStats/site/visits
+    // /galleryStats/site/visitors
+    // /galleryStats/games/cestus/players
+    // /galleryStats/games/cestus/launches
+    // etc.
+    //
+    // "players" = 1 par navigateur et par jeu.
+    // "launches" = chaque clic sur le bouton du jeu.
+    // ======================================================
+
+    let db=null;
+    let firebaseReady=false;
+
+    function displayNumber(value) {
+      const number=Number(value);
+      return fmt.format(Number.isFinite(number)?number:0);
+    }
+
+    async function addOne(path) {
+      return runTransaction(
+        ref(db,path),
+        current=>(Number(current)||0)+1,
+        { applyLocally:true }
+      );
+    }
+
+    function watch(path,elements) {
+      if (!Array.isArray(elements)) elements=[elements];
+
+      onValue(
+        ref(db,path),
+        snapshot=>{
+          const text=displayNumber(snapshot.val());
+          elements.forEach(el=>{
+            if (el) el.textContent=text;
+          });
+        },
+        ()=>{
+          elements.forEach(el=>{
+            if (el) el.textContent='—';
+          });
+        }
+      );
+    }
+
+    async function bootGalleryStats() {
+      try {
+        const app=initializeApp(firebaseConfig);
+        const auth=getAuth(app);
+        db=getDatabase(app);
+
+        await signInAnonymously(auth);
+        firebaseReady=true;
+
+        // Une VISITE = un chargement de la page vitrine.
+        addOne('galleryStats/site/visits').catch(()=>{});
+
+        // Un VISITEUR = une première visite dans ce navigateur.
+        const siteVisitorKey='sorens_games_gallery_visitor_v1';
+
+        if (!localStorage.getItem(siteVisitorKey)) {
+          await addOne('galleryStats/site/visitors');
+          localStorage.setItem(siteVisitorKey,'1');
+        }
+
+        watch(
+          'galleryStats/site/visits',
+          document.getElementById('site-visits')
+        );
+
+        watch(
+          'galleryStats/site/visitors',
+          document.getElementById('site-visitors')
+        );
+
+        // Affichage en temps réel des stats de chaque projet.
+        for (const project of PROJECTS) {
+          watch(
+            `galleryStats/games/${project.slug}/players`,
+            [...document.querySelectorAll(`[data-players="${project.slug}"]`)]
+          );
+
+          watch(
+            `galleryStats/games/${project.slug}/launches`,
+            [...document.querySelectorAll(`[data-launches="${project.slug}"]`)]
+          );
+        }
+      } catch (error) {
+        console.warn('[Gallery Stats] Firebase indisponible :',error);
+      }
+    }
+
+    async function countGameLaunch(slug) {
+      if (!firebaseReady || !db) return;
+
+      // Chaque clic = launch.
+      const launchPromise=addOne(
+        `galleryStats/games/${slug}/launches`
+      );
+
+      // Players = une seule fois par navigateur POUR CE JEU.
+      const playerKey=`sorens_games_player_${slug}_v1`;
+      let playerPromise=Promise.resolve();
+
+      if (!localStorage.getItem(playerKey)) {
+        playerPromise=addOne(
+          `galleryStats/games/${slug}/players`
+        ).then(()=>{
+          localStorage.setItem(playerKey,'1');
+        });
+      }
+
+      await Promise.allSettled([launchPromise,playerPromise]);
+    }
+
+    function installGameClickTracking() {
+      document.addEventListener('click',async event=>{
+        const link=event.target.closest('a[data-game-link]');
+        if (!link) return;
+
+        const slug=link.dataset.gameLink;
+
+        // Nouveau tab / raccourci clavier : on compte sans casser le comportement.
+        if (
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey ||
+          event.button===1
+        ) {
+          countGameLaunch(slug);
+          return;
+        }
+
+        // Clic normal : petite attente pour sécuriser le compteur.
+        event.preventDefault();
+
+        const destination=link.href;
+
+        await Promise.race([
+          countGameLaunch(slug),
+          new Promise(resolve=>setTimeout(resolve,250))
+        ]);
+
+        window.location.href=destination;
+      });
+    }
+
     render();
     setTheme(THEMES[themeIndex]);
+    installGameClickTracking();
+    bootGalleryStats();
   </script>
 </body>
 </html>
