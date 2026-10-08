@@ -1,8 +1,9 @@
 /* CESTUS CONTROL offline shell for https://itssoren.github.io/games/CESTUS/ */
-const CACHE_VERSION = 'cestus-static-v40';
+const CACHE_VERSION = 'cestus-static-v41';
 const CORE_ASSETS = [
   './',
   './index.html',
+  './cestus.png',
   './css/style.css',
   './js/config.js',
   './js/content-expansion.js',
@@ -39,7 +40,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_VERSION).map(key => caches.delete(key))))
+      .then(keys => Promise.all(keys.filter(key => key.startsWith('cestus-static-') && key !== CACHE_VERSION).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -49,10 +50,10 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin || !url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
 
   event.respondWith(
-    caches.match(request, { ignoreSearch: true }).then(cached => {
+    caches.open(CACHE_VERSION).then(cache => cache.match(request, { ignoreSearch: true })).then(cached => {
       if (cached) return cached;
       return fetch(request).then(response => {
         if (response && response.ok) {
@@ -61,7 +62,7 @@ self.addEventListener('fetch', event => {
         }
         return response;
       }).catch(() => {
-        if (request.mode === 'navigate') return caches.match('./index.html', { ignoreSearch: true });
+        if (request.mode === 'navigate') return caches.open(CACHE_VERSION).then(cache => cache.match(new URL('./index.html', self.registration.scope), { ignoreSearch: true }));
         return Response.error();
       });
     })
